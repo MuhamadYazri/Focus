@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-primary: #0a0a0c;
+    --bg-secondary: #131318;
+    --bg-card: #1c1c24;
+    --bg-card-hover: #252530;
+    --border-color: #2e2e3a;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --accent-red: #ff5252;
+    --accent-yellow: #ffb142;
+    --accent-blue: #34ace0;
+    --accent-purple: #6c5ce7;
+    --accent-green: #2ecc71;
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    overflow-x: hidden;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Custom Scrollbar for Android & Web */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Glassmorphism & Glow Utilities */
+.glass-panel {
+  background: rgba(28, 28, 36, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glow-red {
+  box-shadow: 0 0 25px rgba(255, 82, 82, 0.3);
+}
+
+.glow-purple {
+  box-shadow: 0 0 25px rgba(108, 92, 231, 0.3);
+}
+
+.glow-green {
+  box-shadow: 0 0 25px rgba(46, 204, 113, 0.3);
+}
+
+/* Animations */
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(0.98); }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 3s infinite ease-in-out;
+}

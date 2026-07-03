@@ -3,14 +3,22 @@ import { PieChart } from 'lucide-react';
 import * as Icons from 'lucide-react';
 
 export default function ProjectDonut({ sessions, projects }) {
+  const todayStr = new Date().toISOString().split('T')[0];
   const totalSessions = sessions.length || 1;
 
   // Calculate stats per project
   const stats = projects
-    .map((proj) => {
-      const projSessions = sessions.filter((s) => s.projectId === proj.id);
-      const count = projSessions.length || (proj.id === 'proj-1' ? 36 : proj.id === 'proj-2' ? 24 : 14);
-      const percentage = Math.round((count / (totalSessions > 1 ? totalSessions : 74)) * 100);
+    .map((proj, idx) => {
+      const isStudyProj = proj.name.toLowerCase().includes('study') || idx === 0;
+      const projSessions = sessions.filter((s) => {
+        const isPast = s.dateStr < todayStr || (s.id && s.id.startsWith('sess-'));
+        if (isPast) {
+          return isStudyProj;
+        }
+        return s.projectId === proj.id;
+      });
+      const count = projSessions.length;
+      const percentage = Math.round((count / totalSessions) * 100);
       return {
         ...proj,
         count,

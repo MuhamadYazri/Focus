@@ -158,7 +158,39 @@ export default function TaskItem({
       )}
 
       <div className="flex items-center justify-between mt-2.5">
-        <span style={{ fontFamily: M, fontSize: 7.5, color: '#3F3F46' }}>{statusText}</span>
+        <div className="flex items-center gap-2">
+          <span style={{ fontFamily: M, fontSize: 7.5, color: '#3F3F46' }}>{statusText}</span>
+          {task.scheduleType === 'daily' && (
+            <span
+              style={{
+                fontFamily: M,
+                fontSize: 7.5,
+                color: '#B9DAFF',
+                background: 'rgba(185, 218, 255, 0.1)',
+                border: '1px solid rgba(185, 218, 255, 0.2)',
+                borderRadius: 4,
+                padding: '1px 5px',
+              }}
+            >
+              Every Day
+            </span>
+          )}
+          {task.scheduleType === 'date' && task.scheduledDate && (
+            <span
+              style={{
+                fontFamily: M,
+                fontSize: 7.5,
+                color: '#8BA0B0',
+                background: 'rgba(139, 160, 176, 0.1)',
+                border: '1px solid rgba(139, 160, 176, 0.2)',
+                borderRadius: 4,
+                padding: '1px 5px',
+              }}
+            >
+              📅 {task.scheduledDate}
+            </span>
+          )}
+        </div>
         {!task.completed && (
           <button
             onClick={(e) => {

@@ -140,21 +140,51 @@ class SoundEngine {
     this.init();
     if (!this.ctx) return;
     const now = this.ctx.currentTime;
-    const freqs = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6 chord
-    freqs.forEach((freq, idx) => {
+    // 5-second peaceful zen bell / vibraphone melody
+    const notes = [
+      { freq: 523.25, time: 0.0, duration: 2.2 },  // C5
+      { freq: 783.99, time: 0.4, duration: 2.2 },  // G5
+      { freq: 880.00, time: 0.8, duration: 2.2 },  // A5
+      { freq: 1318.51, time: 1.3, duration: 2.2 }, // E6
+      { freq: 1174.66, time: 1.9, duration: 2.2 }, // D6
+      { freq: 1046.50, time: 2.5, duration: 2.2 }, // C6
+      { freq: 880.00, time: 3.1, duration: 2.2 },  // A5
+      { freq: 1046.50, time: 3.7, duration: 1.3 }, // C6 final chord note 1
+      { freq: 1567.98, time: 3.7, duration: 1.3 }, // G6 final chord note 2
+    ];
+
+    notes.forEach(({ freq, time, duration }) => {
+      const startTime = now + time;
+      const endTime = startTime + duration;
+
+      // Fundamental oscillator
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, now + idx * 0.15);
+      osc.frequency.setValueAtTime(freq, startTime);
       
-      gain.gain.setValueAtTime(0, now + idx * 0.15);
-      gain.gain.linearRampToValueAtTime(0.4, now + idx * 0.15 + 0.05);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.15 + 1.2);
+      gain.gain.setValueAtTime(0, startTime);
+      gain.gain.linearRampToValueAtTime(this.volume * 0.35, startTime + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.0001, endTime);
+
+      // Harmonic overtone for glass/bell timbre
+      const osc2 = this.ctx.createOscillator();
+      const gain2 = this.ctx.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(freq * 2.0, startTime);
+      gain2.gain.setValueAtTime(0, startTime);
+      gain2.gain.linearRampToValueAtTime(this.volume * 0.1, startTime + 0.02);
+      gain2.gain.exponentialRampToValueAtTime(0.0001, startTime + duration * 0.6);
 
       osc.connect(gain);
+      osc2.connect(gain2);
       gain.connect(this.ctx.destination);
-      osc.start(now + idx * 0.15);
-      osc.stop(now + idx * 0.15 + 1.3);
+      gain2.connect(this.ctx.destination);
+
+      osc.start(startTime);
+      osc.stop(endTime);
+      osc2.start(startTime);
+      osc2.stop(startTime + duration * 0.6);
     });
   }
 }

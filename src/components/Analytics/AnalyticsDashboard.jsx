@@ -5,12 +5,6 @@ import SharedActivitySection from './SharedActivitySection';
 const G = "Geist, 'Helvetica Neue', sans-serif";
 const M = "'JetBrains Mono', monospace";
 
-const SEGMENTS = [
-  { label: 'English', pct: 45, color: '#B9DAFF' },
-  { label: 'Client Work', pct: 35, color: '#4A7090' },
-  { label: 'System Design', pct: 20, color: '#27272A' },
-];
-
 function polarToXY(cx, cy, r, deg) {
   const rad = ((deg - 90) * Math.PI) / 180;
   return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
@@ -56,6 +50,7 @@ function getDateRangeLabel(period, offset) {
 
 function filterSessionsForPeriod(sessions, period, offset) {
   if (!sessions || !sessions.length) return [];
+  if (period === 'All') return sessions;
   const now = new Date();
   if (period === 'Daily') {
     const d = new Date(now);
@@ -89,6 +84,9 @@ function filterSessionsForPeriod(sessions, period, offset) {
   }
   return [];
 }export default function AnalyticsDashboard({ tasks = [], projects = [], sessions = [] }) {
+  const [currentPeriod, setCurrentPeriod] = useState('Daily');
+  const [currentOffset, setCurrentOffset] = useState(0);
+
   const cx = 70,
     cy = 70,
     r = 54,
@@ -96,10 +94,38 @@ function filterSessionsForPeriod(sessions, period, offset) {
     gap = 4;
   let deg = 0;
 
-  const realSessions = (sessions || []).filter((s) => s && s.id && s.id.length > 15);
-  const displayPomos = realSessions.length + 10008;
+  const todayStr = new Date().toISOString().split('T')[0];
+  const filteredSessions = filterSessionsForPeriod(sessions, currentPeriod, currentOffset);
+  const totalSessionsCount = filteredSessions.length || 1;
+  const displayPomos = filteredSessions.length || 0;
 
-  const activeSegments = SEGMENTS;
+  const computedSegments = (projects && projects.length ? projects : [
+    { id: 'proj-1', name: '01 // STUDY', color: '#B9DAFF' },
+    { id: 'proj-2', name: '02 // PERSONAL_APP_DEV', color: '#8BA0B0' },
+    { id: 'proj-3', name: '03 // SYS_ARCHITECTURE', color: '#A1A1AA' },
+  ])
+    .map((proj, idx) => {
+      const isStudyProj = proj.name.toLowerCase().includes('study') || idx === 0;
+      const projSessions = (filteredSessions || []).filter((s) => {
+        const isPast = s.dateStr < todayStr || (s.id && s.id.startsWith('sess-'));
+        if (isPast) {
+          return isStudyProj; // All past sessions belong to Study
+        }
+        return s.projectId === proj.id;
+      });
+      const count = projSessions.length;
+      const pct = totalSessionsCount > 0 ? Math.round((count / totalSessionsCount) * 100) : 0;
+      return {
+        label: proj.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' '),
+        pct,
+        count,
+        color: proj.color || '#B9DAFF',
+      };
+    })
+    .filter((seg) => seg.pct > 0 || seg.count > 0)
+    .sort((a, b) => b.pct - a.pct);
+
+  const activeSegments = computedSegments.length ? computedSegments : [{ label: 'Study', pct: 100, count: 0, color: '#B9DAFF' }];
 
   return (
     <div
@@ -134,7 +160,14 @@ function filterSessionsForPeriod(sessions, period, offset) {
       </div>
 
       {/* Shared Activity Section with interactive tabs, checkmark heatmap, and dynamic chart */}
-      <SharedActivitySection showKPIs={true} />
+      <SharedActivitySection
+        showKPIs={true}
+        sessions={sessions}
+        onPeriodChange={(data) => {
+          setCurrentPeriod(data.period);
+          setCurrentOffset(data.offset);
+        }}
+      />
 
       {/* Donut */}
       <div>

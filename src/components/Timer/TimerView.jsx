@@ -18,40 +18,20 @@ export default function TimerView({
   soundVolume,
   onTogglePlay,
   onReset,
+  onSkip,
   onSelectSound,
   onChangeVolume,
   onClearActiveTask,
   strictMode = false,
   onToggleStrictMode,
 }) {
-  const taskTitle = activeTask ? activeTask.title : 'Focus Session Standby';
+  const taskTitle = activeTask ? activeTask.title : '';
 
   return (
     <div
-      className="pb-28 pt-2 px-4 max-w-md mx-auto flex flex-col justify-between select-none relative min-h-[85vh]"
+      className="pb-28 pt-4 px-4 max-w-md mx-auto flex flex-col justify-between select-none relative min-h-[85vh]"
       style={{ background: '#000000', fontFamily: G }}
     >
-      {/* Top notch */}
-      <div
-        className="absolute top-0 left-1/2 -translate-x-1/2 z-20"
-        style={{
-          width: 120,
-          height: 20,
-          background: '#000000',
-          borderBottomLeftRadius: 8,
-          borderBottomRightRadius: 8,
-          borderBottom: '1px solid #27272A',
-        }}
-      />
-
-      {/* Status bar */}
-      <div className="relative z-10 flex items-center justify-between pt-3 pb-1">
-        <span style={{ fontFamily: M, fontSize: 11, color: '#3F3F46' }}>09:41</span>
-        <span style={{ fontFamily: M, fontSize: 8, color: '#3F3F46', letterSpacing: '0.06em' }}>
-          Focus Mode
-        </span>
-      </div>
-
       {/* Top bar */}
       <div className="relative z-10 flex items-center justify-between pt-2 pb-2">
         <button
@@ -124,8 +104,11 @@ export default function TimerView({
       <div className="relative z-10 mt-auto">
         <TimerControls
           isRunning={isRunning}
+          isInitial={timeLeft === totalTime || (mode === 'stopwatch' && timeLeft === 0)}
+          mode={mode}
           onTogglePlay={onTogglePlay}
           onReset={onReset}
+          onSkip={onSkip}
           currentSound={currentSound}
           onSelectSound={onSelectSound}
           volume={soundVolume}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 const M = "'JetBrains Mono', monospace";
 
@@ -9,6 +9,19 @@ export default function TimerDisplay({
   isRunning,
   cycleCount = 0,
 }) {
+  const [clockTime, setClockTime] = useState(() =>
+    new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
+  );
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setClockTime(
+        new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
+      );
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
   const progress = mode === 'stopwatch' ? 1 : Math.max(0, Math.min(1, timeLeft / (totalTime || 1)));
 
   const formatTime = (secs) => {
@@ -62,6 +75,20 @@ export default function TimerDisplay({
         className="tabular-nums"
       >
         {formatTime(timeLeft)}
+      </div>
+
+      {/* Real-time Clock */}
+      <div
+        style={{
+          fontFamily: M,
+          fontSize: 12,
+          color: '#71717A',
+          letterSpacing: '0.1em',
+          marginTop: 8,
+        }}
+        className="tabular-nums transition-opacity duration-300"
+      >
+        {clockTime}
       </div>
 
       {/* Status indicator */}

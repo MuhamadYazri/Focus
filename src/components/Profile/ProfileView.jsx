@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Share2, Clock, RefreshCw, X, Download, Copy, Check } from 'lucide-react';
+import { Share2, Clock, RefreshCw, X, Download, Copy, Check, CloudUpload, CloudDownload, Loader2 } from 'lucide-react';
 import SharedActivitySection from '../Analytics/SharedActivitySection';
+import { storage } from '../../services/storage';
+import { backupToDrive, restoreFromDrive } from '../../services/googleDriveBackup';
 
 const G = "Geist, 'Helvetica Neue', sans-serif";
 const M = "'JetBrains Mono', monospace";
@@ -28,20 +30,31 @@ export default function ProfileView({
     displaySubToday: '4h 10m today',
     displaySubDays: '1 day focused',
   });
+  const [backupStatus, setBackupStatus] = useState('idle');
+  const [backupMsg, setBackupMsg] = useState('');
   const maxBarH = 48;
 
   const realSessions = (sessions || []).filter((s) => s && s.id && s.id.length > 15);
   const baseMinutes = 758 * 60 + 26;
-  const totalMinutes = realSessions.reduce((acc, s) => acc + (s.duration || 25), baseMinutes);
+  const totalMinutes = Math.round(realSessions.reduce((acc, s) => acc + (s.duration || 25), baseMinutes));
   const hours = Math.floor(totalMinutes / 60);
   const mins = totalMinutes % 60;
-  const totalHoursDisplay = `${hours}h ${mins}m`;
+  const totalHoursDisplay = `${hours}h ${String(mins).padStart(2, '0')}m`;
 
   const totalPomos = realSessions.length + 10008;
   const totalDays = 600;
 
   const handleChange = (key, value) => {
     if (onUpdateSettings) onUpdateSettings({ ...settings, [key]: value });
+  };
+
+  const handleNumberChange = (key, valStr) => {
+    if (valStr === '' || valStr === '-' || valStr === '-0' || valStr.endsWith('.')) {
+      handleChange(key, valStr);
+    } else {
+      const num = Number(valStr);
+      handleChange(key, isNaN(num) ? '' : num);
+    }
   };
 
   const handleResetData = () => {
@@ -51,6 +64,37 @@ export default function ProfileView({
       )
     ) {
       if (onResetAllData) onResetAllData();
+    }
+  };
+
+  const handleBackup = async () => {
+    try {
+      setBackupStatus('backing-up');
+      setBackupMsg('');
+      const data = await storage.exportAllData();
+      await backupToDrive(data);
+      const now = new Date().toLocaleString();
+      setBackupStatus('idle');
+      setBackupMsg(`Backed up: ${now}`);
+    } catch (e) {
+      setBackupStatus('idle');
+      setBackupMsg(`Error: ${e.message}`);
+    }
+  };
+
+  const handleRestore = async () => {
+    if (!window.confirm('Restore will overwrite ALL current data. Continue?')) return;
+    try {
+      setBackupStatus('restoring');
+      setBackupMsg('');
+      const data = await restoreFromDrive();
+      await storage.importAllData(data);
+      setBackupStatus('idle');
+      setBackupMsg('Restored! Reloading...');
+      setTimeout(() => window.location.reload(), 1200);
+    } catch (e) {
+      setBackupStatus('idle');
+      setBackupMsg(`Error: ${e.message}`);
     }
   };
 
@@ -133,7 +177,7 @@ export default function ProfileView({
       </div>
 
       {/* Shared Activity Section with tabs, heatmap, and dynamic time distribution chart */}
-      <SharedActivitySection showKPIs={false} onPeriodChange={setReportData} />
+      <SharedActivitySection showKPIs={false} sessions={sessions} onPeriodChange={setReportData} />
 
       {/* Quick stats row */}
       <div className="flex gap-2">
@@ -240,10 +284,8 @@ export default function ProfileView({
               </label>
               <input
                 type="number"
-                min="1"
-                max="120"
-                value={settings.workDuration || 25}
-                onChange={(e) => handleChange('workDuration', Math.max(1, parseInt(e.target.value) || 25))}
+                value={settings.workDuration ?? 25}
+                onChange={(e) => handleNumberChange('workDuration', e.target.value)}
                 style={{
                   width: '100%',
                   background: '#000000',
@@ -263,12 +305,8 @@ export default function ProfileView({
               </label>
               <input
                 type="number"
-                min="1"
-                max="30"
-                value={settings.shortBreakDuration || 5}
-                onChange={(e) =>
-                  handleChange('shortBreakDuration', Math.max(1, parseInt(e.target.value) || 5))
-                }
+                value={settings.shortBreakDuration ?? 5}
+                onChange={(e) => handleNumberChange('shortBreakDuration', e.target.value)}
                 style={{
                   width: '100%',
                   background: '#000000',
@@ -288,12 +326,8 @@ export default function ProfileView({
               </label>
               <input
                 type="number"
-                min="1"
-                max="60"
-                value={settings.longBreakDuration || 15}
-                onChange={(e) =>
-                  handleChange('longBreakDuration', Math.max(1, parseInt(e.target.value) || 15))
-                }
+                value={settings.longBreakDuration ?? 15}
+                onChange={(e) => handleNumberChange('longBreakDuration', e.target.value)}
                 style={{
                   width: '100%',
                   background: '#000000',
@@ -336,10 +370,8 @@ export default function ProfileView({
             <input
               type="number"
               step="0.5"
-              min="0.5"
-              max="24"
-              value={settings.dailyGoalHours || 4.0}
-              onChange={(e) => handleChange('dailyGoalHours', Math.max(0.5, parseFloat(e.target.value) || 4.0))}
+              value={settings.dailyGoalHours ?? 4.0}
+              onChange={(e) => handleNumberChange('dailyGoalHours', e.target.value)}
               style={{
                 width: 70,
                 background: '#000000',
@@ -378,6 +410,85 @@ export default function ProfileView({
           </div>
         </div>
 
+
+        {/* Cloud Backup Card */}
+        <div
+          style={{
+            background: '#090A0C',
+            border: '1px solid #27272A',
+            borderRadius: 8,
+            padding: '12px 14px',
+          }}
+          className="space-y-3"
+        >
+          <div className="flex items-center gap-2 border-b border-[#27272A] pb-2">
+            <CloudUpload size={14} color="#B9DAFF" />
+            <span style={{ fontFamily: M, fontSize: 9, color: '#FFFFFF', fontWeight: 600 }}>
+              CLOUD BACKUP
+            </span>
+          </div>
+
+          <p style={{ fontFamily: M, fontSize: 8, color: '#8BA0B0' }}>
+            Sync your data to Google Drive for safe keeping
+          </p>
+
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={handleBackup}
+              disabled={backupStatus !== 'idle'}
+              className="flex-1 flex items-center justify-center gap-1.5 transition-opacity active:opacity-70 disabled:opacity-40"
+              style={{
+                background: '#B9DAFF',
+                borderRadius: 6,
+                padding: '10px 0',
+              }}
+            >
+              {backupStatus === 'backing-up' ? (
+                <Loader2 size={13} color="#000000" className="animate-spin" />
+              ) : (
+                <CloudUpload size={13} color="#000000" />
+              )}
+              <span style={{ fontFamily: M, fontSize: 10, fontWeight: 600, color: '#000000' }}>
+                {backupStatus === 'backing-up' ? 'Backing up...' : 'Backup'}
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={handleRestore}
+              disabled={backupStatus !== 'idle'}
+              className="flex-1 flex items-center justify-center gap-1.5 transition-opacity active:opacity-70 disabled:opacity-40"
+              style={{
+                background: '#18181B',
+                border: '1px solid #27272A',
+                borderRadius: 6,
+                padding: '10px 0',
+              }}
+            >
+              {backupStatus === 'restoring' ? (
+                <Loader2 size={13} color="#B9DAFF" className="animate-spin" />
+              ) : (
+                <CloudDownload size={13} color="#B9DAFF" />
+              )}
+              <span style={{ fontFamily: M, fontSize: 10, fontWeight: 600, color: '#B9DAFF' }}>
+                {backupStatus === 'restoring' ? 'Restoring...' : 'Restore'}
+              </span>
+            </button>
+          </div>
+
+          {backupMsg && (
+            <p
+              style={{
+                fontFamily: M,
+                fontSize: 8,
+                color: backupMsg.startsWith('Error') ? '#FF6B6B' : '#B9DAFF',
+                marginTop: 4,
+              }}
+            >
+              {backupMsg}
+            </p>
+          )}
+        </div>
 
         {/* Reset Data Card */}
         <div

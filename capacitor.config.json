@@ -1,5 +1,16 @@
 {
   "appId": "com.focustodo.app",
   "appName": "Focus",
-  "webDir": "dist"
+  "webDir": "dist",
+  "server": {
+    "cleartext": true
+  },
+  "plugins": {
+    "StatusBar": {
+      "visible": false,
+      "style": "DARK",
+      "backgroundColor": "#000000",
+      "overlaysWebView": true
+    }
+  }
 }

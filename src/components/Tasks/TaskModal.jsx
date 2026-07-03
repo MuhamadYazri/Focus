@@ -13,6 +13,7 @@ export default function TaskModal({
   projects = [],
   taskToEdit = null,
   defaultProjectId = null,
+  onOpenCreateProject = null,
 }) {
   const [title, setTitle] = useState('');
   const [projectId, setProjectId] = useState('');
@@ -21,6 +22,13 @@ export default function TaskModal({
   const [subtasks, setSubtasks] = useState([]);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [showSubtasks, setShowSubtasks] = useState(false);
+  const [scheduleType, setScheduleType] = useState('today');
+  const [scheduledDate, setScheduledDate] = useState(() => new Date().toISOString().split('T')[0]);
+
+  const [dragY, setDragY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startY, setStartY] = useState(0);
+  const [isClosing, setIsClosing] = useState(false);
 
   useEffect(() => {
     if (taskToEdit) {
@@ -28,15 +36,22 @@ export default function TaskModal({
       setProjectId(taskToEdit.projectId || (projects[0] ? projects[0].id : ''));
       setPomoTotal(taskToEdit.estimatedPomos || 1);
       setSubtasks(taskToEdit.subtasks || []);
+      setScheduleType(taskToEdit.scheduleType || 'today');
+      setScheduledDate(taskToEdit.scheduledDate || new Date().toISOString().split('T')[0]);
     } else {
       setTitle('');
       setProjectId(defaultProjectId || (projects[0] ? projects[0].id : ''));
       setPomoTotal(1);
       setSubtasks([]);
+      setScheduleType('today');
+      setScheduledDate(new Date().toISOString().split('T')[0]);
     }
     setNewSubtaskTitle('');
     setShowTags(false);
     setShowSubtasks(false);
+    setDragY(0);
+    setIsDragging(false);
+    setIsClosing(false);
   }, [taskToEdit, isOpen, projects, defaultProjectId]);
 
   if (!isOpen) return null;
@@ -69,6 +84,8 @@ export default function TaskModal({
       tag: tag,
       index: index,
       subtasks: subtasks,
+      scheduleType: scheduleType,
+      scheduledDate: scheduleType === 'date' ? scheduledDate : null,
       createdAt: taskToEdit ? taskToEdit.createdAt : new Date().toISOString(),
     });
     onClose();
@@ -84,27 +101,85 @@ export default function TaskModal({
     setNewSubtaskTitle('');
   };
 
+  const handlePointerDown = (e) => {
+    try {
+      if (e && e.pointerId) e.currentTarget.setPointerCapture(e.pointerId);
+    } catch (err) {}
+    setIsDragging(true);
+    setStartY(e.clientY || (e.touches && e.touches[0].clientY) || 0);
+  };
+
+  const handlePointerMove = (e) => {
+    if (!isDragging) return;
+    const currentY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
+    const diff = currentY - startY;
+    if (diff > 0) {
+      setDragY(diff);
+    } else {
+      setDragY(0);
+    }
+  };
+
+  const handlePointerUp = (e) => {
+    if (!isDragging) return;
+    try {
+      if (e && e.pointerId) e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch (err) {}
+    setIsDragging(false);
+    const currentY = (e && e.clientY) || (e && e.changedTouches && e.changedTouches[0].clientY) || 0;
+    const diff = currentY - startY;
+    if (diff > 100 || dragY > 100) {
+      setIsClosing(true);
+      setTimeout(() => {
+        setIsClosing(false);
+        setDragY(0);
+        onClose();
+      }, 200);
+    } else {
+      setDragY(0);
+    }
+  };
+
   return (
     <div
-      className="fixed inset-0 z-50 flex flex-col items-end justify-end select-none"
+      className={`fixed inset-0 z-50 flex flex-col items-end justify-end select-none transition-opacity duration-200 ${
+        isClosing ? 'opacity-0' : 'opacity-100 animate-fadeIn'
+      }`}
       style={{ background: 'rgba(0,0,0,0.85)' }}
       onClick={onClose}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerLeave={handlePointerUp}
+      onTouchMove={handlePointerMove}
+      onTouchEnd={handlePointerUp}
     >
       <div
-        className="w-full max-w-md mx-auto"
+        className={`w-full max-w-md mx-auto ${isClosing || isDragging || dragY > 0 ? '' : 'animate-slideUp'}`}
         onClick={(e) => e.stopPropagation()}
         style={{
           background: '#090A0C',
           borderTop: '1px solid #27272A',
           borderLeft: '1px solid #27272A',
           borderRight: '1px solid #27272A',
-          borderRadius: '12px 12px 0 0',
+          borderRadius: '16px 16px 0 0',
           overflow: 'hidden',
+          transform: isClosing ? 'translateY(100%)' : `translateY(${dragY}px)`,
+          transition: isDragging ? 'none' : 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
         }}
       >
         {/* Drag handle */}
-        <div className="flex justify-center pt-3 pb-1">
-          <div style={{ width: 32, height: 4, borderRadius: 2, background: '#27272A' }} />
+        <div
+          className="flex justify-center pt-3.5 pb-2 cursor-grab active:cursor-grabbing touch-none"
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+          onTouchStart={handlePointerDown}
+          onTouchMove={handlePointerMove}
+          onTouchEnd={handlePointerUp}
+          style={{ touchAction: 'none' }}
+        >
+          <div style={{ width: 36, height: 4, borderRadius: 2, background: isDragging ? '#B9DAFF' : '#27272A', transition: 'background 0.2s' }} />
         </div>
 
         {/* Header */}
@@ -271,9 +346,77 @@ export default function TaskModal({
                     </button>
                   );
                 })}
+                {onOpenCreateProject && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowTags(false);
+                      onOpenCreateProject();
+                    }}
+                    className="w-full flex items-center justify-center gap-1.5 py-2.5 transition hover:bg-[#B9DAFF]/10 text-[#B9DAFF] font-semibold text-xs border-t border-[#27272A]"
+                    style={{ fontFamily: G }}
+                  >
+                    <Plus size={13} /> Create New Category
+                  </button>
+                )}
               </div>
             )}
           </div>
+
+          {/* Schedule selection */}
+          <div>
+            <label
+              style={{
+                fontFamily: M,
+                fontSize: 8,
+                color: '#A1A1AA',
+                letterSpacing: '0.08em',
+                display: 'block',
+                marginBottom: 8,
+              }}
+            >
+              Schedule
+            </label>
+            <div className="flex gap-1.5">
+              {[
+                { id: 'today', label: 'Just Today' },
+                { id: 'daily', label: 'Every Day' },
+                { id: 'date', label: 'Specific Date' },
+              ].map((item) => {
+                const isSelected = scheduleType === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setScheduleType(item.id)}
+                    className="flex-1 transition-all active:scale-95 py-2 px-2 rounded-lg text-center"
+                    style={{
+                      fontFamily: G,
+                      fontSize: 11,
+                      fontWeight: isSelected ? 600 : 400,
+                      background: isSelected ? '#FFFFFF' : '#000000',
+                      color: isSelected ? '#000000' : '#A1A1AA',
+                      border: isSelected ? 'none' : '1px solid #27272A',
+                    }}
+                  >
+                    {item.label}
+                  </button>
+                );
+              })}
+            </div>
+            {scheduleType === 'date' && (
+              <div className="mt-2">
+                <input
+                  type="date"
+                  value={scheduledDate}
+                  onChange={(e) => setScheduledDate(e.target.value)}
+                  className="w-full bg-[#000000] border border-[#27272A] rounded-lg px-3 py-2 text-white text-xs outline-none focus:border-[#B9DAFF]"
+                  style={{ fontFamily: M }}
+                />
+              </div>
+            )}
+          </div>
+
 
           {/* Pomodoro count */}
           <div>

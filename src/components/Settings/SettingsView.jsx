@@ -8,6 +8,15 @@ export default function SettingsView({ settings, onUpdateSettings, onResetAllDat
     onUpdateSettings({ ...settings, [key]: value });
   };
 
+  const handleNumberChange = (key, valStr) => {
+    if (valStr === '' || valStr === '-' || valStr === '-0' || valStr.endsWith('.')) {
+      handleChange(key, valStr);
+    } else {
+      const num = Number(valStr);
+      handleChange(key, isNaN(num) ? '' : num);
+    }
+  };
+
   const handleResetData = () => {
     if (confirm('Apakah Anda yakin ingin mereset semua proyek, tugas, dan sesi ke data awal?')) {
       onResetAllData();
@@ -48,10 +57,8 @@ export default function SettingsView({ settings, onUpdateSettings, onResetAllDat
             </label>
             <input
               type="number"
-              min="1"
-              max="120"
-              value={settings.workDuration}
-              onChange={(e) => handleChange('workDuration', Math.max(1, parseInt(e.target.value) || 25))}
+              value={settings.workDuration ?? 25}
+              onChange={(e) => handleNumberChange('workDuration', e.target.value)}
               className="w-full bg-[#131318] border border-[#2e2e3a] rounded-xl py-2 px-3 text-center font-bold text-white focus:border-[#ff5252] focus:outline-none"
             />
           </div>
@@ -62,10 +69,8 @@ export default function SettingsView({ settings, onUpdateSettings, onResetAllDat
             </label>
             <input
               type="number"
-              min="1"
-              max="30"
-              value={settings.shortBreakDuration}
-              onChange={(e) => handleChange('shortBreakDuration', Math.max(1, parseInt(e.target.value) || 5))}
+              value={settings.shortBreakDuration ?? 5}
+              onChange={(e) => handleNumberChange('shortBreakDuration', e.target.value)}
               className="w-full bg-[#131318] border border-[#2e2e3a] rounded-xl py-2 px-3 text-center font-bold text-white focus:border-[#2ecc71] focus:outline-none"
             />
           </div>
@@ -76,10 +81,8 @@ export default function SettingsView({ settings, onUpdateSettings, onResetAllDat
             </label>
             <input
               type="number"
-              min="1"
-              max="60"
-              value={settings.longBreakDuration}
-              onChange={(e) => handleChange('longBreakDuration', Math.max(1, parseInt(e.target.value) || 15))}
+              value={settings.longBreakDuration ?? 15}
+              onChange={(e) => handleNumberChange('longBreakDuration', e.target.value)}
               className="w-full bg-[#131318] border border-[#2e2e3a] rounded-xl py-2 px-3 text-center font-bold text-white focus:border-[#34ace0] focus:outline-none"
             />
           </div>

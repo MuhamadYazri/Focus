@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { X, Check, Briefcase, BookOpen, Heart, Rocket, Code, Star, Target, Zap, Coffee, Music } from 'lucide-react';
 
+const G = "Geist, 'Helvetica Neue', sans-serif";
+const M = "'JetBrains Mono', monospace";
+
 const COLOR_PALETTE = [
-  '#ff5252', '#ffb142', '#34ace0', '#6c5ce7',
+  '#B9DAFF', '#8BA0B0', '#4A7090', '#A1A1AA',
   '#2ecc71', '#e84393', '#00cec9', '#fdcb6e',
   '#a55eea', '#26de81', '#fc5c65', '#45aaf2'
 ];
@@ -28,7 +31,7 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
   useEffect(() => {
     if (projectToEdit) {
       setName(projectToEdit.name);
-      setColor(projectToEdit.color);
+      setColor(projectToEdit.color || COLOR_PALETTE[0]);
       setIcon(projectToEdit.icon || 'Briefcase');
     } else {
       setName('');
@@ -53,50 +56,92 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
-      <div className="w-full max-w-md bg-[#1c1c24] border border-[#2e2e3a] rounded-2xl shadow-2xl p-6 text-white relative">
-        <div className="flex items-center justify-between pb-4 mb-4 border-b border-[#2e2e3a]">
-          <h3 className="text-lg font-bold">
-            {projectToEdit ? 'Edit Proyek' : 'Buat Proyek Baru'}
-          </h3>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 select-none animate-fadeIn"
+      style={{ background: 'rgba(0,0,0,0.85)' }}
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-md bg-[#090A0C] border border-[#27272A] rounded-2xl shadow-2xl p-5 text-white relative"
+        style={{ fontFamily: G }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between pb-3.5 mb-4 border-b border-[#27272A]">
+          <div>
+            <span style={{ fontFamily: M, fontSize: 8, color: '#3F3F46', letterSpacing: '0.1em' }}>
+              FOCUS // CATEGORY
+            </span>
+            <h3 className="text-base font-bold text-white mt-0.5">
+              {projectToEdit ? 'Edit Category' : 'New Category'}
+            </h3>
+          </div>
           <button
+            type="button"
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition"
+            style={{
+              width: 28,
+              height: 28,
+              borderRadius: 6,
+              border: '1px solid #27272A',
+              background: '#000000',
+            }}
+            className="flex items-center justify-center transition-opacity active:opacity-50 text-[#3F3F46] hover:text-white"
           >
-            <X className="w-5 h-5" />
+            <X size={14} strokeWidth={1.5} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
-              Nama Proyek
+            <label
+              style={{ fontFamily: M, fontSize: 8, color: '#A1A1AA', letterSpacing: '0.08em' }}
+              className="block mb-2 uppercase"
+            >
+              Category Name
             </label>
             <input
               type="text"
               required
+              autoFocus
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Contoh: Kuliah & Tugas Akhir"
-              className="w-full bg-[#131318] border border-[#2e2e3a] rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#ff5252] transition"
+              placeholder="e.g. 04 // WORK_PROJECTS"
+              style={{
+                width: '100%',
+                background: '#000000',
+                border: '1px solid #27272A',
+                borderRadius: 8,
+                padding: '11px 14px',
+                fontFamily: G,
+                fontSize: 14,
+                color: '#FFFFFF',
+                outline: 'none',
+                caretColor: '#B9DAFF',
+              }}
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
-              Warna Proyek
+            <label
+              style={{ fontFamily: M, fontSize: 8, color: '#A1A1AA', letterSpacing: '0.08em' }}
+              className="block mb-2 uppercase"
+            >
+              Accent Color
             </label>
-            <div className="grid grid-cols-6 gap-2.5">
+            <div className="grid grid-cols-6 gap-2">
               {COLOR_PALETTE.map((c) => (
                 <button
                   key={c}
                   type="button"
                   onClick={() => setColor(c)}
-                  className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform hover:scale-110 relative shadow-md"
-                  style={{ backgroundColor: c }}
+                  className="w-10 h-10 rounded-lg flex items-center justify-center transition-transform hover:scale-105 active:scale-95 border"
+                  style={{
+                    backgroundColor: c,
+                    borderColor: color === c ? '#FFFFFF' : 'transparent',
+                  }}
                 >
                   {color === c && (
-                    <Check className="w-5 h-5 text-black stroke-[3px] drop-shadow-sm" />
+                    <Check className="w-4 h-4 text-black stroke-[3px]" />
                   )}
                 </button>
               ))}
@@ -104,8 +149,11 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
-              Ikon Proyek
+            <label
+              style={{ fontFamily: M, fontSize: 8, color: '#A1A1AA', letterSpacing: '0.08em' }}
+              className="block mb-2 uppercase"
+            >
+              Category Icon
             </label>
             <div className="grid grid-cols-5 gap-2">
               {ICONS_LIST.map((item) => {
@@ -116,32 +164,51 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
                     key={item.name}
                     type="button"
                     onClick={() => setIcon(item.name)}
-                    className={`p-3 rounded-xl flex items-center justify-center border transition ${
-                      isSelected
-                        ? 'bg-white/10 border-[#ff5252] text-[#ff5252] scale-105 shadow-sm'
-                        : 'bg-[#131318] border-[#2e2e3a] text-slate-400 hover:text-white'
-                    }`}
+                    className="p-2.5 rounded-lg flex items-center justify-center border transition"
+                    style={{
+                      background: isSelected ? '#B9DAFF' : '#000000',
+                      borderColor: isSelected ? '#B9DAFF' : '#27272A',
+                      color: isSelected ? '#000000' : '#A1A1AA',
+                    }}
                   >
-                    <IconComp className="w-5 h-5" />
+                    <IconComp className="w-4 h-4" />
                   </button>
                 );
               })}
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#2e2e3a]">
+          <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#27272A]">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:bg-white/5 transition"
+              style={{
+                fontFamily: M,
+                fontSize: 11,
+                padding: '10px 16px',
+                borderRadius: 8,
+                border: '1px solid #27272A',
+                color: '#A1A1AA',
+                background: 'transparent',
+              }}
+              className="hover:text-white transition"
             >
-              Batal
+              Cancel
             </button>
             <button
               type="submit"
-              className="px-6 py-2.5 rounded-xl text-sm font-bold bg-[#ff5252] hover:bg-[#ff3b3b] text-white shadow-lg shadow-[#ff5252]/20 transition"
+              style={{
+                fontFamily: G,
+                fontSize: 13,
+                fontWeight: 600,
+                padding: '10px 20px',
+                borderRadius: 8,
+                background: '#B9DAFF',
+                color: '#000000',
+              }}
+              className="hover:bg-[#A3CDFA] transition active:opacity-80"
             >
-              Simpan Proyek
+              {projectToEdit ? 'Save Category' : 'Create Category'}
             </button>
           </div>
         </form>

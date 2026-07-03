@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Volume2, VolumeX, ChevronRight, Pause, Play, Square, Check } from 'lucide-react';
+import { Volume2, VolumeX, ChevronRight, Pause, Play, Square, Check, SkipForward } from 'lucide-react';
 import { soundEngine } from '../../services/soundEngine';
 
 const G = "Geist, 'Helvetica Neue', sans-serif";
@@ -7,8 +7,11 @@ const M = "'JetBrains Mono', monospace";
 
 export default function TimerControls({
   isRunning,
+  isInitial = true,
+  mode = 'work',
   onTogglePlay,
   onReset,
+  onSkip,
   currentSound = 'none',
   onSelectSound,
   volume = 0.8,
@@ -36,6 +39,7 @@ export default function TimerControls({
   };
 
   const currentSoundObj = soundscapes.find((s) => s.id === currentSound) || soundscapes[0];
+  const isBreak = mode === 'shortBreak' || mode === 'longBreak';
 
   return (
     <div className="w-full max-w-sm mx-auto flex flex-col gap-4 select-none pt-2">
@@ -207,29 +211,45 @@ export default function TimerControls({
                   color: '#000000',
                 }}
               >
-                Resume
+                {isInitial ? 'Start' : 'Resume'}
               </span>
             </>
           )}
         </button>
 
-        <button
-          type="button"
-          onClick={() => {
-            if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(10);
-            if (onReset) onReset();
-          }}
-          className="w-full flex items-center justify-center gap-2.5 transition-opacity active:opacity-60"
-          style={{
-            background: 'transparent',
-            border: '1px solid #27272A',
-            borderRadius: 8,
-            padding: '12px 0',
-          }}
-        >
-          <Square size={13} color="#A1A1AA" strokeWidth={1.5} />
-          <span style={{ fontFamily: G, fontSize: 13, color: '#A1A1AA' }}>Stop</span>
-        </button>
+        {(isBreak || (!isRunning && !isInitial)) && (
+          <button
+            type="button"
+            onClick={() => {
+              if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(10);
+              if (isBreak) {
+                if (onSkip) onSkip();
+                else if (onReset) onReset();
+              } else {
+                if (onReset) onReset();
+              }
+            }}
+            className="w-full flex items-center justify-center gap-2.5 transition-opacity active:opacity-60"
+            style={{
+              background: 'transparent',
+              border: '1px solid #27272A',
+              borderRadius: 8,
+              padding: '12px 0',
+            }}
+          >
+            {isBreak ? (
+              <>
+                <SkipForward size={14} color="#A1A1AA" strokeWidth={1.75} />
+                <span style={{ fontFamily: G, fontSize: 13, color: '#A1A1AA' }}>Skip Break</span>
+              </>
+            ) : (
+              <>
+                <Square size={13} color="#A1A1AA" strokeWidth={1.5} />
+                <span style={{ fontFamily: G, fontSize: 13, color: '#A1A1AA' }}>Stop</span>
+              </>
+            )}
+          </button>
+        )}
       </div>
     </div>
   );

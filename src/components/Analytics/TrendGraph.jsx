@@ -20,13 +20,13 @@ export default function TrendGraph({ sessions, tasks }) {
       label: format(date, 'EEE', { locale: idLocale }).toUpperCase(),
       dayNum: format(date, 'dd'),
       pomos,
-      hours: hours.toFixed(1),
+      hours: Math.round(hours),
     };
   });
 
   const maxPomos = Math.max(8, ...last7Days.map((d) => d.pomos));
   const total7DaysPomos = last7Days.reduce((acc, d) => acc + d.pomos, 0);
-  const totalHours = ((total7DaysPomos * 25) / 60).toFixed(1);
+  const totalHours = Math.round((total7DaysPomos * 25) / 60);
 
   return (
     <div className="bg-[#090A0C] border border-[#27272A] rounded-lg p-4 space-y-4 select-none">
@@ -84,7 +84,7 @@ export default function TrendGraph({ sessions, tasks }) {
           <div>
             <span className="text-[9px] text-[#8BA0B0] block uppercase">DAILY AVERAGE</span>
             <span className="text-xs font-bold text-[#FFFFFF]">
-              {(total7DaysPomos / 7).toFixed(1)} <span className="text-[10px] font-normal text-[#8BA0B0]">POMS/D</span>
+              {Math.round(total7DaysPomos / 7)} <span className="text-[10px] font-normal text-[#8BA0B0]">POMS/D</span>
             </span>
           </div>
         </div>

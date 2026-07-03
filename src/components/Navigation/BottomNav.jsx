@@ -28,13 +28,7 @@ export default function BottomNav({ activeTab, setActiveTab }) {
               }}
               className="flex flex-col items-center gap-1.5 transition-opacity active:opacity-50 flex-1"
             >
-              <div className="relative flex flex-col items-center gap-1.5">
-                {on && (
-                  <span
-                    className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
-                    style={{ background: '#B9DAFF' }}
-                  />
-                )}
+              <div className="flex flex-col items-center gap-1.5">
                 <Icon size={18} color={on ? '#B9DAFF' : '#3F3F46'} strokeWidth={1.5} />
                 <span
                   style={{

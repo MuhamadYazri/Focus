@@ -10,16 +10,31 @@ import AnalyticsDashboard from './components/Analytics/AnalyticsDashboard';
 import ProfileView from './components/Profile/ProfileView';
 import { storage, DEFAULT_PROJECTS, DEFAULT_TASKS, DEFAULT_SETTINGS, generateSampleSessions } from './services/storage';
 import { soundEngine } from './services/soundEngine';
-import confetti from 'canvas-confetti';
+import { StatusBar, Style } from '@capacitor/status-bar';
+
+function processDailyRollover(tasksList) {
+  if (!tasksList || !tasksList.length) return tasksList;
+  const todayStr = new Date().toISOString().split('T')[0];
+  return tasksList.map((task) => {
+    const compDate = task.completedDateStr || (task.completedAt ? task.completedAt.split('T')[0] : null);
+    if (task && task.scheduleType === 'daily' && task.completed && compDate && compDate !== todayStr) {
+      return { ...task, completed: false, completedPomos: 0, completedDateStr: null, completedAt: null };
+    }
+    return task;
+  });
+}
 
 export default function App() {
   // Navigation State: 4 monochrome tabs: 'home', 'timer', 'reports', 'profile'
   const [activeTab, setActiveTab] = useState('home');
   const [selectedProjectId, setSelectedProjectId] = useState(null);
+  const [prevTab, setPrevTab] = useState(null);
+  const [slideDir, setSlideDir] = useState('left');
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   // Data State
   const [projects, setProjects] = useState(DEFAULT_PROJECTS);
-  const [tasks, setTasks] = useState(DEFAULT_TASKS);
+  const [tasks, setTasks] = useState(() => processDailyRollover(DEFAULT_TASKS));
   const [sessions, setSessions] = useState([]);
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -31,6 +46,7 @@ export default function App() {
   const [cycleCount, setCycleCount] = useState(0);
   const [activeTask, setActiveTask] = useState(null);
   const [currentSound, setCurrentSound] = useState('none');
+  const [sessionDoneAlert, setSessionDoneAlert] = useState(null);
 
   // Modals State
   const [taskModalOpen, setTaskModalOpen] = useState(false);
@@ -41,6 +57,22 @@ export default function App() {
 
   const timerRef = useRef(null);
 
+  const TAB_ORDER = { home: 0, timer: 1, reports: 2, profile: 3 };
+
+  const handleTabSwitch = (newTab) => {
+    if (newTab === activeTab || isTransitioning) return;
+    const dir = TAB_ORDER[newTab] > TAB_ORDER[activeTab] ? 'left' : 'right';
+    setSlideDir(dir);
+    setPrevTab(activeTab);
+    setActiveTab(newTab);
+    setIsTransitioning(true);
+
+    setTimeout(() => {
+      setIsTransitioning(false);
+      setPrevTab(null);
+    }, 320);
+  };
+
   // Load initial data from IDB/localStorage
   useEffect(() => {
     async function loadAll() {
@@ -49,11 +81,16 @@ export default function App() {
       const s = await storage.getSessions();
       const set = await storage.getSettings();
       setProjects(p || DEFAULT_PROJECTS);
-      setTasks(t || DEFAULT_TASKS);
+      setTasks(processDailyRollover(t || DEFAULT_TASKS));
       setSessions(s || []);
       setSettings(set || DEFAULT_SETTINGS);
       setTimeLeft((set ? set.workDuration : 25) * 60);
       setCurrentSound(set ? set.soundscape : 'none');
+      try {
+        await StatusBar.hide();
+      } catch (e) {
+        // Ignored on non-native environments
+      }
       setIsLoaded(true);
     }
     loadAll();
@@ -125,12 +162,16 @@ export default function App() {
       window.navigator.vibrate([100, 50, 100, 50, 200]);
     }
 
+    setSessionDoneAlert({
+      mode: timerMode,
+      title: timerMode === 'work' ? `Session ${cycleCount + 1} Completed` : 'Break Completed',
+      subtitle: timerMode === 'work' ? 'Great focus! Enjoy a moment of calm.' : 'Refreshed? Ready to focus again?',
+    });
+    setTimeout(() => {
+      setSessionDoneAlert(null);
+    }, 5000);
+
     if (timerMode === 'work') {
-      confetti({
-        particleCount: 70,
-        spread: 80,
-        origin: { y: 0.6 },
-      });
 
       const nextCycle = cycleCount + 1;
       setCycleCount(nextCycle);
@@ -156,7 +197,14 @@ export default function App() {
             if (t.id === activeTask.id) {
               const updatedPomos = (t.completedPomos || 0) + 1;
               const isDone = updatedPomos >= t.estimatedPomos;
-              return { ...t, completedPomos: updatedPomos, completed: isDone };
+              const todayStr = new Date().toISOString().split('T')[0];
+              return {
+                ...t,
+                completedPomos: updatedPomos,
+                completed: isDone,
+                completedDateStr: isDone ? todayStr : t.completedDateStr,
+                completedAt: isDone ? new Date().toISOString() : t.completedAt,
+              };
             }
             return t;
           })
@@ -214,6 +262,16 @@ export default function App() {
     else if (timerMode === 'stopwatch') setTimeLeft(0);
   };
 
+  const handleSkipBreak = () => {
+    setIsRunning(false);
+    soundEngine.stop();
+    setTimerMode('work');
+    setTimeLeft(settings.workDuration * 60);
+    if (settings.autoStartPomodoros) {
+      setTimeout(() => setIsRunning(true), 500);
+    }
+  };
+
   const handleSaveTask = (savedTask) => {
     setTasks((prev) => {
       const exists = prev.some((t) => t.id === savedTask.id);
@@ -231,8 +289,20 @@ export default function App() {
   };
 
   const handleToggleComplete = (id) => {
+    const todayStr = new Date().toISOString().split('T')[0];
     setTasks((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t))
+      prev.map((t) => {
+        if (t.id === id) {
+          const nextCompleted = !t.completed;
+          return {
+            ...t,
+            completed: nextCompleted,
+            completedDateStr: nextCompleted ? todayStr : null,
+            completedAt: nextCompleted ? new Date().toISOString() : null,
+          };
+        }
+        return t;
+      })
     );
   };
 
@@ -254,7 +324,7 @@ export default function App() {
     setActiveTask(task);
     setTimerMode('work');
     setTimeLeft(settings.workDuration * 60);
-    setActiveTab('timer');
+    handleTabSwitch('timer');
     if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(30);
   };
 
@@ -297,80 +367,113 @@ export default function App() {
     return 1;
   };
 
+  const renderTabContent = (tabKey) => {
+    if (tabKey === 'home') {
+      return (
+        <TaskList
+          tasks={tasks}
+          projects={projects}
+          selectedProjectId={selectedProjectId}
+          onSelectProject={setSelectedProjectId}
+          onAddTask={() => {
+            setTaskToEdit(null);
+            setTaskModalOpen(true);
+          }}
+          onEditTask={(task) => {
+            setTaskToEdit(task);
+            setTaskModalOpen(true);
+          }}
+          onDeleteTask={handleDeleteTask}
+          onToggleComplete={handleToggleComplete}
+          onToggleSubtask={handleToggleSubtask}
+          onStartPomodoro={handleStartPomodoroForTask}
+          onAddProject={() => {
+            setProjectToEdit(null);
+            setProjectModalOpen(true);
+          }}
+          onEditProject={(proj) => {
+            setProjectToEdit(proj);
+            setProjectModalOpen(true);
+          }}
+          onDeleteProject={handleDeleteProject}
+        />
+      );
+    }
+    if (tabKey === 'timer') {
+      return (
+        <TimerView
+          mode={timerMode}
+          timeLeft={timeLeft}
+          totalTime={getTotalTimeForMode()}
+          isRunning={isRunning}
+          cycleCount={cycleCount}
+          activeTask={activeTask}
+          projects={projects}
+          currentSound={currentSound}
+          soundVolume={settings.soundVolume}
+          onTogglePlay={handleTogglePlay}
+          onReset={handleResetTimer}
+          onSkip={handleSkipBreak}
+          onSelectSound={(snd) => {
+            setCurrentSound(snd);
+            setSettings({ ...settings, soundscape: snd });
+          }}
+          onChangeVolume={(vol) => setSettings({ ...settings, soundVolume: vol })}
+          onClearActiveTask={() => {
+            setActiveTask(null);
+            handleTabSwitch('home');
+          }}
+          strictMode={settings.strictMode}
+          onToggleStrictMode={() => setSettings({ ...settings, strictMode: !settings.strictMode })}
+        />
+      );
+    }
+    if (tabKey === 'reports') {
+      return (
+        <AnalyticsDashboard
+          tasks={tasks}
+          projects={projects}
+          sessions={sessions}
+        />
+      );
+    }
+    if (tabKey === 'profile') {
+      return (
+        <ProfileView
+          sessions={sessions}
+          settings={settings}
+          onUpdateSettings={setSettings}
+          onResetAllData={handleResetAllData}
+        />
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="min-h-screen bg-[#000000] text-[#FFFFFF] flex flex-col font-sans selection:bg-[#B9DAFF]/30">
       {/* Active Tab Screen */}
-      <main className="flex-1">
-        {activeTab === 'home' && (
-          <TaskList
-            tasks={tasks}
-            projects={projects}
-            selectedProjectId={selectedProjectId}
-            onSelectProject={setSelectedProjectId}
-            onAddTask={() => {
-              setTaskToEdit(null);
-              setTaskModalOpen(true);
-            }}
-            onEditTask={(task) => {
-              setTaskToEdit(task);
-              setTaskModalOpen(true);
-            }}
-            onDeleteTask={handleDeleteTask}
-            onToggleComplete={handleToggleComplete}
-            onToggleSubtask={handleToggleSubtask}
-            onStartPomodoro={handleStartPomodoroForTask}
-          />
-        )}
-
-        {activeTab === 'timer' && (
-          <TimerView
-            mode={timerMode}
-            timeLeft={timeLeft}
-            totalTime={getTotalTimeForMode()}
-            isRunning={isRunning}
-            cycleCount={cycleCount}
-            activeTask={activeTask}
-            projects={projects}
-            currentSound={currentSound}
-            soundVolume={settings.soundVolume}
-            onTogglePlay={handleTogglePlay}
-            onReset={handleResetTimer}
-            onSelectSound={(snd) => {
-              setCurrentSound(snd);
-              setSettings({ ...settings, soundscape: snd });
-            }}
-            onChangeVolume={(vol) => setSettings({ ...settings, soundVolume: vol })}
-            onClearActiveTask={() => {
-              setActiveTask(null);
-              setActiveTab('home');
-            }}
-            strictMode={settings.strictMode}
-            onToggleStrictMode={() => setSettings({ ...settings, strictMode: !settings.strictMode })}
-          />
-        )}
-
-        {activeTab === 'reports' && (
-          <AnalyticsDashboard
-            tasks={tasks}
-            projects={projects}
-            sessions={sessions}
-          />
-        )}
-
-        {activeTab === 'profile' && (
-          <ProfileView
-            sessions={sessions}
-            settings={settings}
-            onUpdateSettings={setSettings}
-            onResetAllData={handleResetAllData}
-          />
+      <main className="flex-1 relative overflow-x-hidden">
+        {isTransitioning && prevTab ? (
+          <div className="relative w-full min-h-full">
+            <div className={`absolute inset-0 w-full ${slideDir === 'left' ? 'animate-slide-out-left' : 'animate-slide-out-right'}`}>
+              {renderTabContent(prevTab)}
+            </div>
+            <div className={`absolute inset-0 w-full ${slideDir === 'left' ? 'animate-slide-in-right' : 'animate-slide-in-left'}`}>
+              {renderTabContent(activeTab)}
+            </div>
+          </div>
+        ) : (
+          <div className="w-full min-h-full">
+            {renderTabContent(activeTab)}
+          </div>
         )}
       </main>
 
       {/* Bottom Navigation */}
       <BottomNav
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={handleTabSwitch}
         onOpenNewTask={() => {
           setTaskToEdit(null);
           setTaskModalOpen(true);
@@ -385,6 +488,10 @@ export default function App() {
         projects={projects}
         taskToEdit={taskToEdit}
         defaultProjectId={selectedProjectId}
+        onOpenCreateProject={() => {
+          setProjectToEdit(null);
+          setProjectModalOpen(true);
+        }}
       />
 
       <ProjectModal
@@ -402,6 +509,42 @@ export default function App() {
           setStrictModalOpen(false);
         }}
       />
+
+      {/* Minimalist Session Completion Banner */}
+      {sessionDoneAlert && (
+        <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-500 ease-out">
+          <div
+            style={{
+              background: '#090A0C',
+              border: '1px solid rgba(185, 218, 255, 0.4)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6), 0 0 16px rgba(185, 218, 255, 0.15)',
+              borderRadius: 30,
+              padding: '10px 20px',
+              fontFamily: "'JetBrains Mono', monospace",
+            }}
+            className="flex items-center gap-3.5 select-none"
+          >
+            <div
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                background: '#B9DAFF',
+                boxShadow: '0 0 8px #B9DAFF',
+              }}
+              className="animate-ping"
+            />
+            <div className="flex flex-col">
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#FFFFFF', letterSpacing: '-0.01em' }}>
+                {sessionDoneAlert.title}
+              </span>
+              <span style={{ fontSize: 9, color: '#8BA0B0' }}>
+                {sessionDoneAlert.subtitle}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

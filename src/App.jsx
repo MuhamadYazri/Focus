@@ -7,14 +7,14 @@ import ProjectModal from './components/Projects/ProjectModal';
 import TimerView from './components/Timer/TimerView';
 import StrictModeModal from './components/Timer/StrictModeModal';
 import AnalyticsDashboard from './components/Analytics/AnalyticsDashboard';
-import SettingsView from './components/Settings/SettingsView';
+import ProfileView from './components/Profile/ProfileView';
 import { storage, DEFAULT_PROJECTS, DEFAULT_TASKS, DEFAULT_SETTINGS, generateSampleSessions } from './services/storage';
 import { soundEngine } from './services/soundEngine';
 import confetti from 'canvas-confetti';
 
 export default function App() {
-  // Navigation State
-  const [activeTab, setActiveTab] = useState('tasks'); // 'tasks', 'timer', 'projects', 'analytics', 'settings'
+  // Navigation State: 4 monochrome tabs: 'home', 'timer', 'reports', 'profile'
+  const [activeTab, setActiveTab] = useState('home');
   const [selectedProjectId, setSelectedProjectId] = useState(null);
 
   // Data State
@@ -25,7 +25,7 @@ export default function App() {
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Timer State
-  const [timerMode, setTimerMode] = useState('work'); // 'work', 'shortBreak', 'longBreak', 'stopwatch'
+  const [timerMode, setTimerMode] = useState('work');
   const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [isRunning, setIsRunning] = useState(false);
   const [cycleCount, setCycleCount] = useState(0);
@@ -126,7 +126,6 @@ export default function App() {
     }
 
     if (timerMode === 'work') {
-      // Trigger satisfying completion celebration
       confetti({
         particleCount: 70,
         spread: 80,
@@ -136,7 +135,6 @@ export default function App() {
       const nextCycle = cycleCount + 1;
       setCycleCount(nextCycle);
 
-      // Record session
       const newSess = {
         id: `sess-${Date.now()}`,
         projectId: activeTask ? activeTask.projectId : (projects[0] ? projects[0].id : 'proj-1'),
@@ -146,14 +144,12 @@ export default function App() {
       };
       setSessions((prev) => [newSess, ...prev]);
 
-      // Update project pomodoros
       setProjects((prev) =>
         prev.map((p) =>
           p.id === newSess.projectId ? { ...p, pomodoros: (p.pomodoros || 0) + 1 } : p
         )
       );
 
-      // Update active task pomodoros if present
       if (activeTask) {
         setTasks((prev) =>
           prev.map((t) => {
@@ -170,7 +166,6 @@ export default function App() {
         );
       }
 
-      // Check long break vs short break
       if (nextCycle % (settings.longBreakInterval || 4) === 0) {
         setTimerMode('longBreak');
         setTimeLeft(settings.longBreakDuration * 60);
@@ -183,7 +178,6 @@ export default function App() {
         setTimeout(() => setIsRunning(true), 1500);
       }
     } else {
-      // Break ended -> switch back to work
       setTimerMode('work');
       setTimeLeft(settings.workDuration * 60);
       if (settings.autoStartPomodoros) {
@@ -192,7 +186,6 @@ export default function App() {
     }
   };
 
-  // Timer Handlers
   const handleTogglePlay = () => {
     if (!isRunning && currentSound !== 'none') {
       soundEngine.play(currentSound, settings.soundVolume);
@@ -221,13 +214,6 @@ export default function App() {
     else if (timerMode === 'stopwatch') setTimeLeft(0);
   };
 
-  const handleSkipSession = () => {
-    if (confirm('Lewati sesi ini ke tahap berikutnya?')) {
-      handleTimerFinish();
-    }
-  };
-
-  // Task & Project Handlers
   const handleSaveTask = (savedTask) => {
     setTasks((prev) => {
       const exists = prev.some((t) => t.id === savedTask.id);
@@ -298,8 +284,8 @@ export default function App() {
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen bg-[#0a0a0c] flex items-center justify-center text-white font-bold animate-pulse">
-        Memuat Focus To-Do...
+      <div className="min-h-screen bg-[#000000] flex items-center justify-center text-[#FFFFFF] font-mono font-bold text-xs animate-pulse tracking-widest">
+        INITIALIZING FOCUS LEDGER // SOLO_OS...
       </div>
     );
   }
@@ -312,10 +298,10 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0c] text-[#f8fafc] flex flex-col font-sans selection:bg-[#ff5252]/30">
+    <div className="min-h-screen bg-[#000000] text-[#FFFFFF] flex flex-col font-sans selection:bg-[#B9DAFF]/30">
       {/* Active Tab Screen */}
       <main className="flex-1">
-        {activeTab === 'tasks' && (
+        {activeTab === 'home' && (
           <TaskList
             tasks={tasks}
             projects={projects}
@@ -348,9 +334,7 @@ export default function App() {
             currentSound={currentSound}
             soundVolume={settings.soundVolume}
             onTogglePlay={handleTogglePlay}
-            onSkip={handleSkipSession}
             onReset={handleResetTimer}
-            onSelectMode={handleSelectMode}
             onSelectSound={(snd) => {
               setCurrentSound(snd);
               setSettings({ ...settings, soundscape: snd });
@@ -358,37 +342,24 @@ export default function App() {
             onChangeVolume={(vol) => setSettings({ ...settings, soundVolume: vol })}
             onClearActiveTask={() => {
               setActiveTask(null);
-              setActiveTab('tasks');
+              setActiveTab('home');
             }}
+            strictMode={settings.strictMode}
+            onToggleStrictMode={() => setSettings({ ...settings, strictMode: !settings.strictMode })}
           />
         )}
 
-        {activeTab === 'projects' && (
-          <ProjectList
-            projects={projects}
+        {activeTab === 'reports' && (
+          <AnalyticsDashboard
             tasks={tasks}
-            onAddProject={() => {
-              setProjectToEdit(null);
-              setProjectModalOpen(true);
-            }}
-            onEditProject={(proj) => {
-              setProjectToEdit(proj);
-              setProjectModalOpen(true);
-            }}
-            onDeleteProject={handleDeleteProject}
-            onSelectProject={(projId) => {
-              setSelectedProjectId(projId);
-              setActiveTab('tasks');
-            }}
+            projects={projects}
+            sessions={sessions}
           />
         )}
 
-        {activeTab === 'analytics' && (
-          <AnalyticsDashboard tasks={tasks} projects={projects} sessions={sessions} />
-        )}
-
-        {activeTab === 'settings' && (
-          <SettingsView
+        {activeTab === 'profile' && (
+          <ProfileView
+            sessions={sessions}
             settings={settings}
             onUpdateSettings={setSettings}
             onResetAllData={handleResetAllData}
@@ -397,7 +368,14 @@ export default function App() {
       </main>
 
       {/* Bottom Navigation */}
-      <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+      <BottomNav
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        onOpenNewTask={() => {
+          setTaskToEdit(null);
+          setTaskModalOpen(true);
+        }}
+      />
 
       {/* Modals */}
       <TaskModal

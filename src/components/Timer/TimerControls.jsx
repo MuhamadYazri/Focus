@@ -1,80 +1,234 @@
-import React from 'react';
-import { Play, Pause, SkipForward, RotateCcw, Flame, Coffee, Moon, Clock } from 'lucide-react';
+import React, { useState } from 'react';
+import { Volume2, VolumeX, ChevronRight, Pause, Play, Square, Check } from 'lucide-react';
+import { soundEngine } from '../../services/soundEngine';
+
+const G = "Geist, 'Helvetica Neue', sans-serif";
+const M = "'JetBrains Mono', monospace";
 
 export default function TimerControls({
-  mode,
   isRunning,
   onTogglePlay,
-  onSkip,
   onReset,
-  onSelectMode,
+  currentSound = 'none',
+  onSelectSound,
+  volume = 0.8,
+  onChangeVolume,
 }) {
-  const modes = [
-    { id: 'work', label: 'Pomodoro', icon: Flame, color: 'text-[#ff5252]', border: 'border-[#ff5252]' },
-    { id: 'shortBreak', label: 'Istirahat', icon: Coffee, color: 'text-[#2ecc71]', border: 'border-[#2ecc71]' },
-    { id: 'longBreak', label: 'Panjang', icon: Moon, color: 'text-[#34ace0]', border: 'border-[#34ace0]' },
-    { id: 'stopwatch', label: 'Stopwatch', icon: Clock, color: 'text-[#ffb142]', border: 'border-[#ffb142]' },
+  const [showSoundMenu, setShowSoundMenu] = useState(false);
+
+  const soundscapes = [
+    { id: 'none', label: 'Silent Trace' },
+    { id: 'forest', label: 'Forest Wind' },
+    { id: 'rain', label: 'Atmospheric Rain' },
+    { id: 'waves', label: 'Oceanic Waves' },
+    { id: 'cafe', label: 'Urban Cafe' },
+    { id: 'clock', label: 'Ticking Chrono' },
   ];
 
+  const handleSelectSound = (soundId) => {
+    if (onSelectSound) onSelectSound(soundId);
+    if (soundId === 'none') {
+      soundEngine.stop();
+    } else {
+      soundEngine.play(soundId, volume);
+    }
+    setShowSoundMenu(false);
+  };
+
+  const currentSoundObj = soundscapes.find((s) => s.id === currentSound) || soundscapes[0];
+
   return (
-    <div className="w-full max-w-md mx-auto space-y-6">
-      {/* Mode Switcher Tabs */}
-      <div className="grid grid-cols-4 gap-1.5 p-1 bg-[#1c1c24] border border-[#2e2e3a] rounded-2xl">
-        {modes.map((m) => {
-          const IconComp = m.icon;
-          const isActive = mode === m.id;
-          return (
-            <button
-              key={m.id}
-              onClick={() => onSelectMode(m.id)}
-              className={`py-2 px-1 rounded-xl flex flex-col items-center justify-center transition-all ${
-                isActive
-                  ? `bg-white/10 ${m.color} font-bold shadow-sm scale-105`
-                  : 'text-slate-400 hover:text-white'
-              }`}
+    <div className="w-full max-w-sm mx-auto flex flex-col gap-4 select-none pt-2">
+      {/* Sound panel */}
+      <div className="relative z-10">
+        <div
+          style={{
+            background: '#090A0C',
+            border: '1px solid #27272A',
+            borderRadius: 8,
+            padding: '10px 14px',
+          }}
+          className="flex items-center gap-3 transition-all"
+        >
+          <div
+            style={{
+              width: 28,
+              height: 28,
+              borderRadius: 4,
+              border: '1px solid #27272A',
+              background: '#000000',
+            }}
+            className="flex items-center justify-center flex-shrink-0"
+          >
+            {currentSound === 'none' ? (
+              <VolumeX size={13} color="#B9DAFF" strokeWidth={1.5} />
+            ) : (
+              <Volume2 size={13} color="#B9DAFF" strokeWidth={1.5} />
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p
+              style={{
+                fontFamily: G,
+                fontSize: 12,
+                fontWeight: 500,
+                color: '#A1A1AA',
+              }}
+              className="truncate"
             >
-              <IconComp className={`w-4 h-4 mb-1 ${isActive ? m.color : ''}`} />
-              <span className="text-[10px] tracking-tight">{m.label}</span>
-            </button>
-          );
-        })}
+              {currentSoundObj.label}
+            </p>
+            <p
+              style={{
+                fontFamily: M,
+                fontSize: 7,
+                color: '#3F3F46',
+                marginTop: 2,
+              }}
+            >
+              Vol {Math.round(volume * 100)}%
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowSoundMenu(!showSoundMenu)}
+            className="flex items-center gap-1 flex-shrink-0 transition-opacity active:opacity-50"
+            style={{
+              background: '#000000',
+              border: '1px solid #27272A',
+              borderRadius: 4,
+              padding: '4px 8px',
+            }}
+          >
+            <span style={{ fontFamily: M, fontSize: 7, color: '#3F3F46' }}>Change</span>
+            <ChevronRight
+              size={9}
+              color="#3F3F46"
+              strokeWidth={1.5}
+              className={`transition-transform ${showSoundMenu ? 'rotate-90' : ''}`}
+            />
+          </button>
+        </div>
+
+        {/* Expandable Soundscape Menu */}
+        {showSoundMenu && (
+          <div
+            style={{
+              background: '#090A0C',
+              border: '1px solid #27272A',
+              borderRadius: 8,
+              padding: '12px',
+              marginTop: 6,
+            }}
+            className="space-y-3"
+          >
+            {/* Volume Slider */}
+            <div className="space-y-1">
+              <div className="flex justify-between" style={{ fontFamily: M, fontSize: 8, color: '#8BA0B0' }}>
+                <span>VOLUME</span>
+                <span>{Math.round(volume * 100)}%</span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.05"
+                value={volume}
+                onChange={(e) => {
+                  const newVol = parseFloat(e.target.value);
+                  if (onChangeVolume) onChangeVolume(newVol);
+                  if (currentSound !== 'none') soundEngine.setVolume(newVol);
+                }}
+                className="w-full accent-[#B9DAFF] bg-[#18181B] h-1.5 rounded-lg cursor-pointer"
+              />
+            </div>
+
+            {/* Soundscape List */}
+            <div className="grid grid-cols-2 gap-1.5 max-h-36 overflow-y-auto pr-1">
+              {soundscapes.map((s) => {
+                const isActive = s.id === currentSound;
+                return (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => handleSelectSound(s.id)}
+                    className="flex items-center justify-between px-2.5 py-2 rounded text-left transition"
+                    style={{
+                      background: isActive ? 'rgba(185,218,255,0.1)' : '#000000',
+                      border: `1px solid ${isActive ? '#B9DAFF' : '#27272A'}`,
+                      fontFamily: M,
+                      fontSize: 10,
+                      color: isActive ? '#B9DAFF' : '#8BA0B0',
+                    }}
+                  >
+                    <span className="truncate">{s.label}</span>
+                    {isActive && <Check size={10} />}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Main Control Buttons */}
-      <div className="flex items-center justify-center gap-4">
-        {/* Reset Button */}
+      {/* Controls */}
+      <div className="relative z-10 flex flex-col gap-2.5 mt-2">
         <button
-          onClick={onReset}
-          className="w-14 h-14 rounded-2xl bg-[#1c1c24] border border-[#2e2e3a] hover:border-slate-500 text-slate-300 hover:text-white flex items-center justify-center shadow-md transition active:scale-95"
-          title="Reset Timer"
-        >
-          <RotateCcw className="w-6 h-6" />
-        </button>
-
-        {/* Play / Pause Button */}
-        <button
-          onClick={onTogglePlay}
-          className={`w-20 h-20 rounded-3xl flex items-center justify-center font-bold shadow-xl transition-transform active:scale-95 ${
-            isRunning
-              ? 'bg-[#ffb142] text-black shadow-[#ffb142]/30'
-              : 'bg-[#ff5252] hover:bg-[#ff3b3b] text-white shadow-[#ff5252]/30 glow-red'
-          }`}
-          title={isRunning ? 'Jeda' : 'Mulai Fokus'}
+          type="button"
+          onClick={() => {
+            if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(20);
+            if (onTogglePlay) onTogglePlay();
+          }}
+          className="w-full flex items-center justify-center gap-2.5 transition-opacity active:opacity-80"
+          style={{ background: '#B9DAFF', borderRadius: 8, padding: '14px 0' }}
         >
           {isRunning ? (
-            <Pause className="w-10 h-10 fill-current" />
+            <>
+              <Pause size={15} color="#000000" strokeWidth={2} fill="#000000" />
+              <span
+                style={{
+                  fontFamily: G,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: '#000000',
+                }}
+              >
+                Pause
+              </span>
+            </>
           ) : (
-            <Play className="w-10 h-10 fill-current ml-1" />
+            <>
+              <Play size={15} color="#000000" strokeWidth={2} fill="#000000" />
+              <span
+                style={{
+                  fontFamily: G,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: '#000000',
+                }}
+              >
+                Resume
+              </span>
+            </>
           )}
         </button>
 
-        {/* Skip Button */}
         <button
-          onClick={onSkip}
-          className="w-14 h-14 rounded-2xl bg-[#1c1c24] border border-[#2e2e3a] hover:border-slate-500 text-slate-300 hover:text-white flex items-center justify-center shadow-md transition active:scale-95"
-          title="Lewati ke Sesi Berikutnya"
+          type="button"
+          onClick={() => {
+            if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(10);
+            if (onReset) onReset();
+          }}
+          className="w-full flex items-center justify-center gap-2.5 transition-opacity active:opacity-60"
+          style={{
+            background: 'transparent',
+            border: '1px solid #27272A',
+            borderRadius: 8,
+            padding: '12px 0',
+          }}
         >
-          <SkipForward className="w-6 h-6" />
+          <Square size={13} color="#A1A1AA" strokeWidth={1.5} />
+          <span style={{ fontFamily: G, fontSize: 13, color: '#A1A1AA' }}>Stop</span>
         </button>
       </div>
     </div>

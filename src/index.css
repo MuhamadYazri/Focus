@@ -2,19 +2,15 @@
 
 @layer base {
   :root {
-    --bg-primary: #0a0a0c;
-    --bg-secondary: #131318;
-    --bg-card: #1c1c24;
-    --bg-card-hover: #252530;
-    --border-color: #2e2e3a;
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
-    --accent-red: #ff5252;
-    --accent-yellow: #ffb142;
-    --accent-blue: #34ace0;
-    --accent-purple: #6c5ce7;
-    --accent-green: #2ecc71;
+    --bg-primary: #000000;
+    --bg-surface: #090A0C;
+    --bg-card: #090A0C;
+    --border-color: #27272A;
+    --text-primary: #FFFFFF;
+    --text-secondary: #8BA0B0;
+    --text-muted: #A1A1AA;
+    --accent-ice: #B9DAFF;
+    --accent-slate: #8BA0B0;
   }
 
   body {
@@ -27,6 +23,10 @@
   }
 }
 
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
 /* Custom Scrollbar for Android & Web */
 ::-webkit-scrollbar {
   width: 4px;
@@ -36,37 +36,38 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #27272A;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #3f3f46;
 }
 
-/* Glassmorphism & Glow Utilities */
+/* Matte Dark Glassmorphism & Borders */
 .glass-panel {
-  background: rgba(28, 28, 36, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(9, 10, 12, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid #272A30;
 }
 
-.glow-red {
-  box-shadow: 0 0 25px rgba(255, 82, 82, 0.3);
+.border-subtle {
+  border-color: #27272A;
 }
 
-.glow-purple {
-  box-shadow: 0 0 25px rgba(108, 92, 231, 0.3);
+/* Minimalist Focus Rings */
+.glow-ice {
+  /* Removed glow */
 }
 
-.glow-green {
-  box-shadow: 0 0 25px rgba(46, 204, 113, 0.3);
+.glow-slate {
+  /* Removed glow */
 }
 
 /* Animations */
 @keyframes pulse-subtle {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.85; transform: scale(0.98); }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
 }
 
 .animate-pulse-subtle {

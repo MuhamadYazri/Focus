@@ -1,48 +1,56 @@
 import React from 'react';
-import { CheckSquare, Timer, FolderKanban, BarChart2, Settings } from 'lucide-react';
+import { Activity, Timer, BarChart2, BookOpen } from 'lucide-react';
 
 export default function BottomNav({ activeTab, setActiveTab }) {
-  const navItems = [
-    { id: 'tasks', label: 'Tugas', icon: CheckSquare },
-    { id: 'timer', label: 'Fokus', icon: Timer },
-    { id: 'projects', label: 'Proyek', icon: FolderKanban },
-    { id: 'analytics', label: 'Laporan', icon: BarChart2 },
-    { id: 'settings', label: 'Pengaturan', icon: Settings },
+  const items = [
+    { key: 'home', label: 'Home', Icon: Activity },
+    { key: 'timer', label: 'Timer', Icon: Timer },
+    { key: 'reports', label: 'Reports', Icon: BarChart2 },
+    { key: 'profile', label: 'Profile', Icon: BookOpen },
   ];
 
-  const handleTabClick = (id) => {
-    // Optional haptic vibration in Android WebView
-    if (window.navigator && window.navigator.vibrate) {
-      window.navigator.vibrate(15);
-    }
-    setActiveTab(id);
-  };
-
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 glass-panel border-t border-[#2e2e3a] px-2 py-1.5 pb-safe md:pb-2">
-      <div className="max-w-md mx-auto flex items-center justify-around">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeTab === item.id;
+    <div
+      style={{ borderTop: '1px solid #27272A', background: '#000000' }}
+      className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around px-4 pt-3 pb-6 select-none"
+    >
+      <div className="w-full max-w-md mx-auto flex items-center justify-around">
+        {items.map(({ key, label, Icon }) => {
+          const on = activeTab === key;
           return (
             <button
-              key={item.id}
-              onClick={() => handleTabClick(item.id)}
-              className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all duration-200 relative ${
-                isActive
-                  ? 'text-[#ff5252] scale-105 font-medium'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
+              key={key}
+              onClick={() => {
+                if (window.navigator && window.navigator.vibrate) {
+                  window.navigator.vibrate(10);
+                }
+                setActiveTab(key);
+              }}
+              className="flex flex-col items-center gap-1.5 transition-opacity active:opacity-50 flex-1"
             >
-              {isActive && (
-                <span className="absolute -top-1 w-8 h-1 bg-[#ff5252] rounded-full shadow-[0_0_10px_rgba(255,82,82,0.8)]" />
-              )}
-              <Icon className={`w-6 h-6 mb-1 transition-transform ${isActive ? 'scale-110' : ''}`} />
-              <span className="text-[11px] tracking-tight">{item.label}</span>
+              <div className="relative flex flex-col items-center gap-1.5">
+                {on && (
+                  <span
+                    className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
+                    style={{ background: '#B9DAFF' }}
+                  />
+                )}
+                <Icon size={18} color={on ? '#B9DAFF' : '#3F3F46'} strokeWidth={1.5} />
+                <span
+                  style={{
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: 8,
+                    color: on ? '#B9DAFF' : '#3F3F46',
+                    letterSpacing: '0.06em',
+                  }}
+                >
+                  {label}
+                </span>
+              </div>
             </button>
           );
         })}
       </div>
-    </nav>
+    </div>
   );
 }

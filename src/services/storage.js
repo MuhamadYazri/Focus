@@ -5,76 +5,60 @@ const STORAGE_KEYS = {
   TASKS: 'focus_tasks_v1',
   SESSIONS: 'focus_sessions_v1',
   SETTINGS: 'focus_settings_v1',
+  DAILY_GOALS_HISTORY: 'focus_daily_goals_history_v1',
 };
 
 export const DEFAULT_PROJECTS = [
-  { id: 'proj-1', name: 'Work & Coding', color: '#ff5252', icon: 'Briefcase', pomodoros: 12 },
-  { id: 'proj-2', name: 'Study & Reading', color: '#ffb142', icon: 'BookOpen', pomodoros: 8 },
-  { id: 'proj-3', name: 'Personal & Health', color: '#34ace0', icon: 'Heart', pomodoros: 5 },
-  { id: 'proj-4', name: 'Side Projects', color: '#6c5ce7', icon: 'Rocket', pomodoros: 15 },
+  { id: 'proj-1', name: '01 // PERSONAL_APP_DEV', color: '#B9DAFF', icon: 'Code', pomodoros: 24 },
+  { id: 'proj-2', name: '02 // CLIENT_WEB_PIPELINE', color: '#8BA0B0', icon: 'Layers', pomodoros: 18 },
+  { id: 'proj-3', name: '03 // SYS_ARCHITECTURE', color: '#A1A1AA', icon: 'Database', pomodoros: 32 },
 ];
 
 export const DEFAULT_TASKS = [
   {
     id: 'task-1',
-    title: 'Selesaikan desain UI Android di Figma',
+    title: 'Refactor Auth Backend API',
     projectId: 'proj-1',
-    priority: 'P1', // P1: Red, P2: Yellow, P3: Blue, NONE
+    priority: 'P1',
     estimatedPomos: 4,
     completedPomos: 2,
     completed: false,
     dueDate: new Date().toISOString().split('T')[0],
     subtasks: [
-      { id: 'sub-1', title: 'Buat wireframe komponen utama', completed: true },
-      { id: 'sub-2', title: 'Terapkan INTXXSI dark mode color palette', completed: true },
-      { id: 'sub-3', title: 'Siapkan spesifikasi animasi untuk developer', completed: false },
+      { id: 'sub-1', title: 'Migrate JWT validator to middleware', completed: true },
+      { id: 'sub-2', title: 'Implement refresh token rotation', completed: true },
+      { id: 'sub-3', title: 'Write integration test suite', completed: false },
     ],
-    notes: 'Prioritas utama minggu ini untuk meluncurkan MVP.',
+    notes: 'Critical operational pipeline task for auth security.',
     createdAt: new Date().toISOString(),
   },
   {
     id: 'task-2',
-    title: 'Membaca buku Atomic Habits - Bab 10 & 11',
+    title: 'Optimize WebGL Canvas Performance',
     projectId: 'proj-2',
     priority: 'P2',
     estimatedPomos: 2,
     completedPomos: 1,
     completed: false,
-    dueDate: new Date(Date.now() + 86400000).toISOString().split('T')[0], // tomorrow
+    dueDate: new Date().toISOString().split('T')[0],
     subtasks: [
-      { id: 'sub-4', title: 'Baca bab 10: Hukum ke-3 Atur Lingkungan', completed: true },
-      { id: 'sub-5', title: 'Baca bab 11: Berjalan perlahan tapi tidak mundur', completed: false },
+      { id: 'sub-4', title: 'Profile shader execution time in DevTools', completed: true },
+      { id: 'sub-5', title: 'Reduce draw calls by batching meshes', completed: false },
     ],
-    notes: 'Catat poin penting di jurnal.',
+    notes: 'Maintain 60fps telemetry rendering.',
     createdAt: new Date().toISOString(),
   },
   {
     id: 'task-3',
-    title: 'Latihan cardio & stretching 30 menit',
+    title: 'Review System Data Models',
     projectId: 'proj-3',
     priority: 'P3',
     estimatedPomos: 1,
-    completedPomos: 1,
-    completed: true,
-    dueDate: new Date().toISOString().split('T')[0],
-    subtasks: [],
-    notes: 'Di taman dekat rumah.',
-    createdAt: new Date(Date.now() - 86400000).toISOString(),
-  },
-  {
-    id: 'task-4',
-    title: 'Implementasi Capacitor SQLite / IDB di App',
-    projectId: 'proj-4',
-    priority: 'P1',
-    estimatedPomos: 5,
-    completedPomos: 3,
+    completedPomos: 0,
     completed: false,
-    dueDate: new Date().toISOString().split('T')[0],
-    subtasks: [
-      { id: 'sub-6', title: 'Setup arsitektur idb-keyval modular', completed: true },
-      { id: 'sub-7', title: 'Uji sinkronisasi offline di WebView Android', completed: false },
-    ],
-    notes: 'Pastikan performa 60fps tanpa jeda loading.',
+    dueDate: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+    subtasks: [],
+    notes: 'Verify indexing and relationship constraints.',
     createdAt: new Date().toISOString(),
   },
 ];
@@ -89,6 +73,7 @@ export const DEFAULT_SETTINGS = {
   soundscape: 'rain', // 'none', 'rain', 'forest', 'waves', 'cafe', 'clock'
   soundVolume: 0.6,
   strictMode: false,
+  dailyGoalHours: 4.0,
 };
 
 // Generate sample sessions for 365 days heatmap & statistics
@@ -184,5 +169,32 @@ export const storage = {
   async saveSettings(settings) {
     setLocal(STORAGE_KEYS.SETTINGS, settings);
     try { await set(STORAGE_KEYS.SETTINGS, settings); } catch (e) {}
+    if (settings && settings.dailyGoalHours) {
+      this.recordDailyGoalForToday(settings.dailyGoalHours);
+    }
+  },
+
+  async getDailyGoalsHistory() {
+    const defaultHist = {
+      '2026-07-03': 4.0,
+      '2026-07-02': 4.0,
+      '2026-07-01': 4.0,
+    };
+    try {
+      const data = await get(STORAGE_KEYS.DAILY_GOALS_HISTORY);
+      return data || getLocal(STORAGE_KEYS.DAILY_GOALS_HISTORY, defaultHist);
+    } catch (e) {
+      return getLocal(STORAGE_KEYS.DAILY_GOALS_HISTORY, defaultHist);
+    }
+  },
+  async saveDailyGoalsHistory(map) {
+    setLocal(STORAGE_KEYS.DAILY_GOALS_HISTORY, map);
+    try { await set(STORAGE_KEYS.DAILY_GOALS_HISTORY, map); } catch (e) {}
+  },
+  async recordDailyGoalForToday(hours) {
+    const todayStr = new Date().toISOString().split('T')[0];
+    const map = await this.getDailyGoalsHistory();
+    map[todayStr] = hours;
+    await this.saveDailyGoalsHistory(map);
   },
 };

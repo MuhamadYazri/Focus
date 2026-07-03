@@ -1,178 +1,215 @@
-import React, { useState } from 'react';
-import { Check, Clock, Calendar, ChevronDown, ChevronUp, Play, Trash2, Edit3, ListChecks } from 'lucide-react';
-import ProjectBadge from '../Projects/ProjectBadge';
-import confetti from 'canvas-confetti';
+import React from 'react';
+import { ChevronDown, ChevronUp, Check } from 'lucide-react';
 
-const PRIORITY_STYLES = {
-  P1: { label: 'P1 Tinggi', bg: 'bg-[#ff5252]/15', text: 'text-[#ff5252]', border: 'border-[#ff5252]/30' },
-  P2: { label: 'P2 Sedang', bg: 'bg-[#ffb142]/15', text: 'text-[#ffb142]', border: 'border-[#ffb142]/30' },
-  P3: { label: 'P3 Rendah', bg: 'bg-[#34ace0]/15', text: 'text-[#34ace0]', border: 'border-[#34ace0]/30' },
-  NONE: null,
-};
+const G = "Geist, 'Helvetica Neue', sans-serif";
+const M = "'JetBrains Mono', monospace";
+
+const ACCENTS = ['#B9DAFF', '#8BA0B0', '#4A7090', '#6A7090'];
 
 export default function TaskItem({
   task,
   project,
-  onToggleComplete,
-  onToggleSubtask,
   onEdit,
   onDelete,
+  onToggleComplete,
+  onToggleSubtask,
   onStartPomodoro,
 }) {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = React.useState(false);
 
-  const handleCheckboxClick = (e) => {
-    e.stopPropagation();
-    if (!task.completed) {
-      // Trigger subtle confetti on completion
-      confetti({
-        particleCount: 40,
-        spread: 60,
-        origin: { y: 0.8 },
-        colors: ['#ff5252', '#2ecc71', '#ffb142', '#34ace0'],
-      });
-      if (window.navigator && window.navigator.vibrate) {
-        window.navigator.vibrate([20, 30, 20]);
-      }
-    }
-    onToggleComplete(task.id);
+  // Derive accent color
+  const accent =
+    task.accent ||
+    (project ? ACCENTS[(project.id ? project.id.charCodeAt(project.id.length - 1) : 0) % ACCENTS.length] : '#B9DAFF');
+
+  // Format project tag (e.g. "01 · Personal App")
+  const formatTag = () => {
+    if (task.tag && task.index) return `${task.index} · ${task.tag}`;
+    if (!project) return '00 · Unassigned';
+    const cleanName = project.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' ');
+    const idNum = project.id ? project.id.replace('proj-', '0').padStart(2, '0') : '01';
+    return `${idNum} · ${cleanName}`;
   };
 
-  const pStyle = PRIORITY_STYLES[task.priority];
-  const hasSubtasks = task.subtasks && task.subtasks.length > 0;
-  const completedSubtasks = hasSubtasks
-    ? task.subtasks.filter((s) => s.completed).length
-    : 0;
+  const getStatusText = () => {
+    if (task.status) return task.status;
+    if (task.completed) return 'Completed';
+    if (task.completedPomos && task.completedPomos > 0) return 'In Progress';
+    if (task.priority === 'HIGH') return 'Queued';
+    return 'Idle';
+  };
+
+  const tagText = formatTag();
+  const statusText = getStatusText();
+  const pomoDone = task.completedPomos || task.pomoDone || 0;
+  const pomoTotal = task.estimatedPomos || task.pomoTotal || 1;
 
   return (
     <div
-      className={`group bg-[#1c1c24] hover:bg-[#252530] border rounded-2xl transition-all p-4 ${
-        task.completed
-          ? 'border-slate-800 opacity-60 bg-[#131318]'
-          : 'border-[#2e2e3a] hover:border-slate-600 shadow-md'
-      }`}
+      style={{
+        background: '#090A0C',
+        border: '1px solid #27272A',
+        borderLeft: `2px solid ${accent}`,
+        borderRadius: 8,
+        padding: '12px 14px',
+      }}
+      onClick={() => onEdit && onEdit(task)}
+      className="cursor-pointer active:opacity-70 transition-opacity select-none group"
     >
-      <div className="flex items-start gap-3">
-        {/* Checkbox */}
-        <button
-          onClick={handleCheckboxClick}
-          className={`mt-1 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all flex-shrink-0 ${
-            task.completed
-              ? 'bg-[#2ecc71] border-[#2ecc71] text-black shadow-sm'
-              : 'border-slate-500 hover:border-[#ff5252] bg-[#131318]'
-          }`}
-        >
-          {task.completed && <Check className="w-4 h-4 stroke-[3]" />}
-        </button>
-
-        {/* Main Content */}
-        <div className="flex-1 min-w-0" onClick={() => hasSubtasks && setExpanded(!expanded)}>
-          <div className="flex items-start justify-between gap-2">
-            <h4
-              className={`font-semibold text-base transition break-words ${
-                task.completed ? 'line-through text-slate-400' : 'text-white group-hover:text-[#ff5252]'
-              }`}
-            >
-              {task.title}
-            </h4>
-
-            {/* Quick Actions */}
-            <div className="flex items-center gap-1 flex-shrink-0">
-              {!task.completed && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onStartPomodoro(task);
-                  }}
-                  className="p-1.5 rounded-lg bg-[#ff5252]/10 text-[#ff5252] hover:bg-[#ff5252] hover:text-white transition shadow-sm"
-                  title="Fokus Tugas Ini"
-                >
-                  <Play className="w-4 h-4 fill-current" />
-                </button>
-              )}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onEdit(task);
-                }}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition"
-                title="Edit Tugas"
-              >
-                <Edit3 className="w-4 h-4" />
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete(task.id);
-                }}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-[#ff5252] hover:bg-[#ff5252]/10 transition"
-                title="Hapus Tugas"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-
-          {/* Badges & Meta info */}
-          <div className="flex flex-wrap items-center gap-2 mt-2 pt-1">
-            <ProjectBadge project={project} size="sm" />
-
-            {pStyle && (
-              <span
-                className={`text-[11px] font-bold px-2 py-0.5 rounded-md border ${pStyle.bg} ${pStyle.text} ${pStyle.border}`}
-              >
-                {pStyle.label}
-              </span>
+      <div className="flex items-start justify-between mb-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(10);
+              onToggleComplete(task.id);
+            }}
+            style={{
+              width: 14,
+              height: 14,
+              borderRadius: 2,
+              flexShrink: 0,
+              border: `1px solid ${task.completed ? accent : '#27272A'}`,
+              background: task.completed ? accent : 'transparent',
+            }}
+            className="flex items-center justify-center transition-colors hover:border-[#B9DAFF]"
+          >
+            {task.completed && (
+              <svg width={8} height={8} viewBox="0 0 8 8">
+                <path
+                  d="M1 4 L3 6 L7 2"
+                  stroke="#000"
+                  strokeWidth={1.5}
+                  fill="none"
+                  strokeLinecap="round"
+                />
+              </svg>
             )}
-
-            <span className="flex items-center gap-1 text-[11px] font-medium text-slate-400 bg-[#131318] px-2 py-0.5 rounded-md border border-[#2e2e3a]">
-              <Clock className="w-3 h-3 text-[#ffb142]" />
-              {task.completedPomos || 0} / {task.estimatedPomos || 1} Pomo
-            </span>
-
-            {task.dueDate && (
-              <span className="flex items-center gap-1 text-[11px] font-medium text-slate-400 bg-[#131318] px-2 py-0.5 rounded-md border border-[#2e2e3a]">
-                <Calendar className="w-3 h-3 text-[#34ace0]" />
-                {task.dueDate}
-              </span>
-            )}
-
-            {hasSubtasks && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setExpanded(!expanded);
-                }}
-                className="flex items-center gap-1 text-[11px] font-medium text-slate-300 hover:text-white bg-white/5 px-2 py-0.5 rounded-md transition"
-              >
-                <ListChecks className="w-3 h-3 text-[#6c5ce7]" />
-                {completedSubtasks}/{task.subtasks.length} Subtugas
-                {expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-              </button>
-            )}
-          </div>
+          </button>
+          <span
+            style={{
+              fontFamily: M,
+              fontSize: 8,
+              color: accent,
+              letterSpacing: '0.06em',
+            }}
+            className="truncate"
+          >
+            {tagText}
+          </span>
         </div>
+        <span
+          style={{
+            fontFamily: M,
+            fontSize: 8,
+            color: '#A1A1AA',
+            background: '#000000',
+            border: '1px solid #27272A',
+            borderRadius: 4,
+            padding: '2px 7px',
+            flexShrink: 0,
+            marginLeft: 8,
+          }}
+        >
+          {pomoDone} / {pomoTotal} pomo
+        </span>
       </div>
 
-      {/* Subtasks Accordion */}
-      {hasSubtasks && expanded && (
-        <div className="mt-3 pt-3 border-t border-[#2e2e3a] pl-9 space-y-2 animate-fadeIn">
+      <p
+        style={{
+          fontFamily: G,
+          fontSize: 13,
+          fontWeight: 500,
+          color: task.completed ? '#3F3F46' : '#FFFFFF',
+          letterSpacing: '-0.01em',
+          lineHeight: 1.35,
+          textDecoration: task.completed ? 'line-through' : 'none',
+        }}
+      >
+        {task.title}
+      </p>
+
+      {/* Subtasks summary pill if exists */}
+      {task.subtasks && task.subtasks.length > 0 && (
+        <div
+          onClick={(e) => {
+            e.stopPropagation();
+            setExpanded(!expanded);
+          }}
+          style={{
+            fontFamily: M,
+            fontSize: 8,
+            color: '#8BA0B0',
+            background: '#000000',
+            border: '1px solid #27272A',
+            borderRadius: 4,
+            padding: '2px 6px',
+            marginTop: 8,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 4,
+          }}
+        >
+          <span>
+            SUBTASKS: {task.subtasks.filter((s) => s.completed).length} / {task.subtasks.length}
+          </span>
+          {expanded ? <ChevronUp size={10} /> : <ChevronDown size={10} />}
+        </div>
+      )}
+
+      <div className="flex items-center justify-between mt-2.5">
+        <span style={{ fontFamily: M, fontSize: 7.5, color: '#3F3F46' }}>{statusText}</span>
+        {!task.completed && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onStartPomodoro) onStartPomodoro(task);
+            }}
+            style={{ fontFamily: M, fontSize: 7.5, color: '#B9DAFF' }}
+            className="hover:underline"
+          >
+            Start timer →
+          </button>
+        )}
+      </div>
+
+      {/* Expanded Subtasks */}
+      {expanded && task.subtasks && task.subtasks.length > 0 && (
+        <div
+          style={{ borderTop: '1px solid #27272A', marginTop: 10, paddingTop: 10 }}
+          className="space-y-1.5"
+        >
           {task.subtasks.map((sub) => (
             <div
               key={sub.id}
-              onClick={() => onToggleSubtask(task.id, sub.id)}
-              className="flex items-center gap-2.5 text-xs text-slate-300 hover:text-white cursor-pointer py-1 group/sub"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onToggleSubtask) onToggleSubtask(task.id, sub.id);
+              }}
+              className="flex items-center gap-2 text-xs cursor-pointer py-0.5"
             >
               <div
-                className={`w-4 h-4 rounded border flex items-center justify-center transition ${
-                  sub.completed
-                    ? 'bg-[#6c5ce7] border-[#6c5ce7] text-white'
-                    : 'border-slate-500 group-hover/sub:border-[#6c5ce7] bg-[#131318]'
-                }`}
+                style={{
+                  width: 12,
+                  height: 12,
+                  borderRadius: 2,
+                  border: `1px solid ${sub.completed ? '#8BA0B0' : '#27272A'}`,
+                  background: sub.completed ? '#8BA0B0' : '#000000',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
               >
-                {sub.completed && <Check className="w-3 h-3 stroke-[3]" />}
+                {sub.completed && <Check size={8} color="#000000" strokeWidth={3} />}
               </div>
-              <span className={sub.completed ? 'line-through text-slate-500' : ''}>
+              <span
+                style={{
+                  fontFamily: M,
+                  fontSize: 10,
+                  color: sub.completed ? '#52525B' : '#8BA0B0',
+                  textDecoration: sub.completed ? 'line-through' : 'none',
+                }}
+              >
                 {sub.title}
               </span>
             </div>

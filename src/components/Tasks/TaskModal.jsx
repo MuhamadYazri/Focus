@@ -1,38 +1,78 @@
 import React, { useState, useEffect } from 'react';
-import { X, Plus, Trash2, Calendar, Clock, AlertCircle, FolderKanban, ListChecks } from 'lucide-react';
+import { X, Plus, ChevronUp, ChevronDown, Check } from 'lucide-react';
 
-export default function TaskModal({ isOpen, onClose, onSave, projects, taskToEdit = null, defaultProjectId = null }) {
+const G = "Geist, 'Helvetica Neue', sans-serif";
+const M = "'JetBrains Mono', monospace";
+
+const ACCENTS = ['#B9DAFF', '#8BA0B0', '#4A7090', '#6A7090'];
+
+export default function TaskModal({
+  isOpen,
+  onClose,
+  onSave,
+  projects = [],
+  taskToEdit = null,
+  defaultProjectId = null,
+}) {
   const [title, setTitle] = useState('');
   const [projectId, setProjectId] = useState('');
-  const [priority, setPriority] = useState('NONE');
-  const [estimatedPomos, setEstimatedPomos] = useState(1);
-  const [dueDate, setDueDate] = useState('');
-  const [notes, setNotes] = useState('');
+  const [pomoTotal, setPomoTotal] = useState(1);
+  const [showTags, setShowTags] = useState(false);
   const [subtasks, setSubtasks] = useState([]);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
+  const [showSubtasks, setShowSubtasks] = useState(false);
 
   useEffect(() => {
     if (taskToEdit) {
       setTitle(taskToEdit.title || '');
       setProjectId(taskToEdit.projectId || (projects[0] ? projects[0].id : ''));
-      setPriority(taskToEdit.priority || 'NONE');
-      setEstimatedPomos(taskToEdit.estimatedPomos || 1);
-      setDueDate(taskToEdit.dueDate || '');
-      setNotes(taskToEdit.notes || '');
+      setPomoTotal(taskToEdit.estimatedPomos || 1);
       setSubtasks(taskToEdit.subtasks || []);
     } else {
       setTitle('');
       setProjectId(defaultProjectId || (projects[0] ? projects[0].id : ''));
-      setPriority('NONE');
-      setEstimatedPomos(1);
-      setDueDate(new Date().toISOString().split('T')[0]);
-      setNotes('');
+      setPomoTotal(1);
       setSubtasks([]);
     }
     setNewSubtaskTitle('');
+    setShowTags(false);
+    setShowSubtasks(false);
   }, [taskToEdit, isOpen, projects, defaultProjectId]);
 
   if (!isOpen) return null;
+
+  const currentProjectIndex = projects.findIndex((p) => p.id === projectId);
+  const selectedProject =
+    currentProjectIndex >= 0 ? projects[currentProjectIndex] : projects[0] || { name: 'Personal App', id: 'default' };
+  const currentAccent = ACCENTS[(currentProjectIndex >= 0 ? currentProjectIndex : 0) % ACCENTS.length];
+
+  const handleSubmit = () => {
+    if (!title.trim()) return;
+
+    const cleanName = selectedProject.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' ');
+    const idNum = selectedProject.id
+      ? selectedProject.id.replace('proj-', '0').padStart(2, '0')
+      : String(currentProjectIndex + 1).padStart(2, '0');
+    const tag = cleanName;
+    const index = idNum;
+
+    onSave({
+      ...(taskToEdit || {}),
+      id: taskToEdit ? taskToEdit.id : `task-${Date.now()}`,
+      title: title.trim(),
+      projectId: selectedProject.id,
+      estimatedPomos: pomoTotal,
+      completedPomos: taskToEdit ? taskToEdit.completedPomos : 0,
+      completed: taskToEdit ? taskToEdit.completed : false,
+      priority: taskToEdit ? taskToEdit.priority : 'NONE',
+      accent: currentAccent,
+      tag: tag,
+      index: index,
+      subtasks: subtasks,
+      createdAt: taskToEdit ? taskToEdit.createdAt : new Date().toISOString(),
+    });
+    onClose();
+  };
 
   const handleAddSubtask = (e) => {
     e.preventDefault();
@@ -44,250 +84,375 @@ export default function TaskModal({ isOpen, onClose, onSave, projects, taskToEdi
     setNewSubtaskTitle('');
   };
 
-  const handleRemoveSubtask = (id) => {
-    setSubtasks(subtasks.filter((s) => s.id !== id));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!title.trim()) return;
-
-    onSave({
-      id: taskToEdit ? taskToEdit.id : `task-${Date.now()}`,
-      title: title.trim(),
-      projectId: projectId || (projects[0] ? projects[0].id : ''),
-      priority,
-      estimatedPomos: Number(estimatedPomos) || 1,
-      completedPomos: taskToEdit ? taskToEdit.completedPomos || 0 : 0,
-      completed: taskToEdit ? taskToEdit.completed || false : false,
-      dueDate,
-      notes,
-      subtasks,
-      createdAt: taskToEdit ? taskToEdit.createdAt : new Date().toISOString(),
-    });
-    onClose();
-  };
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
-      <div className="w-full max-w-lg bg-[#1c1c24] border border-[#2e2e3a] rounded-2xl shadow-2xl p-6 text-white max-h-[90vh] overflow-y-auto relative">
-        <div className="flex items-center justify-between pb-4 mb-4 border-b border-[#2e2e3a] sticky top-0 bg-[#1c1c24] z-10">
-          <h3 className="text-lg font-bold flex items-center gap-2">
-            {taskToEdit ? 'Edit Tugas' : 'Buat Tugas Baru'}
-          </h3>
+    <div
+      className="fixed inset-0 z-50 flex flex-col items-end justify-end select-none"
+      style={{ background: 'rgba(0,0,0,0.85)' }}
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-md mx-auto"
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: '#090A0C',
+          borderTop: '1px solid #27272A',
+          borderLeft: '1px solid #27272A',
+          borderRight: '1px solid #27272A',
+          borderRadius: '12px 12px 0 0',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Drag handle */}
+        <div className="flex justify-center pt-3 pb-1">
+          <div style={{ width: 32, height: 4, borderRadius: 2, background: '#27272A' }} />
+        </div>
+
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 pt-2 pb-3">
+          <div>
+            <p style={{ fontFamily: M, fontSize: 8, color: '#3F3F46', letterSpacing: '0.1em' }}>
+              Focus
+            </p>
+            <h3
+              style={{
+                fontFamily: G,
+                fontSize: 16,
+                fontWeight: 600,
+                color: '#FFFFFF',
+                marginTop: 2,
+              }}
+            >
+              {taskToEdit ? 'Edit task' : 'New task'}
+            </h3>
+          </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition"
+            style={{
+              width: 28,
+              height: 28,
+              borderRadius: 6,
+              border: '1px solid #27272A',
+              background: '#000000',
+            }}
+            className="flex items-center justify-center transition-opacity active:opacity-50"
           >
-            <X className="w-5 h-5" />
+            <X size={14} color="#3F3F46" strokeWidth={1.5} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Title */}
+        <div className="px-5 py-3 flex flex-col gap-4 max-h-[75vh] overflow-y-auto">
+          {/* Title input */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
-              Nama Tugas <span className="text-[#ff5252]">*</span>
+            <label
+              style={{
+                fontFamily: M,
+                fontSize: 8,
+                color: '#A1A1AA',
+                letterSpacing: '0.08em',
+                display: 'block',
+                marginBottom: 8,
+              }}
+            >
+              Task title
             </label>
             <input
-              type="text"
-              required
+              autoFocus
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Apa yang ingin Anda kerjakan?"
-              className="w-full bg-[#131318] border border-[#2e2e3a] rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#ff5252] transition font-medium"
+              onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+              placeholder="What needs to be done?"
+              style={{
+                width: '100%',
+                background: '#000000',
+                border: '1px solid #27272A',
+                borderRadius: 8,
+                padding: '11px 14px',
+                fontFamily: G,
+                fontSize: 14,
+                color: '#FFFFFF',
+                outline: 'none',
+                caretColor: '#B9DAFF',
+              }}
             />
           </div>
 
-          {/* Project & Priority Row */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1">
-                <FolderKanban className="w-3.5 h-3.5 text-[#ff5252]" />
-                Proyek
-              </label>
-              <select
-                value={projectId}
-                onChange={(e) => setProjectId(e.target.value)}
-                className="w-full bg-[#131318] border border-[#2e2e3a] rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-[#ff5252] transition"
-              >
-                {projects.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1">
-                <AlertCircle className="w-3.5 h-3.5 text-[#ffb142]" />
-                Prioritas
-              </label>
-              <div className="grid grid-cols-4 gap-1.5">
-                {[
-                  { id: 'P1', label: 'P1', color: 'bg-[#ff5252] text-white' },
-                  { id: 'P2', label: 'P2', color: 'bg-[#ffb142] text-black' },
-                  { id: 'P3', label: 'P3', color: 'bg-[#34ace0] text-white' },
-                  { id: 'NONE', label: '---', color: 'bg-[#2e2e3a] text-slate-300' },
-                ].map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => setPriority(item.id)}
-                    className={`py-2 rounded-xl text-xs font-bold border transition ${
-                      priority === item.id
-                        ? `${item.color} border-white/40 scale-105 shadow-md`
-                        : 'bg-[#131318] border-[#2e2e3a] text-slate-400 hover:text-white'
-                    }`}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Pomodoros & Due Date Row */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5 text-[#ffb142]" />
-                Estimasi Pomodoro (25m)
-              </label>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setEstimatedPomos(Math.max(1, estimatedPomos - 1))}
-                  className="w-10 h-10 rounded-xl bg-[#131318] border border-[#2e2e3a] font-bold text-lg hover:border-[#ff5252] transition"
-                >
-                  -
-                </button>
-                <input
-                  type="number"
-                  min="1"
-                  max="50"
-                  value={estimatedPomos}
-                  onChange={(e) => setEstimatedPomos(Math.max(1, parseInt(e.target.value) || 1))}
-                  className="w-full text-center bg-[#131318] border border-[#2e2e3a] rounded-xl py-2 font-bold text-base text-white focus:outline-none focus:border-[#ff5252]"
-                />
-                <button
-                  type="button"
-                  onClick={() => setEstimatedPomos(estimatedPomos + 1)}
-                  className="w-10 h-10 rounded-xl bg-[#131318] border border-[#2e2e3a] font-bold text-lg hover:border-[#ff5252] transition"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1">
-                <Calendar className="w-3.5 h-3.5 text-[#34ace0]" />
-                Tanggal Jatuh Tempo
-              </label>
-              <input
-                type="date"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-                className="w-full bg-[#131318] border border-[#2e2e3a] rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-[#ff5252] transition"
-              />
-            </div>
-          </div>
-
-          {/* Subtasks (Checklist) Section */}
-          <div className="bg-[#131318] border border-[#2e2e3a] rounded-2xl p-4 space-y-3">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center justify-between">
-              <span className="flex items-center gap-1.5">
-                <ListChecks className="w-4 h-4 text-[#6c5ce7]" />
-                Sub-tugas (Checklist)
-              </span>
-              <span className="text-slate-500 font-normal">{subtasks.length} item</span>
+          {/* Category/Project selector */}
+          <div>
+            <label
+              style={{
+                fontFamily: M,
+                fontSize: 8,
+                color: '#A1A1AA',
+                letterSpacing: '0.08em',
+                display: 'block',
+                marginBottom: 8,
+              }}
+            >
+              Category
             </label>
+            <button
+              type="button"
+              onClick={() => setShowTags((v) => !v)}
+              className="w-full flex items-center justify-between transition-opacity active:opacity-70"
+              style={{
+                background: '#000000',
+                border: `1px solid ${showTags ? currentAccent : '#27272A'}`,
+                borderRadius: 8,
+                padding: '10px 14px',
+              }}
+            >
+              <div className="flex items-center gap-2.5">
+                <div
+                  style={{ width: 8, height: 8, borderRadius: 2, background: currentAccent }}
+                />
+                <span style={{ fontFamily: G, fontSize: 13, color: '#FFFFFF' }}>
+                  {selectedProject.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' ')}
+                </span>
+              </div>
+              {showTags ? (
+                <ChevronUp size={13} color="#3F3F46" strokeWidth={1.5} />
+              ) : (
+                <ChevronDown size={13} color="#3F3F46" strokeWidth={1.5} />
+              )}
+            </button>
 
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={newSubtaskTitle}
-                onChange={(e) => setNewSubtaskTitle(e.target.value)}
-                placeholder="Tambahkan sub-tugas baru..."
-                className="flex-1 bg-[#1c1c24] border border-[#2e2e3a] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#6c5ce7] transition"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleAddSubtask(e);
-                  }
+            {showTags && (
+              <div
+                style={{
+                  background: '#000000',
+                  border: '1px solid #27272A',
+                  borderRadius: 8,
+                  marginTop: 4,
+                  overflow: 'hidden',
+                  maxHeight: 160,
+                  overflowY: 'auto',
                 }}
-              />
+              >
+                {projects.map((p, i) => {
+                  const isSel = p.id === selectedProject.id;
+                  const pAccent = ACCENTS[i % ACCENTS.length];
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => {
+                        setProjectId(p.id);
+                        setShowTags(false);
+                      }}
+                      className="w-full flex items-center gap-2.5 transition-opacity active:opacity-60 text-left"
+                      style={{
+                        padding: '10px 14px',
+                        borderBottom: i < projects.length - 1 ? '1px solid #27272A' : 'none',
+                        background: isSel ? 'rgba(185,218,255,0.04)' : 'transparent',
+                      }}
+                    >
+                      <div style={{ width: 8, height: 8, borderRadius: 2, background: pAccent }} />
+                      <span
+                        style={{
+                          fontFamily: G,
+                          fontSize: 13,
+                          color: isSel ? '#FFFFFF' : '#A1A1AA',
+                        }}
+                      >
+                        {p.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' ')}
+                      </span>
+                      {isSel && (
+                        <span
+                          style={{
+                            fontFamily: M,
+                            fontSize: 10,
+                            color: '#B9DAFF',
+                            marginLeft: 'auto',
+                          }}
+                        >
+                          ✓
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Pomodoro count */}
+          <div>
+            <label
+              style={{
+                fontFamily: M,
+                fontSize: 8,
+                color: '#A1A1AA',
+                letterSpacing: '0.08em',
+                display: 'block',
+                marginBottom: 8,
+              }}
+            >
+              Pomodoros planned
+            </label>
+            <div className="flex items-center gap-3">
               <button
                 type="button"
-                onClick={handleAddSubtask}
-                className="px-3 py-2 rounded-xl bg-[#6c5ce7] hover:bg-[#5b4bc4] text-white text-xs font-bold transition flex items-center gap-1"
+                onClick={() => setPomoTotal((v) => Math.max(1, v - 1))}
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 8,
+                  border: '1px solid #27272A',
+                  background: '#000000',
+                }}
+                className="flex items-center justify-center text-white transition-opacity active:opacity-50"
+                aria-label="Decrease"
               >
-                <Plus className="w-4 h-4 stroke-[3]" />
-                Tambah
+                <span
+                  style={{
+                    fontFamily: G,
+                    fontSize: 18,
+                    color: '#FFFFFF',
+                    lineHeight: 1,
+                  }}
+                >
+                  −
+                </span>
+              </button>
+              <div style={{ flex: 1, textAlign: 'center' }}>
+                <span
+                  style={{
+                    fontFamily: M,
+                    fontSize: 22,
+                    color: '#FFFFFF',
+                    fontWeight: 700,
+                    letterSpacing: '-1px',
+                  }}
+                >
+                  {pomoTotal}
+                </span>
+                <span
+                  style={{
+                    fontFamily: M,
+                    fontSize: 9,
+                    color: '#3F3F46',
+                    marginLeft: 6,
+                  }}
+                >
+                  {pomoTotal === 1 ? 'session' : 'sessions'}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPomoTotal((v) => Math.min(12, v + 1))}
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 8,
+                  border: '1px solid #27272A',
+                  background: '#000000',
+                }}
+                className="flex items-center justify-center transition-opacity active:opacity-50"
+                aria-label="Increase"
+              >
+                <Plus size={16} color="#FFFFFF" strokeWidth={1.5} />
               </button>
             </div>
+            {/* Pomo pips preview */}
+            <div className="flex gap-1.5 mt-3">
+              {Array.from({ length: pomoTotal }).map((_, i) => (
+                <div
+                  key={i}
+                  style={{
+                    height: 4,
+                    flex: 1,
+                    borderRadius: 1,
+                    background: '#B9DAFF',
+                    maxWidth: 32,
+                    opacity: 0.3 + 0.7 / pomoTotal,
+                  }}
+                />
+              ))}
+            </div>
+          </div>
 
-            {subtasks.length > 0 ? (
-              <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
-                {subtasks.map((sub, idx) => (
+          {/* Subtasks Expandable */}
+          <div>
+            <button
+              type="button"
+              onClick={() => setShowSubtasks(!showSubtasks)}
+              className="flex items-center justify-between w-full text-left py-1"
+              style={{ fontFamily: M, fontSize: 8, color: '#8BA0B0', letterSpacing: '0.06em' }}
+            >
+              <span>SUBTASKS ({subtasks.length})</span>
+              {showSubtasks ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+            </button>
+            {showSubtasks && (
+              <div
+                className="mt-2 p-2 rounded-lg space-y-2"
+                style={{ background: '#000000', border: '1px solid #27272A' }}
+              >
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newSubtaskTitle}
+                    onChange={(e) => setNewSubtaskTitle(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleAddSubtask(e)}
+                    placeholder="Add a subtask..."
+                    className="flex-1 bg-transparent text-xs text-[#FFFFFF] outline-none font-sans px-2 py-1 border border-[#27272A] rounded"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddSubtask}
+                    className="px-2 py-1 bg-[#18181B] text-[#FFFFFF] text-xs font-mono rounded border border-[#27272A]"
+                  >
+                    Add
+                  </button>
+                </div>
+                {subtasks.map((sub) => (
                   <div
                     key={sub.id}
-                    className="flex items-center justify-between gap-2 bg-[#1c1c24] border border-[#2e2e3a] px-3 py-2 rounded-xl text-xs"
+                    className="flex items-center justify-between text-xs text-[#A1A1AA] py-1 px-2 border-b border-[#27272A]/50 last:border-none"
                   >
-                    <span className="truncate flex-1 text-slate-300">
-                      <span className="text-slate-500 mr-2">{idx + 1}.</span>
-                      {sub.title}
-                    </span>
+                    <span>{sub.title}</span>
                     <button
                       type="button"
-                      onClick={() => handleRemoveSubtask(sub.id)}
-                      className="p-1 text-slate-400 hover:text-[#ff5252] transition"
+                      onClick={() => setSubtasks(subtasks.filter((s) => s.id !== sub.id))}
+                      className="text-[#3F3F46] hover:text-[#FF6B6B]"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <X size={12} />
                     </button>
                   </div>
                 ))}
               </div>
-            ) : (
-              <p className="text-[11px] text-slate-500 text-center py-2 italic">
-                Belum ada sub-tugas. Pecah tugas besar menjadi langkah-langkah kecil!
-              </p>
             )}
           </div>
 
-          {/* Notes */}
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
-              Catatan / Detail
-            </label>
-            <textarea
-              rows="2"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Tambahkan catatan khusus untuk tugas ini..."
-              className="w-full bg-[#131318] border border-[#2e2e3a] rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#ff5252] transition resize-none"
-            />
-          </div>
+          {/* Confirm button */}
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={!title.trim()}
+            className="w-full flex items-center justify-center gap-2 transition-opacity active:opacity-80"
+            style={{
+              background: title.trim() ? '#B9DAFF' : '#1A1A1A',
+              borderRadius: 8,
+              padding: '13px 0',
+              border: title.trim() ? 'none' : '1px solid #27272A',
+              marginTop: 4,
+            }}
+          >
+            <Plus size={15} color={title.trim() ? '#000000' : '#3F3F46'} strokeWidth={2.5} />
+            <span
+              style={{
+                fontFamily: G,
+                fontSize: 14,
+                fontWeight: 600,
+                color: title.trim() ? '#000000' : '#3F3F46',
+              }}
+            >
+              {taskToEdit ? 'Save changes' : 'Add task'}
+            </span>
+          </button>
 
-          {/* Submit buttons */}
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#2e2e3a] sticky bottom-0 bg-[#1c1c24] py-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:bg-white/5 transition"
-            >
-              Batal
-            </button>
-            <button
-              type="submit"
-              className="px-6 py-2.5 rounded-xl text-sm font-bold bg-[#ff5252] hover:bg-[#ff3b3b] text-white shadow-lg shadow-[#ff5252]/20 transition"
-            >
-              Simpan Tugas
-            </button>
-          </div>
-        </form>
+          {/* safe-area spacer */}
+          <div style={{ height: 8 }} />
+        </div>
       </div>
     </div>
   );

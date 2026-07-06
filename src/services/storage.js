@@ -84,6 +84,7 @@ export const DEFAULT_SETTINGS = {
   soundscape: 'rain', // 'none', 'rain', 'forest', 'waves', 'cafe', 'clock'
   soundVolume: 0.6,
   strictMode: false,
+  keepAwake: true,
   dailyGoalHours: 4.0,
 };
 
@@ -306,10 +307,17 @@ export const storage = {
 
   async getSettings() {
     try {
-      const data = await get(STORAGE_KEYS.SETTINGS);
-      return data || getLocal(STORAGE_KEYS.SETTINGS, DEFAULT_SETTINGS);
+      let data = await get(STORAGE_KEYS.SETTINGS);
+      data = data || getLocal(STORAGE_KEYS.SETTINGS, DEFAULT_SETTINGS);
+      if (data && data.keepAwake === undefined) {
+        data.keepAwake = true;
+        await this.saveSettings(data);
+      }
+      return data;
     } catch (e) {
-      return getLocal(STORAGE_KEYS.SETTINGS, DEFAULT_SETTINGS);
+      const local = getLocal(STORAGE_KEYS.SETTINGS, DEFAULT_SETTINGS);
+      if (local && local.keepAwake === undefined) local.keepAwake = true;
+      return local;
     }
   },
   async saveSettings(settings) {

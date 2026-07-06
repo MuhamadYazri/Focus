@@ -11,6 +11,7 @@ import ProfileView from './components/Profile/ProfileView';
 import { storage, DEFAULT_PROJECTS, DEFAULT_TASKS, DEFAULT_SETTINGS, generateSampleSessions } from './services/storage';
 import { soundEngine } from './services/soundEngine';
 import { StatusBar, Style } from '@capacitor/status-bar';
+import { KeepAwake } from '@capacitor-community/keep-awake';
 
 const getLocalDateStr = (d) => {
   try {
@@ -145,6 +146,43 @@ export default function App() {
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [isRunning, settings.strictMode, timerMode]);
+
+  // Keep Screen Awake during Active Session
+  useEffect(() => {
+    const manageWakeLock = async () => {
+      if (isRunning && settings.keepAwake) {
+        try {
+          await KeepAwake.keepAwake();
+        } catch (e) {
+          try {
+            if ('wakeLock' in navigator && !window._wakeLockSentinel) {
+              window._wakeLockSentinel = await navigator.wakeLock.request('screen');
+            }
+          } catch (err) {}
+        }
+      } else {
+        try {
+          await KeepAwake.allowSleep();
+        } catch (e) {}
+        try {
+          if (window._wakeLockSentinel) {
+            await window._wakeLockSentinel.release();
+            window._wakeLockSentinel = null;
+          }
+        } catch (err) {}
+      }
+    };
+    manageWakeLock();
+    return () => {
+      try { KeepAwake.allowSleep(); } catch (e) {}
+      try {
+        if (window._wakeLockSentinel) {
+          window._wakeLockSentinel.release();
+          window._wakeLockSentinel = null;
+        }
+      } catch (err) {}
+    };
+  }, [isRunning, settings.keepAwake]);
 
   // Timer Tick Logic
   useEffect(() => {

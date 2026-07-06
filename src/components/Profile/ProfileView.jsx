@@ -410,6 +410,50 @@ export default function ProfileView({
           </div>
         </div>
 
+        {/* Keep Screen Awake Card */}
+        <div
+          style={{
+            background: '#090A0C',
+            border: '1px solid #27272A',
+            borderRadius: 8,
+            padding: '12px 14px',
+          }}
+          className="flex items-center justify-between"
+        >
+          <div>
+            <p style={{ fontFamily: G, fontSize: 13, fontWeight: 500, color: '#FFFFFF' }}>
+              Keep Screen Awake
+            </p>
+            <p style={{ fontFamily: M, fontSize: 8, color: '#8BA0B0', marginTop: 2 }}>
+              Prevent phone display from turning off during active sessions
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(10);
+              handleChange('keepAwake', !settings.keepAwake);
+            }}
+            className="flex items-center gap-1.5 transition-opacity active:opacity-70"
+            style={{
+              background: settings.keepAwake ? '#B9DAFF' : '#000000',
+              border: `1px solid ${settings.keepAwake ? '#B9DAFF' : '#27272A'}`,
+              borderRadius: 4,
+              padding: '6px 10px',
+            }}
+          >
+            <span
+              style={{
+                fontFamily: M,
+                fontSize: 9,
+                color: settings.keepAwake ? '#000000' : '#8BA0B0',
+                fontWeight: 700,
+              }}
+            >
+              {settings.keepAwake ? 'ON' : 'OFF'}
+            </span>
+          </button>
+        </div>
 
         {/* Cloud Backup Card */}
         <div

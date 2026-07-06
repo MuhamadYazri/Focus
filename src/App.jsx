@@ -12,11 +12,22 @@ import { storage, DEFAULT_PROJECTS, DEFAULT_TASKS, DEFAULT_SETTINGS, generateSam
 import { soundEngine } from './services/soundEngine';
 import { StatusBar, Style } from '@capacitor/status-bar';
 
+const getLocalDateStr = (d) => {
+  try {
+    const dt = d ? new Date(d) : new Date();
+    if (isNaN(dt.getTime())) return new Date().toISOString().split('T')[0];
+    const z = new Date(dt.getTime() - dt.getTimezoneOffset() * 60000);
+    return z.toISOString().split('T')[0];
+  } catch (e) {
+    return new Date().toISOString().split('T')[0];
+  }
+};
+
 function processDailyRollover(tasksList) {
   if (!tasksList || !tasksList.length) return tasksList;
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = getLocalDateStr();
   return tasksList.map((task) => {
-    const compDate = task.completedDateStr || (task.completedAt ? task.completedAt.split('T')[0] : null);
+    const compDate = task.completedDateStr || (typeof task.completedAt === 'string' ? task.completedAt.split('T')[0] : null);
     if (task && task.scheduleType === 'daily' && task.completed && compDate && compDate !== todayStr) {
       return { ...task, completed: false, completedPomos: 0, completedDateStr: null, completedAt: null };
     }
@@ -181,7 +192,7 @@ export default function App() {
         projectId: activeTask ? activeTask.projectId : (projects[0] ? projects[0].id : 'proj-1'),
         duration: settings.workDuration,
         completedAt: new Date().toISOString(),
-        dateStr: new Date().toISOString().split('T')[0],
+        dateStr: getLocalDateStr(),
       };
       setSessions((prev) => [newSess, ...prev]);
 
@@ -197,7 +208,7 @@ export default function App() {
             if (t.id === activeTask.id) {
               const updatedPomos = (t.completedPomos || 0) + 1;
               const isDone = updatedPomos >= t.estimatedPomos;
-              const todayStr = new Date().toISOString().split('T')[0];
+              const todayStr = getLocalDateStr();
               return {
                 ...t,
                 completedPomos: updatedPomos,
@@ -289,7 +300,7 @@ export default function App() {
   };
 
   const handleToggleComplete = (id) => {
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = getLocalDateStr();
     setTasks((prev) =>
       prev.map((t) => {
         if (t.id === id) {
@@ -373,6 +384,8 @@ export default function App() {
         <TaskList
           tasks={tasks}
           projects={projects}
+          sessions={sessions}
+          settings={settings}
           selectedProjectId={selectedProjectId}
           onSelectProject={setSelectedProjectId}
           onAddTask={() => {

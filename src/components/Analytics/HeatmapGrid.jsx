@@ -4,6 +4,17 @@ import { format, subDays } from 'date-fns';
 import { id as idLocale } from 'date-fns/locale';
 
 export default function HeatmapGrid({ sessions }) {
+  const getLocalDateStr = (d) => {
+    try {
+      const dt = d ? new Date(d) : new Date();
+      if (isNaN(dt.getTime())) return new Date().toISOString().split('T')[0];
+      const z = new Date(dt.getTime() - dt.getTimezoneOffset() * 60000);
+      return z.toISOString().split('T')[0];
+    } catch (e) {
+      return new Date().toISOString().split('T')[0];
+    }
+  };
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -11,7 +22,7 @@ export default function HeatmapGrid({ sessions }) {
   const totalDays = 63;
   const days = Array.from({ length: totalDays }, (_, i) => {
     const date = subDays(today, totalDays - 1 - i);
-    const dateStr = date.toISOString().split('T')[0];
+    const dateStr = getLocalDateStr(date);
     const count = sessions.filter((s) => s.dateStr === dateStr).length;
     return {
       date,
@@ -38,7 +49,7 @@ export default function HeatmapGrid({ sessions }) {
     if (count === 0) return 'bg-[#131418] border-[#27272A] text-transparent';
     if (count <= 2) return 'bg-[#8BA0B0]/40 border-[#8BA0B0]/60 text-[#FFFFFF]';
     if (count <= 5) return 'bg-[#8BA0B0] border-[#8BA0B0] text-[#000000] font-bold';
-    return 'bg-[#B9DAFF] border-[#B9DAFF] text-[#000000] font-black shadow-[0_0_10px_rgba(185,218,255,0.5)]';
+    return 'bg-[#B9DAFF] border-[#B9DAFF] text-[#000000] font-black';
   };
 
   return (

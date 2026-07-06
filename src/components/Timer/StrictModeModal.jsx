@@ -6,7 +6,7 @@ export default function StrictModeModal({ isOpen, onClose, onResetTimer }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
-      <div className="w-full max-w-sm bg-[#1c1c24] border-2 border-[#ff5252] rounded-3xl shadow-[0_0_50px_rgba(255,82,82,0.4)] p-6 text-center text-white space-y-5 relative">
+      <div className="w-full max-w-sm bg-[#1c1c24] border-2 border-[#ff5252] rounded-3xl shadow-2xl p-6 text-center text-white space-y-5 relative">
         <div className="w-16 h-16 bg-[#ff5252]/20 border border-[#ff5252] rounded-full flex items-center justify-center mx-auto text-[#ff5252] animate-bounce">
           <ShieldAlert className="w-8 h-8 stroke-[2.5]" />
         </div>
@@ -23,7 +23,7 @@ export default function StrictModeModal({ isOpen, onClose, onResetTimer }) {
         <div className="pt-2 flex flex-col gap-2.5">
           <button
             onClick={onClose}
-            className="w-full py-3 rounded-xl bg-[#ff5252] hover:bg-[#ff3b3b] text-white font-bold text-sm shadow-lg shadow-[#ff5252]/30 transition flex items-center justify-center gap-2"
+            className="w-full py-3 rounded-xl bg-[#ff5252] hover:bg-[#ff3b3b] text-white font-bold text-sm shadow-lg transition flex items-center justify-center gap-2"
           >
             <Play className="w-4 h-4 fill-current" />
             Kembali Fokus Sekarang

@@ -4,13 +4,24 @@ import { format, subDays } from 'date-fns';
 import { id as idLocale } from 'date-fns/locale';
 
 export default function TrendGraph({ sessions, tasks }) {
+  const getLocalDateStr = (d) => {
+    try {
+      const dt = d ? new Date(d) : new Date();
+      if (isNaN(dt.getTime())) return new Date().toISOString().split('T')[0];
+      const z = new Date(dt.getTime() - dt.getTimezoneOffset() * 60000);
+      return z.toISOString().split('T')[0];
+    } catch (e) {
+      return new Date().toISOString().split('T')[0];
+    }
+  };
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   // Generate last 7 days stats
   const last7Days = Array.from({ length: 7 }, (_, i) => {
     const date = subDays(today, 6 - i);
-    const dateStr = date.toISOString().split('T')[0];
+    const dateStr = getLocalDateStr(date);
     const daySessions = sessions.filter((s) => s.dateStr === dateStr);
     const pomos = daySessions.length || (i === 6 ? 6 : Math.floor(Math.random() * 5) + 2);
     const hours = (pomos * 25) / 60;
@@ -59,7 +70,7 @@ export default function TrendGraph({ sessions, tasks }) {
               <div className="w-full max-w-[24px] bg-[#131418] rounded-t-sm overflow-hidden flex items-end h-24 p-0.5 border border-[#27272A] group-hover:border-[#8BA0B0] transition">
                 <div
                   className={`w-full rounded-t-sm transition-all duration-500 ${
-                    isToday ? 'bg-[#B9DAFF] shadow-[0_0_10px_#B9DAFF]' : 'bg-[#8BA0B0] group-hover:bg-[#B9DAFF]/70'
+                    isToday ? 'bg-[#B9DAFF]' : 'bg-[#8BA0B0] group-hover:bg-[#B9DAFF]/70'
                   }`}
                   style={{ height: `${heightPct}%` }}
                 />

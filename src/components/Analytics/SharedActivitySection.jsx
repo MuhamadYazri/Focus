@@ -9,9 +9,14 @@ const HMAP_FILL = ['#0F0F0F', '#1A2530', '#2A3C4E', '#3D5C76', '#4A7090'];
 const DAY_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
 const getLocalDateStr = (d) => {
-  const dt = d ? new Date(d) : new Date();
-  const z = new Date(dt.getTime() - dt.getTimezoneOffset() * 60000);
-  return z.toISOString().split('T')[0];
+  try {
+    const dt = d ? new Date(d) : new Date();
+    if (isNaN(dt.getTime())) return new Date().toISOString().split('T')[0];
+    const z = new Date(dt.getTime() - dt.getTimezoneOffset() * 60000);
+    return z.toISOString().split('T')[0];
+  } catch (e) {
+    return new Date().toISOString().split('T')[0];
+  }
 };
 
 const formatTimeNoDecimals = (totalMins) => {

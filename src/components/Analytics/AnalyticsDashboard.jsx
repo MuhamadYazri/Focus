@@ -48,6 +48,17 @@ function getDateRangeLabel(period, offset) {
   return '';
 }
 
+const getLocalDateStr = (d) => {
+  try {
+    const dt = d ? new Date(d) : new Date();
+    if (isNaN(dt.getTime())) return new Date().toISOString().split('T')[0];
+    const z = new Date(dt.getTime() - dt.getTimezoneOffset() * 60000);
+    return z.toISOString().split('T')[0];
+  } catch (e) {
+    return new Date().toISOString().split('T')[0];
+  }
+};
+
 function filterSessionsForPeriod(sessions, period, offset) {
   if (!sessions || !sessions.length) return [];
   if (period === 'All') return sessions;
@@ -55,32 +66,39 @@ function filterSessionsForPeriod(sessions, period, offset) {
   if (period === 'Daily') {
     const d = new Date(now);
     d.setDate(d.getDate() + offset);
-    const targetStr = d.toISOString().split('T')[0];
-    return sessions.filter((s) => s.dateStr === targetStr || (s.completedAt && s.completedAt.startsWith(targetStr)));
+    const targetStr = getLocalDateStr(d);
+    return sessions.filter((s) => {
+      const sDt = s.dateStr || (s.completedAt && s.completedAt.split('T')[0]);
+      return sDt === targetStr;
+    });
   }
   if (period === 'Weekly') {
     const day = now.getDay() || 7;
     const start = new Date(now);
     start.setDate(now.getDate() - day + 1 + offset * 7);
-    start.setHours(0, 0, 0, 0);
+    const startStr = getLocalDateStr(start);
     const end = new Date(start);
     end.setDate(start.getDate() + 6);
-    end.setHours(23, 59, 59, 999);
-    const startTime = start.getTime();
-    const endTime = end.getTime();
+    const endStr = getLocalDateStr(end);
     return sessions.filter((s) => {
-      const t = new Date(s.completedAt || s.dateStr || Date.now()).getTime();
-      return t >= startTime && t <= endTime;
+      const sDt = s.dateStr || (s.completedAt && s.completedAt.split('T')[0]);
+      return sDt >= startStr && sDt <= endStr;
     });
   }
   if (period === 'Monthly') {
     const d = new Date(now.getFullYear(), now.getMonth() + offset, 1);
-    const monthStr = d.toISOString().slice(0, 7);
-    return sessions.filter((s) => (s.dateStr || s.completedAt || '').startsWith(monthStr));
+    const monthStr = getLocalDateStr(d).slice(0, 7);
+    return sessions.filter((s) => {
+      const sDt = s.dateStr || (s.completedAt && s.completedAt.split('T')[0]);
+      return sDt.startsWith(monthStr);
+    });
   }
   if (period === 'Yearly') {
     const yearStr = String(now.getFullYear() + offset);
-    return sessions.filter((s) => (s.dateStr || s.completedAt || '').startsWith(yearStr));
+    return sessions.filter((s) => {
+      const sDt = s.dateStr || (s.completedAt && s.completedAt.split('T')[0]);
+      return sDt.startsWith(yearStr);
+    });
   }
   return [];
 }export default function AnalyticsDashboard({ tasks = [], projects = [], sessions = [] }) {
@@ -94,10 +112,18 @@ function filterSessionsForPeriod(sessions, period, offset) {
     gap = 4;
   let deg = 0;
 
+  const formatDisplayHours = (mins) => {
+    if (!mins || mins <= 0) return '0h 00m';
+    const rounded = Math.round(mins);
+    const h = Math.floor(rounded / 60);
+    const m = rounded % 60;
+    return `${h}h ${m < 10 ? '0' : ''}${m}m`;
+  };
+
   const todayStr = new Date().toISOString().split('T')[0];
   const filteredSessions = filterSessionsForPeriod(sessions, currentPeriod, currentOffset);
-  const totalSessionsCount = filteredSessions.length || 1;
-  const displayPomos = filteredSessions.length || 0;
+  const totalMins = (filteredSessions || []).reduce((acc, s) => acc + (s.duration || 25), 0);
+  const displayTotalTime = formatDisplayHours(totalMins);
 
   const computedSegments = (projects && projects.length ? projects : [
     { id: 'proj-1', name: '01 // STUDY', color: '#B9DAFF' },
@@ -105,27 +131,25 @@ function filterSessionsForPeriod(sessions, period, offset) {
     { id: 'proj-3', name: '03 // SYS_ARCHITECTURE', color: '#A1A1AA' },
   ])
     .map((proj, idx) => {
-      const isStudyProj = proj.name.toLowerCase().includes('study') || idx === 0;
       const projSessions = (filteredSessions || []).filter((s) => {
-        const isPast = s.dateStr < todayStr || (s.id && s.id.startsWith('sess-'));
-        if (isPast) {
-          return isStudyProj; // All past sessions belong to Study
-        }
-        return s.projectId === proj.id;
+        return s.projectId === proj.id || (!s.projectId && idx === 0);
       });
       const count = projSessions.length;
-      const pct = totalSessionsCount > 0 ? Math.round((count / totalSessionsCount) * 100) : 0;
+      const projMins = projSessions.reduce((acc, s) => acc + (s.duration || 25), 0);
+      const pct = totalMins > 0 ? Math.round((projMins / totalMins) * 100) : 0;
       return {
         label: proj.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' '),
         pct,
         count,
+        mins: projMins,
+        displayTime: formatDisplayHours(projMins),
         color: proj.color || '#B9DAFF',
       };
     })
     .filter((seg) => seg.pct > 0 || seg.count > 0)
-    .sort((a, b) => b.pct - a.pct);
+    .sort((a, b) => b.mins - a.mins);
 
-  const activeSegments = computedSegments.length ? computedSegments : [{ label: 'Study', pct: 100, count: 0, color: '#B9DAFF' }];
+  const activeSegments = computedSegments.length ? computedSegments : [{ label: 'No Data', pct: 100, count: 0, mins: 0, displayTime: '0h 00m', color: '#27272A' }];
 
   return (
     <div
@@ -217,7 +241,7 @@ function filterSessionsForPeriod(sessions, period, offset) {
                 fontWeight={700}
                 fontFamily="Geist"
               >
-                {displayPomos.toLocaleString()}
+                {displayTotalTime}
               </text>
               <text
                 x={cx}
@@ -227,7 +251,7 @@ function filterSessionsForPeriod(sessions, period, offset) {
                 fontSize={8}
                 fontFamily="JetBrains Mono"
               >
-                sessions
+                total time
               </text>
             </svg>
             <div className="flex flex-col gap-2.5 flex-1 min-w-0">
@@ -256,7 +280,7 @@ function filterSessionsForPeriod(sessions, period, offset) {
                       </span>
                     </div>
                     <span style={{ fontFamily: M, fontSize: 7, color: '#A1A1AA', marginLeft: 4 }}>
-                      {seg.pct}%
+                      {seg.displayTime} ({seg.pct}%)
                     </span>
                   </div>
                   <div

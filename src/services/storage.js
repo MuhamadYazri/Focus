@@ -8,6 +8,17 @@ const STORAGE_KEYS = {
   DAILY_GOALS_HISTORY: 'focus_daily_goals_history_v1',
 };
 
+const getLocalDateStr = (d) => {
+  try {
+    const dt = d ? new Date(d) : new Date();
+    if (isNaN(dt.getTime())) return new Date().toISOString().split('T')[0];
+    const z = new Date(dt.getTime() - dt.getTimezoneOffset() * 60000);
+    return z.toISOString().split('T')[0];
+  } catch (e) {
+    return new Date().toISOString().split('T')[0];
+  }
+};
+
 export const DEFAULT_PROJECTS = [
   { id: 'proj-1', name: '01 // STUDY', color: '#B9DAFF', icon: 'BookOpen', pomodoros: 1010 },
   { id: 'proj-2', name: '02 // PERSONAL_APP_DEV', color: '#8BA0B0', icon: 'Code', pomodoros: 18 },
@@ -327,7 +338,7 @@ export const storage = {
     try { await set(STORAGE_KEYS.DAILY_GOALS_HISTORY, map); } catch (e) {}
   },
   async recordDailyGoalForToday(hours) {
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = getLocalDateStr();
     const map = await this.getDailyGoalsHistory();
     map[todayStr] = hours;
     await this.saveDailyGoalsHistory(map);

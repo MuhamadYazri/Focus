@@ -97,7 +97,7 @@ export default function ReportCardModal({ onClose, projects, sessions }) {
               <span className="text-[#B9DAFF]">50% (18.5H)</span>
             </div>
             <div className="w-full h-2 bg-[#18181B] rounded-full overflow-hidden flex border border-[#27272A]">
-              <div className="h-full bg-[#B9DAFF] w-1/2 shadow-[0_0_8px_#B9DAFF]" />
+              <div className="h-full bg-[#B9DAFF] w-1/2" />
               <div className="h-full bg-[#8BA0B0] w-1/3" />
               <div className="h-full bg-[#3f3f46] w-1/6" />
             </div>
@@ -126,7 +126,7 @@ export default function ReportCardModal({ onClose, projects, sessions }) {
 
           <button
             onClick={handleBroadcast}
-            className="w-full py-3 rounded-lg bg-[#B9DAFF] hover:bg-[#a3cbfa] text-[#000000] font-mono font-bold text-xs tracking-wider flex items-center justify-center gap-2 transition active:scale-95 shadow-[0_0_15px_rgba(185,218,255,0.4)]"
+            className="w-full py-3 rounded-lg bg-[#B9DAFF] hover:bg-[#a3cbfa] text-[#000000] font-mono font-bold text-xs tracking-wider flex items-center justify-center gap-2 transition active:scale-95"
           >
             <Share2 className="w-3.5 h-3.5" />
             <span>BROADCAST_TRACE</span>

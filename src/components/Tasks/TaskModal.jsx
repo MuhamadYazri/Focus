@@ -23,7 +23,19 @@ export default function TaskModal({
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [showSubtasks, setShowSubtasks] = useState(false);
   const [scheduleType, setScheduleType] = useState('today');
-  const [scheduledDate, setScheduledDate] = useState(() => new Date().toISOString().split('T')[0]);
+
+  const getLocalDateStr = (d) => {
+    try {
+      const dt = d ? new Date(d) : new Date();
+      if (isNaN(dt.getTime())) return new Date().toISOString().split('T')[0];
+      const z = new Date(dt.getTime() - dt.getTimezoneOffset() * 60000);
+      return z.toISOString().split('T')[0];
+    } catch (e) {
+      return new Date().toISOString().split('T')[0];
+    }
+  };
+
+  const [scheduledDate, setScheduledDate] = useState(() => getLocalDateStr());
 
   const [dragY, setDragY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -37,14 +49,14 @@ export default function TaskModal({
       setPomoTotal(taskToEdit.estimatedPomos || 1);
       setSubtasks(taskToEdit.subtasks || []);
       setScheduleType(taskToEdit.scheduleType || 'today');
-      setScheduledDate(taskToEdit.scheduledDate || new Date().toISOString().split('T')[0]);
+      setScheduledDate(taskToEdit.scheduledDate || getLocalDateStr());
     } else {
       setTitle('');
       setProjectId(defaultProjectId || (projects[0] ? projects[0].id : ''));
       setPomoTotal(1);
       setSubtasks([]);
       setScheduleType('today');
-      setScheduledDate(new Date().toISOString().split('T')[0]);
+      setScheduledDate(getLocalDateStr());
     }
     setNewSubtaskTitle('');
     setShowTags(false);

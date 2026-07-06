@@ -3,6 +3,8 @@
  * Uses Google Identity Services (GIS) + Drive REST API v3
  * to backup/restore Focus app data to the user's Google Drive appDataFolder.
  */
+import { Capacitor } from '@capacitor/core';
+import { GoogleSignIn } from '@capawesome/capacitor-google-sign-in';
 
 // Replace with your real Google Cloud OAuth2 Client ID
 const CLIENT_ID = '693319619112-9qudji2r7dr3bpkjgd9n08kjeae2v807.apps.googleusercontent.com';
@@ -12,6 +14,7 @@ const DRIVE_API = 'https://www.googleapis.com/';
 
 let tokenClient = null;
 let accessToken = null;
+let nativeInitialized = false;
 
 // Dynamically load the GIS SDK script
 function loadGisScript() {
@@ -30,10 +33,28 @@ function loadGisScript() {
   });
 }
 
-// Request an OAuth2 access token via popup
+// Request an OAuth2 access token
 function requestAccessToken() {
   return new Promise(async (resolve, reject) => {
     try {
+      if (Capacitor.isNativePlatform()) {
+        if (!nativeInitialized) {
+          await GoogleSignIn.initialize({
+            clientId: CLIENT_ID,
+            scopes: [SCOPES],
+          });
+          nativeInitialized = true;
+        }
+        const result = await GoogleSignIn.signIn();
+        if (!result || !result.accessToken) {
+          reject(new Error('Failed to obtain Google access token on Android'));
+          return;
+        }
+        accessToken = result.accessToken;
+        resolve(accessToken);
+        return;
+      }
+
       await loadGisScript();
 
       tokenClient = window.google.accounts.oauth2.initTokenClient({
@@ -171,8 +192,14 @@ export async function getBackupInfo() {
 /**
  * Sign out / revoke current token.
  */
-export function signOut() {
-  if (accessToken && window.google?.accounts?.oauth2) {
+export async function signOut() {
+  if (Capacitor.isNativePlatform()) {
+    try {
+      await GoogleSignIn.signOut();
+    } catch (e) {
+      console.error('Native sign out error:', e);
+    }
+  } else if (accessToken && window.google?.accounts?.oauth2) {
     window.google.accounts.oauth2.revoke(accessToken);
   }
   accessToken = null;

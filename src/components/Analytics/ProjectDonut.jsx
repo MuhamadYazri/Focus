@@ -2,8 +2,18 @@ import React from 'react';
 import { PieChart } from 'lucide-react';
 import * as Icons from 'lucide-react';
 
-export default function ProjectDonut({ sessions, projects }) {
-  const todayStr = new Date().toISOString().split('T')[0];
+export default function ProjectDonut({ sessions = [], projects = [] }) {
+  const getLocalDateStr = (d) => {
+    try {
+      const dt = d ? new Date(d) : new Date();
+      if (isNaN(dt.getTime())) return new Date().toISOString().split('T')[0];
+      const z = new Date(dt.getTime() - dt.getTimezoneOffset() * 60000);
+      return z.toISOString().split('T')[0];
+    } catch (e) {
+      return new Date().toISOString().split('T')[0];
+    }
+  };
+  const todayStr = getLocalDateStr();
   const totalSessions = sessions.length || 1;
 
   // Calculate stats per project

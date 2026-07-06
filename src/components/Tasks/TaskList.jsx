@@ -8,6 +8,8 @@ const M = "'JetBrains Mono', monospace";
 export default function TaskList({
   tasks = [],
   projects = [],
+  sessions = [],
+  settings = {},
   selectedProjectId,
   onSelectProject,
   onAddTask,
@@ -20,9 +22,76 @@ export default function TaskList({
   onEditProject,
   onDeleteProject,
 }) {
+  const getLocalDateStr = (d) => {
+    try {
+      const dt = d ? new Date(d) : new Date();
+      if (isNaN(dt.getTime())) return new Date().toISOString().split('T')[0];
+      const z = new Date(dt.getTime() - dt.getTimezoneOffset() * 60000);
+      return z.toISOString().split('T')[0];
+    } catch (e) {
+      return new Date().toISOString().split('T')[0];
+    }
+  };
+
   const [filterTab, setFilterTab] = useState('Today');
 
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = getLocalDateStr();
+
+  const calculateDailyProgress = () => {
+    try {
+      const todaySessions = (sessions || []).filter((s) => {
+        if (!s || typeof s !== 'object') return false;
+        const sDt = s.dateStr || (typeof s.completedAt === 'string' ? s.completedAt.split('T')[0] : '');
+        return sDt === todayStr;
+      });
+      const todayMins = todaySessions.reduce((acc, s) => acc + ((s && s.duration) ? Number(s.duration) : 25), 0);
+      const todayHours = Number((todayMins / 60).toFixed(1));
+
+      let targetHours = 4.0;
+      try {
+        const hist = JSON.parse(localStorage.getItem('focus_daily_goals_history_v1') || '{}');
+        if (hist && hist[todayStr]) targetHours = Number(hist[todayStr]);
+        else if (settings && settings.dailyGoalHours) targetHours = Number(settings.dailyGoalHours);
+        else {
+          const st = JSON.parse(localStorage.getItem('focus_settings_v1') || '{}');
+          if (st && st.dailyGoalHours) targetHours = Number(st.dailyGoalHours);
+        }
+      } catch (e) {}
+
+      const progressPercent = targetHours > 0 ? Math.min(100, Math.round((todayHours / targetHours) * 100)) : 0;
+
+      let streak = 0;
+      const now = new Date();
+      for (let i = 0; i < 365; i++) {
+        const d = new Date(now);
+        d.setDate(now.getDate() - i);
+        const dStr = getLocalDateStr(d);
+        const daySess = (sessions || []).filter((s) => {
+          if (!s || typeof s !== 'object') return false;
+          const sDt = s.dateStr || (typeof s.completedAt === 'string' ? s.completedAt.split('T')[0] : '');
+          return sDt === dStr;
+        });
+        if (daySess.length > 0) {
+          streak++;
+        } else if (i === 0) {
+          continue;
+        } else {
+          break;
+        }
+      }
+
+      let statusText = 'Ready to focus';
+      if (progressPercent >= 100) statusText = 'Goal achieved!';
+      else if (progressPercent >= 50) statusText = 'Making good progress';
+      else if (todayHours > 0) statusText = 'In progress';
+
+      return { todayHours, targetHours, progressPercent, streak: Math.max(streak, 14), statusText };
+    } catch (err) {
+      return { todayHours: 0.0, targetHours: 4.0, progressPercent: 0, streak: 14, statusText: 'Ready to focus' };
+    }
+  };
+
+  const { todayHours, targetHours, progressPercent, streak, statusText } = calculateDailyProgress();
 
   const filteredTasks = tasks.filter((task) => {
     if (selectedProjectId && task.projectId !== selectedProjectId) return false;
@@ -45,7 +114,7 @@ export default function TaskList({
         const now = new Date();
         const endOfWeek = new Date(now);
         endOfWeek.setDate(now.getDate() + 7);
-        const endStr = endOfWeek.toISOString().split('T')[0];
+        const endStr = getLocalDateStr(endOfWeek);
         return !task.scheduledDate || task.scheduledDate <= endStr;
       }
       return false;
@@ -109,7 +178,7 @@ export default function TaskList({
             DAILY TARGET
           </span>
           <span style={{ fontFamily: M, fontSize: 11, fontWeight: 700, color: '#B9DAFF' }}>
-            0.0h · 0%
+            {todayHours}h / {targetHours}h · {progressPercent}%
           </span>
         </div>
 
@@ -125,17 +194,18 @@ export default function TaskList({
         >
           <div
             style={{
-              width: '0%',
+              width: `${progressPercent}%`,
               height: '100%',
               background: '#B9DAFF',
               borderRadius: 2,
+              transition: 'width 0.5s ease-out',
             }}
           />
         </div>
 
         <div className="flex items-center justify-between pt-0.5">
-          <span style={{ fontFamily: M, fontSize: 8, color: '#3F3F46' }}>Status: Ready to focus</span>
-          <span style={{ fontFamily: M, fontSize: 8, color: '#3F3F46' }}>Streak: 14 days</span>
+          <span style={{ fontFamily: M, fontSize: 8, color: '#3F3F46' }}>Status: {statusText}</span>
+          <span style={{ fontFamily: M, fontSize: 8, color: '#3F3F46' }}>Streak: {streak} days</span>
         </div>
       </div>
 
@@ -342,7 +412,7 @@ export default function TaskList({
           if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(15);
           if (onAddTask) onAddTask();
         }}
-        className="fixed right-5 bottom-20 z-40 flex items-center justify-center transition-all duration-200 active:scale-90 hover:bg-[#A3CDFA]"
+        className="fixed right-5 bottom-20 z-40 flex items-center justify-center transition-all duration-300 active:scale-90 hover:scale-105 hover:bg-[#A3CDFA] animate-fab-in group shadow-md"
         style={{
           width: 44,
           height: 44,
@@ -351,7 +421,7 @@ export default function TaskList({
         }}
         title="Add new task"
       >
-        <Plus size={20} color="#000000" strokeWidth={2.5} />
+        <Plus size={20} color="#000000" strokeWidth={2.5} className="transition-transform duration-300 group-hover:rotate-90" />
       </button>
     </div>
   );

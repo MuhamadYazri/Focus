@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, Lock, Unlock } from 'lucide-react';
+import { Lock, Unlock } from 'lucide-react';
 import TimerDisplay from './TimerDisplay';
 import TimerControls from './TimerControls';
 
@@ -34,14 +34,7 @@ export default function TimerView({
     >
       {/* Top bar */}
       <div className="relative z-10 flex items-center justify-between pt-2 pb-2">
-        <button
-          type="button"
-          onClick={onClearActiveTask}
-          className="flex items-center gap-1.5 transition-opacity active:opacity-50"
-        >
-          <ArrowLeft size={14} color="#3F3F46" strokeWidth={1.5} />
-          <span style={{ fontFamily: M, fontSize: 8, color: '#3F3F46' }}>Back</span>
-        </button>
+        <div className="w-12" />
 
         <div className="flex-1 mx-3 overflow-hidden">
           <p

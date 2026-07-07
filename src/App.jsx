@@ -59,6 +59,7 @@ export default function App() {
   const [activeTask, setActiveTask] = useState(null);
   const [currentSound, setCurrentSound] = useState('none');
   const [sessionDoneAlert, setSessionDoneAlert] = useState(null);
+  const [isNavHidden, setIsNavHidden] = useState(false);
 
   // Modals State
   const [taskModalOpen, setTaskModalOpen] = useState(false);
@@ -183,6 +184,15 @@ export default function App() {
       } catch (err) {}
     };
   }, [isRunning, settings.keepAwake]);
+
+  // Auto hide/show bottom nav when timer starts or stops
+  useEffect(() => {
+    if (isRunning && activeTab === 'timer') {
+      setIsNavHidden(true);
+    } else {
+      setIsNavHidden(false);
+    }
+  }, [isRunning, activeTab]);
 
   // Timer Tick Logic
   useEffect(() => {
@@ -476,6 +486,8 @@ export default function App() {
           }}
           strictMode={settings.strictMode}
           onToggleStrictMode={() => setSettings({ ...settings, strictMode: !settings.strictMode })}
+          isNavHidden={isNavHidden && activeTab === 'timer'}
+          onToggleNav={() => setIsNavHidden((prev) => !prev)}
         />
       );
     }
@@ -529,6 +541,7 @@ export default function App() {
           setTaskToEdit(null);
           setTaskModalOpen(true);
         }}
+        isHidden={isNavHidden && activeTab === 'timer'}
       />
 
       {/* Modals */}

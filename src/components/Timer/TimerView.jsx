@@ -24,12 +24,32 @@ export default function TimerView({
   onClearActiveTask,
   strictMode = false,
   onToggleStrictMode,
+  isNavHidden = false,
+  onToggleNav,
 }) {
   const taskTitle = activeTask ? activeTask.title : '';
 
+  const handleScreenTouch = (e) => {
+    if (
+      e.target.closest('button') ||
+      e.target.closest('input') ||
+      e.target.closest('a') ||
+      e.target.closest('[role="button"]') ||
+      e.target.closest('[data-interactive="true"]')
+    ) {
+      return;
+    }
+    if (onToggleNav) {
+      onToggleNav();
+    }
+  };
+
   return (
     <div
-      className="pb-28 pt-4 px-4 max-w-md mx-auto flex flex-col justify-between select-none relative min-h-[85vh]"
+      onClick={handleScreenTouch}
+      className={`pt-4 px-4 max-w-md mx-auto flex flex-col justify-between select-none relative transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) ${
+        isNavHidden ? 'pb-6 min-h-[94vh]' : 'pb-28 min-h-[85vh]'
+      }`}
       style={{ background: '#000000', fontFamily: G }}
     >
       {/* Top bar */}

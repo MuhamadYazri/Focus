@@ -1,7 +1,7 @@
 import React from 'react';
 import { Activity, Timer, BarChart2, BookOpen } from 'lucide-react';
 
-export default function BottomNav({ activeTab, setActiveTab }) {
+export default function BottomNav({ activeTab, setActiveTab, isHidden = false }) {
   const items = [
     { key: 'home', label: 'Home', Icon: Activity },
     { key: 'timer', label: 'Timer', Icon: Timer },
@@ -12,7 +12,9 @@ export default function BottomNav({ activeTab, setActiveTab }) {
   return (
     <div
       style={{ borderTop: '1px solid #27272A', background: '#000000' }}
-      className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around px-4 pt-3 pb-6 select-none"
+      className={`fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around px-4 pt-3 pb-6 select-none transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) ${
+        isHidden ? 'translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
+      }`}
     >
       <div className="w-full max-w-md mx-auto flex items-center justify-around">
         {items.map(({ key, label, Icon }) => {

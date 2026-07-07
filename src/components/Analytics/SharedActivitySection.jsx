@@ -90,18 +90,18 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
 
   const generateHeatmapGrid = (endDateRef, hlStart, hlEnd) => {
     const ref = new Date(endDateRef || now);
-    const dayOfWeek = ref.getDay() || 7;
-    const endSun = new Date(ref);
-    endSun.setDate(ref.getDate() + (7 - dayOfWeek)); // Align to end of week (Sunday)
-    const startMon = new Date(endSun);
-    startMon.setDate(endSun.getDate() - 27); // 28 days total (4 weeks)
+    const firstDayOfMonth = new Date(ref.getFullYear(), ref.getMonth(), 1);
+    const dayOfWeek = firstDayOfMonth.getDay() || 7;
+    const startMon = new Date(firstDayOfMonth);
+    startMon.setDate(firstDayOfMonth.getDate() - (dayOfWeek - 1));
 
     const todayStr = getLocalDateStr(now);
     const rangeStart = hlStart || todayStr;
     const rangeEnd = hlEnd || rangeStart;
+    const targetMonthPrefix = `${ref.getFullYear()}-${String(ref.getMonth() + 1).padStart(2, '0')}`;
 
     const grid = [];
-    for (let w = 0; w < 4; w++) {
+    for (let w = 0; w < 5; w++) {
       const row = [];
       for (let d = 0; d < 7; d++) {
         const cur = new Date(startMon);
@@ -120,6 +120,8 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
         else if (curHours >= targetHours * 0.4) val = 2;
         else if (curHours > 0) val = 1;
 
+        const isSameMonth = curStr.startsWith(targetMonthPrefix);
+
         row.push({
           val,
           dayNum: cur.getDate(),
@@ -127,6 +129,7 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
           targetHours,
           dateStr: curStr,
           isCurrent: curStr >= rangeStart && curStr <= rangeEnd,
+          isSameMonth,
         });
       }
       grid.push(row);
@@ -490,7 +493,7 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
           >
             <div className="flex items-center justify-between mb-3">
               <span style={{ fontFamily: M, fontSize: 8, color: '#A1A1AA', letterSpacing: '0.04em' }}>Activity Grid</span>
-              <span style={{ fontFamily: M, fontSize: 7, color: '#52525B' }}>28-day window</span>
+              <span style={{ fontFamily: M, fontSize: 7, color: '#52525B' }}>5x7 month grid</span>
             </div>
             <div className="flex gap-[3px] mb-1">
               {DAY_LABELS.map((d, i) => (
@@ -546,9 +549,11 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
                           style={{
                             fontFamily: M,
                             fontSize: 7,
-                            color: isCur
-                              ? '#B9DAFF'
-                              : val >= 3 ? 'rgba(255,255,255,0.8)' : val > 0 ? 'rgba(255,255,255,0.5)' : '#52525B',
+                            color: !cell.isSameMonth
+                              ? '#27272A'
+                              : isCur
+                                ? '#B9DAFF'
+                                : val >= 3 ? 'rgba(255,255,255,0.8)' : val > 0 ? 'rgba(255,255,255,0.5)' : '#52525B',
                             position: 'absolute',
                             top: 3,
                             left: 4,

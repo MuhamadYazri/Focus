@@ -49,29 +49,17 @@ export default function TimerView({
       onClick={handleScreenTouch}
       className={`pt-4 px-4 max-w-md mx-auto flex flex-col justify-between select-none relative transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) ${
         isNavHidden ? 'pb-6 min-h-[94vh]' : 'pb-28 min-h-[85vh]'
-      }`}
+      } landscape:max-w-full landscape:w-full landscape:h-screen landscape:min-h-screen landscape:py-0 landscape:px-6 landscape:justify-center landscape:items-center`}
       style={{ background: '#000000', fontFamily: G }}
     >
       {/* Top bar */}
-      <div className="relative z-10 flex items-center justify-between pt-2 pb-2">
+      <div
+        className={`relative z-10 flex items-center justify-between pt-2 pb-2 transition-all duration-500 w-full landscape:max-w-4xl ${
+          isNavHidden ? 'landscape:hidden landscape:opacity-0 landscape:pointer-events-none' : 'opacity-100'
+        }`}
+      >
         <div className="w-12" />
-
-        <div className="flex-1 mx-3 overflow-hidden">
-          <p
-            style={{
-              fontFamily: G,
-              fontSize: 11,
-              fontWeight: 500,
-              color: '#8BA0B0',
-              textAlign: 'center',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
-          >
-            {taskTitle}
-          </p>
-        </div>
+        <div className="flex-1" />
 
         <button
           type="button"
@@ -110,11 +98,16 @@ export default function TimerView({
           totalTime={totalTime}
           isRunning={isRunning}
           cycleCount={cycleCount}
+          taskTitle={taskTitle}
         />
       </div>
 
       {/* Control Deck */}
-      <div className="relative z-10 mt-auto">
+      <div
+        className={`relative z-10 mt-auto transition-all duration-500 w-full landscape:max-w-md ${
+          isNavHidden ? 'landscape:hidden landscape:opacity-0 landscape:pointer-events-none' : 'opacity-100'
+        }`}
+      >
         <TimerControls
           isRunning={isRunning}
           isInitial={timeLeft === totalTime || (mode === 'stopwatch' && timeLeft === 0)}

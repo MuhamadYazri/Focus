@@ -160,20 +160,6 @@ export default function ProfileView({
             Achievements
           </h1>
         </div>
-        <span
-          style={{
-            fontFamily: M,
-            fontSize: 8,
-            color: '#B9DAFF',
-            background: '#090A0C',
-            border: '1px solid #27272A',
-            padding: '4px 8px',
-            borderRadius: 4,
-            letterSpacing: '0.06em',
-          }}
-        >
-          VERIFIED
-        </span>
       </div>
 
       {/* Shared Activity Section with tabs, heatmap, and dynamic time distribution chart */}
@@ -609,19 +595,6 @@ export default function ProfileView({
                   {getReportHeading()}
                 </h3>
               </div>
-              <span
-                style={{
-                  fontFamily: M,
-                  fontSize: 8,
-                  color: '#B9DAFF',
-                  background: '#000000',
-                  border: '1px solid #27272A',
-                  padding: '3px 6px',
-                  borderRadius: 4,
-                }}
-              >
-                VERIFIED
-              </span>
             </div>
 
             {/* Report content */}

@@ -8,6 +8,7 @@ export default function TimerDisplay({
   totalTime,
   isRunning,
   cycleCount = 0,
+  taskTitle = '',
 }) {
   const [clockTime, setClockTime] = useState(() =>
     new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
@@ -45,26 +46,30 @@ export default function TimerDisplay({
   };
 
   return (
-    <div className="relative flex flex-col items-center select-none py-4" style={{ width: 280 }}>
+    <div className="relative flex flex-col items-center select-none py-4 w-[280px] landscape:w-full landscape:max-w-2xl">
 
-      {/* Mode label */}
-      <span
+      {/* Mode label & Task title */}
+      <div
         style={{
           fontFamily: M,
-          fontSize: 9,
           color: '#3F3F46',
-          letterSpacing: '0.18em',
-          marginBottom: 32,
+          letterSpacing: '0.15em',
         }}
+        className="text-[9px] mb-8 landscape:mb-2 landscape:text-xs font-medium flex items-center justify-center gap-2 max-w-full px-4 text-center truncate"
       >
-        {getModeLabel()}
-      </span>
+        <span>{getModeLabel()}</span>
+        {taskTitle && (
+          <>
+            <span style={{ color: '#27272A' }}>•</span>
+            <span style={{ color: '#8BA0B0' }} className="truncate max-w-[180px] landscape:max-w-[350px] font-normal tracking-normal">{taskTitle}</span>
+          </>
+        )}
+      </div>
 
       {/* Time display */}
       <div
         style={{
           fontFamily: M,
-          fontSize: 72,
           fontWeight: 700,
           color: '#FFFFFF',
           letterSpacing: '-3px',
@@ -72,7 +77,7 @@ export default function TimerDisplay({
           opacity: isRunning ? 1 : 0.6,
           transition: 'opacity 0.4s ease',
         }}
-        className="tabular-nums"
+        className="tabular-nums text-[72px] landscape:text-[110px] md:landscape:text-[140px]"
       >
         {formatTime(timeLeft)}
       </div>
@@ -81,18 +86,16 @@ export default function TimerDisplay({
       <div
         style={{
           fontFamily: M,
-          fontSize: 12,
           color: '#71717A',
           letterSpacing: '0.1em',
-          marginTop: 8,
         }}
-        className="tabular-nums transition-opacity duration-300"
+        className="tabular-nums transition-opacity duration-300 text-xs mt-2 landscape:mt-1 landscape:text-sm"
       >
         {clockTime}
       </div>
 
       {/* Status indicator */}
-      <div className="flex items-center gap-2 mt-5">
+      <div className="flex items-center gap-2 mt-5 landscape:mt-2">
         <span
           style={{
             display: 'inline-block',
@@ -108,11 +111,11 @@ export default function TimerDisplay({
         <span
           style={{
             fontFamily: M,
-            fontSize: 8,
             color: isRunning ? '#8BA0B0' : '#3F3F46',
             letterSpacing: '0.08em',
             transition: 'color 0.3s ease',
           }}
+          className="text-[8px] landscape:text-[10px]"
         >
           {isRunning ? 'Active' : 'Paused'}
         </span>
@@ -121,11 +124,9 @@ export default function TimerDisplay({
       {/* Progress bar */}
       <div
         style={{
-          width: '100%',
-          marginTop: 28,
-          paddingTop: 16,
           borderTop: '1px solid #18181B',
         }}
+        className="w-full max-w-[280px] landscape:max-w-[400px] mt-7 pt-4 landscape:mt-3 landscape:pt-2"
       >
         <div
           style={{
@@ -148,24 +149,24 @@ export default function TimerDisplay({
         </div>
 
         {/* Session info + next label */}
-        <div className="flex items-center justify-between mt-3">
+        <div className="flex items-center justify-between mt-3 landscape:mt-1.5">
           <span
             style={{
               fontFamily: M,
-              fontSize: 7,
               color: '#3F3F46',
               letterSpacing: '0.06em',
             }}
+            className="text-[7px] landscape:text-[9px]"
           >
             Session {currentSessionNumber}/4
           </span>
           <span
             style={{
               fontFamily: M,
-              fontSize: 7,
               color: '#27272A',
               letterSpacing: '0.06em',
             }}
+            className="text-[7px] landscape:text-[9px]"
           >
             {getSubLabel()}
           </span>
@@ -173,7 +174,7 @@ export default function TimerDisplay({
       </div>
 
       {/* Session pips */}
-      <div className="flex items-center justify-center gap-2.5 mt-4">
+      <div className="flex items-center justify-center gap-2.5 mt-4 landscape:mt-2">
         {[1, 2, 3, 4].map((n) => {
           const isCurrent = n === currentSessionNumber;
           const isCompleted = n < currentSessionNumber;

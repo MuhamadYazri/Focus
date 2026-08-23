@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Share2, Clock, RefreshCw, X, Download, Copy, Check, CloudUpload, CloudDownload, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import SharedActivitySection from '../Analytics/SharedActivitySection';
 import { storage } from '../../services/storage';
 import { backupToDrive, restoreFromDrive } from '../../services/googleDriveBackup';
 
-const G = "Geist, 'Helvetica Neue', sans-serif";
+const G = "'Geist', system-ui, sans-serif";
 const M = "'JetBrains Mono', monospace";
 
 export default function ProfileView({
@@ -129,540 +129,202 @@ export default function ProfileView({
   };
 
   return (
-    <div
-      className="pb-32 pt-4 px-4 max-w-md mx-auto space-y-4 select-none relative min-h-[85vh]"
-      style={{ fontFamily: G }}
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <span
-            style={{
-              fontFamily: M,
-              fontSize: 9,
-              color: '#3F3F46',
-              letterSpacing: '0.1em',
-              display: 'block',
-            }}
-          >
-            Focus
-          </span>
-          <h1
-            style={{
-              fontFamily: G,
-              fontSize: 22,
-              fontWeight: 700,
-              color: '#FFFFFF',
-              letterSpacing: '-0.03em',
-              marginTop: 2,
-            }}
-          >
-            Achievements
-          </h1>
-        </div>
-      </div>
+    <div className="min-h-[100dvh] pb-32" style={{ fontFamily: G, background: 'var(--canvas)' }}>
 
-      {/* Shared Activity Section with tabs, heatmap, and dynamic time distribution chart */}
-      <SharedActivitySection showKPIs={false} sessions={sessions} onPeriodChange={setReportData} />
+      {/* ── Sticky Header ── */}
+      <header className="glass sticky top-0 z-40 px-5 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <span className="material-symbols-outlined fill" style={{ color: 'var(--text-primary)', fontSize: 22 }}>person</span>
+          <h1 style={{ fontFamily: G, fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>Profile</h1>
+        </div>
+        <span style={{ fontFamily: M, fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.1em' }}>FOCUS</span>
+      </header>
 
-      {/* Quick stats row */}
-      <div className="flex gap-2">
-        <div
-          style={{
-            flex: 1,
-            background: '#090A0C',
-            border: '1px solid #27272A',
-            borderRadius: 8,
-            padding: '10px 12px',
-          }}
-        >
-          <p style={{ fontFamily: M, fontSize: 7, color: '#3F3F46' }}>Streak</p>
-          <p style={{ fontFamily: M, fontSize: 12, fontWeight: 700, color: '#FFFFFF', marginTop: 4 }}>
-            14 days
-          </p>
-          <p style={{ fontFamily: M, fontSize: 7, color: '#3F3F46', marginTop: 2 }}>{totalDays} days total</p>
-        </div>
-        <div
-          style={{
-            flex: 1,
-            background: '#090A0C',
-            border: '1px solid #27272A',
-            borderRadius: 8,
-            padding: '10px 12px',
-          }}
-        >
-          <p style={{ fontFamily: M, fontSize: 7, color: '#3F3F46' }}>Best day</p>
-          <p style={{ fontFamily: M, fontSize: 12, fontWeight: 700, color: '#FFFFFF', marginTop: 4 }}>
-            Tue
-          </p>
-          <p style={{ fontFamily: M, fontSize: 7, color: '#3F3F46', marginTop: 2 }}>6.2h max</p>
-        </div>
-        <div
-          style={{
-            flex: 1,
-            background: '#090A0C',
-            border: '1px solid #27272A',
-            borderRadius: 8,
-            padding: '10px 12px',
-          }}
-        >
-          <p style={{ fontFamily: M, fontSize: 7, color: '#3F3F46' }}>Pomodoros</p>
-          <p style={{ fontFamily: M, fontSize: 12, fontWeight: 700, color: '#FFFFFF', marginTop: 4 }}>
-            {totalPomos.toLocaleString()}
-          </p>
-          <p style={{ fontFamily: M, fontSize: 7, color: '#3F3F46', marginTop: 2 }}>Total done</p>
-        </div>
-      </div>
+      <div className="px-5 pt-5 flex flex-col gap-5 max-w-md mx-auto">
 
-      {/* Share button */}
-      <div>
+        {/* ── Activity (── */}
+        <SharedActivitySection showKPIs={false} sessions={sessions} onPeriodChange={setReportData} />
+
+        {/* ── Quick Stats Row ── */}
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { icon: 'local_fire_department', value: '14', label: 'Day Streak' },
+            { icon: 'timer', value: totalHoursDisplay, label: 'Focused' },
+            { icon: 'task_alt', value: totalPomos.toLocaleString(), label: 'Sessions' },
+          ].map(({ icon, value, label }) => (
+            <div key={label} className="card-2xl flex flex-col items-center justify-center py-4 px-2 text-center gap-1">
+              <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--text-secondary)' }}>{icon}</span>
+              <span style={{ fontFamily: G, fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>{value}</span>
+              <span style={{ fontFamily: M, fontSize: 9, color: 'var(--text-secondary)', letterSpacing: '0.04em' }}>{label.toUpperCase()}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* ── Share Button ── */}
         <button
           type="button"
-          onClick={() => {
-            if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(15);
-            setShowReport(true);
-          }}
-          className="w-full flex items-center justify-center gap-2 transition-opacity active:opacity-80"
-          style={{ background: '#B9DAFF', borderRadius: 8, padding: '13px 0' }}
+          onClick={() => { if (window.navigator?.vibrate) window.navigator.vibrate(15); setShowReport(true); }}
+          className="w-full squish flex items-center justify-center gap-2"
+          style={{ background: 'var(--text-primary)', borderRadius: 9999, padding: '14px 0', fontFamily: G, fontSize: 15, fontWeight: 600, color: '#fff', boxShadow: '0 4px 16px rgba(0,0,0,0.12)' }}
         >
-          <Share2 size={13} color="#000000" strokeWidth={2} />
-          <span style={{ fontFamily: G, fontSize: 14, fontWeight: 600, color: '#000000' }}>
-            Share report
-          </span>
+          <span className="material-symbols-outlined" style={{ fontSize: 20 }}>ios_share</span>
+          Share Profile
         </button>
-      </div>
 
-      {/* Section: System Configuration / Settings */}
-      <div className="pt-4 space-y-3">
-        <span
-          style={{
-            fontFamily: M,
-            fontSize: 8,
-            color: '#8BA0B0',
-            letterSpacing: '0.08em',
-            display: 'block',
-          }}
-        >
-          SYSTEM CONFIGURATION // SETTINGS
-        </span>
+        {/* ── Settings ── */}
+        <div className="flex flex-col gap-4">
+          <span style={{ fontFamily: M, fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.06em' }}>PREFERENCES</span>
 
-        {/* Timer Durations Card */}
-        <div
-          style={{
-            background: '#090A0C',
-            border: '1px solid #27272A',
-            borderRadius: 8,
-            padding: '12px 14px',
-          }}
-          className="space-y-3"
-        >
-          <div className="flex items-center gap-2 border-b border-[#27272A] pb-2">
-            <Clock size={14} color="#B9DAFF" />
-            <span style={{ fontFamily: M, fontSize: 9, color: '#FFFFFF', fontWeight: 600 }}>
-              SESSION DURATIONS (MINUTES)
-            </span>
+          {/* Timer Durations */}
+          <div className="card-2xl p-5 flex flex-col gap-4">
+            <div className="flex items-center gap-2 pb-3" style={{ borderBottom: '1px solid var(--surface-border)' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--text-secondary)' }}>hourglass_empty</span>
+              <span style={{ fontFamily: G, fontSize: 15, fontWeight: 600, color: 'var(--text-primary)' }}>Timer Durations</span>
+            </div>
+            {[
+              { key: 'workDuration', label: 'Focus Session', presets: [25, 45, 60] },
+              { key: 'shortBreakDuration', label: 'Short Break', presets: [5, 10, 15] },
+              { key: 'longBreakDuration', label: 'Long Break', presets: [15, 20, 30] },
+            ].map(({ key, label, presets }) => (
+              <div key={key} className="flex items-center justify-between">
+                <span style={{ fontFamily: G, fontSize: 14, color: 'var(--text-primary)' }}>{label}</span>
+                <div className="flex rounded-lg p-1" style={{ background: 'var(--surface-low)' }}>
+                  {presets.map((p) => (
+                    <button
+                      key={p} type="button"
+                      onClick={() => { if (window.navigator?.vibrate) window.navigator.vibrate(10); handleChange(key, p); }}
+                      className="transition-all"
+                      style={{
+                        padding: '4px 12px', borderRadius: 6,
+                        background: (settings[key] ?? presets[0]) === p ? 'var(--surface-card)' : 'transparent',
+                        fontFamily: M, fontSize: 12, fontWeight: 600,
+                        color: (settings[key] ?? presets[0]) === p ? 'var(--text-primary)' : 'var(--text-secondary)',
+                        boxShadow: (settings[key] ?? presets[0]) === p ? 'var(--shadow-soft)' : 'none',
+                      }}
+                    >{p}m</button>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
 
-          <div className="grid grid-cols-3 gap-2.5">
-            <div>
-              <label style={{ fontFamily: M, fontSize: 8, color: '#8BA0B0', display: 'block', marginBottom: 4 }}>
-                WORK
-              </label>
-              <input
-                type="number"
-                value={settings.workDuration ?? 25}
-                onChange={(e) => handleNumberChange('workDuration', e.target.value)}
-                style={{
-                  width: '100%',
-                  background: '#000000',
-                  border: '1px solid #27272A',
-                  borderRadius: 4,
-                  padding: '6px',
-                  textAlign: 'center',
-                  fontFamily: M,
-                  fontSize: 12,
-                  color: '#FFFFFF',
-                }}
-              />
+          {/* Daily Goal */}
+          <div className="card-2xl p-5 flex flex-col gap-4">
+            <div className="flex items-center gap-2 pb-3" style={{ borderBottom: '1px solid var(--surface-border)' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--text-secondary)' }}>track_changes</span>
+              <span style={{ fontFamily: G, fontSize: 15, fontWeight: 600, color: 'var(--text-primary)' }}>Daily Goal</span>
             </div>
-            <div>
-              <label style={{ fontFamily: M, fontSize: 8, color: '#8BA0B0', display: 'block', marginBottom: 4 }}>
-                SHORT BREAK
-              </label>
-              <input
-                type="number"
-                value={settings.shortBreakDuration ?? 5}
-                onChange={(e) => handleNumberChange('shortBreakDuration', e.target.value)}
-                style={{
-                  width: '100%',
-                  background: '#000000',
-                  border: '1px solid #27272A',
-                  borderRadius: 4,
-                  padding: '6px',
-                  textAlign: 'center',
-                  fontFamily: M,
-                  fontSize: 12,
-                  color: '#FFFFFF',
-                }}
-              />
+            <div className="flex items-center justify-between">
+              <span style={{ fontFamily: G, fontSize: 14, color: 'var(--text-primary)' }}>Target Hours</span>
+              <span style={{ fontFamily: G, fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>{settings.dailyGoalHours || 4.0}h</span>
             </div>
-            <div>
-              <label style={{ fontFamily: M, fontSize: 8, color: '#8BA0B0', display: 'block', marginBottom: 4 }}>
-                LONG BREAK
-              </label>
-              <input
-                type="number"
-                value={settings.longBreakDuration ?? 15}
-                onChange={(e) => handleNumberChange('longBreakDuration', e.target.value)}
-                style={{
-                  width: '100%',
-                  background: '#000000',
-                  border: '1px solid #27272A',
-                  borderRadius: 4,
-                  padding: '6px',
-                  textAlign: 'center',
-                  fontFamily: M,
-                  fontSize: 12,
-                  color: '#FFFFFF',
-                }}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Daily Focus Goal Card */}
-        <div
-          style={{
-            background: '#090A0C',
-            border: '1px solid #27272A',
-            borderRadius: 8,
-            padding: '12px 14px',
-          }}
-          className="space-y-3"
-        >
-          <div className="flex items-center justify-between border-b border-[#27272A] pb-2">
-            <div className="flex items-center gap-2">
-              <Check size={14} color="#B9DAFF" />
-              <span style={{ fontFamily: M, fontSize: 9, color: '#FFFFFF', fontWeight: 600 }}>
-                DAILY FOCUS GOAL (HOURS)
-              </span>
-            </div>
-            <span style={{ fontFamily: M, fontSize: 8, color: '#8BA0B0' }}>
-              Today: {settings.dailyGoalHours || 4.0}h
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <input
-              type="number"
-              step="0.5"
-              value={settings.dailyGoalHours ?? 4.0}
-              onChange={(e) => handleNumberChange('dailyGoalHours', e.target.value)}
-              style={{
-                width: 70,
-                background: '#000000',
-                border: '1px solid #27272A',
-                borderRadius: 4,
-                padding: '6px',
-                textAlign: 'center',
-                fontFamily: M,
-                fontSize: 12,
-                color: '#FFFFFF',
-              }}
-            />
-            <div className="flex gap-1.5 flex-1 justify-end">
+            <div className="flex gap-2">
               {[2.0, 4.0, 6.0, 8.0].map((h) => (
                 <button
-                  key={h}
-                  type="button"
-                  onClick={() => {
-                    if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(10);
-                    handleChange('dailyGoalHours', h);
-                  }}
+                  key={h} type="button"
+                  onClick={() => { if (window.navigator?.vibrate) window.navigator.vibrate(10); handleChange('dailyGoalHours', h); }}
+                  className="flex-1 py-2 rounded-xl transition-all"
                   style={{
-                    background: (settings.dailyGoalHours || 4.0) === h ? '#B9DAFF' : '#1A2530',
-                    color: (settings.dailyGoalHours || 4.0) === h ? '#000000' : '#8BA0B0',
-                    borderRadius: 4,
-                    padding: '4px 8px',
-                    fontFamily: M,
-                    fontSize: 10,
-                    fontWeight: 600,
+                    fontFamily: M, fontSize: 12, fontWeight: 600,
+                    background: (settings.dailyGoalHours || 4.0) === h ? 'var(--text-primary)' : 'var(--surface-low)',
+                    color: (settings.dailyGoalHours || 4.0) === h ? '#fff' : 'var(--text-secondary)',
                   }}
-                >
-                  {h}h
-                </button>
+                >{h}h</button>
               ))}
             </div>
           </div>
-        </div>
 
-        {/* Keep Screen Awake Card */}
-        <div
-          style={{
-            background: '#090A0C',
-            border: '1px solid #27272A',
-            borderRadius: 8,
-            padding: '12px 14px',
-          }}
-          className="flex items-center justify-between"
-        >
-          <div>
-            <p style={{ fontFamily: G, fontSize: 13, fontWeight: 500, color: '#FFFFFF' }}>
-              Keep Screen Awake
-            </p>
-            <p style={{ fontFamily: M, fontSize: 8, color: '#8BA0B0', marginTop: 2 }}>
-              Prevent phone display from turning off during active sessions
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => {
-              if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(10);
-              handleChange('keepAwake', !settings.keepAwake);
-            }}
-            className="flex items-center gap-1.5 transition-opacity active:opacity-70"
-            style={{
-              background: settings.keepAwake ? '#B9DAFF' : '#000000',
-              border: `1px solid ${settings.keepAwake ? '#B9DAFF' : '#27272A'}`,
-              borderRadius: 4,
-              padding: '6px 10px',
-            }}
-          >
-            <span
-              style={{
-                fontFamily: M,
-                fontSize: 9,
-                color: settings.keepAwake ? '#000000' : '#8BA0B0',
-                fontWeight: 700,
-              }}
-            >
-              {settings.keepAwake ? 'ON' : 'OFF'}
-            </span>
-          </button>
-        </div>
-
-        {/* Cloud Backup Card */}
-        <div
-          style={{
-            background: '#090A0C',
-            border: '1px solid #27272A',
-            borderRadius: 8,
-            padding: '12px 14px',
-          }}
-          className="space-y-3"
-        >
-          <div className="flex items-center gap-2 border-b border-[#27272A] pb-2">
-            <CloudUpload size={14} color="#B9DAFF" />
-            <span style={{ fontFamily: M, fontSize: 9, color: '#FFFFFF', fontWeight: 600 }}>
-              CLOUD BACKUP
-            </span>
+          {/* Toggles Card */}
+          <div className="card-2xl p-5 flex flex-col gap-0">
+            {[
+              { key: 'keepAwake', icon: 'screen_lock_portrait', label: 'Keep Screen Awake', desc: 'Prevent display from turning off' },
+              { key: 'strictMode', icon: 'lock', label: 'Strict Mode', desc: 'Block tab switching while running' },
+            ].map(({ key, icon, label, desc }, i, arr) => (
+              <div key={key} className="flex items-center justify-between py-4" style={{ borderBottom: i < arr.length - 1 ? '1px solid var(--surface-border)' : 'none' }}>
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--text-secondary)' }}>{icon}</span>
+                  <div>
+                    <p style={{ fontFamily: G, fontSize: 14, color: 'var(--text-primary)', fontWeight: 500 }}>{label}</p>
+                    <p style={{ fontFamily: M, fontSize: 10, color: 'var(--text-muted)', marginTop: 1 }}>{desc}</p>
+                  </div>
+                </div>
+                <input type="checkbox" checked={!!settings[key]} onChange={() => { if (window.navigator?.vibrate) window.navigator.vibrate(10); handleChange(key, !settings[key]); }} className="ios-toggle" />
+              </div>
+            ))}
           </div>
 
-          <p style={{ fontFamily: M, fontSize: 8, color: '#8BA0B0' }}>
-            Sync your data to Google Drive for safe keeping
-          </p>
-
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={handleBackup}
-              disabled={backupStatus !== 'idle'}
-              className="flex-1 flex items-center justify-center gap-1.5 transition-opacity active:opacity-70 disabled:opacity-40"
-              style={{
-                background: '#B9DAFF',
-                borderRadius: 6,
-                padding: '10px 0',
-              }}
-            >
-              {backupStatus === 'backing-up' ? (
-                <Loader2 size={13} color="#000000" className="animate-spin" />
-              ) : (
-                <CloudUpload size={13} color="#000000" />
-              )}
-              <span style={{ fontFamily: M, fontSize: 10, fontWeight: 600, color: '#000000' }}>
-                {backupStatus === 'backing-up' ? 'Backing up...' : 'Backup'}
-              </span>
-            </button>
-            <button
-              type="button"
-              onClick={handleRestore}
-              disabled={backupStatus !== 'idle'}
-              className="flex-1 flex items-center justify-center gap-1.5 transition-opacity active:opacity-70 disabled:opacity-40"
-              style={{
-                background: '#18181B',
-                border: '1px solid #27272A',
-                borderRadius: 6,
-                padding: '10px 0',
-              }}
-            >
-              {backupStatus === 'restoring' ? (
-                <Loader2 size={13} color="#B9DAFF" className="animate-spin" />
-              ) : (
-                <CloudDownload size={13} color="#B9DAFF" />
-              )}
-              <span style={{ fontFamily: M, fontSize: 10, fontWeight: 600, color: '#B9DAFF' }}>
+          {/* Cloud Backup */}
+          <div className="card-2xl p-5 flex flex-col gap-4">
+            <div className="flex items-center gap-2 pb-3" style={{ borderBottom: '1px solid var(--surface-border)' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--accent)' }}>cloud_upload</span>
+              <span style={{ fontFamily: G, fontSize: 15, fontWeight: 600, color: 'var(--text-primary)' }}>Cloud Backup</span>
+            </div>
+            <p style={{ fontFamily: G, fontSize: 13, color: 'var(--text-secondary)' }}>Sync your data to Google Drive for safe keeping</p>
+            <div className="flex gap-3">
+              <button type="button" onClick={handleBackup} disabled={backupStatus !== 'idle'} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl transition-all disabled:opacity-40" style={{ background: 'var(--text-primary)', fontFamily: G, fontSize: 14, fontWeight: 600, color: '#fff' }}>
+                {backupStatus === 'backing-up' ? <Loader2 size={14} className="animate-spin" /> : <span className="material-symbols-outlined" style={{ fontSize: 18 }}>cloud_upload</span>}
+                {backupStatus === 'backing-up' ? 'Saving...' : 'Backup'}
+              </button>
+              <button type="button" onClick={handleRestore} disabled={backupStatus !== 'idle'} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl transition-all disabled:opacity-40" style={{ border: '1px solid var(--surface-border)', fontFamily: G, fontSize: 14, fontWeight: 500, color: 'var(--text-primary)' }}>
+                {backupStatus === 'restoring' ? <Loader2 size={14} className="animate-spin" /> : <span className="material-symbols-outlined" style={{ fontSize: 18 }}>cloud_download</span>}
                 {backupStatus === 'restoring' ? 'Restoring...' : 'Restore'}
-              </span>
+              </button>
+            </div>
+            {backupMsg && (
+              <p style={{ fontFamily: M, fontSize: 11, color: backupMsg.startsWith('Error') ? '#EF4444' : 'var(--accent)' }}>{backupMsg}</p>
+            )}
+          </div>
+
+          {/* Reset */}
+          <div className="card-2xl p-5 flex items-center justify-between">
+            <div>
+              <p style={{ fontFamily: G, fontSize: 14, fontWeight: 500, color: 'var(--text-primary)' }}>Reset Telemetry Data</p>
+              <p style={{ fontFamily: M, fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>Restore initial sample tasks & projects</p>
+            </div>
+            <button type="button" onClick={handleResetData} className="flex items-center gap-1 py-2 px-4 rounded-xl transition-all" style={{ border: '1px solid var(--surface-border)', fontFamily: M, fontSize: 11, fontWeight: 600, color: '#EF4444' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 16, color: '#EF4444' }}>refresh</span>
+              RESET
             </button>
           </div>
-
-          {backupMsg && (
-            <p
-              style={{
-                fontFamily: M,
-                fontSize: 8,
-                color: backupMsg.startsWith('Error') ? '#FF6B6B' : '#B9DAFF',
-                marginTop: 4,
-              }}
-            >
-              {backupMsg}
-            </p>
-          )}
-        </div>
-
-        {/* Reset Data Card */}
-        <div
-          style={{
-            background: '#090A0C',
-            border: '1px solid #27272A',
-            borderRadius: 8,
-            padding: '12px 14px',
-          }}
-          className="flex items-center justify-between"
-        >
-          <div>
-            <p style={{ fontFamily: G, fontSize: 13, fontWeight: 500, color: '#FFFFFF' }}>
-              Reset Telemetry Data
-            </p>
-            <p style={{ fontFamily: M, fontSize: 8, color: '#8BA0B0', marginTop: 2 }}>
-              Restore initial sample tasks & project nomenclature
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={handleResetData}
-            className="flex items-center gap-1.5 transition-opacity active:opacity-70"
-            style={{
-              background: '#000000',
-              border: '1px solid #27272A',
-              borderRadius: 4,
-              padding: '6px 10px',
-            }}
-          >
-            <RefreshCw size={12} color="#B9DAFF" />
-            <span style={{ fontFamily: M, fontSize: 9, color: '#B9DAFF', fontWeight: 600 }}>
-              RESET
-            </span>
-          </button>
         </div>
       </div>
 
-      {/* Weekly Report Modal Overlay */}
+      {/* ── Share Report Modal ── */}
       {showReport && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-5 select-none animate-fadeIn"
-          style={{ background: 'rgba(0,0,0,0.85)' }}
+          className="fixed inset-0 z-50 flex items-end justify-center animate-fadeIn"
+          style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}
           onClick={() => setShowReport(false)}
         >
           <div
-            className="w-full max-w-sm"
+            className="w-full max-w-md animate-slideUp rounded-t-3xl p-6"
             onClick={(e) => e.stopPropagation()}
-            style={{
-              background: '#090A0C',
-              border: '1px solid #27272A',
-              borderRadius: 12,
-              padding: '20px',
-            }}
+            style={{ background: 'var(--surface-card)', borderTop: '1px solid var(--surface-border)' }}
           >
-            {/* Modal header */}
-            <div
-              className="flex items-center justify-between pb-3 mb-4"
-              style={{ borderBottom: '1px solid #27272A' }}
-            >
+            <div className="flex items-center justify-between pb-4" style={{ borderBottom: '1px solid var(--surface-border)' }}>
               <div>
-                <p style={{ fontFamily: M, fontSize: 8, color: '#3F3F46', letterSpacing: '0.1em' }}>
-                  FOCUS // {getReportTitle()}
-                </p>
-                <h3
-                  style={{
-                    fontFamily: G,
-                    fontSize: 16,
-                    fontWeight: 700,
-                    color: '#FFFFFF',
-                    marginTop: 2,
-                  }}
-                >
-                  {getReportHeading()}
-                </h3>
+                <p style={{ fontFamily: M, fontSize: 10, color: 'var(--text-secondary)', letterSpacing: '0.06em' }}>FOCUS // {getReportTitle()}</p>
+                <h3 style={{ fontFamily: G, fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', marginTop: 2 }}>{getReportHeading()}</h3>
               </div>
-            </div>
-
-            {/* Report content */}
-            <div className="space-y-3 mb-5">
-              <div
-                style={{
-                  background: '#000000',
-                  border: '1px solid #27272A',
-                  borderRadius: 8,
-                  padding: '12px',
-                }}
-              >
-                <div className="flex justify-between mb-2">
-                  <span style={{ fontFamily: M, fontSize: 8, color: '#8BA0B0' }}>Total Focus</span>
-                  <span style={{ fontFamily: M, fontSize: 12, fontWeight: 700, color: '#FFFFFF' }}>
-                    {reportData.displayHours}
-                  </span>
-                </div>
-                <div className="flex justify-between mb-2">
-                  <span style={{ fontFamily: M, fontSize: 8, color: '#8BA0B0' }}>Sessions</span>
-                  <span style={{ fontFamily: M, fontSize: 12, fontWeight: 700, color: '#FFFFFF' }}>
-                    {reportData.displayPomos.toLocaleString()} pomodoros
-                  </span>
-                </div>
-                <div className="flex justify-between mb-2">
-                  <span style={{ fontFamily: M, fontSize: 8, color: '#8BA0B0' }}>Detail</span>
-                  <span style={{ fontFamily: M, fontSize: 12, fontWeight: 700, color: '#FFFFFF' }}>
-                    {reportData.displaySubToday}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span style={{ fontFamily: M, fontSize: 8, color: '#8BA0B0' }}>Activity</span>
-                  <span style={{ fontFamily: M, fontSize: 12, fontWeight: 700, color: '#B9DAFF' }}>
-                    {reportData.displaySubDays}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Action buttons */}
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(10);
-                  setShowReport(false);
-                }}
-                className="flex-1 flex items-center justify-center gap-1.5 transition-opacity active:opacity-60"
-                style={{
-                  background: '#18181B',
-                  border: '1px solid #27272A',
-                  borderRadius: 8,
-                  padding: '11px 0',
-                }}
-              >
-                <Download size={12} color="#FFFFFF" />
-                <span style={{ fontFamily: G, fontSize: 13, color: '#FFFFFF' }}>Download</span>
+              <button type="button" onClick={() => setShowReport(false)} className="p-2 rounded-full" style={{ background: 'var(--surface-low)' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--text-secondary)' }}>close</span>
               </button>
-              <button
-                type="button"
-                onClick={handleCopyReport}
-                className="flex-1 flex items-center justify-center gap-1.5 transition-opacity active:opacity-80"
-                style={{ background: '#B9DAFF', borderRadius: 8, padding: '11px 0' }}
-              >
-                {copied ? <Check size={12} color="#000000" /> : <Copy size={12} color="#000000" />}
-                <span style={{ fontFamily: G, fontSize: 13, fontWeight: 600, color: '#000000' }}>
-                  {copied ? 'Copied!' : 'Copy text'}
-                </span>
+            </div>
+            <div className="flex flex-col gap-2 py-4">
+              {[['Total Focus', reportData.displayHours], ['Sessions', `${reportData.displayPomos.toLocaleString()} pomodoros`], ['Detail', reportData.displaySubToday], ['Activity', reportData.displaySubDays]].map(([label, value]) => (
+                <div key={label} className="flex justify-between py-2" style={{ borderBottom: '1px solid var(--surface-border)' }}>
+                  <span style={{ fontFamily: M, fontSize: 12, color: 'var(--text-secondary)' }}>{label}</span>
+                  <span style={{ fontFamily: G, fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{value}</span>
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-3 pt-2">
+              <button type="button" onClick={() => setShowReport(false)} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl" style={{ border: '1px solid var(--surface-border)', fontFamily: G, fontSize: 14, color: 'var(--text-primary)' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>download</span> Download
+              </button>
+              <button type="button" onClick={handleCopyReport} className="flex-1 squish flex items-center justify-center gap-2 py-3 rounded-2xl" style={{ background: 'var(--text-primary)', fontFamily: G, fontSize: 14, fontWeight: 600, color: '#fff' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>{copied ? 'check' : 'content_copy'}</span>
+                {copied ? 'Copied!' : 'Copy text'}
               </button>
             </div>
           </div>

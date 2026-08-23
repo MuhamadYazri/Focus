@@ -58,20 +58,20 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 select-none animate-fadeIn"
-      style={{ background: 'rgba(0,0,0,0.85)' }}
+      style={{ background: 'rgba(10, 38, 53, 0.4)' }}
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md bg-[#090A0C] border border-[#27272A] rounded-2xl shadow-2xl p-5 text-white relative"
-        style={{ fontFamily: G }}
+        className="w-full max-w-md border rounded-2xl shadow-[var(--shadow-focus)] p-5 relative"
+        style={{ fontFamily: G, background: 'var(--surface-card)', borderColor: 'var(--surface-border)', color: 'var(--text-primary)' }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between pb-3.5 mb-4 border-b border-[#27272A]">
+        <div className="flex items-center justify-between pb-3.5 mb-4 border-b" style={{ borderColor: 'var(--surface-border)' }}>
           <div>
-            <span style={{ fontFamily: M, fontSize: 8, color: '#3F3F46', letterSpacing: '0.1em' }}>
+            <span style={{ fontFamily: M, fontSize: 10, color: 'var(--text-secondary)', letterSpacing: '0.1em' }}>
               FOCUS // CATEGORY
             </span>
-            <h3 className="text-base font-bold text-white mt-0.5">
+            <h3 className="text-base font-bold mt-0.5" style={{ color: 'var(--text-primary)' }}>
               {projectToEdit ? 'Edit Category' : 'New Category'}
             </h3>
           </div>
@@ -82,10 +82,11 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
               width: 28,
               height: 28,
               borderRadius: 6,
-              border: '1px solid #27272A',
-              background: '#000000',
+              border: '1px solid var(--surface-border)',
+              background: 'var(--surface-low)',
+              color: 'var(--text-muted)'
             }}
-            className="flex items-center justify-center transition-opacity active:opacity-50 text-[#3F3F46] hover:text-white"
+            className="flex items-center justify-center transition-opacity hover:opacity-70 active:opacity-50"
           >
             <X size={14} strokeWidth={1.5} />
           </button>
@@ -94,7 +95,7 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label
-              style={{ fontFamily: M, fontSize: 8, color: '#A1A1AA', letterSpacing: '0.08em' }}
+              style={{ fontFamily: M, fontSize: 10, color: 'var(--text-secondary)', letterSpacing: '0.08em' }}
               className="block mb-2 uppercase"
             >
               Category Name
@@ -108,22 +109,22 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
               placeholder="e.g. 04 // WORK_PROJECTS"
               style={{
                 width: '100%',
-                background: '#000000',
-                border: '1px solid #27272A',
+                background: 'var(--surface-low)',
+                border: '1px solid var(--surface-border)',
                 borderRadius: 8,
                 padding: '11px 14px',
                 fontFamily: G,
                 fontSize: 14,
-                color: '#FFFFFF',
+                color: 'var(--text-primary)',
                 outline: 'none',
-                caretColor: '#B9DAFF',
+                caretColor: 'var(--accent)',
               }}
             />
           </div>
 
           <div>
             <label
-              style={{ fontFamily: M, fontSize: 8, color: '#A1A1AA', letterSpacing: '0.08em' }}
+              style={{ fontFamily: M, fontSize: 10, color: 'var(--text-secondary)', letterSpacing: '0.08em' }}
               className="block mb-2 uppercase"
             >
               Accent Color
@@ -137,11 +138,11 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
                   className="w-10 h-10 rounded-lg flex items-center justify-center transition-transform hover:scale-105 active:scale-95 border"
                   style={{
                     backgroundColor: c,
-                    borderColor: color === c ? '#FFFFFF' : 'transparent',
+                    borderColor: color === c ? 'var(--text-primary)' : 'transparent',
                   }}
                 >
                   {color === c && (
-                    <Check className="w-4 h-4 text-black stroke-[3px]" />
+                    <Check className="w-4 h-4 text-white stroke-[3px]" />
                   )}
                 </button>
               ))}
@@ -150,7 +151,7 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
 
           <div>
             <label
-              style={{ fontFamily: M, fontSize: 8, color: '#A1A1AA', letterSpacing: '0.08em' }}
+              style={{ fontFamily: M, fontSize: 10, color: 'var(--text-secondary)', letterSpacing: '0.08em' }}
               className="block mb-2 uppercase"
             >
               Category Icon
@@ -166,9 +167,9 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
                     onClick={() => setIcon(item.name)}
                     className="p-2.5 rounded-lg flex items-center justify-center border transition"
                     style={{
-                      background: isSelected ? '#B9DAFF' : '#000000',
-                      borderColor: isSelected ? '#B9DAFF' : '#27272A',
-                      color: isSelected ? '#000000' : '#A1A1AA',
+                      background: isSelected ? 'var(--accent)' : 'var(--surface-low)',
+                      borderColor: isSelected ? 'var(--accent)' : 'var(--surface-border)',
+                      color: isSelected ? '#FFFFFF' : 'var(--text-secondary)',
                     }}
                   >
                     <IconComp className="w-4 h-4" />
@@ -178,7 +179,7 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#27272A]">
+          <div className="flex items-center justify-end gap-2.5 pt-3 border-t" style={{ borderColor: 'var(--surface-border)' }}>
             <button
               type="button"
               onClick={onClose}
@@ -187,11 +188,11 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
                 fontSize: 11,
                 padding: '10px 16px',
                 borderRadius: 8,
-                border: '1px solid #27272A',
-                color: '#A1A1AA',
+                border: '1px solid var(--surface-border)',
+                color: 'var(--text-secondary)',
                 background: 'transparent',
               }}
-              className="hover:text-white transition"
+              className="hover:opacity-70 transition"
             >
               Cancel
             </button>
@@ -203,10 +204,10 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
                 fontWeight: 600,
                 padding: '10px 20px',
                 borderRadius: 8,
-                background: '#B9DAFF',
-                color: '#000000',
+                background: 'var(--accent)',
+                color: '#FFFFFF',
               }}
-              className="hover:bg-[#A3CDFA] transition active:opacity-80"
+              className="hover:opacity-90 transition active:opacity-80"
             >
               {projectToEdit ? 'Save Category' : 'Create Category'}
             </button>

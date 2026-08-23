@@ -28,13 +28,13 @@ export default function WhiteNoisePlayer({ currentSound, onSelectSound, volume, 
   };
 
   return (
-    <div className="w-full max-w-md mx-auto bg-[#1c1c24] border border-[#2e2e3a] rounded-2xl p-4 space-y-3 shadow-lg">
+    <div className="w-full max-w-md mx-auto border rounded-2xl p-4 space-y-3 shadow-[var(--shadow-soft)]" style={{ background: 'var(--surface-card)', borderColor: 'var(--surface-border)' }}>
       <div className="flex items-center justify-between">
-        <span className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-          <Volume2 className="w-4 h-4 text-[#ff5252]" />
+        <span className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5" style={{ color: 'var(--text-muted)' }}>
+          <Volume2 className="w-4 h-4" style={{ color: 'var(--accent)' }} />
           White Noise & Soundscape
         </span>
-        <span className="text-[11px] text-slate-400 font-medium">
+        <span className="text-[11px] font-medium" style={{ color: 'var(--text-secondary)' }}>
           {sounds.find((s) => s.id === currentSound)?.label || 'Hening'}
         </span>
       </div>
@@ -50,9 +50,14 @@ export default function WhiteNoisePlayer({ currentSound, onSelectSound, volume, 
               onClick={() => handleSoundClick(s.id)}
               className={`py-2 px-1 rounded-xl flex flex-col items-center justify-center border transition-all ${
                 isSelected
-                  ? 'bg-white/10 border-[#ff5252] text-white shadow-sm scale-105'
-                  : 'bg-[#131318] border-[#2e2e3a] text-slate-400 hover:text-white hover:border-slate-600'
+                  ? 'shadow-sm scale-105'
+                  : 'hover:opacity-80'
               }`}
+              style={{
+                background: isSelected ? 'var(--accent-pale)' : 'var(--surface-low)',
+                borderColor: isSelected ? 'var(--accent)' : 'var(--surface-border)',
+                color: isSelected ? 'var(--text-primary)' : 'var(--text-secondary)',
+              }}
               title={s.label}
             >
               <IconComp className={`w-4 h-4 mb-1 ${isSelected ? s.color : ''}`} />
@@ -67,7 +72,7 @@ export default function WhiteNoisePlayer({ currentSound, onSelectSound, volume, 
       {/* Volume Slider */}
       {currentSound !== 'none' && (
         <div className="flex items-center gap-3 pt-1 animate-fadeIn">
-          <Volume1 className="w-4 h-4 text-slate-400 flex-shrink-0" />
+          <Volume1 className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--text-secondary)' }} />
           <input
             type="range"
             min="0"
@@ -75,9 +80,10 @@ export default function WhiteNoisePlayer({ currentSound, onSelectSound, volume, 
             step="0.05"
             value={volume}
             onChange={handleVolumeChange}
-            className="w-full h-1.5 bg-[#131318] rounded-lg appearance-none cursor-pointer accent-[#ff5252]"
+            className="w-full h-1.5 rounded-lg appearance-none cursor-pointer"
+            style={{ background: 'var(--surface-border)', accentColor: 'var(--accent)' }}
           />
-          <span className="text-xs font-bold text-slate-300 w-8 text-right">
+          <span className="text-xs font-bold w-8 text-right" style={{ color: 'var(--text-primary)' }}>
             {Math.round(volume * 100)}%
           </span>
         </div>

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Check } from 'lucide-react';
 
-const G = "Geist, 'Helvetica Neue', sans-serif";
+const G = "'Geist', system-ui, sans-serif";
 const M = "'JetBrains Mono', monospace";
 
 const PERIODS = ['All', 'Daily', 'Weekly', 'Monthly', 'Yearly'];
-const HMAP_FILL = ['#0F0F0F', '#1A2530', '#2A3C4E', '#3D5C76', '#4A7090'];
+const HMAP_FILL = ['var(--surface-low)', 'var(--accent-pale)', '#A8F1FF', '#6FE6FC', 'var(--accent)'];
 const DAY_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
 const getLocalDateStr = (d) => {
@@ -347,10 +347,10 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
   }, [period, offset, sessions]);
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       {/* Tabs Row */}
       <div>
-        <div className="flex bg-[#090A0C] border border-[#27272A] rounded-lg p-1 gap-1">
+        <div className="flex rounded-xl p-1 gap-1" style={{ background: 'var(--surface-low)' }}>
           {PERIODS.map((p) => {
             const active = p === period;
             return (
@@ -361,10 +361,11 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
                   setPeriod(p);
                   setOffset(0);
                 }}
-                className="flex-1 py-1.5 rounded transition-all active:scale-95"
+              className="flex-1 py-2 rounded-lg transition-all"
                 style={{
-                  background: active ? '#B9DAFF' : 'transparent',
-                  color: active ? '#000000' : '#8BA0B0',
+                  background: active ? 'var(--surface-card)' : 'transparent',
+                  color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
+                  boxShadow: active ? 'var(--shadow-soft)' : 'none',
                 }}
               >
                 <span style={{ fontFamily: M, fontSize: 10, fontWeight: active ? 700 : 500 }}>{p}</span>
@@ -375,106 +376,62 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
 
         {/* Date Slider */}
         <div
-          className="flex items-center justify-between mt-2 px-3 py-1.5 bg-[#090A0C] border border-[#27272A] rounded-lg"
+          className="flex items-center justify-between mt-2 px-3 py-2 rounded-xl"
           style={{
+            background: 'var(--surface-card)',
+            border: '1px solid var(--surface-border)',
             opacity: isAll ? 0.4 : 1,
             pointerEvents: isAll ? 'none' : 'auto',
           }}
         >
           <button
-            onClick={() => {
+          onClick={() => {
               if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(10);
               setOffset((prev) => prev - 1);
             }}
             disabled={isAll}
-            className="p-1 rounded transition-all active:scale-90 disabled:opacity-20 hover:bg-[#1A2530]"
-            style={{ color: '#B9DAFF' }}
-          >
-            <span style={{ fontFamily: M, fontSize: 11, fontWeight: 700 }}>&lt; PREV</span>
+            className="p-1 rounded transition-all active:scale-90 disabled:opacity-30"
+            style={{ color: 'var(--text-secondary)' }}>
+            <span style={{ fontFamily: M, fontSize: 11, fontWeight: 700 }}>{'< PREV'}</span>
           </button>
-          <span
-            style={{
-              fontFamily: M,
-              fontSize: 10,
-              fontWeight: 600,
-              color: '#FFFFFF',
-              letterSpacing: '0.04em',
-            }}
-          >
+          <span style={{ fontFamily: M, fontSize: 10, fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '0.04em' }}>
             {isAll ? `All Time (${displaySubDays})` : getDateRangeLabel(period, offset)}
           </span>
           <button
-            onClick={() => {
+          onClick={() => {
               if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(10);
               setOffset((prev) => Math.min(0, prev + 1));
             }}
             disabled={isAll || offset >= 0}
-            className="p-1 rounded transition-all active:scale-90 disabled:opacity-20 hover:bg-[#1A2530]"
-            style={{ color: '#B9DAFF' }}
-          >
-            <span style={{ fontFamily: M, fontSize: 11, fontWeight: 700 }}>NEXT &gt;</span>
+            className="p-1 rounded transition-all active:scale-90 disabled:opacity-30"
+            style={{ color: 'var(--text-secondary)' }}>
+            <span style={{ fontFamily: M, fontSize: 11, fontWeight: 700 }}>{'NEXT >'}</span>
           </button>
         </div>
       </div>
 
       {/* KPI Row (Only shown when requested or in Reports) */}
       {showKPIs && (
-        <div className="flex gap-2.5">
+        <div className="grid grid-cols-2 gap-3">
           <div
-            className="transition-all duration-200 hover:border-[#B9DAFF] hover:bg-[#111317] hover:shadow-[0_4px_12px_rgba(0,0,0,0.5)] cursor-pointer"
-            style={{
-              flex: 1,
-              background: '#090A0C',
-              border: '1px solid #27272A',
-              borderLeft: '2px solid #B9DAFF',
-              borderRadius: 8,
-              padding: '10px 12px',
-            }}
+            className="card-2xl p-4"
+            style={{ borderLeft: '3px solid var(--accent)' }}
           >
-            <p style={{ fontFamily: M, fontSize: 7, color: '#3F3F46' }}>Focus time</p>
-            <p
-              style={{
-                fontFamily: M,
-                fontSize: 16,
-                color: '#FFFFFF',
-                fontWeight: 700,
-                marginTop: 4,
-                letterSpacing: '-0.5px',
-              }}
-            >
+            <p style={{ fontFamily: M, fontSize: 10, color: 'var(--text-muted)' }}>FOCUS TIME</p>
+            <p style={{ fontFamily: G, fontSize: 22, color: 'var(--text-primary)', fontWeight: 700, marginTop: 4, letterSpacing: '-0.03em' }}>
               {displayHours}
             </p>
-            <div className="flex items-center gap-1 mt-1.5">
-              <span style={{ fontFamily: M, fontSize: 7, color: '#3F3F46' }}>{displaySubToday}</span>
-            </div>
+            <p style={{ fontFamily: M, fontSize: 10, color: 'var(--text-secondary)', marginTop: 4 }}>{displaySubToday}</p>
           </div>
           <div
-            className="transition-all duration-200 hover:border-[#4A7090] hover:bg-[#111317] hover:shadow-[0_4px_12px_rgba(0,0,0,0.5)] cursor-pointer"
-            style={{
-              flex: 1,
-              background: '#090A0C',
-              border: '1px solid #27272A',
-              borderLeft: '2px solid #4A7090',
-              borderRadius: 8,
-              padding: '10px 12px',
-            }}
+            className="card-2xl p-4"
+            style={{ borderLeft: '3px solid var(--accent-soft)' }}
           >
-            <p style={{ fontFamily: M, fontSize: 7, color: '#3F3F46' }}>Pomodoros</p>
-            <p
-              style={{
-                fontFamily: M,
-                fontSize: 16,
-                color: '#FFFFFF',
-                fontWeight: 700,
-                marginTop: 4,
-                letterSpacing: '-0.5px',
-              }}
-            >
+            <p style={{ fontFamily: M, fontSize: 10, color: 'var(--text-muted)' }}>SESSIONS</p>
+            <p style={{ fontFamily: G, fontSize: 22, color: 'var(--text-primary)', fontWeight: 700, marginTop: 4, letterSpacing: '-0.03em' }}>
               {displayPomos.toLocaleString()}
             </p>
-            <div className="flex items-center gap-1 mt-1.5">
-              <span style={{ fontFamily: M, fontSize: 7, color: '#3F3F46' }}>{displaySubDays}</span>
-            </div>
+            <p style={{ fontFamily: M, fontSize: 10, color: 'var(--text-secondary)', marginTop: 4 }}>{displaySubDays}</p>
           </div>
         </div>
       )}
@@ -482,27 +439,17 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
       {/* Activity Heatmap Grid (Hidden when period === 'All' or 'Yearly') */}
       {!isAll && period !== 'Yearly' && (
         <div>
-          <div
-            className="transition-all duration-300 hover:border-[#3F3F46] hover:shadow-[0_4px_16px_rgba(0,0,0,0.4)]"
-            style={{
-              background: '#090A0C',
-              border: '1px solid #27272A',
-              borderRadius: 8,
-              padding: '12px 14px',
-            }}
-          >
+        <div className="card-2xl p-4">
             <div className="flex items-center justify-between mb-3">
-              <span style={{ fontFamily: M, fontSize: 8, color: '#A1A1AA', letterSpacing: '0.04em' }}>Activity Grid</span>
-              <span style={{ fontFamily: M, fontSize: 7, color: '#52525B' }}>5x7 month grid</span>
+              <span style={{ fontFamily: M, fontSize: 10, color: 'var(--text-secondary)', letterSpacing: '0.04em' }}>ACTIVITY GRID</span>
+              <span style={{ fontFamily: M, fontSize: 10, color: 'var(--text-muted)' }}>5×7 month</span>
             </div>
             <div className="flex gap-[3px] mb-1">
               {DAY_LABELS.map((d, i) => (
                 <div
                   key={i}
-                  style={{ flex: 1, textAlign: 'center', fontFamily: M, fontSize: 7, color: '#52525B', fontWeight: 500 }}
-                >
-                  {d}
-                </div>
+                  style={{ flex: 1, textAlign: 'center', fontFamily: M, fontSize: 9, color: 'var(--text-muted)', fontWeight: 500 }}
+                >{d}</div>
               ))}
             </div>
             <div className="flex flex-col gap-[3px]">
@@ -526,6 +473,7 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
                       <div
                         key={di}
                         className="transition-all duration-200 cursor-pointer hover:scale-105 hover:z-10"
+                        title={`${cell.dateStr || `Day ${dayNum}`}: ${achievedHours}h / ${targetHours}h goal`}
                         style={{
                           flex: 1,
                           height: 36,
@@ -536,24 +484,21 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
                           alignItems: 'center',
                           justifyContent: 'center',
                           border: isCur
-                            ? '1.5px solid rgba(185, 218, 255, 0.7)'
-                            : '1px solid rgba(255,255,255,0.04)',
-                          boxShadow: isCur
-                            ? '0 0 12px rgba(185, 218, 255, 0.25), inset 0 0 8px rgba(185, 218, 255, 0.08)'
-                            : 'none',
+                            ? '1.5px solid var(--accent)'
+                            : '1px solid var(--surface-border)',
+                          boxShadow: isCur ? '0 0 8px rgba(78, 215, 241, 0.3)' : 'none',
                         }}
-                        title={`${cell.dateStr || `Day ${dayNum}`}: ${achievedHours}h / ${targetHours}h goal`}
                       >
                         {/* Day number — always visible */}
                         <span
                           style={{
                             fontFamily: M,
-                            fontSize: 7,
+                            fontSize: 8,
                             color: !cell.isSameMonth
-                              ? '#27272A'
+                              ? 'var(--surface-mid)'
                               : isCur
-                                ? '#B9DAFF'
-                                : val >= 3 ? 'rgba(255,255,255,0.8)' : val > 0 ? 'rgba(255,255,255,0.5)' : '#52525B',
+                                ? 'var(--accent)'
+                                : val >= 3 ? 'var(--text-secondary)' : val > 0 ? 'var(--text-muted)' : 'var(--text-muted)',
                             position: 'absolute',
                             top: 3,
                             left: 4,
@@ -572,17 +517,15 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
                               height: 14,
                               borderRadius: '50%',
                               background: isCur
-                                ? 'linear-gradient(135deg, #B9DAFF, #8EC5FF)'
-                                : 'linear-gradient(135deg, #4A7090, #3D5C76)',
+                                ? 'var(--accent)'
+                                : 'var(--accent-soft)',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              boxShadow: isCur
-                                ? '0 0 8px rgba(185, 218, 255, 0.6)'
-                                : '0 1px 4px rgba(0,0,0,0.3)',
+                              boxShadow: isCur ? '0 0 8px rgba(78,215,241,0.6)' : 'none',
                             }}
                           >
-                            <Check size={8} color={isCur ? '#0A0F14' : '#0F0F0F'} strokeWidth={3.5} />
+                            <Check size={8} color={'#fff'} strokeWidth={3.5} />
                           </div>
                         ) : val > 0 ? (
                           <div
@@ -590,11 +533,9 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
                               width: 10,
                               height: 10,
                               borderRadius: '50%',
-                              border: isCur ? '2px solid #B9DAFF' : '1.5px solid #4A7090',
-                              background: isCur
-                                ? 'rgba(185, 218, 255, 0.15)'
-                                : 'rgba(74, 112, 144, 0.15)',
-                              boxShadow: isCur ? '0 0 6px rgba(185, 218, 255, 0.3)' : 'none',
+                              border: isCur ? '2px solid var(--accent)' : '1.5px solid var(--accent-pale)',
+                              background: isCur ? 'rgba(78,215,241,0.1)' : 'transparent',
+                              boxShadow: isCur ? '0 0 6px rgba(78,215,241,0.3)' : 'none',
                             }}
                           />
                         ) : null}
@@ -621,12 +562,10 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
             }}
           >
             <div className="flex items-center justify-between mb-1">
-              <span style={{ fontFamily: M, fontSize: 8, color: '#A1A1AA' }}>{chartTitle}</span>
-              <span style={{ fontFamily: M, fontSize: 7, color: '#8BA0B0' }}>{chartPeakLabel}</span>
+              <span style={{ fontFamily: M, fontSize: 10, color: 'var(--text-secondary)' }}>{chartTitle}</span>
+              <span style={{ fontFamily: M, fontSize: 10, color: 'var(--accent)' }}>{chartPeakLabel}</span>
             </div>
-            <p style={{ fontFamily: M, fontSize: 7, color: '#3F3F46', marginBottom: 10 }}>
-              {chartSubLabel}
-            </p>
+            <p style={{ fontFamily: M, fontSize: 10, color: 'var(--text-muted)', marginBottom: 10 }}>{chartSubLabel}</p>
             <div className="flex items-end gap-[4px]" style={{ height: maxBarH + 20 }}>
               {activeChart.map((slot) => {
                 const hasVal = slot.v > 0;
@@ -636,8 +575,8 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
                     <span
                       style={{
                         fontFamily: M,
-                        fontSize: 5.5,
-                        color: slot.isCurrent && hasVal ? '#B9DAFF' : (hasVal ? '#8BA0B0' : '#3F3F46'),
+                        fontSize: 9,
+                        color: slot.isCurrent && hasVal ? 'var(--accent)' : (hasVal ? 'var(--text-secondary)' : 'var(--text-muted)'),
                         fontWeight: slot.isCurrent ? 700 : (hasVal ? 600 : 400),
                       }}
                       className="truncate max-w-full"
@@ -656,7 +595,7 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
                         style={{
                           width: '100%',
                           height: barH,
-                          background: slot.isCurrent && hasVal ? '#B9DAFF' : (hasVal ? '#4A7090' : (slot.isCurrent ? '#2A4055' : '#1A2530')),
+                          background: slot.isCurrent && hasVal ? 'var(--accent)' : (hasVal ? 'var(--accent-pale)' : 'var(--surface-low)'),
                           borderRadius: '2px 2px 0 0',
                           transition: 'height 0.3s ease',
                         }}
@@ -665,19 +604,17 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
                     <span
                       style={{
                         fontFamily: M,
-                        fontSize: 6.5,
-                        color: slot.isCurrent ? '#B9DAFF' : (hasVal ? '#FFFFFF' : '#8BA0B0'),
+                        fontSize: 9,
+                        color: slot.isCurrent ? 'var(--accent)' : (hasVal ? 'var(--text-primary)' : 'var(--text-secondary)'),
                         fontWeight: slot.isCurrent ? 700 : (hasVal ? 600 : 400),
                       }}
                       className="truncate max-w-full"
-                    >
-                      {slot.h}
-                    </span>
+                    >{slot.h}</span>
                   </div>
                 );
               })}
             </div>
-            <div style={{ height: 1, background: '#27272A', marginTop: 4 }} />
+            <div style={{ height: 1, background: 'var(--surface-border)', marginTop: 4 }} />
           </div>
         </div>
       )}

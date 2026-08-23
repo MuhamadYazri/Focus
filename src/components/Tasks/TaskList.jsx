@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import { Plus, Edit2, Trash2, FolderKanban } from 'lucide-react';
-import TaskItem from './TaskItem';
 
-const G = "Geist, 'Helvetica Neue', sans-serif";
+const G = "'Geist', system-ui, sans-serif";
 const M = "'JetBrains Mono', monospace";
 
 export default function TaskList({
@@ -34,7 +32,6 @@ export default function TaskList({
   };
 
   const [filterTab, setFilterTab] = useState('Today');
-
   const todayStr = getLocalDateStr();
 
   const calculateDailyProgress = () => {
@@ -52,10 +49,6 @@ export default function TaskList({
         const hist = JSON.parse(localStorage.getItem('focus_daily_goals_history_v1') || '{}');
         if (hist && hist[todayStr]) targetHours = Number(hist[todayStr]);
         else if (settings && settings.dailyGoalHours) targetHours = Number(settings.dailyGoalHours);
-        else {
-          const st = JSON.parse(localStorage.getItem('focus_settings_v1') || '{}');
-          if (st && st.dailyGoalHours) targetHours = Number(st.dailyGoalHours);
-        }
       } catch (e) {}
 
       const progressPercent = targetHours > 0 ? Math.min(100, Math.round((todayHours / targetHours) * 100)) : 0;
@@ -71,13 +64,9 @@ export default function TaskList({
           const sDt = s.dateStr || (typeof s.completedAt === 'string' ? s.completedAt.split('T')[0] : '');
           return sDt === dStr;
         });
-        if (daySess.length > 0) {
-          streak++;
-        } else if (i === 0) {
-          continue;
-        } else {
-          break;
-        }
+        if (daySess.length > 0) streak++;
+        else if (i === 0) continue;
+        else break;
       }
 
       let statusText = 'Ready to focus';
@@ -96,9 +85,7 @@ export default function TaskList({
   const filteredTasks = tasks.filter((task) => {
     if (selectedProjectId && task.projectId !== selectedProjectId) return false;
     const st = task.scheduleType || 'today';
-    if (filterTab === 'Archive') {
-      return task.completed && st !== 'daily';
-    }
+    if (filterTab === 'Archive') return task.completed && st !== 'daily';
     if (filterTab === 'Today') {
       if (st === 'daily') return true;
       if (task.completed) return false;
@@ -111,9 +98,8 @@ export default function TaskList({
       if (task.completed) return false;
       if (st === 'today') return true;
       if (st === 'date') {
-        const now = new Date();
-        const endOfWeek = new Date(now);
-        endOfWeek.setDate(now.getDate() + 7);
+        const endOfWeek = new Date();
+        endOfWeek.setDate(new Date().getDate() + 7);
         const endStr = getLocalDateStr(endOfWeek);
         return !task.scheduledDate || task.scheduledDate <= endStr;
       }
@@ -129,299 +115,247 @@ export default function TaskList({
 
   const activeCount = tasks.filter((t) => !t.completed).length;
 
+  const getGreeting = () => {
+    const h = new Date().getHours();
+    if (h < 12) return 'Good morning.';
+    if (h < 17) return 'Good afternoon.';
+    return 'Good evening.';
+  };
+
   return (
-    <div
-      className="pb-32 pt-4 px-4 max-w-md mx-auto space-y-4 select-none relative min-h-[85vh]"
-      style={{ fontFamily: G }}
-    >
-      {/* Top Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <span
-            style={{
-              fontFamily: M,
-              fontSize: 9,
-              color: '#3F3F46',
-              letterSpacing: '0.1em',
-              display: 'block',
-            }}
-          >
-            Focus
-          </span>
-          <h1
-            style={{
-              fontFamily: G,
-              fontSize: 22,
-              fontWeight: 700,
-              color: '#FFFFFF',
-              letterSpacing: '-0.03em',
-              marginTop: 2,
-            }}
-          >
+    <div className="min-h-[100dvh] pb-32" style={{ fontFamily: G }}>
+
+      {/* ── Sticky Header ── */}
+      <header className="glass sticky top-0 z-40 px-5 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <span className="material-symbols-outlined fill text-[22px]" style={{ color: 'var(--text-primary)' }}>grid_view</span>
+          <h1 style={{ fontFamily: G, fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
             Dashboard
           </h1>
         </div>
-      </div>
+        <span style={{ fontFamily: M, fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.1em' }}>
+          FOCUS
+        </span>
+      </header>
 
-      {/* Daily Target Card */}
-      <div
-        style={{
-          background: '#090A0C',
-          border: '1px solid #27272A',
-          borderRadius: 8,
-          padding: '12px 14px',
-        }}
-        className="space-y-2.5"
-      >
-        <div className="flex items-center justify-between">
-          <span style={{ fontFamily: M, fontSize: 8, color: '#A1A1AA', letterSpacing: '0.08em' }}>
-            DAILY TARGET
-          </span>
-          <span style={{ fontFamily: M, fontSize: 11, fontWeight: 700, color: '#B9DAFF' }}>
-            {todayHours}h / {targetHours}h · {progressPercent}%
-          </span>
-        </div>
+      <div className="px-5 pt-6 flex flex-col gap-5 max-w-md mx-auto">
 
-        {/* Progress Bar */}
-        <div
-          style={{
-            width: '100%',
-            height: 4,
-            background: '#1A1A1A',
-            borderRadius: 2,
-            overflow: 'hidden',
-          }}
-        >
+        {/* ── Greeting ── */}
+        <section>
+          <h2 style={{ fontFamily: G, fontSize: 34, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.025em', lineHeight: 1.1 }}>
+            {getGreeting()}
+          </h2>
+          <p style={{ fontFamily: G, fontSize: 15, color: 'var(--text-secondary)', marginTop: 6 }}>
+            {activeCount} task{activeCount !== 1 ? 's' : ''} scheduled for today.
+          </p>
+        </section>
+
+        {/* ── Bento Grid: Target + Streak ── */}
+        <section style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 12 }}>
+
+          {/* Daily Target Card */}
+          <div className="card-2xl squish p-6 flex flex-col justify-between" style={{ minHeight: 130 }}>
+            <div className="flex items-start justify-between">
+              <div>
+                <p style={{ fontFamily: M, fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.06em' }}>DAILY TARGET</p>
+                <p style={{ fontFamily: G, fontSize: 15, color: 'var(--text-primary)', marginTop: 2 }}>
+                  {todayHours}h of {targetHours}h completed
+                </p>
+              </div>
+              <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: 24 }}>crisis_alert</span>
+            </div>
+            <div style={{ marginTop: 12 }}>
+              <div style={{ width: '100%', height: 6, background: 'var(--surface-low)', borderRadius: 99, overflow: 'hidden' }}>
+                <div style={{ width: `${progressPercent}%`, height: '100%', background: 'var(--accent)', borderRadius: 99, transition: 'width 0.6s ease-out' }} />
+              </div>
+              <div className="flex justify-between" style={{ marginTop: 6 }}>
+                <span style={{ fontFamily: M, fontSize: 10, color: 'var(--text-muted)' }}>{statusText}</span>
+                <span style={{ fontFamily: M, fontSize: 10, color: 'var(--text-muted)' }}>{progressPercent}%</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Streak Card */}
           <div
-            style={{
-              width: `${progressPercent}%`,
-              height: '100%',
-              background: '#B9DAFF',
-              borderRadius: 2,
-              transition: 'width 0.5s ease-out',
-            }}
-          />
-        </div>
-
-        <div className="flex items-center justify-between pt-0.5">
-          <span style={{ fontFamily: M, fontSize: 8, color: '#3F3F46' }}>Status: {statusText}</span>
-          <span style={{ fontFamily: M, fontSize: 8, color: '#3F3F46' }}>Streak: {streak} days</span>
-        </div>
-      </div>
-
-      {/* Categories Bar */}
-      <div className="space-y-1.5 pt-1">
-        <div className="flex items-center justify-between">
-          <span style={{ fontFamily: M, fontSize: 8, color: '#A1A1AA', letterSpacing: '0.08em' }}>
-            CATEGORIES
-          </span>
-          <button
-            type="button"
-            onClick={() => {
-              if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(10);
-              if (onAddProject) onAddProject();
-            }}
-            className="flex items-center gap-1 text-xs transition-opacity hover:opacity-80"
-            style={{ fontFamily: M, fontSize: 8, color: '#B9DAFF', fontWeight: 600 }}
+            className="card-2xl squish flex flex-col justify-between p-5 relative overflow-hidden"
+            style={{ background: 'var(--text-primary)', minWidth: 110, minHeight: 130 }}
           >
-            <Plus size={10} /> NEW CATEGORY
-          </button>
-        </div>
-        <div
-          className="flex gap-1.5 overflow-x-auto pb-1"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        >
-          <button
-            type="button"
-            onClick={() => {
-              if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(10);
-              if (onSelectProject) onSelectProject(null);
-            }}
-            className="flex-shrink-0 transition-all active:scale-95"
-            style={{
-              fontFamily: G,
-              fontSize: 11,
-              padding: '6px 12px',
-              borderRadius: 6,
-              background: !selectedProjectId ? '#FFFFFF' : '#090A0C',
-              color: !selectedProjectId ? '#000000' : '#A1A1AA',
-              border: !selectedProjectId ? 'none' : '1px solid #27272A',
-              fontWeight: !selectedProjectId ? 600 : 400,
-            }}
-          >
-            All Tasks
-          </button>
-          {projects.map((proj) => {
-            const isSel = selectedProjectId === proj.id;
-            const cleanName = proj.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' ');
-            return (
-              <div
-                key={proj.id}
-                className="flex items-center flex-shrink-0 transition-all"
-                style={{
-                  background: isSel ? proj.color : '#090A0C',
-                  border: isSel ? 'none' : '1px solid #27272A',
-                  borderRadius: 6,
-                  overflow: 'hidden',
-                }}
-              >
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(10);
-                    if (onSelectProject) onSelectProject(isSel ? null : proj.id);
-                  }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 transition-opacity active:opacity-80"
-                  style={{
-                    fontFamily: G,
-                    fontSize: 11,
-                    color: isSel ? '#000000' : '#FFFFFF',
-                    fontWeight: isSel ? 600 : 400,
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 6,
-                      height: 6,
-                      borderRadius: '50%',
-                      background: isSel ? '#000000' : proj.color,
-                    }}
-                  />
-                  <span>{cleanName}</span>
-                </button>
-                <div
-                  className="flex items-center border-l pr-1.5 pl-1 gap-1"
-                  style={{
-                    borderColor: isSel ? 'rgba(0,0,0,0.15)' : '#27272A',
-                  }}
-                >
+            <div className="flex justify-between items-start">
+              <span style={{ fontFamily: M, fontSize: 9, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.06em' }}>STREAK</span>
+              <span className="material-symbols-outlined" style={{ color: 'rgba(255,255,255,0.7)', fontSize: 18 }}>local_fire_department</span>
+            </div>
+            <div>
+              <div style={{ fontFamily: G, fontSize: 38, fontWeight: 700, color: '#fff', letterSpacing: '-0.03em', lineHeight: 1 }}>
+                {streak}
+              </div>
+              <p style={{ fontFamily: G, fontSize: 12, color: 'rgba(255,255,255,0.55)', marginTop: 2 }}>Days</p>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Categories ── */}
+        <section>
+          <div className="flex items-center justify-between mb-3">
+            <span style={{ fontFamily: M, fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.08em' }}>FOCUS AREAS</span>
+            <button
+              type="button"
+              onClick={() => { if (window.navigator?.vibrate) window.navigator.vibrate(10); if (onAddProject) onAddProject(); }}
+              style={{ fontFamily: M, fontSize: 10, color: 'var(--accent)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: 14 }}>add</span> NEW
+            </button>
+          </div>
+          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+            {/* All Tasks chip */}
+            <button
+              type="button"
+              onClick={() => { if (window.navigator?.vibrate) window.navigator.vibrate(10); if (onSelectProject) onSelectProject(null); }}
+              className="squish flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all"
+              style={{
+                background: !selectedProjectId ? 'var(--text-primary)' : 'var(--surface-card)',
+                color: !selectedProjectId ? '#fff' : 'var(--text-primary)',
+                border: !selectedProjectId ? 'none' : '1px solid var(--surface-border)',
+                fontFamily: G, fontSize: 14, fontWeight: !selectedProjectId ? 600 : 400,
+                boxShadow: !selectedProjectId ? 'none' : 'var(--shadow-soft)',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: 18, opacity: 0.7 }}>task_alt</span>
+              All Tasks
+            </button>
+
+            {projects.map((proj) => {
+              const isSel = selectedProjectId === proj.id;
+              const cleanName = proj.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' ');
+              return (
+                <div key={proj.id} className="flex-shrink-0 flex items-center rounded-xl overflow-hidden" style={{ border: isSel ? 'none' : '1px solid var(--surface-border)', boxShadow: 'var(--shadow-soft)' }}>
                   <button
                     type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (onEditProject) onEditProject(proj);
-                    }}
-                    className="p-1 transition hover:opacity-80"
-                    title="Edit category"
-                    style={{ color: isSel ? '#000000' : '#A1A1AA' }}
+                    onClick={() => { if (window.navigator?.vibrate) window.navigator.vibrate(10); if (onSelectProject) onSelectProject(isSel ? null : proj.id); }}
+                    className="flex items-center gap-2 px-4 py-2.5 transition-all squish"
+                    style={{ background: isSel ? proj.color || 'var(--accent)' : 'var(--surface-card)', fontFamily: G, fontSize: 14, color: isSel ? '#fff' : 'var(--text-primary)', fontWeight: isSel ? 600 : 400 }}
                   >
-                    <Edit2 size={11} />
+                    <div style={{ width: 7, height: 7, borderRadius: '50%', background: isSel ? '#fff' : (proj.color || 'var(--accent)') }} />
+                    {cleanName}
                   </button>
-                  {projects.length > 1 && (
+                  <div className="flex items-center pl-1 pr-2 gap-0.5" style={{ background: isSel ? (proj.color || 'var(--accent)') : 'var(--surface-card)', borderLeft: '1px solid var(--surface-border)' }}>
+                    <button type="button" onClick={(e) => { e.stopPropagation(); if (onEditProject) onEditProject(proj); }} className="p-1 transition hover:opacity-60" style={{ color: isSel ? '#fff' : 'var(--text-secondary)' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: 13 }}>edit</span>
+                    </button>
+                    {projects.length > 1 && (
+                      <button type="button" onClick={(e) => { e.stopPropagation(); if (confirm(`Delete "${cleanName}" and its tasks?`)) { if (onDeleteProject) onDeleteProject(proj.id); } }} className="p-1 transition hover:opacity-60" style={{ color: isSel ? '#fff' : '#EF4444' }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: 13 }}>delete</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* ── Filter Tabs ── */}
+        <section>
+          <div className="flex gap-6 border-b" style={{ borderColor: 'var(--surface-border)', paddingBottom: 2 }}>
+            {['Today', 'This Week', 'Planned', 'Archive'].map((tab) => {
+              const on = filterTab === tab;
+              return (
+                <button
+                  key={tab}
+                  onClick={() => { if (window.navigator?.vibrate) window.navigator.vibrate(10); setFilterTab(tab); }}
+                  style={{
+                    fontFamily: G, fontSize: 15, fontWeight: on ? 600 : 400,
+                    color: on ? 'var(--text-primary)' : 'var(--text-secondary)',
+                    paddingBottom: 10,
+                    borderBottom: on ? '2px solid var(--text-primary)' : '2px solid transparent',
+                    marginBottom: -2,
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  {tab}
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* ── Task List ── */}
+        <section className="flex flex-col gap-3">
+          <span style={{ fontFamily: M, fontSize: 10, color: 'var(--text-muted)', letterSpacing: '0.06em' }}>
+            TASKS · {activeCount} ACTIVE
+          </span>
+          {filteredTasks.length === 0 ? (
+            <div className="card-2xl p-8 text-center">
+              <span className="material-symbols-outlined" style={{ fontSize: 32, color: 'var(--text-muted)', display: 'block', marginBottom: 8 }}>check_circle</span>
+              <p style={{ fontFamily: G, fontSize: 14, color: 'var(--text-muted)' }}>No tasks in this view. Add one below.</p>
+            </div>
+          ) : (
+            filteredTasks.map((task) => {
+              const project = projects.find((p) => p.id === task.projectId);
+              const cleanProjectName = project ? project.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' ') : null;
+              return (
+                <div
+                  key={task.id}
+                  className="card-2xl squish flex items-center gap-4 p-4 group cursor-pointer"
+                  onClick={() => { if (onEditTask) onEditTask(task); }}
+                  style={{ opacity: task.completed ? 0.55 : 1 }}
+                >
+                  {/* Checkbox */}
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); if (window.navigator?.vibrate) window.navigator.vibrate(10); if (onToggleComplete) onToggleComplete(task.id); }}
+                    className="flex-shrink-0 flex items-center justify-center transition-all"
+                    style={{ width: 28, height: 28, borderRadius: '50%', border: `2px solid ${task.completed ? 'var(--accent)' : 'var(--surface-mid)'}`, background: task.completed ? 'var(--accent)' : 'transparent' }}
+                  >
+                    {task.completed && <span className="material-symbols-outlined fill" style={{ fontSize: 16, color: '#fff' }}>check</span>}
+                  </button>
+
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <p style={{ fontFamily: G, fontSize: 15, fontWeight: 500, color: 'var(--text-primary)', textDecoration: task.completed ? 'line-through' : 'none' }} className="truncate">
+                      {task.title}
+                    </p>
+                    <div className="flex items-center gap-3 mt-1">
+                      {cleanProjectName && (
+                        <span className="flex items-center gap-1" style={{ fontFamily: M, fontSize: 10, color: 'var(--text-secondary)' }}>
+                          <div style={{ width: 6, height: 6, borderRadius: '50%', background: project?.color || 'var(--accent)', flexShrink: 0 }} />
+                          {cleanProjectName}
+                        </span>
+                      )}
+                      {task.estimatedPomos && (
+                        <span style={{ fontFamily: M, fontSize: 10, color: 'var(--text-muted)' }}>
+                          {task.completedPomos || 0}/{task.estimatedPomos} pomos
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Play action */}
+                  {!task.completed && (
                     <button
                       type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (confirm(`Delete category "${cleanName}" and its tasks?`)) {
-                          if (onDeleteProject) onDeleteProject(proj.id);
-                        }
-                      }}
-                      className="p-1 transition hover:opacity-80"
-                      title="Delete category"
-                      style={{ color: isSel ? '#000000' : '#FF6B6B' }}
+                      onClick={(e) => { e.stopPropagation(); if (window.navigator?.vibrate) window.navigator.vibrate(20); if (onStartPomodoro) onStartPomodoro(task); }}
+                      className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-lg"
+                      style={{ background: 'var(--surface-low)' }}
                     >
-                      <Trash2 size={11} />
+                      <span className="material-symbols-outlined fill" style={{ fontSize: 18, color: 'var(--text-primary)' }}>play_circle</span>
                     </button>
                   )}
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })
+          )}
+        </section>
       </div>
 
-      {/* Filter Tabs */}
-      <div
-        className="flex gap-1.5 overflow-x-auto pb-1"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-      >
-        {['Today', 'This Week', 'Planned', 'Archive'].map((tab) => {
-          const on = filterTab === tab;
-          return (
-            <button
-              key={tab}
-              onClick={() => {
-                if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(10);
-                setFilterTab(tab);
-              }}
-              className="flex-shrink-0 transition-all active:scale-95"
-              style={{
-                fontFamily: M,
-                fontSize: 9,
-                letterSpacing: '0.06em',
-                padding: '5px 12px',
-                borderRadius: 4,
-                background: on ? '#B9DAFF' : 'transparent',
-                color: on ? '#000000' : '#3F3F46',
-                border: on ? 'none' : '1px solid #27272A',
-                fontWeight: on ? 600 : 400,
-              }}
-            >
-              {tab}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Section label */}
-      <div className="flex items-center justify-between pt-1">
-        <span style={{ fontFamily: M, fontSize: 8, color: '#3F3F46', letterSpacing: '0.08em' }}>
-          Tasks · {activeCount} active
-        </span>
-      </div>
-
-      {/* Task cards list */}
-      <div className="flex flex-col space-y-2">
-        {filteredTasks.length === 0 ? (
-          <div
-            style={{
-              background: '#090A0C',
-              border: '1px solid #27272A',
-              borderRadius: 8,
-              padding: '24px 14px',
-            }}
-            className="text-center"
-          >
-            <p style={{ fontFamily: M, fontSize: 10, color: '#3F3F46' }}>
-              No tasks found in this view.
-            </p>
-          </div>
-        ) : (
-          filteredTasks.map((task) => {
-            const project = projects.find((p) => p.id === task.projectId);
-            return (
-              <TaskItem
-                key={task.id}
-                task={task}
-                project={project}
-                onEdit={onEditTask}
-                onDelete={onDeleteTask}
-                onToggleComplete={onToggleComplete}
-                onToggleSubtask={onToggleSubtask}
-                onStartPomodoro={onStartPomodoro}
-              />
-            );
-          })
-        )}
-      </div>
-
-      {/* FAB (Floating Action Button) */}
+      {/* ── FAB ── */}
       <button
         type="button"
-        onClick={() => {
-          if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(15);
-          if (onAddTask) onAddTask();
-        }}
-        className="fixed right-5 bottom-20 z-40 flex items-center justify-center transition-all duration-300 active:scale-90 hover:scale-105 hover:bg-[#A3CDFA] animate-fab-in group shadow-md"
-        style={{
-          width: 44,
-          height: 44,
-          borderRadius: 8,
-          background: '#B9DAFF',
-        }}
+        onClick={() => { if (window.navigator?.vibrate) window.navigator.vibrate(15); if (onAddTask) onAddTask(); }}
+        className="animate-fab-in squish fixed right-5 bottom-24 z-40 flex items-center justify-center"
+        style={{ width: 56, height: 56, borderRadius: 16, background: 'var(--text-primary)', boxShadow: '0 4px 24px rgba(0,0,0,0.15)' }}
         title="Add new task"
       >
-        <Plus size={20} color="#000000" strokeWidth={2.5} className="transition-transform duration-300 group-hover:rotate-90" />
+        <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: 26 }}>add</span>
       </button>
     </div>
   );

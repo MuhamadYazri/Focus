@@ -1,10 +1,15 @@
 import React from 'react';
-import { Lock, Unlock } from 'lucide-react';
 import TimerDisplay from './TimerDisplay';
 import TimerControls from './TimerControls';
 
-const G = "Geist, 'Helvetica Neue', sans-serif";
+const G = "'Geist', system-ui, sans-serif";
 const M = "'JetBrains Mono', monospace";
+
+const MODE_TABS = [
+  { key: 'work',       label: 'Focus' },
+  { key: 'shortBreak', label: 'Short Break' },
+  { key: 'longBreak',  label: 'Long Break' },
+];
 
 export default function TimerView({
   mode,
@@ -13,7 +18,6 @@ export default function TimerView({
   isRunning,
   cycleCount,
   activeTask,
-  projects,
   currentSound,
   soundVolume,
   onTogglePlay,
@@ -21,77 +25,72 @@ export default function TimerView({
   onSkip,
   onSelectSound,
   onChangeVolume,
-  onClearActiveTask,
   strictMode = false,
   onToggleStrictMode,
-  isNavHidden = false,
-  onToggleNav,
+  onModeChange,
 }) {
   const taskTitle = activeTask ? activeTask.title : '';
 
-  const handleScreenTouch = (e) => {
-    if (
-      e.target.closest('button') ||
-      e.target.closest('input') ||
-      e.target.closest('a') ||
-      e.target.closest('[role="button"]') ||
-      e.target.closest('[data-interactive="true"]')
-    ) {
-      return;
-    }
-    if (onToggleNav) {
-      onToggleNav();
-    }
-  };
-
   return (
-    <div
-      onClick={handleScreenTouch}
-      className={`pt-4 px-4 max-w-md mx-auto flex flex-col justify-between select-none relative transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) ${
-        isNavHidden ? 'pb-6 min-h-[94vh]' : 'pb-28 min-h-[85vh]'
-      } landscape:max-w-full landscape:w-full landscape:h-screen landscape:min-h-screen landscape:py-0 landscape:px-6 landscape:justify-center landscape:items-center`}
-      style={{ background: '#000000', fontFamily: G }}
-    >
-      {/* Top bar */}
-      <div
-        className={`relative z-10 flex items-center justify-between pt-2 pb-2 transition-all duration-500 w-full landscape:max-w-4xl ${
-          isNavHidden ? 'landscape:hidden landscape:opacity-0 landscape:pointer-events-none' : 'opacity-100'
-        }`}
-      >
-        <div className="w-12" />
-        <div className="flex-1" />
+    <div className="flex flex-col min-h-[100dvh]" style={{ fontFamily: G, background: 'var(--canvas)' }}>
 
-        <button
-          type="button"
-          onClick={onToggleStrictMode}
-          className="flex items-center gap-1.5 transition-opacity active:opacity-70"
-          style={{
-            background: '#090A0C',
-            border: `1px solid ${strictMode ? '#B9DAFF' : '#27272A'}`,
-            borderRadius: 4,
-            padding: '5px 8px',
-          }}
-        >
-          {strictMode ? (
-            <Lock size={10} color="#B9DAFF" strokeWidth={1.5} />
-          ) : (
-            <Unlock size={10} color="#8BA0B0" strokeWidth={1.5} />
-          )}
-          <span
-            style={{
-              fontFamily: M,
-              fontSize: 7,
-              color: strictMode ? '#B9DAFF' : '#8BA0B0',
-              letterSpacing: '0.06em',
-            }}
-          >
-            {strictMode ? 'Strict' : 'Open'}
+      {/* ── Top Bar ── */}
+      <header className="glass sticky top-0 z-40 px-5 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="material-symbols-outlined" style={{ color: 'var(--text-primary)', fontSize: 22 }}>timer</span>
+          <h1 style={{ fontFamily: G, fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+            Focus
+          </h1>
+        </div>
+
+        {/* Strict Mode Toggle */}
+        <div className="flex items-center gap-2">
+          <span style={{ fontFamily: M, fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.06em' }}>
+            STRICT MODE
           </span>
-        </button>
+          <input
+            type="checkbox"
+            checked={strictMode}
+            onChange={() => { if (onToggleStrictMode) onToggleStrictMode(); }}
+            className="ios-toggle"
+          />
+        </div>
+      </header>
+
+      {/* ── Mode Selector ── */}
+      <div className="flex justify-center mt-6 px-5">
+        <div
+          className="flex p-1 rounded-full"
+          style={{ background: 'var(--surface-low)', border: '1px solid var(--surface-border)' }}
+        >
+          {MODE_TABS.map(({ key, label }) => {
+            const on = mode === key;
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => { if (window.navigator?.vibrate) window.navigator.vibrate(10); if (onModeChange) onModeChange(key); }}
+                className="transition-all"
+                style={{
+                  padding: '6px 16px',
+                  borderRadius: 9999,
+                  fontFamily: G,
+                  fontSize: 14,
+                  fontWeight: on ? 600 : 400,
+                  color: on ? 'var(--text-primary)' : 'var(--text-secondary)',
+                  background: on ? 'var(--surface-card)' : 'transparent',
+                  boxShadow: on ? 'var(--shadow-soft)' : 'none',
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Centerpiece: Timer Display */}
-      <div className="relative z-10 flex-1 flex items-center justify-center my-auto">
+      {/* ── Timer Display (centered, fills space) ── */}
+      <div className="flex-1 flex items-center justify-center py-8 px-5">
         <TimerDisplay
           mode={mode}
           timeLeft={timeLeft}
@@ -102,15 +101,11 @@ export default function TimerView({
         />
       </div>
 
-      {/* Control Deck */}
-      <div
-        className={`relative z-10 mt-auto transition-all duration-500 w-full landscape:max-w-md ${
-          isNavHidden ? 'landscape:hidden landscape:opacity-0 landscape:pointer-events-none' : 'opacity-100'
-        }`}
-      >
+      {/* ── Control Deck (fixed above bottom nav) ── */}
+      <div className="px-5 pb-28">
         <TimerControls
           isRunning={isRunning}
-          isInitial={timeLeft === totalTime || (mode === 'stopwatch' && timeLeft === 0)}
+          isInitial={timeLeft === totalTime}
           mode={mode}
           onTogglePlay={onTogglePlay}
           onReset={onReset}

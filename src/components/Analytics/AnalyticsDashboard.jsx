@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { TrendingUp } from 'lucide-react';
 import SharedActivitySection from './SharedActivitySection';
 
-const G = "Geist, 'Helvetica Neue', sans-serif";
+const G = "'Geist', system-ui, sans-serif";
 const M = "'JetBrains Mono', monospace";
 
 function polarToXY(cx, cy, r, deg) {
@@ -152,36 +151,18 @@ function filterSessionsForPeriod(sessions, period, offset) {
   const activeSegments = computedSegments.length ? computedSegments : [{ label: 'No Data', pct: 100, count: 0, mins: 0, displayTime: '0h 00m', color: '#27272A' }];
 
   return (
-    <div
-      className="pb-32 pt-4 px-4 max-w-md mx-auto space-y-4 select-none relative min-h-[85vh]"
-      style={{ fontFamily: G }}
-    >
-      {/* Header */}
-      <div>
-        <span
-          style={{
-            fontFamily: M,
-            fontSize: 9,
-            color: '#3F3F46',
-            letterSpacing: '0.1em',
-            display: 'block',
-          }}
-        >
-          Focus
-        </span>
-        <h1
-          style={{
-            fontFamily: G,
-            fontSize: 22,
-            fontWeight: 700,
-            color: '#FFFFFF',
-            letterSpacing: '-0.03em',
-            marginTop: 2,
-          }}
-        >
-          Reports
-        </h1>
-      </div>
+    <div className="min-h-[100dvh] pb-32" style={{ fontFamily: G, background: 'var(--canvas)' }}>
+
+      {/* ── Sticky Header ── */}
+      <header className="glass sticky top-0 z-40 px-5 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <span className="material-symbols-outlined fill" style={{ color: 'var(--text-primary)', fontSize: 22 }}>bar_chart</span>
+          <h1 style={{ fontFamily: G, fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>Reports</h1>
+        </div>
+        <span style={{ fontFamily: M, fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.1em' }}>FOCUS</span>
+      </header>
+
+      <div className="px-5 pt-5 flex flex-col gap-5 max-w-md mx-auto">
 
       {/* Shared Activity Section with interactive tabs, checkmark heatmap, and dynamic chart */}
       <SharedActivitySection
@@ -193,37 +174,13 @@ function filterSessionsForPeriod(sessions, period, offset) {
         }}
       />
 
-      {/* Donut */}
-      <div>
-        <div
-          style={{
-            background: '#090A0C',
-            border: '1px solid #27272A',
-            borderRadius: 8,
-            padding: '12px 14px',
-          }}
-        >
-          <span
-            style={{
-              fontFamily: M,
-              fontSize: 8,
-              color: '#A1A1AA',
-              display: 'block',
-              marginBottom: 12,
-            }}
-          >
-            Time split
-          </span>
-          <div className="flex items-center gap-4">
+        {/* ── Donut Card ── */}
+        <div className="card-2xl p-6">
+          <span style={{ fontFamily: M, fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.06em', display: 'block', marginBottom: 16 }}>FOCUS DISTRIBUTION</span>
+          <div className="flex items-center gap-5">
+            {/* Donut SVG */}
             <svg width={140} height={140} viewBox="0 0 140 140" style={{ flexShrink: 0 }}>
-              <circle
-                cx={cx}
-                cy={cy}
-                r={(r + ri) / 2}
-                fill="none"
-                stroke="#0F0F0F"
-                strokeWidth={r - ri}
-              />
+              <circle cx={cx} cy={cy} r={(r + ri) / 2} fill="none" stroke="var(--surface-low)" strokeWidth={r - ri} />
               {activeSegments.map((seg) => {
                 const sweep = (seg.pct / 100) * 360;
                 const s = deg + gap / 2;
@@ -232,68 +189,23 @@ function filterSessionsForPeriod(sessions, period, offset) {
                 deg += sweep;
                 return <path key={seg.label} d={path} fill={seg.color} opacity={0.9} />;
               })}
-              <text
-                x={cx}
-                y={cy - 6}
-                textAnchor="middle"
-                fill="#FFFFFF"
-                fontSize={13}
-                fontWeight={700}
-                fontFamily="Geist"
-              >
-                {displayTotalTime}
-              </text>
-              <text
-                x={cx}
-                y={cy + 10}
-                textAnchor="middle"
-                fill="#3F3F46"
-                fontSize={8}
-                fontFamily="JetBrains Mono"
-              >
-                total time
-              </text>
+              <text x={cx} y={cy - 4} textAnchor="middle" fill="var(--text-primary)" fontSize={14} fontWeight={700} fontFamily="Geist">{displayTotalTime}</text>
+              <text x={cx} y={cy + 12} textAnchor="middle" fill="var(--text-secondary)" fontSize={9} fontFamily="JetBrains Mono">TOTAL</text>
             </svg>
-            <div className="flex flex-col gap-2.5 flex-1 min-w-0">
+
+            {/* Legend */}
+            <div className="flex flex-col gap-3 flex-1 min-w-0">
               {activeSegments.map((seg) => (
                 <div key={seg.label}>
                   <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      <div
-                        style={{
-                          width: 6,
-                          height: 6,
-                          background: seg.color,
-                          borderRadius: 1,
-                          flexShrink: 0,
-                        }}
-                      />
-                      <span
-                        style={{
-                          fontFamily: M,
-                          fontSize: 7,
-                          color: seg.color === '#B9DAFF' ? '#B9DAFF' : '#A1A1AA',
-                        }}
-                        className="truncate"
-                      >
-                        {seg.label}
-                      </span>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div style={{ width: 8, height: 8, borderRadius: '50%', background: seg.color, flexShrink: 0 }} />
+                      <span style={{ fontFamily: G, fontSize: 12, color: 'var(--text-primary)' }} className="truncate">{seg.label}</span>
                     </div>
-                    <span style={{ fontFamily: M, fontSize: 7, color: '#A1A1AA', marginLeft: 4 }}>
-                      {seg.displayTime} ({seg.pct}%)
-                    </span>
+                    <span style={{ fontFamily: M, fontSize: 11, color: 'var(--text-secondary)', marginLeft: 6, flexShrink: 0 }}>{seg.pct}%</span>
                   </div>
-                  <div
-                    style={{ width: '100%', height: 2, background: '#1A1A1A', borderRadius: 1 }}
-                  >
-                    <div
-                      style={{
-                        height: 2,
-                        width: `${seg.pct}%`,
-                        background: seg.color,
-                        borderRadius: 1,
-                      }}
-                    />
+                  <div style={{ width: '100%', height: 4, background: 'var(--surface-low)', borderRadius: 99, overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${seg.pct}%`, background: seg.color, borderRadius: 99 }} />
                   </div>
                 </div>
               ))}

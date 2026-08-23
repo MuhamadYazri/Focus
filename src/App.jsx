@@ -483,6 +483,7 @@ export default function App() {
           onTogglePlay={handleTogglePlay}
           onReset={handleResetTimer}
           onSkip={handleSkipBreak}
+          onModeChange={handleSelectMode}
           onSelectSound={(snd) => {
             setCurrentSound(snd);
             setSettings({ ...settings, soundscape: snd });
@@ -522,7 +523,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#000000] text-[#FFFFFF] flex flex-col font-sans selection:bg-[#B9DAFF]/30">
+    <div className="min-h-screen flex flex-col font-sans" style={{ background: 'var(--canvas)', color: 'var(--text-primary)' }}>
       {/* Active Tab Screen */}
       <main className="flex-1 relative overflow-x-hidden">
         {isTransitioning && prevTab ? (

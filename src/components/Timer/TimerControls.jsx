@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Volume2, VolumeX, ChevronRight, Pause, Play, Square, Check, SkipForward } from 'lucide-react';
 import { soundEngine } from '../../services/soundEngine';
 
-const G = "Geist, 'Helvetica Neue', sans-serif";
+const G = "'Geist', system-ui, sans-serif";
 const M = "'JetBrains Mono', monospace";
 
 export default function TimerControls({
@@ -17,239 +16,95 @@ export default function TimerControls({
   volume = 0.8,
   onChangeVolume,
 }) {
-  const [showSoundMenu, setShowSoundMenu] = useState(false);
-
   const soundscapes = [
-    { id: 'none', label: 'Silent Trace' },
+    { id: 'none',   label: 'Silent Trace' },
     { id: 'forest', label: 'Forest Wind' },
-    { id: 'rain', label: 'Atmospheric Rain' },
-    { id: 'waves', label: 'Oceanic Waves' },
-    { id: 'cafe', label: 'Urban Cafe' },
-    { id: 'clock', label: 'Ticking Chrono' },
+    { id: 'rain',   label: 'Rain' },
+    { id: 'waves',  label: 'Oceanic Waves' },
+    { id: 'cafe',   label: 'Urban Cafe' },
+    { id: 'clock',  label: 'Ticking Chrono' },
   ];
 
   const handleSelectSound = (soundId) => {
     if (onSelectSound) onSelectSound(soundId);
-    if (soundId === 'none') {
-      soundEngine.stop();
-    } else {
-      soundEngine.play(soundId, volume);
-    }
-    setShowSoundMenu(false);
+    if (soundId === 'none') soundEngine.stop();
+    else soundEngine.play(soundId, volume);
   };
 
   const currentSoundObj = soundscapes.find((s) => s.id === currentSound) || soundscapes[0];
   const isBreak = mode === 'shortBreak' || mode === 'longBreak';
 
   return (
-    <div className="w-full max-w-sm mx-auto flex flex-col gap-4 select-none pt-2">
-      {/* Sound panel */}
-      <div className="relative z-10">
-        <div
-          style={{
-            background: '#090A0C',
-            border: '1px solid #27272A',
-            borderRadius: 8,
-            padding: '10px 14px',
-          }}
-          className="flex items-center gap-3 transition-all"
-        >
-          <div
-            style={{
-              width: 28,
-              height: 28,
-              borderRadius: 4,
-              border: '1px solid #27272A',
-              background: '#000000',
-            }}
-            className="flex items-center justify-center flex-shrink-0"
-          >
-            {currentSound === 'none' ? (
-              <VolumeX size={13} color="#B9DAFF" strokeWidth={1.5} />
-            ) : (
-              <Volume2 size={13} color="#B9DAFF" strokeWidth={1.5} />
-            )}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p
-              style={{
-                fontFamily: G,
-                fontSize: 12,
-                fontWeight: 500,
-                color: '#A1A1AA',
-              }}
-              className="truncate"
-            >
-              {currentSoundObj.label}
-            </p>
-            <p
-              style={{
-                fontFamily: M,
-                fontSize: 7,
-                color: '#3F3F46',
-                marginTop: 2,
-              }}
-            >
-              Vol {Math.round(volume * 100)}%
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setShowSoundMenu(!showSoundMenu)}
-            className="flex items-center gap-1 flex-shrink-0 transition-opacity active:opacity-50"
-            style={{
-              background: '#000000',
-              border: '1px solid #27272A',
-              borderRadius: 4,
-              padding: '4px 8px',
-            }}
-          >
-            <span style={{ fontFamily: M, fontSize: 7, color: '#3F3F46' }}>Change</span>
-            <ChevronRight
-              size={9}
-              color="#3F3F46"
-              strokeWidth={1.5}
-              className={`transition-transform ${showSoundMenu ? 'rotate-90' : ''}`}
-            />
-          </button>
-        </div>
-
-        {/* Expandable Soundscape Menu */}
-        {showSoundMenu && (
-          <div
-            style={{
-              background: '#090A0C',
-              border: '1px solid #27272A',
-              borderRadius: 8,
-              padding: '12px',
-              marginTop: 6,
-            }}
-            className="space-y-3"
-          >
-            {/* Volume Slider */}
-            <div className="space-y-1">
-              <div className="flex justify-between" style={{ fontFamily: M, fontSize: 8, color: '#8BA0B0' }}>
-                <span>VOLUME</span>
-                <span>{Math.round(volume * 100)}%</span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.05"
-                value={volume}
-                onChange={(e) => {
-                  const newVol = parseFloat(e.target.value);
-                  if (onChangeVolume) onChangeVolume(newVol);
-                  if (currentSound !== 'none') soundEngine.setVolume(newVol);
-                }}
-                className="w-full accent-[#B9DAFF] bg-[#18181B] h-1.5 rounded-lg cursor-pointer"
-              />
-            </div>
-
-            {/* Soundscape List */}
-            <div className="grid grid-cols-2 gap-1.5 max-h-36 overflow-y-auto pr-1">
-              {soundscapes.map((s) => {
-                const isActive = s.id === currentSound;
-                return (
-                  <button
-                    key={s.id}
-                    type="button"
-                    onClick={() => handleSelectSound(s.id)}
-                    className="flex items-center justify-between px-2.5 py-2 rounded text-left transition"
-                    style={{
-                      background: isActive ? 'rgba(185,218,255,0.1)' : '#000000',
-                      border: `1px solid ${isActive ? '#B9DAFF' : '#27272A'}`,
-                      fontFamily: M,
-                      fontSize: 10,
-                      color: isActive ? '#B9DAFF' : '#8BA0B0',
-                    }}
-                  >
-                    <span className="truncate">{s.label}</span>
-                    {isActive && <Check size={10} />}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Controls */}
-      <div className="relative z-10 flex flex-col gap-2.5 mt-2">
+    <div
+      className="glass w-full rounded-3xl p-5 flex flex-col gap-5"
+      style={{ border: '1px solid var(--surface-border)', background: 'var(--glass-bg)' }}
+    >
+      {/* ── Main Controls ── */}
+      <div className="flex items-center justify-center gap-8">
+        {/* Reset */}
         <button
           type="button"
-          onClick={() => {
-            if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(20);
-            if (onTogglePlay) onTogglePlay();
-          }}
-          className="w-full flex items-center justify-center gap-2.5 transition-opacity active:opacity-80"
-          style={{ background: '#B9DAFF', borderRadius: 8, padding: '14px 0' }}
+          onClick={() => { if (window.navigator?.vibrate) window.navigator.vibrate(10); if (onReset) onReset(); }}
+          className="squish flex items-center justify-center rounded-full transition-all"
+          style={{ width: 48, height: 48, background: 'var(--surface-low)' }}
         >
-          {isRunning ? (
-            <>
-              <Pause size={15} color="#000000" strokeWidth={2} fill="#000000" />
-              <span
-                style={{
-                  fontFamily: G,
-                  fontSize: 14,
-                  fontWeight: 600,
-                  color: '#000000',
-                }}
-              >
-                Pause
-              </span>
-            </>
-          ) : (
-            <>
-              <Play size={15} color="#000000" strokeWidth={2} fill="#000000" />
-              <span
-                style={{
-                  fontFamily: G,
-                  fontSize: 14,
-                  fontWeight: 600,
-                  color: '#000000',
-                }}
-              >
-                {isInitial ? 'Start' : 'Resume'}
-              </span>
-            </>
-          )}
+          <span className="material-symbols-outlined fill" style={{ fontSize: 22, color: 'var(--text-secondary)' }}>replay</span>
         </button>
 
-        {(isBreak || (!isRunning && !isInitial)) && (
-          <button
-            type="button"
-            onClick={() => {
-              if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(10);
-              if (isBreak) {
-                if (onSkip) onSkip();
-                else if (onReset) onReset();
-              } else {
-                if (onReset) onReset();
-              }
-            }}
-            className="w-full flex items-center justify-center gap-2.5 transition-opacity active:opacity-60"
+        {/* Play / Pause — large pill */}
+        <button
+          type="button"
+          onClick={() => { if (window.navigator?.vibrate) window.navigator.vibrate(20); if (onTogglePlay) onTogglePlay(); }}
+          className="squish flex items-center justify-center rounded-full transition-all"
+          style={{ width: 72, height: 72, background: 'var(--text-primary)', boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}
+        >
+          <span className="material-symbols-outlined fill" style={{ fontSize: 36, color: '#fff' }}>
+            {isRunning ? 'pause' : 'play_arrow'}
+          </span>
+        </button>
+
+        {/* Skip */}
+        <button
+          type="button"
+          onClick={() => { if (window.navigator?.vibrate) window.navigator.vibrate(10); if (isBreak && onSkip) onSkip(); else if (onSkip) onSkip(); }}
+          className="squish flex items-center justify-center rounded-full transition-all"
+          style={{ width: 48, height: 48, background: 'var(--surface-low)' }}
+        >
+          <span className="material-symbols-outlined fill" style={{ fontSize: 22, color: 'var(--text-secondary)' }}>skip_next</span>
+        </button>
+      </div>
+
+      {/* ── Sound Bar ── */}
+      <div className="border-t flex items-center justify-between gap-4 pt-4" style={{ borderColor: 'var(--surface-border)' }}>
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--text-secondary)', flexShrink: 0 }}>headphones</span>
+          <select
+            value={currentSound}
+            onChange={(e) => handleSelectSound(e.target.value)}
             style={{
-              background: 'transparent',
-              border: '1px solid #27272A',
-              borderRadius: 8,
-              padding: '12px 0',
+              fontFamily: G, fontSize: 13, color: 'var(--text-primary)', background: 'transparent',
+              border: 'none', outline: 'none', cursor: 'pointer', minWidth: 0,
             }}
           >
-            {isBreak ? (
-              <>
-                <SkipForward size={14} color="#A1A1AA" strokeWidth={1.75} />
-                <span style={{ fontFamily: G, fontSize: 13, color: '#A1A1AA' }}>Skip Break</span>
-              </>
-            ) : (
-              <>
-                <Square size={13} color="#A1A1AA" strokeWidth={1.5} />
-                <span style={{ fontFamily: G, fontSize: 13, color: '#A1A1AA' }}>Stop</span>
-              </>
-            )}
-          </button>
-        )}
+            {soundscapes.map((s) => (
+              <option key={s.id} value={s.id} style={{ color: 'var(--text-primary)', background: '#fff' }}>{s.label}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Volume slider */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <span className="material-symbols-outlined" style={{ fontSize: 16, color: 'var(--text-muted)' }}>volume_down</span>
+          <div style={{ width: 80, height: 6, background: 'var(--surface-low)', borderRadius: 99, overflow: 'hidden', position: 'relative', cursor: 'pointer' }}>
+            <div style={{ width: `${volume * 100}%`, height: '100%', background: 'var(--text-primary)', borderRadius: 99 }} />
+            <input
+              type="range" min="0" max="1" step="0.05" value={volume}
+              onChange={(e) => { const v = parseFloat(e.target.value); if (onChangeVolume) onChangeVolume(v); if (currentSound !== 'none') soundEngine.setVolume(v); }}
+              className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+            />
+          </div>
+          <span className="material-symbols-outlined" style={{ fontSize: 16, color: 'var(--text-muted)' }}>volume_up</span>
+        </div>
       </div>
     </div>
   );

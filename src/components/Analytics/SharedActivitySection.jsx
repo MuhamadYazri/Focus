@@ -361,7 +361,7 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
                   setPeriod(p);
                   setOffset(0);
                 }}
-              className="flex-1 py-2 rounded-lg transition-all"
+                className="flex-1 py-2 rounded-lg transition-all"
                 style={{
                   background: active ? 'var(--surface-card)' : 'transparent',
                   color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
@@ -385,7 +385,7 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
           }}
         >
           <button
-          onClick={() => {
+            onClick={() => {
               if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(10);
               setOffset((prev) => prev - 1);
             }}
@@ -398,7 +398,7 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
             {isAll ? `All Time (${displaySubDays})` : getDateRangeLabel(period, offset)}
           </span>
           <button
-          onClick={() => {
+            onClick={() => {
               if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(10);
               setOffset((prev) => Math.min(0, prev + 1));
             }}
@@ -439,7 +439,7 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
       {/* Activity Heatmap Grid (Hidden when period === 'All' or 'Yearly') */}
       {!isAll && period !== 'Yearly' && (
         <div>
-        <div className="card-2xl p-4">
+          <div className="card-2xl p-4">
             <div className="flex items-center justify-between mb-3">
               <span style={{ fontFamily: M, fontSize: 10, color: 'var(--text-secondary)', letterSpacing: '0.04em' }}>ACTIVITY GRID</span>
               <span style={{ fontFamily: M, fontSize: 10, color: 'var(--text-muted)' }}>5×7 month</span>
@@ -553,19 +553,14 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
       {!isAll && (
         <div>
           <div
-            className="transition-all duration-300 hover:border-[var(--text-muted)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.4)]"
-            style={{
-              background: 'var(--surface-card)',
-              border: '1px solid var(--surface-border)',
-              borderRadius: 8,
-              padding: '12px 14px',
-            }}
+            className="card-2xl p-4 transition-all duration-300 hover:shadow-ambient"
           >
-            <div className="flex items-center justify-between mb-1">
+            <div className="flex items-center justify-between ">
               <span style={{ fontFamily: M, fontSize: 10, color: 'var(--text-secondary)' }}>{chartTitle}</span>
               <span style={{ fontFamily: M, fontSize: 10, color: 'var(--accent)' }}>{chartPeakLabel}</span>
             </div>
-            <p style={{ fontFamily: M, fontSize: 10, color: 'var(--text-muted)', marginBottom: 10 }}>{chartSubLabel}</p>
+            <br />
+            <p style={{ fontFamily: M, fontSize: 10, color: 'var(--text-muted)', marginBottom: 36 }}>{chartSubLabel}</p>
             <div className="flex items-end gap-[4px]" style={{ height: maxBarH + 20 }}>
               {activeChart.map((slot) => {
                 const hasVal = slot.v > 0;

@@ -516,6 +516,16 @@ export default function App() {
           settings={settings}
           onUpdateSettings={setSettings}
           onResetAllData={handleResetAllData}
+          projects={projects}
+          onAddProject={() => {
+            setProjectToEdit(null);
+            setProjectModalOpen(true);
+          }}
+          onEditProject={(proj) => {
+            setProjectToEdit(proj);
+            setProjectModalOpen(true);
+          }}
+          onDeleteProject={handleDeleteProject}
         />
       );
     }

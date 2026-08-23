@@ -18,6 +18,10 @@ export default function ProfileView({
   },
   onUpdateSettings,
   onResetAllData,
+  projects = [],
+  onAddProject,
+  onEditProject,
+  onDeleteProject,
 }) {
   const [showReport, setShowReport] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -170,6 +174,44 @@ export default function ProfileView({
           <span className="material-symbols-outlined" style={{ fontSize: 20 }}>ios_share</span>
           Share Profile
         </button>
+
+        {/* ── Focus Categories ── */}
+        <div className="flex flex-col gap-4 mb-4">
+          <div className="flex items-center justify-between">
+            <span style={{ fontFamily: M, fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.06em' }}>FOCUS CATEGORIES</span>
+            <button
+              type="button"
+              onClick={() => { if (window.navigator?.vibrate) window.navigator.vibrate(10); if (onAddProject) onAddProject(); }}
+              style={{ fontFamily: M, fontSize: 10, color: 'var(--accent)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}
+              className="hover:opacity-80 transition"
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: 14 }}>add</span> NEW
+            </button>
+          </div>
+          <div className="card-2xl p-2 flex flex-col">
+            {projects.map((proj, i) => {
+              const cleanName = proj.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' ');
+              return (
+                <div key={proj.id} className="flex items-center justify-between py-3 px-3 transition rounded-xl" style={{ borderBottom: i < projects.length - 1 ? '1px solid var(--surface-border)' : 'none' }}>
+                  <div className="flex items-center gap-3">
+                    <div style={{ width: 10, height: 10, borderRadius: '50%', background: proj.color || 'var(--accent)' }} />
+                    <span style={{ fontFamily: G, fontSize: 14, color: 'var(--text-primary)', fontWeight: 500 }}>{cleanName}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <button type="button" onClick={() => { if (window.navigator?.vibrate) window.navigator.vibrate(10); if (onEditProject) onEditProject(proj); }} className="p-2 transition hover:opacity-60" style={{ color: 'var(--text-secondary)' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: 16 }}>edit</span>
+                    </button>
+                    {projects.length > 1 && (
+                      <button type="button" onClick={() => { if (window.navigator?.vibrate) window.navigator.vibrate(10); if (confirm(`Delete "${cleanName}" and its tasks?`)) { if (onDeleteProject) onDeleteProject(proj.id); } }} className="p-2 transition hover:opacity-60" style={{ color: '#EF4444' }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: 16 }}>delete</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
 
         {/* ── Settings ── */}
         <div className="flex flex-col gap-4">

@@ -195,17 +195,13 @@ export default function TaskList({
 
         {/* ── Categories ── */}
         <section>
-          <div className="flex items-center justify-between mb-3">
-            <span style={{ fontFamily: M, fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.08em' }}>FOCUS AREAS</span>
-            <button
-              type="button"
-              onClick={() => { if (window.navigator?.vibrate) window.navigator.vibrate(10); if (onAddProject) onAddProject(); }}
-              style={{ fontFamily: M, fontSize: 10, color: 'var(--accent)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: 14 }}>add</span> NEW
-            </button>
-          </div>
-          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+          <div
+            className="flex gap-2 overflow-x-auto no-scrollbar pb-2 pt-2 -mt-2 -mx-5 px-5"
+            style={{
+              maskImage: 'linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent)',
+              WebkitMaskImage: 'linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent)',
+            }}
+          >
             {/* All Tasks chip */}
             <button
               type="button"
@@ -227,27 +223,24 @@ export default function TaskList({
               const isSel = selectedProjectId === proj.id;
               const cleanName = proj.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' ');
               return (
-                <div key={proj.id} className="flex-shrink-0 flex items-center rounded-xl overflow-hidden" style={{ border: isSel ? 'none' : '1px solid var(--surface-border)', boxShadow: 'var(--shadow-soft)' }}>
-                  <button
-                    type="button"
-                    onClick={() => { if (window.navigator?.vibrate) window.navigator.vibrate(10); if (onSelectProject) onSelectProject(isSel ? null : proj.id); }}
-                    className="flex items-center gap-2 px-4 py-2.5 transition-all squish"
-                    style={{ background: isSel ? proj.color || 'var(--accent)' : 'var(--surface-card)', fontFamily: G, fontSize: 14, color: isSel ? '#fff' : 'var(--text-primary)', fontWeight: isSel ? 600 : 400 }}
-                  >
-                    <div style={{ width: 7, height: 7, borderRadius: '50%', background: isSel ? '#fff' : (proj.color || 'var(--accent)') }} />
-                    {cleanName}
-                  </button>
-                  <div className="flex items-center pl-1 pr-2 gap-0.5" style={{ background: isSel ? (proj.color || 'var(--accent)') : 'var(--surface-card)', borderLeft: '1px solid var(--surface-border)' }}>
-                    <button type="button" onClick={(e) => { e.stopPropagation(); if (onEditProject) onEditProject(proj); }} className="p-1 transition hover:opacity-60" style={{ color: isSel ? '#fff' : 'var(--text-secondary)' }}>
-                      <span className="material-symbols-outlined" style={{ fontSize: 13 }}>edit</span>
-                    </button>
-                    {projects.length > 1 && (
-                      <button type="button" onClick={(e) => { e.stopPropagation(); if (confirm(`Delete "${cleanName}" and its tasks?`)) { if (onDeleteProject) onDeleteProject(proj.id); } }} className="p-1 transition hover:opacity-60" style={{ color: isSel ? '#fff' : '#EF4444' }}>
-                        <span className="material-symbols-outlined" style={{ fontSize: 13 }}>delete</span>
-                      </button>
-                    )}
-                  </div>
-                </div>
+                <button
+                  key={proj.id}
+                  type="button"
+                  onClick={() => { if (window.navigator?.vibrate) window.navigator.vibrate(10); if (onSelectProject) onSelectProject(isSel ? null : proj.id); }}
+                  className="squish flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all"
+                  style={{
+                    background: isSel ? proj.color || 'var(--accent)' : 'var(--surface-card)',
+                    color: isSel ? 'var(--text-on-accent)' : 'var(--text-primary)',
+                    border: isSel ? 'none' : '1px solid var(--surface-border)',
+                    fontFamily: G,
+                    fontSize: 14,
+                    fontWeight: isSel ? 600 : 400,
+                    boxShadow: isSel ? 'none' : 'var(--shadow-soft)',
+                  }}
+                >
+                  <div style={{ width: 7, height: 7, borderRadius: '50%', background: isSel ? 'var(--text-on-accent)' : (proj.color || 'var(--accent)') }} />
+                  {cleanName}
+                </button>
               );
             })}
           </div>

@@ -15,10 +15,11 @@ export default function BottomNav({ activeTab, setActiveTab, isHidden = false })
       }`}
     >
       <div 
-        className="flex items-center p-2 gap-1 rounded-full shadow-ambient backdrop-blur-2xl"
+        className="flex items-center p-1.5 gap-1 rounded-full"
         style={{
-          background: 'rgba(255, 255, 255, 0.75)',
+          background: 'var(--surface-card)',
           border: '1px solid var(--surface-border)',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
         }}
       >
         {NAV_ITEMS.map(({ key, label, icon }) => {
@@ -30,30 +31,27 @@ export default function BottomNav({ activeTab, setActiveTab, isHidden = false })
                 if (window.navigator?.vibrate) window.navigator.vibrate(10);
                 setActiveTab(key);
               }}
-              className={`relative flex items-center justify-center transition-all duration-500 ease-out overflow-hidden ${
-                on ? 'w-32 px-4 py-2' : 'w-12 h-12 hover:scale-110 active:scale-95'
+              className={`relative flex items-center justify-center transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+                on ? 'px-4' : 'w-[42px] hover:scale-105 active:scale-95'
               }`}
               style={{
-                borderRadius: 99,
+                height: 42,
+                borderRadius: 21,
                 background: on ? 'var(--accent)' : 'transparent',
                 color: on ? 'var(--text-on-accent)' : 'var(--text-secondary)',
               }}
             >
-              <div className={`flex items-center justify-center gap-2 transition-all duration-500`}>
-                <span className={`material-symbols-outlined text-[22px] transition-transform duration-500 ${on ? 'fill scale-110' : ''}`}>
-                  {icon}
-                </span>
-                
-                {/* Text only visible when active, absolute positioned when inactive to allow smooth width expansion */}
-                <span
-                  className={`font-mono text-[11px] font-bold tracking-wide transition-all duration-500 ease-out ${
-                    on ? 'opacity-100 translate-x-0 w-auto' : 'opacity-0 translate-x-4 w-0 absolute right-0'
-                  }`}
-                  style={{ whiteSpace: 'nowrap' }}
-                >
-                  {label}
-                </span>
-              </div>
+              <span className={`material-symbols-outlined text-[20px] transition-transform duration-500 ${on ? 'fill scale-110' : ''}`}>
+                {icon}
+              </span>
+              
+              <span
+                className={`font-mono text-[11px] font-bold tracking-wide transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] overflow-hidden whitespace-nowrap ${
+                  on ? 'max-w-[80px] opacity-100 ml-1.5 translate-x-0' : 'max-w-0 opacity-0 ml-0 -translate-x-2'
+                }`}
+              >
+                {label}
+              </span>
             </button>
           );
         })}

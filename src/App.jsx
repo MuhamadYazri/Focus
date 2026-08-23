@@ -602,42 +602,45 @@ export default function App() {
 
       {/* Minimalist Session Completion Banner */}
       {sessionDoneAlert && (
-        <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-500 ease-out">
+        <div className="fixed top-8 left-1/2 z-50 animate-slideDown" style={{ transform: 'translateX(-50%)' }}>
           <div
-            style={{
-              background: 'var(--surface-card)',
-              border: '1px solid var(--surface-border)',
-              boxShadow: 'var(--shadow-soft)',
-              borderRadius: 30,
-              padding: '10px 20px',
-              fontFamily: "'JetBrains Mono', monospace",
-              display: 'flex',
-              alignItems: 'center',
-              gap: 12,
-            }}
             className="flex items-center gap-3.5 select-none"
+            style={{
+              background: 'rgba(250, 250, 250, 0.85)',
+              backdropFilter: 'blur(32px)',
+              WebkitBackdropFilter: 'blur(32px)',
+              border: '1px solid var(--surface-border)',
+              boxShadow: '0 16px 40px -12px rgba(0,0,0,0.15)',
+              borderRadius: 99,
+              padding: '12px 24px 12px 14px',
+            }}
           >
-            <div
-              style={{
-                width: 8,
-                height: 8,
-                borderRadius: '50%',
-                background: 'var(--accent)',
-                boxShadow: '0 0 8px var(--accent)',
-              }}
-              className="animate-ping"
-            />
-            <div className="flex flex-col">
-              <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
+            <div className="flex items-center justify-center shrink-0" style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--text-primary)' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#fff' }}>check</span>
+            </div>
+            <div className="flex flex-col justify-center whitespace-nowrap" style={{ marginTop: -2 }}>
+              <span style={{ fontFamily: "'Geist', sans-serif", fontSize: 15, fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
                 {sessionDoneAlert.title}
               </span>
-              <span style={{ fontSize: 9, color: 'var(--text-secondary)' }}>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.04em', marginTop: 3 }}>
                 {sessionDoneAlert.subtitle}
               </span>
             </div>
           </div>
         </div>
       )}
+
+      {/* TEMPORARY TEST BUTTON FOR NOTIFICATION */}
+      <button
+        className="fixed top-4 right-4 z-[9999] bg-[var(--text-primary)] text-white text-xs px-3 py-1.5 rounded-lg shadow-lg opacity-50 hover:opacity-100 transition-opacity"
+        style={{ fontFamily: "'JetBrains Mono', monospace" }}
+        onClick={() => {
+          setSessionDoneAlert({ title: 'Focus Completed', subtitle: 'You finished a 25m session' });
+          setTimeout(() => setSessionDoneAlert(null), 4000);
+        }}
+      >
+        TEST NOTIF
+      </button>
     </div>
   );
 }

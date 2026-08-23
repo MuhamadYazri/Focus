@@ -165,7 +165,7 @@ function filterSessionsForPeriod(sessions, period, offset) {
       <div className="px-5 pt-5 flex flex-col gap-5 max-w-md mx-auto">
 
       {/* Shared Activity Section with interactive tabs, checkmark heatmap, and dynamic chart */}
-      <div className="animate-slideUp" style={{ animationDelay: '0.05s' }}>
+      <div>
         <SharedActivitySection
           showKPIs={true}
           sessions={sessions}
@@ -177,7 +177,7 @@ function filterSessionsForPeriod(sessions, period, offset) {
       </div>
 
         {/* ── Donut Card ── */}
-        <div className="card-2xl p-6 animate-slideUp" style={{ animationDelay: '0.1s' }}>
+        <div className="card-2xl p-6 animate-slideUp" style={{ animationDelay: '0.25s' }}>
           <span style={{ fontFamily: M, fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.06em', display: 'block', marginBottom: 16 }}>FOCUS DISTRIBUTION</span>
           <div className="flex items-center gap-5">
             {/* Donut SVG */}

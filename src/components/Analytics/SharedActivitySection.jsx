@@ -349,7 +349,7 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
   return (
     <div className="flex flex-col gap-4">
       {/* Tabs Row */}
-      <div>
+      <div className="animate-slideUp" style={{ animationDelay: '0.05s' }}>
         <div className="flex rounded-xl p-1 gap-1" style={{ background: 'var(--surface-low)' }}>
           {PERIODS.map((p) => {
             const active = p === period;
@@ -412,7 +412,7 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
 
       {/* KPI Row (Only shown when requested or in Reports) */}
       {showKPIs && (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3 animate-slideUp" style={{ animationDelay: '0.1s' }}>
           <div
             className="card-2xl p-4"
             style={{ borderLeft: '3px solid var(--accent)' }}
@@ -438,7 +438,7 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
 
       {/* Activity Heatmap Grid (Hidden when period === 'All' or 'Yearly') */}
       {!isAll && period !== 'Yearly' && (
-        <div>
+        <div className="animate-slideUp" style={{ animationDelay: '0.15s' }}>
           <div className="card-2xl p-4">
             <div className="flex items-center justify-between mb-3">
               <span style={{ fontFamily: M, fontSize: 10, color: 'var(--text-secondary)', letterSpacing: '0.04em' }}>ACTIVITY GRID</span>
@@ -551,7 +551,7 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
 
       {/* Dynamic Time Distribution Bar Chart (Hidden when period === 'All') */}
       {!isAll && (
-        <div>
+        <div className="animate-slideUp" style={{ animationDelay: '0.2s' }}>
           <div
             className="card-2xl p-4 transition-all duration-300 hover:shadow-ambient"
           >

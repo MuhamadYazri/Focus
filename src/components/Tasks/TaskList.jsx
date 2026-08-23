@@ -327,10 +327,10 @@ export default function TaskList({
                     <button
                       type="button"
                       onClick={(e) => { e.stopPropagation(); if (window.navigator?.vibrate) window.navigator.vibrate(20); if (onStartPomodoro) onStartPomodoro(task); }}
-                      className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-lg"
+                      className="flex-shrink-0 p-2 rounded-lg transition-transform active:scale-95 flex items-center justify-center"
                       style={{ background: 'var(--surface-low)' }}
                     >
-                      <span className="material-symbols-outlined fill" style={{ fontSize: 18, color: 'var(--text-on-accent)' }}>play_circle</span>
+                      <span className="material-symbols-outlined fill" style={{ fontSize: 22, color: 'var(--text-primary)' }}>play_arrow</span>
                     </button>
                   )}
                 </div>

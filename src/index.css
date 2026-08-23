@@ -12,10 +12,10 @@
     --glass-bg:        rgba(255, 255, 255, 0.72);
 
     /* Text */
-    --text-primary:    #18181B;
-    --text-secondary:  #86868B;
+    --text-primary:    #09090B;
+    --text-secondary:  #52525B;
     --text-muted:      #A1A1AA;
-    --text-on-accent:  #18181B;
+    --text-on-accent:  #09090B;
 
     /* Accent */
     --accent:          #4ED7F1;

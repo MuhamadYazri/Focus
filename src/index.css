@@ -43,6 +43,10 @@
   * {
     user-select: none;
   }
+  
+  ::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* ── Material Symbols ──────────────────────────────────────── */
@@ -160,7 +164,7 @@
   from { transform: translateY(12px); opacity: 0; }
   to   { transform: translateY(0);    opacity: 1; }
 }
-.animate-slideUp { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-slideUp { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
 
 @keyframes fabPopIn {
   0%   { transform: scale(0) rotate(-45deg); opacity: 0; }
@@ -171,22 +175,31 @@
 
 /* ── Page Slide Transitions ────────────────────────────────── */
 @keyframes slideOutLeft {
-  0%   { transform: translate3d(0, 0, 0); filter: blur(0px); }
-  100% { transform: translate3d(-100%, 0, 0); filter: blur(4px); }
+  0%   { transform: translate3d(0, 0, 0); opacity: 1; filter: blur(0px); }
+  100% { transform: translate3d(-15%, 0, 0); opacity: 0; filter: blur(4px); }
 }
 @keyframes slideOutRight {
-  0%   { transform: translate3d(0, 0, 0); filter: blur(0px); }
-  100% { transform: translate3d(100%, 0, 0); filter: blur(4px); }
+  0%   { transform: translate3d(0, 0, 0); opacity: 1; filter: blur(0px); }
+  100% { transform: translate3d(15%, 0, 0); opacity: 0; filter: blur(4px); }
 }
 @keyframes slideInRight {
-  0%   { transform: translate3d(100%, 0, 0); filter: blur(4px); }
-  100% { transform: translate3d(0, 0, 0); filter: blur(0px); }
+  0%   { transform: translate3d(15%, 0, 0); opacity: 0; filter: blur(4px); }
+  100% { transform: translate3d(0, 0, 0); opacity: 1; filter: blur(0px); }
 }
 @keyframes slideInLeft {
-  0%   { transform: translate3d(-100%, 0, 0); filter: blur(4px); }
-  100% { transform: translate3d(0, 0, 0); filter: blur(0px); }
+  0%   { transform: translate3d(-15%, 0, 0); opacity: 0; filter: blur(4px); }
+  100% { transform: translate3d(0, 0, 0); opacity: 1; filter: blur(0px); }
 }
-.animate-slide-out-left  { animation: slideOutLeft  320ms cubic-bezier(0.22, 1, 0.36, 1) forwards; will-change: transform, filter; }
-.animate-slide-out-right { animation: slideOutRight 320ms cubic-bezier(0.22, 1, 0.36, 1) forwards; will-change: transform, filter; }
-.animate-slide-in-right  { animation: slideInRight  320ms cubic-bezier(0.22, 1, 0.36, 1) forwards; will-change: transform, filter; }
-.animate-slide-in-left   { animation: slideInLeft   320ms cubic-bezier(0.22, 1, 0.36, 1) forwards; will-change: transform, filter; }
+.animate-slide-out-left  { animation: slideOutLeft  320ms cubic-bezier(0.22, 1, 0.36, 1) forwards; will-change: transform, opacity, filter; }
+.animate-slide-out-right { animation: slideOutRight 320ms cubic-bezier(0.22, 1, 0.36, 1) forwards; will-change: transform, opacity, filter; }
+.animate-slide-in-right  { animation: slideInRight  320ms cubic-bezier(0.22, 1, 0.36, 1) forwards; will-change: transform, opacity, filter; }
+.animate-slide-in-left   { animation: slideInLeft   320ms cubic-bezier(0.22, 1, 0.36, 1) forwards; will-change: transform, opacity, filter; }
+
+/* ── Micro-interactions ────────────────────────────────────── */
+.squish {
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: transform;
+}
+.squish:active {
+  transform: scale(0.95);
+}

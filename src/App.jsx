@@ -536,21 +536,28 @@ export default function App() {
     <div className="min-h-screen flex flex-col font-sans" style={{ background: 'var(--canvas)', color: 'var(--text-primary)' }}>
       {/* Active Tab Screen */}
       <main className="flex-1 relative overflow-x-hidden">
-        {isTransitioning && prevTab ? (
-          <div className="relative w-full min-h-full">
+        <div className="relative w-full min-h-full">
+          {isTransitioning && prevTab && (
             <div className={`absolute inset-0 w-full ${slideDir === 'left' ? 'animate-slide-out-left' : 'animate-slide-out-right'}`}>
               {renderTabContent(prevTab)}
             </div>
-            <div className={`absolute inset-0 w-full ${slideDir === 'left' ? 'animate-slide-in-right' : 'animate-slide-in-left'}`}>
-              {renderTabContent(activeTab)}
-            </div>
-          </div>
-        ) : (
-          <div className="w-full min-h-full">
+          )}
+          <div className={`w-full min-h-full ${isTransitioning ? (slideDir === 'left' ? 'animate-slide-in-right' : 'animate-slide-in-left') : ''}`}>
             {renderTabContent(activeTab)}
           </div>
-        )}
+        </div>
       </main>
+
+      {/* Bottom Screen Fade Overlay */}
+      <div 
+        className="fixed bottom-0 left-0 right-0 h-32 pointer-events-none z-40 transition-opacity duration-500 backdrop-blur-md"
+        style={{
+          background: 'rgba(250, 250, 250, 0.8)', // slight transparency for the blur to show
+          maskImage: 'linear-gradient(to top, black 25%, transparent)',
+          WebkitMaskImage: 'linear-gradient(to top, black 25%, transparent)',
+          opacity: (isNavHidden && activeTab === 'timer') ? 0 : 1,
+        }}
+      />
 
       {/* Bottom Navigation */}
       <BottomNav

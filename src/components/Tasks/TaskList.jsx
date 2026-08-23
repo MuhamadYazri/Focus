@@ -141,7 +141,7 @@ export default function TaskList({
       <div className="px-5 pt-6 flex flex-col gap-5 max-w-md mx-auto">
 
         {/* ── Greeting ── */}
-        <section>
+        <section className="animate-slideUp" style={{ animationDelay: '0.05s' }}>
           <h2 style={{ fontFamily: G, fontSize: 34, fontWeight: 700, color: 'var(--text-on-accent)', letterSpacing: '-0.025em', lineHeight: 1.1 }}>
             {getGreeting()}
           </h2>
@@ -151,7 +151,7 @@ export default function TaskList({
         </section>
 
         {/* ── Bento Grid: Target + Streak ── */}
-        <section style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 12 }}>
+        <section className="animate-slideUp" style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 12, animationDelay: '0.1s' }}>
 
           {/* Daily Target Card */}
           <div className="card-2xl squish p-6 flex flex-col justify-between" style={{ minHeight: 130 }}>
@@ -194,7 +194,7 @@ export default function TaskList({
         </section>
 
         {/* ── Categories ── */}
-        <section>
+        <section className="animate-slideUp" style={{ animationDelay: '0.15s' }}>
           <div
             className="flex gap-2 overflow-x-auto no-scrollbar pb-2 pt-2 -mt-2 -mx-5 px-5"
             style={{
@@ -247,7 +247,7 @@ export default function TaskList({
         </section>
 
         {/* ── Filter Tabs ── */}
-        <section>
+        <section className="animate-slideUp" style={{ animationDelay: '0.2s' }}>
           <div className="flex gap-6 border-b" style={{ borderColor: 'var(--surface-border)', paddingBottom: 2 }}>
             {['Today', 'This Week', 'Planned', 'Archive'].map((tab) => {
               const on = filterTab === tab;
@@ -272,7 +272,7 @@ export default function TaskList({
         </section>
 
         {/* ── Task List ── */}
-        <section className="flex flex-col gap-3">
+        <section className="flex flex-col gap-3 animate-slideUp" style={{ animationDelay: '0.2s' }}>
           <span style={{ fontFamily: M, fontSize: 10, color: 'var(--text-muted)', letterSpacing: '0.06em' }}>
             TASKS · {activeCount} ACTIVE
           </span>

@@ -147,10 +147,12 @@ export default function ProfileView({
       <div className="px-5 pt-5 flex flex-col gap-5 max-w-md mx-auto">
 
         {/* ── Activity (── */}
-        <SharedActivitySection showKPIs={false} sessions={sessions} onPeriodChange={setReportData} />
+        <div className="animate-slideUp" style={{ animationDelay: '0.05s' }}>
+          <SharedActivitySection showKPIs={false} sessions={sessions} onPeriodChange={setReportData} />
+        </div>
 
         {/* ── Quick Stats Row ── */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-3 animate-slideUp" style={{ animationDelay: '0.1s' }}>
           {[
             { icon: 'local_fire_department', value: '14', label: 'Day Streak' },
             { icon: 'timer', value: totalHoursDisplay, label: 'Focused' },
@@ -168,15 +170,15 @@ export default function ProfileView({
         <button
           type="button"
           onClick={() => { if (window.navigator?.vibrate) window.navigator.vibrate(15); setShowReport(true); }}
-          className="w-full squish flex items-center justify-center gap-2"
-          style={{ background: 'var(--text-primary)', borderRadius: 9999, padding: '14px 0', fontFamily: G, fontSize: 15, fontWeight: 600, color: '#fff', boxShadow: '0 4px 16px rgba(0,0,0,0.12)' }}
+          className="w-full squish flex items-center justify-center gap-2 animate-slideUp"
+          style={{ animationDelay: '0.15s', background: 'var(--text-primary)', borderRadius: 9999, padding: '14px 0', fontFamily: G, fontSize: 15, fontWeight: 600, color: '#fff', boxShadow: '0 4px 16px rgba(0,0,0,0.12)' }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: 20 }}>ios_share</span>
           Share Profile
         </button>
 
         {/* ── Focus Categories ── */}
-        <div className="flex flex-col gap-4 mb-4">
+        <div className="flex flex-col gap-4 mb-4 animate-slideUp" style={{ animationDelay: '0.2s' }}>
           <div className="flex items-center justify-between">
             <span style={{ fontFamily: M, fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.06em' }}>FOCUS CATEGORIES</span>
             <button
@@ -214,7 +216,7 @@ export default function ProfileView({
         </div>
 
         {/* ── Settings ── */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 animate-slideUp" style={{ animationDelay: '0.25s' }}>
           <span style={{ fontFamily: M, fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.06em' }}>PREFERENCES</span>
 
           {/* Timer Durations */}

@@ -12,6 +12,7 @@ import { storage, DEFAULT_PROJECTS, DEFAULT_TASKS, DEFAULT_SETTINGS, generateSam
 import { soundEngine } from './services/soundEngine';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { KeepAwake } from '@capacitor-community/keep-awake';
+import { ForegroundService } from '@capawesome-team/capacitor-android-foreground-service';
 
 const getLocalDateStr = (d) => {
   try {
@@ -186,6 +187,34 @@ export default function App() {
     };
   }, [isRunning, settings.keepAwake]);
 
+  // Manage Live Notification (Origin Island Foreground Service)
+  useEffect(() => {
+    const manageForegroundService = async () => {
+      if (isRunning && settings.liveNotification) {
+        try {
+          const modeLabel = timerMode === 'work' ? 'Focus Session' : (timerMode === 'shortBreak' ? 'Short Break' : 'Long Break');
+          const mins = Math.floor(timeLeft / 60);
+          const rem = timeLeft % 60;
+          const formattedTime = `${mins.toString().padStart(2, '0')}:${rem.toString().padStart(2, '0')}`;
+          
+          await ForegroundService.startForegroundService({
+            id: 1993,
+            title: formattedTime,
+            body: modeLabel,
+            smallIcon: 'ic_launcher'
+          });
+        } catch (e) {
+          console.log('ForegroundService start error:', e);
+        }
+      } else {
+        try {
+          await ForegroundService.stopForegroundService();
+        } catch (e) { }
+      }
+    };
+    manageForegroundService();
+  }, [isRunning, settings.liveNotification, timerMode]);
+
   // Auto hide/show bottom nav when timer starts or stops
   useEffect(() => {
     if (isRunning && activeTab === 'timer') {
@@ -206,13 +235,30 @@ export default function App() {
         if (deltaSecs >= 1) {
           lastTickRef.current += deltaSecs * 1000;
           setTimeLeft((prev) => {
-            if (timerMode === 'stopwatch') return prev + deltaSecs;
-            if (prev - deltaSecs <= 0) {
+            let nextVal = prev;
+            if (timerMode === 'stopwatch') nextVal = prev + deltaSecs;
+            else if (prev - deltaSecs <= 0) nextVal = 0;
+            else nextVal = prev - deltaSecs;
+
+            if (settings.liveNotification) {
+              const mins = Math.floor(nextVal / 60);
+              const rem = nextVal % 60;
+              const formattedTime = `${mins.toString().padStart(2, '0')}:${rem.toString().padStart(2, '0')}`;
+              const modeLabel = timerMode === 'work' ? 'Focus Session' : (timerMode === 'shortBreak' ? 'Short Break' : 'Long Break');
+              ForegroundService.updateForegroundService({
+                id: 1993,
+                title: formattedTime,
+                body: modeLabel,
+                smallIcon: 'ic_launcher'
+              }).catch(() => {});
+            }
+
+            if (nextVal === 0 && timerMode !== 'stopwatch') {
               clearInterval(timerRef.current);
               setTimeout(() => handleTimerFinish(), 0);
               return 0;
             }
-            return prev - deltaSecs;
+            return nextVal;
           });
         }
       }, 1000);
@@ -533,9 +579,9 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col font-sans" style={{ background: 'var(--canvas)', color: 'var(--text-primary)' }}>
+    <div className={`min-h-[100dvh] flex flex-col font-sans ${isNavHidden ? 'overflow-hidden h-[100dvh]' : ''}`} style={{ background: 'var(--canvas)', color: 'var(--text-primary)' }}>
       {/* Active Tab Screen */}
-      <main className="flex-1 relative overflow-x-hidden">
+      <main className={`flex-1 relative ${isNavHidden ? 'overflow-hidden' : 'overflow-x-hidden'}`}>
         <div className="relative w-full min-h-full">
           {isTransitioning && prevTab && (
             <div className={`absolute inset-0 w-full ${slideDir === 'left' ? 'animate-slide-out-left' : 'animate-slide-out-right'}`}>

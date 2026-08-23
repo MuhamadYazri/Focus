@@ -38,7 +38,7 @@ export default function TimerView({
 
   return (
     <div
-      className="flex flex-col min-h-[100dvh] transition-colors duration-700"
+      className="flex flex-col h-[100dvh] overflow-hidden transition-colors duration-700"
       style={{ fontFamily: G, background: isNavHidden ? '#000' : 'var(--canvas)' }}
       onClick={() => { if (onToggleNav) onToggleNav(); }}
     >

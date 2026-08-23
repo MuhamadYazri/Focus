@@ -281,6 +281,7 @@ export default function ProfileView({
             {[
               { key: 'keepAwake', icon: 'screen_lock_portrait', label: 'Keep Screen Awake', desc: 'Prevent display from turning off' },
               { key: 'strictMode', icon: 'lock', label: 'Strict Mode', desc: 'Block tab switching while running' },
+              { key: 'liveNotification', icon: 'notifications_active', label: 'Origin Island & Live Notif', desc: 'Persistent ticking countdown in background' },
             ].map(({ key, icon, label, desc }, i, arr) => (
               <div key={key} className="flex items-center justify-between py-4" style={{ borderBottom: i < arr.length - 1 ? '1px solid var(--surface-border)' : 'none' }}>
                 <div className="flex items-center gap-3">

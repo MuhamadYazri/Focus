@@ -5,8 +5,11 @@ export default function StrictModeModal({ isOpen, onClose, onResetTimer }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0A2635]/40 backdrop-blur-md animate-fadeIn">
-      <div className="w-full max-w-sm border-2 border-[var(--accent)] rounded-3xl shadow-[var(--shadow-focus)] p-6 text-center space-y-5 relative" style={{ background: 'var(--surface-card)', color: 'var(--text-on-accent)' }}>
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 select-none animate-fadeIn"
+      style={{ background: 'rgba(10, 38, 53, 0.4)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
+    >
+      <div className="w-full max-w-sm border-2 border-[var(--accent)] rounded-3xl shadow-[var(--shadow-focus)] p-6 text-center space-y-5 relative animate-slideUp" style={{ background: 'var(--surface-card)', color: 'var(--text-on-accent)' }}>
         <div className="w-16 h-16 border rounded-full flex items-center justify-center mx-auto animate-bounce" style={{ background: 'var(--accent-pale)', borderColor: 'var(--accent)', color: 'var(--accent)' }}>
           <ShieldAlert className="w-8 h-8 stroke-[2.5]" />
         </div>

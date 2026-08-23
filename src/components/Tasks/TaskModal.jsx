@@ -157,7 +157,7 @@ export default function TaskModal({
       className={`fixed inset-0 z-50 flex flex-col items-end justify-end select-none transition-opacity duration-200 ${
         isClosing ? 'opacity-0' : 'opacity-100 animate-fadeIn'
       }`}
-      style={{ background: 'rgba(10, 38, 53, 0.4)' }}
+      style={{ background: 'rgba(10, 38, 53, 0.4)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
       onClick={onClose}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
@@ -166,7 +166,7 @@ export default function TaskModal({
       onTouchEnd={handlePointerUp}
     >
       <div
-        className={`w-full max-w-md mx-auto ${isClosing || isDragging || dragY > 0 ? '' : 'animate-slideUp'}`}
+        className={`w-full max-w-md mx-auto ${isClosing || isDragging || dragY > 0 ? '' : 'animate-sheet-up'}`}
         onClick={(e) => e.stopPropagation()}
         style={{
           background: 'var(--surface-card)',

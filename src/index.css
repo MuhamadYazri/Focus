@@ -9,7 +9,7 @@
     --surface-low:     #E8F8FC;
     --surface-mid:     #D6F3FA;
     --surface-border:  rgba(0, 0, 0, 0.08);
-    --glass-bg:        rgba(255, 255, 255, 0.72);
+    --glass-bg:        rgba(250, 250, 250, 0.55);
 
     /* Text */
     --text-primary:    #09090B;
@@ -142,7 +142,7 @@
 
 /* ── Progress Ring ─────────────────────────────────────────── */
 .progress-ring__circle {
-  transition: stroke-dashoffset 0.5s ease-out;
+  transition: stroke-dashoffset 1s linear;
   transform: rotate(-90deg);
   transform-origin: 50% 50%;
 }
@@ -160,11 +160,28 @@
 }
 .animate-fadeIn { animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
+@keyframes slideOutUp {
+  0% { transform: translateY(0); opacity: 1; filter: blur(0px); }
+  100% { transform: translateY(-60%); opacity: 0; filter: blur(2px); }
+}
+@keyframes slideInUp {
+  0% { transform: translateY(60%); opacity: 0; filter: blur(2px); }
+  100% { transform: translateY(0); opacity: 1; filter: blur(0px); }
+}
+.animate-slide-out-up { animation: slideOutUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-slide-in-up { animation: slideInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
 @keyframes slideUp {
   from { transform: translateY(12px); opacity: 0; }
   to   { transform: translateY(0);    opacity: 1; }
 }
 .animate-slideUp { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+@keyframes sheetUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+.animate-sheet-up { animation: sheetUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
 @keyframes fabPopIn {
   0%   { transform: scale(0) rotate(-45deg); opacity: 0; }

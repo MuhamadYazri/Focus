@@ -57,12 +57,12 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 select-none animate-fadeIn"
-      style={{ background: 'rgba(10, 38, 53, 0.4)' }}
+      className={`fixed inset-0 z-50 flex flex-col items-center justify-center p-4 select-none animate-fadeIn`}
+      style={{ background: 'rgba(10, 38, 53, 0.4)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md border rounded-2xl shadow-[var(--shadow-focus)] p-5 relative"
+        className="w-full max-w-md border rounded-2xl shadow-[var(--shadow-focus)] p-5 relative animate-slideUp"
         style={{ fontFamily: G, background: 'var(--surface-card)', borderColor: 'var(--surface-border)', color: 'var(--text-on-accent)' }}
         onClick={(e) => e.stopPropagation()}
       >

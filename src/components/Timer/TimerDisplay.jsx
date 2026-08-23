@@ -6,6 +6,42 @@ const M = "'JetBrains Mono', monospace";
 const RADIUS = 44;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
+function AnimatedDigit({ digit }) {
+  const [current, setCurrent] = useState(digit);
+  const [previous, setPrevious] = useState(null);
+
+  useEffect(() => {
+    if (digit !== current) {
+      setPrevious(current);
+      setCurrent(digit);
+    }
+  }, [digit, current]);
+
+  if (digit === ':') {
+    return <span className="inline-block" style={{ width: '0.3em', textAlign: 'center' }}>:</span>;
+  }
+
+  return (
+    <div className="relative inline-block overflow-hidden" style={{ width: '1ch', height: '1.1em', verticalAlign: 'bottom', margin: '0 1px' }}>
+      {previous !== null && (
+        <span 
+          key={`prev-${previous}`} 
+          className="absolute inset-0 flex items-center justify-center animate-slide-out-up"
+          onAnimationEnd={() => setPrevious(null)}
+        >
+          {previous}
+        </span>
+      )}
+      <span 
+        key={`curr-${current}`} 
+        className="absolute inset-0 flex items-center justify-center animate-slide-in-up"
+      >
+        {current}
+      </span>
+    </div>
+  );
+}
+
 export default function TimerDisplay({
   mode,
   timeLeft,
@@ -92,19 +128,22 @@ export default function TimerDisplay({
         >
           {/* Countdown */}
           <div
+            className="flex items-center justify-center"
             style={{
               fontFamily: G,
-              fontSize: 64,
-              fontWeight: 500,
+              fontSize: 76,
+              fontWeight: 300,
               color: isFullScreen ? '#fff' : 'var(--text-primary)',
-              letterSpacing: '-3px',
+              letterSpacing: '-2px',
               lineHeight: 1,
               opacity: isRunning ? 1 : 0.55,
               transition: 'color 0.7s ease, opacity 0.4s ease',
               fontFeatureSettings: "'tnum'",
             }}
           >
-            {formatTime(timeLeft)}
+            {formatTime(timeLeft).split('').map((char, i) => (
+              <AnimatedDigit key={i} digit={char} />
+            ))}
           </div>
           {/* Session label */}
           <span style={{ fontFamily: M, fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.08em', opacity: isFullScreen ? 0 : 1, transition: 'opacity 0.5s ease', pointerEvents: isFullScreen ? 'none' : 'auto' }}>

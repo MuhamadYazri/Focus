@@ -40,15 +40,15 @@ export default function ProjectDonut({ sessions = [], projects = [] }) {
   let accumulatedPercent = 0;
 
   return (
-    <div className="bg-[#090A0C] border border-[#27272A] rounded-lg p-4 space-y-4 select-none">
+    <div className="bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-lg p-4 space-y-4 select-none">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <PieChart className="w-4 h-4 text-[#B9DAFF]" />
-          <h3 className="text-xs font-mono font-bold tracking-widest text-[#FFFFFF] uppercase">
+          <PieChart className="w-4 h-4 text-[var(--accent)]" />
+          <h3 className="text-xs font-mono font-bold tracking-widest text-[var(--text-primary)] uppercase">
             Time Split
           </h3>
         </div>
-        <span className="text-[10px] font-mono text-[#8BA0B0] bg-[#18181B] px-2 py-0.5 rounded border border-[#27272A]">
+        <span className="text-[10px] font-mono text-[var(--text-secondary)] bg-[var(--surface-low)] px-2 py-0.5 rounded border border-[var(--surface-border)]">
           Distribution
         </span>
       </div>
@@ -57,7 +57,7 @@ export default function ProjectDonut({ sessions = [], projects = [] }) {
         {/* Simple CSS Circular Donut using SVG */}
         <div className="relative w-32 h-32 flex-shrink-0">
           <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="38" className="stroke-[#131418]" strokeWidth="16" fill="transparent" />
+            <circle cx="50" cy="50" r="38" className="stroke-[var(--surface-border)]" strokeWidth="16" fill="transparent" />
             {stats.map((item) => {
               if (item.percentage === 0) return null;
               const circumference = 2 * Math.PI * 38;
@@ -82,8 +82,8 @@ export default function ProjectDonut({ sessions = [], projects = [] }) {
             })}
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-            <span className="text-xl font-bold text-[#FFFFFF]">{stats.reduce((acc, s) => acc + s.count, 0)}</span>
-            <span className="text-[8px] text-[#8BA0B0] uppercase tracking-wider">TOTAL_POMS</span>
+            <span className="text-xl font-bold text-[var(--text-primary)]">{stats.reduce((acc, s) => acc + s.count, 0)}</span>
+            <span className="text-[8px] text-[var(--text-secondary)] uppercase tracking-wider">TOTAL_POMS</span>
           </div>
         </div>
 
@@ -96,16 +96,16 @@ export default function ProjectDonut({ sessions = [], projects = [] }) {
               <div key={item.id} className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2 truncate pr-2">
                   <div
-                    className="w-5 h-5 rounded-sm flex items-center justify-center flex-shrink-0 border border-[#27272A]"
+                    className="w-5 h-5 rounded-sm flex items-center justify-center flex-shrink-0 border border-[var(--surface-border)]"
                     style={{ backgroundColor: `${item.color}15`, color: item.color }}
                   >
                     <IconComp className="w-3 h-3" />
                   </div>
-                  <span className="text-[#FFFFFF] text-[11px] truncate capitalize">{cleanName.toLowerCase()}</span>
+                  <span className="text-[var(--text-primary)] text-[11px] truncate capitalize">{cleanName.toLowerCase()}</span>
                 </div>
                 <div className="flex items-center gap-2 font-bold whitespace-nowrap">
-                  <span className="text-[#FFFFFF] text-xs">{item.count}P</span>
-                  <span className="text-[10px] text-[#8BA0B0] w-8 text-right">({item.percentage}%)</span>
+                  <span className="text-[var(--text-primary)] text-xs">{item.count}P</span>
+                  <span className="text-[10px] text-[var(--text-secondary)] w-8 text-right">({item.percentage}%)</span>
                 </div>
               </div>
             );

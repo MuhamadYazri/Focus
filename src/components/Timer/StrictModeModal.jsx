@@ -6,7 +6,7 @@ export default function StrictModeModal({ isOpen, onClose, onResetTimer }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0A2635]/40 backdrop-blur-md animate-fadeIn">
-      <div className="w-full max-w-sm border-2 border-[var(--accent)] rounded-3xl shadow-[var(--shadow-focus)] p-6 text-center space-y-5 relative" style={{ background: 'var(--surface-card)', color: 'var(--text-primary)' }}>
+      <div className="w-full max-w-sm border-2 border-[var(--accent)] rounded-3xl shadow-[var(--shadow-focus)] p-6 text-center space-y-5 relative" style={{ background: 'var(--surface-card)', color: 'var(--text-on-accent)' }}>
         <div className="w-16 h-16 border rounded-full flex items-center justify-center mx-auto animate-bounce" style={{ background: 'var(--accent-pale)', borderColor: 'var(--accent)', color: 'var(--accent)' }}>
           <ShieldAlert className="w-8 h-8 stroke-[2.5]" />
         </div>
@@ -16,7 +16,7 @@ export default function StrictModeModal({ isOpen, onClose, onResetTimer }) {
             Perhatian Terdistraksi!
           </h3>
           <p className="text-xs mt-2 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-            Anda telah meninggalkan layar saat <strong style={{ color: 'var(--text-primary)' }}>Strict Mode</strong> aktif. Fokus ilmiah membutuhkan konsentrasi penuh tanpa gangguan dari aplikasi lain!
+            Anda telah meninggalkan layar saat <strong style={{ color: 'var(--text-on-accent)' }}>Strict Mode</strong> aktif. Fokus ilmiah membutuhkan konsentrasi penuh tanpa gangguan dari aplikasi lain!
           </p>
         </div>
 
@@ -24,7 +24,7 @@ export default function StrictModeModal({ isOpen, onClose, onResetTimer }) {
           <button
             onClick={onClose}
             className="w-full py-3 rounded-xl font-bold text-sm shadow-lg transition flex items-center justify-center gap-2 hover:opacity-90"
-            style={{ background: 'var(--accent)', color: '#FFFFFF' }}
+            style={{ background: 'var(--accent)', color: 'var(--text-on-accent)' }}
           >
             <Play className="w-4 h-4 fill-current" />
             Kembali Fokus Sekarang
@@ -35,7 +35,7 @@ export default function StrictModeModal({ isOpen, onClose, onResetTimer }) {
               onResetTimer();
               onClose();
             }}
-            className="w-full py-2.5 rounded-xl bg-transparent font-semibold text-xs transition flex items-center justify-center gap-1.5 hover:bg-black/5"
+            className="w-full py-2.5 rounded-xl bg-transparent font-semibold text-xs transition flex items-center justify-center gap-1.5 hover:bg-[var(--surface-low)]/5"
             style={{ color: 'var(--text-muted)' }}
           >
             <RotateCcw className="w-3.5 h-3.5" />

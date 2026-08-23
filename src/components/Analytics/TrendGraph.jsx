@@ -40,21 +40,21 @@ export default function TrendGraph({ sessions, tasks }) {
   const totalHours = Math.round((total7DaysPomos * 25) / 60);
 
   return (
-    <div className="bg-[#090A0C] border border-[#27272A] rounded-lg p-4 space-y-4 select-none">
+    <div className="bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-lg p-4 space-y-4 select-none">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <TrendingUp className="w-4 h-4 text-[#B9DAFF]" />
-          <h3 className="text-xs font-mono font-bold tracking-widest text-[#FFFFFF] uppercase">
+          <TrendingUp className="w-4 h-4 text-[var(--accent)]" />
+          <h3 className="text-xs font-mono font-bold tracking-widest text-[var(--text-primary)] uppercase">
             Activity · Last 7 days
           </h3>
         </div>
-        <span className="text-[10px] font-mono text-[#8BA0B0] bg-[#18181B] px-2 py-0.5 rounded border border-[#27272A]">
+        <span className="text-[10px] font-mono text-[var(--text-secondary)] bg-[var(--surface-low)] px-2 py-0.5 rounded border border-[var(--surface-border)]">
           Total: {totalHours}h
         </span>
       </div>
 
       {/* Bar Chart Visualization */}
-      <div className="pt-4 pb-2 px-1 flex items-end justify-between gap-2 h-36 border-b border-[#27272A]">
+      <div className="pt-4 pb-2 px-1 flex items-end justify-between gap-2 h-36 border-b border-[var(--surface-border)]">
         {last7Days.map((d, idx) => {
           const heightPct = Math.max(12, Math.min(100, (d.pomos / maxPomos) * 100));
           const isToday = idx === 6;
@@ -62,15 +62,15 @@ export default function TrendGraph({ sessions, tasks }) {
           return (
             <div key={d.dateStr} className="flex-1 flex flex-col items-center gap-1.5 group cursor-pointer">
               {/* Tooltip value on hover */}
-              <span className="text-[9px] font-mono font-bold text-[#8BA0B0] group-hover:text-[#FFFFFF] transition opacity-0 group-hover:opacity-100 -mb-1">
+              <span className="text-[9px] font-mono font-bold text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition opacity-0 group-hover:opacity-100 -mb-1">
                 {d.pomos}P
               </span>
 
               {/* Bar */}
-              <div className="w-full max-w-[24px] bg-[#131418] rounded-t-sm overflow-hidden flex items-end h-24 p-0.5 border border-[#27272A] group-hover:border-[#8BA0B0] transition">
+              <div className="w-full max-w-[24px] bg-[var(--surface-border)] rounded-t-sm overflow-hidden flex items-end h-24 p-0.5 border border-[var(--surface-border)] group-hover:border-[var(--text-secondary)] transition">
                 <div
                   className={`w-full rounded-t-sm transition-all duration-500 ${
-                    isToday ? 'bg-[#B9DAFF]' : 'bg-[#8BA0B0] group-hover:bg-[#B9DAFF]/70'
+                    isToday ? 'bg-[var(--accent)]' : 'bg-[var(--text-secondary)] group-hover:bg-[var(--accent)]/70'
                   }`}
                   style={{ height: `${heightPct}%` }}
                 />
@@ -78,7 +78,7 @@ export default function TrendGraph({ sessions, tasks }) {
 
               {/* Day Label */}
               <div className="text-center font-mono">
-                <div className={`text-[10px] font-bold ${isToday ? 'text-[#B9DAFF]' : 'text-[#8BA0B0]'}`}>
+                <div className={`text-[10px] font-bold ${isToday ? 'text-[var(--accent)]' : 'text-[var(--text-secondary)]'}`}>
                   {d.label}
                 </div>
                 <div className="text-[8px] text-[#52525B]">{d.dayNum}</div>
@@ -90,22 +90,22 @@ export default function TrendGraph({ sessions, tasks }) {
 
       {/* Quick Summary Cards */}
       <div className="grid grid-cols-2 gap-3 pt-1 font-mono">
-        <div className="bg-[#131418] border border-[#27272A] rounded-lg p-2.5 flex items-center gap-2.5">
-          <Clock className="w-4 h-4 text-[#B9DAFF]" />
+        <div className="bg-[var(--surface-border)] border border-[var(--surface-border)] rounded-lg p-2.5 flex items-center gap-2.5">
+          <Clock className="w-4 h-4 text-[var(--accent)]" />
           <div>
-            <span className="text-[9px] text-[#8BA0B0] block uppercase">DAILY AVERAGE</span>
-            <span className="text-xs font-bold text-[#FFFFFF]">
-              {Math.round(total7DaysPomos / 7)} <span className="text-[10px] font-normal text-[#8BA0B0]">POMS/D</span>
+            <span className="text-[9px] text-[var(--text-secondary)] block uppercase">DAILY AVERAGE</span>
+            <span className="text-xs font-bold text-[var(--text-primary)]">
+              {Math.round(total7DaysPomos / 7)} <span className="text-[10px] font-normal text-[var(--text-secondary)]">POMS/D</span>
             </span>
           </div>
         </div>
 
-        <div className="bg-[#131418] border border-[#27272A] rounded-lg p-2.5 flex items-center gap-2.5">
-          <ShieldCheck className="w-4 h-4 text-[#8BA0B0]" />
+        <div className="bg-[var(--surface-border)] border border-[var(--surface-border)] rounded-lg p-2.5 flex items-center gap-2.5">
+          <ShieldCheck className="w-4 h-4 text-[var(--text-secondary)]" />
           <div>
-            <span className="text-[9px] text-[#8BA0B0] block uppercase">TASKS RESOLVED</span>
-            <span className="text-xs font-bold text-[#FFFFFF]">
-              {tasks.filter((t) => t.completed).length} <span className="text-[10px] font-normal text-[#8BA0B0]">UNITS</span>
+            <span className="text-[9px] text-[var(--text-secondary)] block uppercase">TASKS RESOLVED</span>
+            <span className="text-xs font-bold text-[var(--text-primary)]">
+              {tasks.filter((t) => t.completed).length} <span className="text-[10px] font-normal text-[var(--text-secondary)]">UNITS</span>
             </span>
           </div>
         </div>

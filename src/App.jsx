@@ -160,29 +160,29 @@ export default function App() {
             if ('wakeLock' in navigator && !window._wakeLockSentinel) {
               window._wakeLockSentinel = await navigator.wakeLock.request('screen');
             }
-          } catch (err) {}
+          } catch (err) { }
         }
       } else {
         try {
           await KeepAwake.allowSleep();
-        } catch (e) {}
+        } catch (e) { }
         try {
           if (window._wakeLockSentinel) {
             await window._wakeLockSentinel.release();
             window._wakeLockSentinel = null;
           }
-        } catch (err) {}
+        } catch (err) { }
       }
     };
     manageWakeLock();
     return () => {
-      try { KeepAwake.allowSleep(); } catch (e) {}
+      try { KeepAwake.allowSleep(); } catch (e) { }
       try {
         if (window._wakeLockSentinel) {
           window._wakeLockSentinel.release();
           window._wakeLockSentinel = null;
         }
-      } catch (err) {}
+      } catch (err) { }
     };
   }, [isRunning, settings.keepAwake]);
 
@@ -421,7 +421,7 @@ export default function App() {
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen bg-[#000000] flex items-center justify-center text-[#FFFFFF] font-mono font-bold text-xs animate-pulse tracking-widest">
+      <div className="min-h-screen flex items-center justify-center font-mono font-bold text-xs animate-pulse tracking-widest" style={{ background: 'var(--canvas)', color: 'var(--text-primary)' }}>
         INITIALIZING FOCUS LEDGER // SOLO_OS...
       </div>
     );
@@ -588,12 +588,15 @@ export default function App() {
         <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-500 ease-out">
           <div
             style={{
-              background: '#090A0C',
-              border: '1px solid rgba(185, 218, 255, 0.4)',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6), 0 0 16px rgba(185, 218, 255, 0.15)',
+              background: 'var(--surface-card)',
+              border: '1px solid var(--surface-border)',
+              boxShadow: 'var(--shadow-soft)',
               borderRadius: 30,
               padding: '10px 20px',
               fontFamily: "'JetBrains Mono', monospace",
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
             }}
             className="flex items-center gap-3.5 select-none"
           >
@@ -602,16 +605,16 @@ export default function App() {
                 width: 8,
                 height: 8,
                 borderRadius: '50%',
-                background: '#B9DAFF',
-                boxShadow: '0 0 8px #B9DAFF',
+                background: 'var(--accent)',
+                boxShadow: '0 0 8px var(--accent)',
               }}
               className="animate-ping"
             />
             <div className="flex flex-col">
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#FFFFFF', letterSpacing: '-0.01em' }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
                 {sessionDoneAlert.title}
               </span>
-              <span style={{ fontSize: 9, color: '#8BA0B0' }}>
+              <span style={{ fontSize: 9, color: 'var(--text-secondary)' }}>
                 {sessionDoneAlert.subtitle}
               </span>
             </div>

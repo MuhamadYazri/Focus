@@ -4,7 +4,7 @@ import { X, Plus, ChevronUp, ChevronDown, Check } from 'lucide-react';
 const G = "Geist, 'Helvetica Neue', sans-serif";
 const M = "'JetBrains Mono', monospace";
 
-const ACCENTS = ['#B9DAFF', '#8BA0B0', '#4A7090', '#6A7090'];
+const ACCENTS = ['var(--accent)', 'var(--text-secondary)', '#4A7090', '#6A7090'];
 
 export default function TaskModal({
   isOpen,
@@ -157,7 +157,7 @@ export default function TaskModal({
       className={`fixed inset-0 z-50 flex flex-col items-end justify-end select-none transition-opacity duration-200 ${
         isClosing ? 'opacity-0' : 'opacity-100 animate-fadeIn'
       }`}
-      style={{ background: 'rgba(0,0,0,0.85)' }}
+      style={{ background: 'rgba(10, 38, 53, 0.4)' }}
       onClick={onClose}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
@@ -169,10 +169,10 @@ export default function TaskModal({
         className={`w-full max-w-md mx-auto ${isClosing || isDragging || dragY > 0 ? '' : 'animate-slideUp'}`}
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: '#090A0C',
-          borderTop: '1px solid #27272A',
-          borderLeft: '1px solid #27272A',
-          borderRight: '1px solid #27272A',
+          background: 'var(--surface-card)',
+          borderTop: '1px solid var(--surface-border)',
+          borderLeft: '1px solid var(--surface-border)',
+          borderRight: '1px solid var(--surface-border)',
           borderRadius: '16px 16px 0 0',
           overflow: 'hidden',
           transform: isClosing ? 'translateY(100%)' : `translateY(${dragY}px)`,
@@ -191,13 +191,13 @@ export default function TaskModal({
           onTouchEnd={handlePointerUp}
           style={{ touchAction: 'none' }}
         >
-          <div style={{ width: 36, height: 4, borderRadius: 2, background: isDragging ? '#B9DAFF' : '#27272A', transition: 'background 0.2s' }} />
+          <div style={{ width: 36, height: 4, borderRadius: 2, background: isDragging ? 'var(--accent)' : 'var(--surface-border)', transition: 'background 0.2s' }} />
         </div>
 
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-2 pb-3">
           <div>
-            <p style={{ fontFamily: M, fontSize: 8, color: '#3F3F46', letterSpacing: '0.1em' }}>
+            <p style={{ fontFamily: M, fontSize: 8, color: 'var(--text-muted)', letterSpacing: '0.1em' }}>
               Focus
             </p>
             <h3
@@ -205,7 +205,7 @@ export default function TaskModal({
                 fontFamily: G,
                 fontSize: 16,
                 fontWeight: 600,
-                color: '#FFFFFF',
+                color: 'var(--text-on-accent)',
                 marginTop: 2,
               }}
             >
@@ -218,12 +218,12 @@ export default function TaskModal({
               width: 28,
               height: 28,
               borderRadius: 6,
-              border: '1px solid #27272A',
-              background: '#000000',
+              border: '1px solid var(--surface-border)',
+              background: 'var(--surface-low)',
             }}
-            className="flex items-center justify-center transition-opacity active:opacity-50"
+            className="flex items-center justify-center transition-opacity hover:opacity-70 active:opacity-50 text-[var(--text-muted)]"
           >
-            <X size={14} color="#3F3F46" strokeWidth={1.5} />
+            <X size={14} strokeWidth={1.5} />
           </button>
         </div>
 
@@ -234,7 +234,7 @@ export default function TaskModal({
               style={{
                 fontFamily: M,
                 fontSize: 8,
-                color: '#A1A1AA',
+                color: 'var(--text-secondary)',
                 letterSpacing: '0.08em',
                 display: 'block',
                 marginBottom: 8,
@@ -250,15 +250,15 @@ export default function TaskModal({
               placeholder="What needs to be done?"
               style={{
                 width: '100%',
-                background: '#000000',
-                border: '1px solid #27272A',
+                background: 'var(--surface-low)',
+                border: '1px solid var(--surface-border)',
                 borderRadius: 8,
                 padding: '11px 14px',
                 fontFamily: G,
                 fontSize: 14,
-                color: '#FFFFFF',
+                color: 'var(--text-on-accent)',
                 outline: 'none',
-                caretColor: '#B9DAFF',
+                caretColor: 'var(--accent)',
               }}
             />
           </div>
@@ -269,7 +269,7 @@ export default function TaskModal({
               style={{
                 fontFamily: M,
                 fontSize: 8,
-                color: '#A1A1AA',
+                color: 'var(--text-secondary)',
                 letterSpacing: '0.08em',
                 display: 'block',
                 marginBottom: 8,
@@ -282,8 +282,8 @@ export default function TaskModal({
               onClick={() => setShowTags((v) => !v)}
               className="w-full flex items-center justify-between transition-opacity active:opacity-70"
               style={{
-                background: '#000000',
-                border: `1px solid ${showTags ? currentAccent : '#27272A'}`,
+                background: 'var(--surface-low)',
+                border: `1px solid ${showTags ? currentAccent : 'var(--surface-border)'}`,
                 borderRadius: 8,
                 padding: '10px 14px',
               }}
@@ -292,22 +292,22 @@ export default function TaskModal({
                 <div
                   style={{ width: 8, height: 8, borderRadius: 2, background: currentAccent }}
                 />
-                <span style={{ fontFamily: G, fontSize: 13, color: '#FFFFFF' }}>
+                <span style={{ fontFamily: G, fontSize: 13, color: 'var(--text-on-accent)' }}>
                   {selectedProject.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' ')}
                 </span>
               </div>
               {showTags ? (
-                <ChevronUp size={13} color="#3F3F46" strokeWidth={1.5} />
+                <ChevronUp size={13} color="var(--text-muted)" strokeWidth={1.5} />
               ) : (
-                <ChevronDown size={13} color="#3F3F46" strokeWidth={1.5} />
+                <ChevronDown size={13} color="var(--text-muted)" strokeWidth={1.5} />
               )}
             </button>
 
             {showTags && (
               <div
                 style={{
-                  background: '#000000',
-                  border: '1px solid #27272A',
+                  background: 'var(--surface-low)',
+                  border: '1px solid var(--surface-border)',
                   borderRadius: 8,
                   marginTop: 4,
                   overflow: 'hidden',
@@ -329,7 +329,7 @@ export default function TaskModal({
                       className="w-full flex items-center gap-2.5 transition-opacity active:opacity-60 text-left"
                       style={{
                         padding: '10px 14px',
-                        borderBottom: i < projects.length - 1 ? '1px solid #27272A' : 'none',
+                        borderBottom: i < projects.length - 1 ? '1px solid var(--surface-border)' : 'none',
                         background: isSel ? 'rgba(185,218,255,0.04)' : 'transparent',
                       }}
                     >
@@ -338,7 +338,7 @@ export default function TaskModal({
                         style={{
                           fontFamily: G,
                           fontSize: 13,
-                          color: isSel ? '#FFFFFF' : '#A1A1AA',
+                          color: isSel ? 'var(--text-primary)' : 'var(--text-secondary)',
                         }}
                       >
                         {p.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' ')}
@@ -348,7 +348,7 @@ export default function TaskModal({
                           style={{
                             fontFamily: M,
                             fontSize: 10,
-                            color: '#B9DAFF',
+                            color: 'var(--accent)',
                             marginLeft: 'auto',
                           }}
                         >
@@ -365,7 +365,7 @@ export default function TaskModal({
                       setShowTags(false);
                       onOpenCreateProject();
                     }}
-                    className="w-full flex items-center justify-center gap-1.5 py-2.5 transition hover:bg-[#B9DAFF]/10 text-[#B9DAFF] font-semibold text-xs border-t border-[#27272A]"
+                    className="w-full flex items-center justify-center gap-1.5 py-2.5 transition hover:opacity-80 text-[var(--accent)] font-semibold text-xs border-t border-[var(--surface-border)]"
                     style={{ fontFamily: G }}
                   >
                     <Plus size={13} /> Create New Category
@@ -381,7 +381,7 @@ export default function TaskModal({
               style={{
                 fontFamily: M,
                 fontSize: 8,
-                color: '#A1A1AA',
+                color: 'var(--text-secondary)',
                 letterSpacing: '0.08em',
                 display: 'block',
                 marginBottom: 8,
@@ -406,9 +406,9 @@ export default function TaskModal({
                       fontFamily: G,
                       fontSize: 11,
                       fontWeight: isSelected ? 600 : 400,
-                      background: isSelected ? '#FFFFFF' : '#000000',
-                      color: isSelected ? '#000000' : '#A1A1AA',
-                      border: isSelected ? 'none' : '1px solid #27272A',
+                      background: isSelected ? 'var(--text-primary)' : 'var(--surface-low)',
+                      color: isSelected ? 'var(--surface-low)' : 'var(--text-secondary)',
+                      border: isSelected ? 'none' : '1px solid var(--surface-border)',
                     }}
                   >
                     {item.label}
@@ -422,7 +422,7 @@ export default function TaskModal({
                   type="date"
                   value={scheduledDate}
                   onChange={(e) => setScheduledDate(e.target.value)}
-                  className="w-full bg-[#000000] border border-[#27272A] rounded-lg px-3 py-2 text-white text-xs outline-none focus:border-[#B9DAFF]"
+                  className="w-full bg-[var(--surface-low)] border border-[var(--surface-border)] rounded-lg px-3 py-2 text-[var(--text-primary)] text-xs outline-none focus:border-[var(--accent)]"
                   style={{ fontFamily: M }}
                 />
               </div>
@@ -436,7 +436,7 @@ export default function TaskModal({
               style={{
                 fontFamily: M,
                 fontSize: 8,
-                color: '#A1A1AA',
+                color: 'var(--text-secondary)',
                 letterSpacing: '0.08em',
                 display: 'block',
                 marginBottom: 8,
@@ -452,17 +452,17 @@ export default function TaskModal({
                   width: 36,
                   height: 36,
                   borderRadius: 8,
-                  border: '1px solid #27272A',
-                  background: '#000000',
+                  border: '1px solid var(--surface-border)',
+                  background: 'var(--surface-low)',
                 }}
-                className="flex items-center justify-center text-white transition-opacity active:opacity-50"
+                className="flex items-center justify-center text-[var(--text-primary)] transition-opacity active:opacity-50"
                 aria-label="Decrease"
               >
                 <span
                   style={{
                     fontFamily: G,
                     fontSize: 18,
-                    color: '#FFFFFF',
+                    color: 'var(--text-on-accent)',
                     lineHeight: 1,
                   }}
                 >
@@ -474,7 +474,7 @@ export default function TaskModal({
                   style={{
                     fontFamily: M,
                     fontSize: 22,
-                    color: '#FFFFFF',
+                    color: 'var(--text-on-accent)',
                     fontWeight: 700,
                     letterSpacing: '-1px',
                   }}
@@ -485,7 +485,7 @@ export default function TaskModal({
                   style={{
                     fontFamily: M,
                     fontSize: 9,
-                    color: '#3F3F46',
+                    color: 'var(--text-muted)',
                     marginLeft: 6,
                   }}
                 >
@@ -499,13 +499,13 @@ export default function TaskModal({
                   width: 36,
                   height: 36,
                   borderRadius: 8,
-                  border: '1px solid #27272A',
-                  background: '#000000',
+                  border: '1px solid var(--surface-border)',
+                  background: 'var(--surface-low)',
                 }}
                 className="flex items-center justify-center transition-opacity active:opacity-50"
                 aria-label="Increase"
               >
-                <Plus size={16} color="#FFFFFF" strokeWidth={1.5} />
+                <Plus size={16} color="var(--text-primary)" strokeWidth={1.5} />
               </button>
             </div>
             {/* Pomo pips preview */}
@@ -517,7 +517,7 @@ export default function TaskModal({
                     height: 4,
                     flex: 1,
                     borderRadius: 1,
-                    background: '#B9DAFF',
+                    background: 'var(--accent)',
                     maxWidth: 32,
                     opacity: 0.3 + 0.7 / pomoTotal,
                   }}
@@ -532,7 +532,7 @@ export default function TaskModal({
               type="button"
               onClick={() => setShowSubtasks(!showSubtasks)}
               className="flex items-center justify-between w-full text-left py-1"
-              style={{ fontFamily: M, fontSize: 8, color: '#8BA0B0', letterSpacing: '0.06em' }}
+              style={{ fontFamily: M, fontSize: 8, color: 'var(--text-secondary)', letterSpacing: '0.06em' }}
             >
               <span>SUBTASKS ({subtasks.length})</span>
               {showSubtasks ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
@@ -540,7 +540,7 @@ export default function TaskModal({
             {showSubtasks && (
               <div
                 className="mt-2 p-2 rounded-lg space-y-2"
-                style={{ background: '#000000', border: '1px solid #27272A' }}
+                style={{ background: 'var(--surface-low)', border: '1px solid var(--surface-border)' }}
               >
                 <div className="flex gap-2">
                   <input
@@ -549,12 +549,12 @@ export default function TaskModal({
                     onChange={(e) => setNewSubtaskTitle(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleAddSubtask(e)}
                     placeholder="Add a subtask..."
-                    className="flex-1 bg-transparent text-xs text-[#FFFFFF] outline-none font-sans px-2 py-1 border border-[#27272A] rounded"
+                    className="flex-1 bg-transparent text-xs text-[var(--text-primary)] outline-none font-sans px-2 py-1 border border-[var(--surface-border)] rounded"
                   />
                   <button
                     type="button"
                     onClick={handleAddSubtask}
-                    className="px-2 py-1 bg-[#18181B] text-[#FFFFFF] text-xs font-mono rounded border border-[#27272A]"
+                    className="px-2 py-1 bg-[var(--surface-low)] text-[var(--text-primary)] text-xs font-mono rounded border border-[var(--surface-border)]"
                   >
                     Add
                   </button>
@@ -562,13 +562,13 @@ export default function TaskModal({
                 {subtasks.map((sub) => (
                   <div
                     key={sub.id}
-                    className="flex items-center justify-between text-xs text-[#A1A1AA] py-1 px-2 border-b border-[#27272A]/50 last:border-none"
+                    className="flex items-center justify-between text-xs text-[var(--text-secondary)] py-1 px-2 border-b border-[var(--surface-border)]/50 last:border-none"
                   >
                     <span>{sub.title}</span>
                     <button
                       type="button"
                       onClick={() => setSubtasks(subtasks.filter((s) => s.id !== sub.id))}
-                      className="text-[#3F3F46] hover:text-[#FF6B6B]"
+                      className="text-[var(--text-muted)] hover:text-[#FF6B6B]"
                     >
                       <X size={12} />
                     </button>
@@ -585,20 +585,20 @@ export default function TaskModal({
             disabled={!title.trim()}
             className="w-full flex items-center justify-center gap-2 transition-opacity active:opacity-80"
             style={{
-              background: title.trim() ? '#B9DAFF' : '#1A1A1A',
+              background: title.trim() ? 'var(--accent)' : '#1A1A1A',
               borderRadius: 8,
               padding: '13px 0',
-              border: title.trim() ? 'none' : '1px solid #27272A',
+              border: title.trim() ? 'none' : '1px solid var(--surface-border)',
               marginTop: 4,
             }}
           >
-            <Plus size={15} color={title.trim() ? '#000000' : '#3F3F46'} strokeWidth={2.5} />
+            <Plus size={15} color={title.trim() ? 'var(--text-on-accent)' : 'var(--text-muted)'} strokeWidth={2.5} />
             <span
               style={{
                 fontFamily: G,
                 fontSize: 14,
                 fontWeight: 600,
-                color: title.trim() ? '#000000' : '#3F3F46',
+                color: title.trim() ? 'var(--text-on-accent)' : 'var(--text-muted)',
               }}
             >
               {taskToEdit ? 'Save changes' : 'Add task'}

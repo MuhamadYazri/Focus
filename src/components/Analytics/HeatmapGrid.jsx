@@ -46,22 +46,22 @@ export default function HeatmapGrid({ sessions }) {
 
   // Monochrome electric ice blue & slate color scale
   const getColor = (count) => {
-    if (count === 0) return 'bg-[#131418] border-[#27272A] text-transparent';
-    if (count <= 2) return 'bg-[#8BA0B0]/40 border-[#8BA0B0]/60 text-[#FFFFFF]';
-    if (count <= 5) return 'bg-[#8BA0B0] border-[#8BA0B0] text-[#000000] font-bold';
-    return 'bg-[#B9DAFF] border-[#B9DAFF] text-[#000000] font-black';
+    if (count === 0) return 'bg-[var(--surface-border)] border-[var(--surface-border)] text-transparent';
+    if (count <= 2) return 'bg-[var(--text-secondary)]/40 border-[var(--text-secondary)]/60 text-[var(--text-primary)]';
+    if (count <= 5) return 'bg-[var(--text-secondary)] border-[var(--text-secondary)] text-[var(--text-on-accent)] font-bold';
+    return 'bg-[var(--accent)] border-[var(--accent)] text-[var(--text-on-accent)] font-black';
   };
 
   return (
-    <div className="bg-[#090A0C] border border-[#27272A] rounded-lg p-4 space-y-4 select-none">
+    <div className="bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-lg p-4 space-y-4 select-none">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Activity className="w-4 h-4 text-[#B9DAFF]" />
-          <h3 className="text-xs font-mono font-bold tracking-widest text-[#FFFFFF] uppercase">
+          <Activity className="w-4 h-4 text-[var(--accent)]" />
+          <h3 className="text-xs font-mono font-bold tracking-widest text-[var(--text-primary)] uppercase">
             CONTRIBUTION MATRIX // 60D
           </h3>
         </div>
-        <span className="text-[10px] font-mono text-[#B9DAFF] bg-[#18181B] px-2 py-0.5 rounded border border-[#27272A]">
+        <span className="text-[10px] font-mono text-[var(--accent)] bg-[var(--surface-low)] px-2 py-0.5 rounded border border-[var(--surface-border)]">
           STREAK: {currentStreak}_DAYS
         </span>
       </div>
@@ -77,7 +77,7 @@ export default function HeatmapGrid({ sessions }) {
               )}`}
             >
               {/* Tooltip */}
-              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-[#000000] text-[#FFFFFF] text-[10px] font-mono py-1 px-2 rounded border border-[#27272A] whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition z-20 shadow-xl">
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-[var(--surface-low)] text-[var(--text-primary)] text-[10px] font-mono py-1 px-2 rounded border border-[var(--surface-border)] whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition z-20 shadow-xl">
                 [{d.count}_POMS] ON {d.label.toUpperCase()}
               </div>
             </div>
@@ -86,12 +86,12 @@ export default function HeatmapGrid({ sessions }) {
       </div>
 
       {/* Legend */}
-      <div className="flex items-center justify-end gap-2 text-[9px] font-mono text-[#8BA0B0] pt-1">
+      <div className="flex items-center justify-end gap-2 text-[9px] font-mono text-[var(--text-secondary)] pt-1">
         <span>IDLE</span>
-        <div className="w-2.5 h-2.5 rounded-sm bg-[#131418] border border-[#27272A]" />
-        <div className="w-2.5 h-2.5 rounded-sm bg-[#8BA0B0]/40 border border-[#8BA0B0]/60" />
-        <div className="w-2.5 h-2.5 rounded-sm bg-[#8BA0B0] border border-[#8BA0B0]" />
-        <div className="w-2.5 h-2.5 rounded-sm bg-[#B9DAFF] border border-[#B9DAFF]" />
+        <div className="w-2.5 h-2.5 rounded-sm bg-[var(--surface-border)] border border-[var(--surface-border)]" />
+        <div className="w-2.5 h-2.5 rounded-sm bg-[var(--text-secondary)]/40 border border-[var(--text-secondary)]/60" />
+        <div className="w-2.5 h-2.5 rounded-sm bg-[var(--text-secondary)] border border-[var(--text-secondary)]" />
+        <div className="w-2.5 h-2.5 rounded-sm bg-[var(--accent)] border border-[var(--accent)]" />
         <span>PEAK_VALVE</span>
       </div>
     </div>

@@ -4,7 +4,7 @@ import { ChevronDown, ChevronUp, Check } from 'lucide-react';
 const G = "Geist, 'Helvetica Neue', sans-serif";
 const M = "'JetBrains Mono', monospace";
 
-const ACCENTS = ['#B9DAFF', '#8BA0B0', '#4A7090', '#6A7090'];
+const ACCENTS = ['var(--accent)', 'var(--text-secondary)', '#4A7090', '#6A7090'];
 
 export default function TaskItem({
   task,
@@ -20,7 +20,7 @@ export default function TaskItem({
   // Derive accent color
   const accent =
     task.accent ||
-    (project ? ACCENTS[(project.id ? project.id.charCodeAt(project.id.length - 1) : 0) % ACCENTS.length] : '#B9DAFF');
+    (project ? ACCENTS[(project.id ? project.id.charCodeAt(project.id.length - 1) : 0) % ACCENTS.length] : 'var(--accent)');
 
   // Format project tag (e.g. "01 · Personal App")
   const formatTag = () => {
@@ -47,8 +47,8 @@ export default function TaskItem({
   return (
     <div
       style={{
-        background: '#090A0C',
-        border: '1px solid #27272A',
+        background: 'var(--surface-card)',
+        border: '1px solid var(--surface-border)',
         borderLeft: `2px solid ${accent}`,
         borderRadius: 8,
         padding: '12px 14px',
@@ -69,10 +69,10 @@ export default function TaskItem({
               height: 14,
               borderRadius: 2,
               flexShrink: 0,
-              border: `1px solid ${task.completed ? accent : '#27272A'}`,
+              border: `1px solid ${task.completed ? accent : 'var(--surface-border)'}`,
               background: task.completed ? accent : 'transparent',
             }}
-            className="flex items-center justify-center transition-colors hover:border-[#B9DAFF]"
+            className="flex items-center justify-center transition-colors hover:border-[var(--accent)]"
           >
             {task.completed && (
               <svg width={8} height={8} viewBox="0 0 8 8">
@@ -102,9 +102,9 @@ export default function TaskItem({
           style={{
             fontFamily: M,
             fontSize: 8,
-            color: '#A1A1AA',
-            background: '#000000',
-            border: '1px solid #27272A',
+            color: 'var(--text-secondary)',
+            background: 'var(--surface-low)',
+            border: '1px solid var(--surface-border)',
             borderRadius: 4,
             padding: '2px 7px',
             flexShrink: 0,
@@ -120,7 +120,7 @@ export default function TaskItem({
           fontFamily: G,
           fontSize: 13,
           fontWeight: 500,
-          color: task.completed ? '#3F3F46' : '#FFFFFF',
+          color: task.completed ? 'var(--text-muted)' : 'var(--text-primary)',
           letterSpacing: '-0.01em',
           lineHeight: 1.35,
           textDecoration: task.completed ? 'line-through' : 'none',
@@ -139,9 +139,9 @@ export default function TaskItem({
           style={{
             fontFamily: M,
             fontSize: 8,
-            color: '#8BA0B0',
-            background: '#000000',
-            border: '1px solid #27272A',
+            color: 'var(--text-secondary)',
+            background: 'var(--surface-low)',
+            border: '1px solid var(--surface-border)',
             borderRadius: 4,
             padding: '2px 6px',
             marginTop: 8,
@@ -159,13 +159,13 @@ export default function TaskItem({
 
       <div className="flex items-center justify-between mt-2.5">
         <div className="flex items-center gap-2">
-          <span style={{ fontFamily: M, fontSize: 7.5, color: '#3F3F46' }}>{statusText}</span>
+          <span style={{ fontFamily: M, fontSize: 7.5, color: 'var(--text-muted)' }}>{statusText}</span>
           {task.scheduleType === 'daily' && (
             <span
               style={{
                 fontFamily: M,
                 fontSize: 7.5,
-                color: '#B9DAFF',
+                color: 'var(--accent)',
                 background: 'rgba(185, 218, 255, 0.1)',
                 border: '1px solid rgba(185, 218, 255, 0.2)',
                 borderRadius: 4,
@@ -180,7 +180,7 @@ export default function TaskItem({
               style={{
                 fontFamily: M,
                 fontSize: 7.5,
-                color: '#8BA0B0',
+                color: 'var(--text-secondary)',
                 background: 'rgba(139, 160, 176, 0.1)',
                 border: '1px solid rgba(139, 160, 176, 0.2)',
                 borderRadius: 4,
@@ -197,7 +197,7 @@ export default function TaskItem({
               e.stopPropagation();
               if (onStartPomodoro) onStartPomodoro(task);
             }}
-            style={{ fontFamily: M, fontSize: 7.5, color: '#B9DAFF' }}
+            style={{ fontFamily: M, fontSize: 7.5, color: 'var(--accent)' }}
             className="hover:underline"
           >
             Start timer →
@@ -208,7 +208,7 @@ export default function TaskItem({
       {/* Expanded Subtasks */}
       {expanded && task.subtasks && task.subtasks.length > 0 && (
         <div
-          style={{ borderTop: '1px solid #27272A', marginTop: 10, paddingTop: 10 }}
+          style={{ borderTop: '1px solid var(--surface-border)', marginTop: 10, paddingTop: 10 }}
           className="space-y-1.5"
         >
           {task.subtasks.map((sub) => (
@@ -225,20 +225,20 @@ export default function TaskItem({
                   width: 12,
                   height: 12,
                   borderRadius: 2,
-                  border: `1px solid ${sub.completed ? '#8BA0B0' : '#27272A'}`,
-                  background: sub.completed ? '#8BA0B0' : '#000000',
+                  border: `1px solid ${sub.completed ? 'var(--text-secondary)' : 'var(--surface-border)'}`,
+                  background: sub.completed ? 'var(--text-secondary)' : 'var(--surface-low)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
               >
-                {sub.completed && <Check size={8} color="#000000" strokeWidth={3} />}
+                {sub.completed && <Check size={8} color="var(--surface-low)" strokeWidth={3} />}
               </div>
               <span
                 style={{
                   fontFamily: M,
                   fontSize: 10,
-                  color: sub.completed ? '#52525B' : '#8BA0B0',
+                  color: sub.completed ? '#52525B' : 'var(--text-secondary)',
                   textDecoration: sub.completed ? 'line-through' : 'none',
                 }}
               >

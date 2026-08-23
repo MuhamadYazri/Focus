@@ -5,7 +5,7 @@ const G = "Geist, 'Helvetica Neue', sans-serif";
 const M = "'JetBrains Mono', monospace";
 
 const COLOR_PALETTE = [
-  '#B9DAFF', '#8BA0B0', '#4A7090', '#A1A1AA',
+  'var(--accent)', 'var(--text-secondary)', '#4A7090', 'var(--text-secondary)',
   '#2ecc71', '#e84393', '#00cec9', '#fdcb6e',
   '#a55eea', '#26de81', '#fc5c65', '#45aaf2'
 ];
@@ -63,7 +63,7 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
     >
       <div
         className="w-full max-w-md border rounded-2xl shadow-[var(--shadow-focus)] p-5 relative"
-        style={{ fontFamily: G, background: 'var(--surface-card)', borderColor: 'var(--surface-border)', color: 'var(--text-primary)' }}
+        style={{ fontFamily: G, background: 'var(--surface-card)', borderColor: 'var(--surface-border)', color: 'var(--text-on-accent)' }}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between pb-3.5 mb-4 border-b" style={{ borderColor: 'var(--surface-border)' }}>
@@ -71,7 +71,7 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
             <span style={{ fontFamily: M, fontSize: 10, color: 'var(--text-secondary)', letterSpacing: '0.1em' }}>
               FOCUS // CATEGORY
             </span>
-            <h3 className="text-base font-bold mt-0.5" style={{ color: 'var(--text-primary)' }}>
+            <h3 className="text-base font-bold mt-0.5" style={{ color: 'var(--text-on-accent)' }}>
               {projectToEdit ? 'Edit Category' : 'New Category'}
             </h3>
           </div>
@@ -115,7 +115,7 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
                 padding: '11px 14px',
                 fontFamily: G,
                 fontSize: 14,
-                color: 'var(--text-primary)',
+                color: 'var(--text-on-accent)',
                 outline: 'none',
                 caretColor: 'var(--accent)',
               }}
@@ -142,7 +142,7 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
                   }}
                 >
                   {color === c && (
-                    <Check className="w-4 h-4 text-white stroke-[3px]" />
+                    <Check className="w-4 h-4 text-[var(--text-primary)] stroke-[3px]" />
                   )}
                 </button>
               ))}
@@ -169,7 +169,7 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
                     style={{
                       background: isSelected ? 'var(--accent)' : 'var(--surface-low)',
                       borderColor: isSelected ? 'var(--accent)' : 'var(--surface-border)',
-                      color: isSelected ? '#FFFFFF' : 'var(--text-secondary)',
+                      color: isSelected ? 'var(--text-primary)' : 'var(--text-secondary)',
                     }}
                   >
                     <IconComp className="w-4 h-4" />
@@ -205,7 +205,7 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
                 padding: '10px 20px',
                 borderRadius: 8,
                 background: 'var(--accent)',
-                color: '#FFFFFF',
+                color: 'var(--text-on-accent)',
               }}
               className="hover:opacity-90 transition active:opacity-80"
             >

@@ -128,8 +128,8 @@ export default function TaskList({
       {/* ── Sticky Header ── */}
       <header className="glass sticky top-0 z-40 px-5 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <span className="material-symbols-outlined fill text-[22px]" style={{ color: 'var(--text-primary)' }}>grid_view</span>
-          <h1 style={{ fontFamily: G, fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+          <span className="material-symbols-outlined fill text-[22px]" style={{ color: 'var(--text-on-accent)' }}>grid_view</span>
+          <h1 style={{ fontFamily: G, fontSize: 22, fontWeight: 700, color: 'var(--text-on-accent)', letterSpacing: '-0.02em' }}>
             Dashboard
           </h1>
         </div>
@@ -142,7 +142,7 @@ export default function TaskList({
 
         {/* ── Greeting ── */}
         <section>
-          <h2 style={{ fontFamily: G, fontSize: 34, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.025em', lineHeight: 1.1 }}>
+          <h2 style={{ fontFamily: G, fontSize: 34, fontWeight: 700, color: 'var(--text-on-accent)', letterSpacing: '-0.025em', lineHeight: 1.1 }}>
             {getGreeting()}
           </h2>
           <p style={{ fontFamily: G, fontSize: 15, color: 'var(--text-secondary)', marginTop: 6 }}>
@@ -158,7 +158,7 @@ export default function TaskList({
             <div className="flex items-start justify-between">
               <div>
                 <p style={{ fontFamily: M, fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.06em' }}>DAILY TARGET</p>
-                <p style={{ fontFamily: G, fontSize: 15, color: 'var(--text-primary)', marginTop: 2 }}>
+                <p style={{ fontFamily: G, fontSize: 15, color: 'var(--text-on-accent)', marginTop: 2 }}>
                   {todayHours}h of {targetHours}h completed
                 </p>
               </div>
@@ -311,7 +311,7 @@ export default function TaskList({
 
                   {/* Info */}
                   <div className="flex-1 min-w-0">
-                    <p style={{ fontFamily: G, fontSize: 15, fontWeight: 500, color: 'var(--text-primary)', textDecoration: task.completed ? 'line-through' : 'none' }} className="truncate">
+                    <p style={{ fontFamily: G, fontSize: 15, fontWeight: 500, color: 'var(--text-on-accent)', textDecoration: task.completed ? 'line-through' : 'none' }} className="truncate">
                       {task.title}
                     </p>
                     <div className="flex items-center gap-3 mt-1">
@@ -337,7 +337,7 @@ export default function TaskList({
                       className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-lg"
                       style={{ background: 'var(--surface-low)' }}
                     >
-                      <span className="material-symbols-outlined fill" style={{ fontSize: 18, color: 'var(--text-primary)' }}>play_circle</span>
+                      <span className="material-symbols-outlined fill" style={{ fontSize: 18, color: 'var(--text-on-accent)' }}>play_circle</span>
                     </button>
                   )}
                 </div>

@@ -125,9 +125,9 @@ function filterSessionsForPeriod(sessions, period, offset) {
   const displayTotalTime = formatDisplayHours(totalMins);
 
   const computedSegments = (projects && projects.length ? projects : [
-    { id: 'proj-1', name: '01 // STUDY', color: '#B9DAFF' },
-    { id: 'proj-2', name: '02 // PERSONAL_APP_DEV', color: '#8BA0B0' },
-    { id: 'proj-3', name: '03 // SYS_ARCHITECTURE', color: '#A1A1AA' },
+    { id: 'proj-1', name: '01 // STUDY', color: 'var(--accent)' },
+    { id: 'proj-2', name: '02 // PERSONAL_APP_DEV', color: 'var(--text-secondary)' },
+    { id: 'proj-3', name: '03 // SYS_ARCHITECTURE', color: 'var(--text-secondary)' },
   ])
     .map((proj, idx) => {
       const projSessions = (filteredSessions || []).filter((s) => {
@@ -142,13 +142,13 @@ function filterSessionsForPeriod(sessions, period, offset) {
         count,
         mins: projMins,
         displayTime: formatDisplayHours(projMins),
-        color: proj.color || '#B9DAFF',
+        color: proj.color || 'var(--accent)',
       };
     })
     .filter((seg) => seg.pct > 0 || seg.count > 0)
     .sort((a, b) => b.mins - a.mins);
 
-  const activeSegments = computedSegments.length ? computedSegments : [{ label: 'No Data', pct: 100, count: 0, mins: 0, displayTime: '0h 00m', color: '#27272A' }];
+  const activeSegments = computedSegments.length ? computedSegments : [{ label: 'No Data', pct: 100, count: 0, mins: 0, displayTime: '0h 00m', color: 'var(--surface-border)' }];
 
   return (
     <div className="min-h-[100dvh] pb-32" style={{ fontFamily: G, background: 'var(--canvas)' }}>

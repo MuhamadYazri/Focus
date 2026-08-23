@@ -553,10 +553,10 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
       {!isAll && (
         <div>
           <div
-            className="transition-all duration-300 hover:border-[#3F3F46] hover:shadow-[0_4px_16px_rgba(0,0,0,0.4)]"
+            className="transition-all duration-300 hover:border-[var(--text-muted)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.4)]"
             style={{
-              background: '#090A0C',
-              border: '1px solid #27272A',
+              background: 'var(--surface-card)',
+              border: '1px solid var(--surface-border)',
               borderRadius: 8,
               padding: '12px 14px',
             }}

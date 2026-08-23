@@ -12,15 +12,15 @@ export default function GanttChart({ tasks, projects }) {
   const timelineTasks = tasks.filter((t) => !t.completed || t.completedPomos > 0).slice(0, 8);
 
   return (
-    <div className="bg-[#090A0C] border border-[#27272A] rounded-lg p-4 space-y-4 select-none font-mono">
+    <div className="bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-lg p-4 space-y-4 select-none font-mono">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <CalendarIcon className="w-4 h-4 text-[#B9DAFF]" />
-          <h3 className="text-xs font-bold tracking-widest text-[#FFFFFF] uppercase">
+          <CalendarIcon className="w-4 h-4 text-[var(--accent)]" />
+          <h3 className="text-xs font-bold tracking-widest text-[var(--text-primary)] uppercase">
             GANTT TIMELINE // 7D
           </h3>
         </div>
-        <span className="text-[10px] text-[#8BA0B0] bg-[#18181B] px-2 py-0.5 rounded border border-[#27272A]">
+        <span className="text-[10px] text-[var(--text-secondary)] bg-[var(--surface-low)] px-2 py-0.5 rounded border border-[var(--surface-border)]">
           SCHEDULE
         </span>
       </div>
@@ -29,7 +29,7 @@ export default function GanttChart({ tasks, projects }) {
       <div className="overflow-x-auto pb-2 -mx-2 px-2 no-scrollbar">
         <div className="min-w-[420px]">
           {/* Days Header */}
-          <div className="grid grid-cols-8 gap-1 pb-2 border-b border-[#27272A] text-[9px] text-center font-bold text-[#8BA0B0]">
+          <div className="grid grid-cols-8 gap-1 pb-2 border-b border-[var(--surface-border)] text-[9px] text-center font-bold text-[var(--text-secondary)]">
             <div className="text-left pl-1 col-span-2 uppercase">SIGNAL / TASK</div>
             {days.map((day, idx) => {
               const isCurr = idx === 0;
@@ -37,7 +37,7 @@ export default function GanttChart({ tasks, projects }) {
                 <div
                   key={idx}
                   className={`py-1 rounded-sm ${
-                    isCurr ? 'bg-[#B9DAFF] text-[#000000] font-black' : ''
+                    isCurr ? 'bg-[var(--accent)] text-[var(--text-on-accent)] font-black' : ''
                   }`}
                 >
                   <div>{format(day, 'EEE', { locale: idLocale }).toUpperCase()}</div>
@@ -52,7 +52,7 @@ export default function GanttChart({ tasks, projects }) {
             {timelineTasks.length > 0 ? (
               timelineTasks.map((task) => {
                 const proj = projects.find((p) => p.id === task.projectId);
-                const color = proj ? proj.color : '#B9DAFF';
+                const color = proj ? proj.color : 'var(--accent)';
 
                 const taskDate = task.dueDate ? parseISO(task.dueDate) : today;
                 const dayOffset = Math.max(0, Math.min(5, differenceInDays(taskDate, today)));
@@ -60,7 +60,7 @@ export default function GanttChart({ tasks, projects }) {
 
                 return (
                   <div key={task.id} className="grid grid-cols-8 gap-1 items-center text-xs">
-                    <div className="col-span-2 pr-2 truncate text-[#FFFFFF] font-medium flex items-center gap-1.5 text-[11px]">
+                    <div className="col-span-2 pr-2 truncate text-[var(--text-primary)] font-medium flex items-center gap-1.5 text-[11px]">
                       <span
                         className="w-1.5 h-1.5 rounded-full flex-shrink-0"
                         style={{ backgroundColor: color }}
@@ -73,7 +73,7 @@ export default function GanttChart({ tasks, projects }) {
                     {/* Gantt Bar spanning across columns */}
                     <div className="col-span-6 grid grid-cols-6 gap-1 relative h-6 items-center">
                       <div
-                        className="absolute h-5 rounded-sm flex items-center px-2 text-[9px] font-bold text-[#000000] shadow-sm transition-transform hover:scale-105 cursor-pointer overflow-hidden truncate"
+                        className="absolute h-5 rounded-sm flex items-center px-2 text-[9px] font-bold text-[var(--text-on-accent)] shadow-sm transition-transform hover:scale-105 cursor-pointer overflow-hidden truncate"
                         style={{
                           left: `${(dayOffset / 6) * 100}%`,
                           width: `${Math.max(16, (durationSpan / 6) * 100)}%`,

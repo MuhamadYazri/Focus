@@ -14,7 +14,7 @@ export default function ProjectList({
     <div className="pb-24 pt-4 px-4 max-w-md mx-auto space-y-4 animate-fadeIn">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-black text-white flex items-center gap-2">
+          <h1 className="text-2xl font-black text-[var(--text-primary)] flex items-center gap-2">
             <FolderKanban className="w-6 h-6 text-[#ff5252]" />
             Daftar Proyek
           </h1>
@@ -24,7 +24,7 @@ export default function ProjectList({
         </div>
         <button
           onClick={onAddProject}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#ff5252] hover:bg-[#ff3b3b] text-white font-bold text-xs shadow-lg shadow-[#ff5252]/20 transition"
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#ff5252] hover:bg-[#ff3b3b] text-[var(--text-primary)] font-bold text-xs shadow-lg shadow-[#ff5252]/20 transition"
         >
           <Plus className="w-4 h-4 stroke-[3]" />
           Proyek Baru
@@ -62,7 +62,7 @@ export default function ProjectList({
                   <IconComp className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-white text-base group-hover:text-[#ff5252] transition">
+                  <h3 className="font-bold text-[var(--text-primary)] text-base group-hover:text-[#ff5252] transition">
                     {project.name}
                   </h3>
                   <div className="flex items-center gap-3 text-xs text-slate-400 mt-1 font-medium">
@@ -81,7 +81,7 @@ export default function ProjectList({
               <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                 <button
                   onClick={() => onEditProject(project)}
-                  className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition"
+                  className="p-2 rounded-lg text-slate-400 hover:text-[var(--text-primary)] hover:bg-white/5 transition"
                   title="Edit Proyek"
                 >
                   <Edit2 className="w-4 h-4" />

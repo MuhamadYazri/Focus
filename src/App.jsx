@@ -69,6 +69,7 @@ export default function App() {
   const [strictModalOpen, setStrictModalOpen] = useState(false);
 
   const timerRef = useRef(null);
+  const lastTickRef = useRef(null);
 
   const TAB_ORDER = { home: 0, timer: 1, reports: 2, profile: 3 };
 
@@ -197,16 +198,23 @@ export default function App() {
   // Timer Tick Logic
   useEffect(() => {
     if (isRunning) {
+      lastTickRef.current = Date.now();
       timerRef.current = setInterval(() => {
-        setTimeLeft((prev) => {
-          if (timerMode === 'stopwatch') return prev + 1;
-          if (prev <= 1) {
-            clearInterval(timerRef.current);
-            handleTimerFinish();
-            return 0;
-          }
-          return prev - 1;
-        });
+        const now = Date.now();
+        const deltaSecs = Math.floor((now - lastTickRef.current) / 1000);
+
+        if (deltaSecs >= 1) {
+          lastTickRef.current += deltaSecs * 1000;
+          setTimeLeft((prev) => {
+            if (timerMode === 'stopwatch') return prev + deltaSecs;
+            if (prev - deltaSecs <= 0) {
+              clearInterval(timerRef.current);
+              setTimeout(() => handleTimerFinish(), 0);
+              return 0;
+            }
+            return prev - deltaSecs;
+          });
+        }
       }, 1000);
     } else {
       if (timerRef.current) clearInterval(timerRef.current);

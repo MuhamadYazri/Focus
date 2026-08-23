@@ -7,7 +7,7 @@ import { Capacitor } from '@capacitor/core';
 import { GoogleSignIn } from '@capawesome/capacitor-google-sign-in';
 
 // Replace with your real Google Cloud OAuth2 Client ID
-const CLIENT_ID = '693319619112-9qudji2r7dr3bpkjgd9n08kjeae2v807.apps.googleusercontent.com';
+const CLIENT_ID = '503959421771-9u2rrer841ct2pph0oncrg37f7les6tj.apps.googleusercontent.com';
 const SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
 const BACKUP_FILENAME = 'focus_backup.json';
 const DRIVE_API = 'https://www.googleapis.com/';

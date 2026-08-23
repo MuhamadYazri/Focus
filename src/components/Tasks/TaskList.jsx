@@ -49,7 +49,7 @@ export default function TaskList({
         const hist = JSON.parse(localStorage.getItem('focus_daily_goals_history_v1') || '{}');
         if (hist && hist[todayStr]) targetHours = Number(hist[todayStr]);
         else if (settings && settings.dailyGoalHours) targetHours = Number(settings.dailyGoalHours);
-      } catch (e) {}
+      } catch (e) { }
 
       const progressPercent = targetHours > 0 ? Math.min(100, Math.round((todayHours / targetHours) * 100)) : 0;
 
@@ -194,9 +194,9 @@ export default function TaskList({
         </section>
 
         {/* ── Categories ── */}
-        <section className="animate-slideUp" style={{ animationDelay: '0.15s' }}>
+        <section className="animate-slideUp" style={{ animationDelay: '0.15s', overflow: 'visible' }}>
           <div
-            className="flex gap-2 overflow-x-auto no-scrollbar pb-2 pt-2 -mt-2 -mx-5 px-5"
+            className="flex gap-2 overflow-x-auto no-scrollbar py-4 -my-4 -mx-5 px-5"
             style={{
               maskImage: 'linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent)',
               WebkitMaskImage: 'linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent)',

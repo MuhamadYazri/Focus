@@ -193,7 +193,7 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
       v: maxDayMins > 0 ? s.mins / maxDayMins : 0,
       isPeak: maxDayMins > 0 && s.mins === maxDayMins,
     }));
-    chartTitle = 'Total per day (Week)';
+    chartTitle = 'Total per day';
     chartPeakLabel = maxDayMins > 0 ? `Peak: ${peakDayLabel} (${formatTimeNoDecimals(maxDayMins)})` : 'No activity';
     chartSubLabel = 'Hours focused by day of week';
     activeHeatmap = generateHeatmapGrid(targetDate, targetStr, targetStr);
@@ -559,7 +559,6 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
               <span style={{ fontFamily: M, fontSize: 10, color: 'var(--text-secondary)' }}>{chartTitle}</span>
               <span style={{ fontFamily: M, fontSize: 10, color: 'var(--accent)' }}>{chartPeakLabel}</span>
             </div>
-            <br />
             <p style={{ fontFamily: M, fontSize: 10, color: 'var(--text-muted)', marginBottom: 36 }}>{chartSubLabel}</p>
             <div className="flex items-end gap-[4px]" style={{ height: maxBarH + 20 }}>
               {activeChart.map((slot) => {
@@ -609,7 +608,6 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
                 );
               })}
             </div>
-            <div style={{ height: 1, background: 'var(--surface-border)', marginTop: 4 }} />
           </div>
         </div>
       )}

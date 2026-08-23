@@ -72,6 +72,10 @@ export default function App() {
   const timerRef = useRef(null);
   const lastTickRef = useRef(null);
 
+  // Swipe gesture refs
+  const touchStart = useRef({ x: null, y: null });
+  const touchEnd = useRef({ x: null, y: null });
+
   const TAB_ORDER = { home: 0, timer: 1, reports: 2, profile: 3 };
 
   const handleTabSwitch = (newTab) => {
@@ -578,8 +582,50 @@ export default function App() {
     return null;
   };
 
+  // Swipe gesture handlers
+  const handleTouchStart = (e) => {
+    touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  };
+
+  const handleTouchMove = (e) => {
+    touchEnd.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  };
+
+  const handleTouchEnd = (e) => {
+    if (isNavHidden) return; // Don't swipe when in fullscreen timer mode
+    if (e.target.tagName?.toLowerCase() === 'input' && e.target.type === 'range') return;
+
+    if (!touchStart.current.x || !touchEnd.current.x) return;
+    const dx = touchStart.current.x - touchEnd.current.x;
+    const dy = touchStart.current.y - touchEnd.current.y;
+    
+    // Check if predominantly horizontal and past threshold
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 75) {
+      const isLeftSwipe = dx > 0;
+      const isRightSwipe = dx < 0;
+      const tabs = ['home', 'timer', 'reports', 'profile'];
+      const currentIndex = tabs.indexOf(activeTab);
+      
+      if (isLeftSwipe && currentIndex < tabs.length - 1) {
+        handleTabSwitch(tabs[currentIndex + 1]);
+      }
+      if (isRightSwipe && currentIndex > 0) {
+        handleTabSwitch(tabs[currentIndex - 1]);
+      }
+    }
+    
+    touchStart.current = { x: null, y: null };
+    touchEnd.current = { x: null, y: null };
+  };
+
   return (
-    <div className={`min-h-[100dvh] flex flex-col font-sans ${isNavHidden ? 'overflow-hidden h-[100dvh]' : ''}`} style={{ background: 'var(--canvas)', color: 'var(--text-primary)' }}>
+    <div 
+      className={`min-h-[100dvh] flex flex-col font-sans ${isNavHidden ? 'overflow-hidden h-[100dvh]' : ''}`} 
+      style={{ background: 'var(--canvas)', color: 'var(--text-primary)' }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
       {/* Active Tab Screen */}
       <main className={`flex-1 relative ${isNavHidden ? 'overflow-hidden' : 'overflow-x-hidden'}`}>
         <div className="relative w-full min-h-full">
@@ -676,17 +722,7 @@ export default function App() {
         </div>
       )}
 
-      {/* TEMPORARY TEST BUTTON FOR NOTIFICATION */}
-      <button
-        className="fixed top-4 right-4 z-[9999] bg-[var(--text-primary)] text-white text-xs px-3 py-1.5 rounded-lg shadow-lg opacity-50 hover:opacity-100 transition-opacity"
-        style={{ fontFamily: "'JetBrains Mono', monospace" }}
-        onClick={() => {
-          setSessionDoneAlert({ title: 'Focus Completed', subtitle: 'You finished a 25m session' });
-          setTimeout(() => setSessionDoneAlert(null), 4000);
-        }}
-      >
-        TEST NOTIF
-      </button>
+
     </div>
   );
 }

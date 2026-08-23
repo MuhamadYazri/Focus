@@ -335,39 +335,75 @@ export default function ProfileView({
       {/* ── Share Report Modal ── */}
       {showReport && (
         <div
-          className="fixed inset-0 z-50 flex items-end justify-center animate-fadeIn"
-          style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fadeIn"
+          style={{ background: 'rgba(10, 38, 53, 0.4)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
           onClick={() => setShowReport(false)}
         >
           <div
-            className="w-full max-w-md animate-slideUp rounded-t-3xl p-6"
+            className="w-full max-w-sm animate-slideUp rounded-3xl p-5 shadow-[0_32px_64px_-12px_rgba(0,0,0,0.3)] flex flex-col gap-5"
             onClick={(e) => e.stopPropagation()}
-            style={{ background: 'var(--surface-card)', borderTop: '1px solid var(--surface-border)' }}
+            style={{ background: 'var(--surface-card)', border: '1px solid var(--surface-border)' }}
           >
-            <div className="flex items-center justify-between pb-4" style={{ borderBottom: '1px solid var(--surface-border)' }}>
-              <div>
-                <p style={{ fontFamily: M, fontSize: 10, color: 'var(--text-secondary)', letterSpacing: '0.06em' }}>FOCUS // {getReportTitle()}</p>
-                <h3 style={{ fontFamily: G, fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', marginTop: 2 }}>{getReportHeading()}</h3>
+            {/* The "Share Card" */}
+            <div 
+              className="relative w-full rounded-2xl overflow-hidden flex flex-col p-6"
+              style={{
+                background: 'linear-gradient(135deg, var(--surface-card) 0%, var(--surface-low) 100%)',
+                border: '1px solid var(--surface-border)'
+              }}
+            >
+              <div className="absolute -top-4 -right-4 p-4 opacity-[0.03] pointer-events-none">
+                <span className="material-symbols-outlined fill" style={{ fontSize: 160 }}>timer</span>
               </div>
-              <button type="button" onClick={() => setShowReport(false)} className="p-2 rounded-full" style={{ background: 'var(--surface-low)' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--text-secondary)' }}>close</span>
-              </button>
-            </div>
-            <div className="flex flex-col gap-2 py-4">
-              {[['Total Focus', reportData.displayHours], ['Sessions', `${reportData.displayPomos.toLocaleString()} pomodoros`], ['Detail', reportData.displaySubToday], ['Activity', reportData.displaySubDays]].map(([label, value]) => (
-                <div key={label} className="flex justify-between py-2" style={{ borderBottom: '1px solid var(--surface-border)' }}>
-                  <span style={{ fontFamily: M, fontSize: 12, color: 'var(--text-secondary)' }}>{label}</span>
-                  <span style={{ fontFamily: G, fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{value}</span>
+              
+              <div className="flex items-center justify-between z-10 mb-8">
+                <span style={{ fontFamily: M, fontSize: 10, color: 'var(--text-secondary)', letterSpacing: '0.1em' }}>
+                  FOCUS // {getReportTitle()}
+                </span>
+                <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--text-primary)' }}>
+                  ios_share
+                </span>
+              </div>
+
+              <div className="z-10 flex flex-col gap-1 mb-10">
+                <h3 style={{ fontFamily: G, fontSize: 32, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.03em', lineHeight: 1.1 }}>
+                  {getReportHeading()}
+                </h3>
+                <p style={{ fontFamily: M, fontSize: 12, color: 'var(--accent)', marginTop: 4 }}>
+                  {reportData.displaySubDays}
+                </p>
+              </div>
+
+              <div className="z-10 grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1">
+                  <span style={{ fontFamily: M, fontSize: 10, color: 'var(--text-secondary)' }}>TOTAL FOCUS</span>
+                  <span style={{ fontFamily: G, fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>{reportData.displayHours}</span>
                 </div>
-              ))}
+                <div className="flex flex-col gap-1">
+                  <span style={{ fontFamily: M, fontSize: 10, color: 'var(--text-secondary)' }}>SESSIONS</span>
+                  <span style={{ fontFamily: G, fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>{reportData.displayPomos}</span>
+                </div>
+              </div>
             </div>
-            <div className="flex gap-3 pt-2">
-              <button type="button" onClick={() => setShowReport(false)} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl" style={{ border: '1px solid var(--surface-border)', fontFamily: G, fontSize: 14, color: 'var(--text-primary)' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>download</span> Download
+
+            {/* Actions */}
+            <div className="flex gap-3">
+              <button 
+                type="button" 
+                onClick={() => setShowReport(false)} 
+                className="flex items-center justify-center p-4 rounded-2xl transition-all"
+                style={{ border: '1px solid var(--surface-border)', color: 'var(--text-primary)' }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: 20 }}>close</span>
               </button>
-              <button type="button" onClick={handleCopyReport} className="flex-1 squish flex items-center justify-center gap-2 py-3 rounded-2xl" style={{ background: 'var(--text-primary)', fontFamily: G, fontSize: 14, fontWeight: 600, color: '#fff' }}>
+              <button 
+                type="button" 
+                onClick={handleCopyReport} 
+                className="flex-1 squish flex items-center justify-center gap-2 p-4 rounded-2xl" 
+                style={{ background: 'var(--text-primary)', fontFamily: G, fontSize: 14, fontWeight: 600, color: '#fff' }}
+              >
                 <span className="material-symbols-outlined" style={{ fontSize: 18 }}>{copied ? 'check' : 'content_copy'}</span>
-                {copied ? 'Copied!' : 'Copy text'}
+                {copied ? 'Copied to Clipboard' : 'Copy Text'}
               </button>
             </div>
           </div>

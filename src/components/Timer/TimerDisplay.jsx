@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 const G = "'Geist', system-ui, sans-serif";
 const M = "'JetBrains Mono', monospace";
 
-const RADIUS = 44;
+const RADIUS = 46;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 function AnimatedDigit({ digit }) {
@@ -18,11 +18,11 @@ function AnimatedDigit({ digit }) {
   }, [digit, current]);
 
   if (digit === ':') {
-    return <span className="inline-block" style={{ width: '0.3em', textAlign: 'center' }}>:</span>;
+    return <span className="inline-block" style={{ width: '0.22em', textAlign: 'center', margin: '0 -2px' }}>:</span>;
   }
 
   return (
-    <div className="relative inline-block overflow-hidden" style={{ width: '1ch', height: '1.1em', verticalAlign: 'bottom', margin: '0 1px' }}>
+    <div className="relative inline-block" style={{ width: '1ch', height: '1.1em', verticalAlign: 'bottom', margin: '0 -2px' }}>
       {previous !== null && (
         <span 
           key={`prev-${previous}`} 
@@ -92,11 +92,11 @@ export default function TimerDisplay({
     <div className="flex flex-col items-center select-none" style={{ fontFamily: G }}>
 
       {/* Circular progress ring + countdown */}
-      <div className="relative flex items-center justify-center" style={{ width: 260, height: 260 }}>
+      <div className="relative flex items-center justify-center" style={{ width: 280, height: 280 }}>
         <svg
           viewBox="0 0 100 100"
-          width={260}
-          height={260}
+          width={280}
+          height={280}
           className="absolute inset-0"
           style={{ transform: 'rotate(-90deg)' }}
         >
@@ -131,7 +131,7 @@ export default function TimerDisplay({
             className="flex items-center justify-center"
             style={{
               fontFamily: G,
-              fontSize: 76,
+              fontSize: 72,
               fontWeight: 300,
               color: isFullScreen ? '#fff' : 'var(--text-primary)',
               letterSpacing: '-2px',

@@ -122,11 +122,8 @@ export default function TimerDisplay({
         </svg>
 
         {/* Text inside ring */}
-        <div 
-          className="relative z-10 flex flex-col items-center gap-1 transition-transform duration-700 ease-in-out"
-          style={{ transform: isFullScreen ? 'translateY(18px)' : 'translateY(0)' }}
-        >
-          {/* Countdown */}
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center">
+          {/* Countdown (Always dead center) */}
           <div
             className="flex items-center justify-center"
             style={{
@@ -139,22 +136,33 @@ export default function TimerDisplay({
               opacity: isRunning ? 1 : 0.55,
               transition: 'color 0.7s ease, opacity 0.4s ease',
               fontFeatureSettings: "'tnum'",
+              marginTop: -6, // Optical centering adjustment
             }}
           >
             {formatTime(timeLeft).split('').map((char, i) => (
               <AnimatedDigit key={i} digit={char} />
             ))}
           </div>
-          {/* Session label */}
-          <span style={{ fontFamily: M, fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.08em', opacity: isFullScreen ? 0 : 1, transition: 'opacity 0.5s ease', pointerEvents: isFullScreen ? 'none' : 'auto' }}>
-            SESSION {currentSessionNumber}/4
-          </span>
-          {/* Task title */}
-          {taskTitle && (
-            <span style={{ fontFamily: G, fontSize: 12, color: 'var(--text-secondary)', marginTop: 2, maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textAlign: 'center', opacity: isFullScreen ? 0 : 1, transition: 'opacity 0.5s ease', pointerEvents: isFullScreen ? 'none' : 'auto' }}>
-              {taskTitle}
+          
+          {/* Sub Labels (Absolutely positioned so they don't offset the countdown) */}
+          <div 
+            className="absolute flex flex-col items-center w-full"
+            style={{ 
+              top: '64%', 
+              opacity: isFullScreen ? 0 : 1, 
+              transition: 'opacity 0.5s ease', 
+              pointerEvents: isFullScreen ? 'none' : 'auto' 
+            }}
+          >
+            <span style={{ fontFamily: M, fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.08em' }}>
+              SESSION {currentSessionNumber}/4
             </span>
-          )}
+            {taskTitle && (
+              <span style={{ fontFamily: G, fontSize: 12, color: 'var(--text-secondary)', marginTop: 2, maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textAlign: 'center' }}>
+                {taskTitle}
+              </span>
+            )}
+          </div>
         </div>
       </div>
 

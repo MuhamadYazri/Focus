@@ -146,19 +146,17 @@ export default function ProfileView({
 
       <div className="px-5 pt-5 flex flex-col gap-5 max-w-md mx-auto">
 
-        {/* ── Activity (── */}
-        <div className="animate-slideUp" style={{ animationDelay: '0.05s' }}>
-          <SharedActivitySection showKPIs={false} sessions={sessions} onPeriodChange={setReportData} />
-        </div>
+        {/* ── Activity ── */}
+        <SharedActivitySection showKPIs={false} sessions={sessions} onPeriodChange={setReportData} />
 
         {/* ── Quick Stats Row ── */}
-        <div className="grid grid-cols-3 gap-3 animate-slideUp" style={{ animationDelay: '0.1s' }}>
+        <div className="grid grid-cols-3 gap-3">
           {[
             { icon: 'local_fire_department', value: '14', label: 'Day Streak' },
             { icon: 'timer', value: totalHoursDisplay, label: 'Focused' },
             { icon: 'task_alt', value: totalPomos.toLocaleString(), label: 'Sessions' },
-          ].map(({ icon, value, label }) => (
-            <div key={label} className="card-2xl flex flex-col items-center justify-center py-4 px-2 text-center gap-1">
+          ].map(({ icon, value, label }, index) => (
+            <div key={label} className="card-2xl flex flex-col items-center justify-center py-4 px-2 text-center gap-1 animate-slideUp" style={{ animationDelay: `${0.1 + index * 0.05}s` }}>
               <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--text-secondary)' }}>{icon}</span>
               <span style={{ fontFamily: G, fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>{value}</span>
               <span style={{ fontFamily: M, fontSize: 9, color: 'var(--text-secondary)', letterSpacing: '0.04em' }}>{label.toUpperCase()}</span>
@@ -171,14 +169,14 @@ export default function ProfileView({
           type="button"
           onClick={() => { if (window.navigator?.vibrate) window.navigator.vibrate(15); setShowReport(true); }}
           className="w-full squish flex items-center justify-center gap-2 animate-slideUp"
-          style={{ animationDelay: '0.15s', background: 'var(--text-primary)', borderRadius: 9999, padding: '14px 0', fontFamily: G, fontSize: 15, fontWeight: 600, color: '#fff', boxShadow: '0 4px 16px rgba(0,0,0,0.12)' }}
+          style={{ animationDelay: '0.25s', background: 'var(--text-primary)', borderRadius: 9999, padding: '14px 0', fontFamily: G, fontSize: 15, fontWeight: 600, color: '#fff', boxShadow: '0 4px 16px rgba(0,0,0,0.12)' }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: 20 }}>ios_share</span>
           Share Profile
         </button>
 
         {/* ── Focus Categories ── */}
-        <div className="flex flex-col gap-4 mb-4 animate-slideUp" style={{ animationDelay: '0.2s' }}>
+        <div className="flex flex-col gap-4 mb-4 animate-slideUp" style={{ animationDelay: '0.3s' }}>
           <div className="flex items-center justify-between">
             <span style={{ fontFamily: M, fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.06em' }}>FOCUS CATEGORIES</span>
             <button
@@ -216,7 +214,7 @@ export default function ProfileView({
         </div>
 
         {/* ── Settings ── */}
-        <div className="flex flex-col gap-4 animate-slideUp" style={{ animationDelay: '0.25s' }}>
+        <div className="flex flex-col gap-4 animate-slideUp" style={{ animationDelay: '0.35s' }}>
           <span style={{ fontFamily: M, fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.06em' }}>PREFERENCES</span>
 
           {/* Timer Durations */}

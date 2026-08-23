@@ -13,6 +13,7 @@ export default function TimerDisplay({
   isRunning,
   cycleCount = 0,
   taskTitle = '',
+  isFullScreen = false,
 }) {
   const [clockTime, setClockTime] = useState(() =>
     new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
@@ -67,8 +68,9 @@ export default function TimerDisplay({
           <circle
             cx="50" cy="50" r={RADIUS}
             fill="transparent"
-            stroke="var(--surface-low)"
+            stroke={isFullScreen ? '#222' : 'var(--surface-low)'}
             strokeWidth="3"
+            style={{ transition: 'stroke 0.7s ease' }}
           />
           {/* Progress */}
           <circle
@@ -84,30 +86,33 @@ export default function TimerDisplay({
         </svg>
 
         {/* Text inside ring */}
-        <div className="relative z-10 flex flex-col items-center gap-1">
+        <div 
+          className="relative z-10 flex flex-col items-center gap-1 transition-transform duration-700 ease-in-out"
+          style={{ transform: isFullScreen ? 'translateY(18px)' : 'translateY(0)' }}
+        >
           {/* Countdown */}
           <div
             style={{
               fontFamily: G,
               fontSize: 64,
               fontWeight: 500,
-              color: 'var(--text-primary)',
+              color: isFullScreen ? '#fff' : 'var(--text-primary)',
               letterSpacing: '-3px',
               lineHeight: 1,
               opacity: isRunning ? 1 : 0.55,
-              transition: 'opacity 0.4s ease',
+              transition: 'color 0.7s ease, opacity 0.4s ease',
               fontFeatureSettings: "'tnum'",
             }}
           >
             {formatTime(timeLeft)}
           </div>
           {/* Session label */}
-          <span style={{ fontFamily: M, fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.08em' }}>
+          <span style={{ fontFamily: M, fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.08em', opacity: isFullScreen ? 0 : 1, transition: 'opacity 0.5s ease', pointerEvents: isFullScreen ? 'none' : 'auto' }}>
             SESSION {currentSessionNumber}/4
           </span>
           {/* Task title */}
           {taskTitle && (
-            <span style={{ fontFamily: G, fontSize: 12, color: 'var(--text-secondary)', marginTop: 2, maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textAlign: 'center' }}>
+            <span style={{ fontFamily: G, fontSize: 12, color: 'var(--text-secondary)', marginTop: 2, maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textAlign: 'center', opacity: isFullScreen ? 0 : 1, transition: 'opacity 0.5s ease', pointerEvents: isFullScreen ? 'none' : 'auto' }}>
               {taskTitle}
             </span>
           )}
@@ -115,22 +120,22 @@ export default function TimerDisplay({
       </div>
 
       {/* Status row */}
-      <div className="flex items-center gap-2 mt-2">
+      <div className="flex items-center gap-2 mt-2" style={{ opacity: isFullScreen ? 0 : 1, transition: 'opacity 0.5s ease', pointerEvents: isFullScreen ? 'none' : 'auto' }}>
         <span
           style={{
             display: 'inline-block', width: 6, height: 6, borderRadius: '50%',
-            background: isRunning ? accentColor : 'var(--surface-mid)',
-            transition: 'background 0.3s ease',
+            background: isRunning ? accentColor : (isFullScreen ? '#444' : 'var(--surface-mid)'),
+            transition: 'background 0.7s ease',
           }}
           className={isRunning ? 'animate-pulse-subtle' : ''}
         />
-        <span style={{ fontFamily: M, fontSize: 10, color: isRunning ? 'var(--text-secondary)' : 'var(--text-muted)', letterSpacing: '0.06em' }}>
+        <span style={{ fontFamily: M, fontSize: 10, color: isRunning ? 'var(--text-secondary)' : 'var(--text-muted)', letterSpacing: '0.06em', transition: 'color 0.7s ease' }}>
           {isRunning ? 'Active' : 'Paused'} · {clockTime}
         </span>
       </div>
 
       {/* Session pips */}
-      <div className="flex items-center gap-2 mt-4">
+      <div className="flex items-center gap-2 mt-4" style={{ opacity: isFullScreen ? 0 : 1, transition: 'opacity 0.5s ease', pointerEvents: isFullScreen ? 'none' : 'auto' }}>
         {[1, 2, 3, 4].map((n) => {
           const isCurrent = n === currentSessionNumber;
           const isCompleted = n < currentSessionNumber;
@@ -150,7 +155,7 @@ export default function TimerDisplay({
       </div>
 
       {/* Sub label */}
-      <p style={{ fontFamily: M, fontSize: 10, color: 'var(--text-muted)', letterSpacing: '0.04em', marginTop: 6 }}>
+      <p style={{ fontFamily: M, fontSize: 10, color: 'var(--text-muted)', letterSpacing: '0.04em', marginTop: 6, opacity: isFullScreen ? 0 : 1, transition: 'opacity 0.5s ease', pointerEvents: isFullScreen ? 'none' : 'auto' }}>
         {getSubLabel()}
       </p>
     </div>

@@ -175,10 +175,7 @@ export default function TaskList({
         </section>
 
         {/* Category Filter Pills */}
-        <section 
-          className="-mx-5 px-5 flex items-center gap-2 overflow-x-auto pb-1 mb-5 no-scrollbar" 
-          style={{ maskImage: 'linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent)' }}
-        >
+        <section className="-mx-5 px-5 flex items-center gap-2 overflow-x-auto pb-1 mb-5 no-scrollbar after:content-[''] after:w-1 after:shrink-0">
           <button 
             onClick={() => onSelectProject(null)}
             className={`shrink-0 h-10 px-4 rounded-full flex items-center gap-2 shadow-sm transition-transform active:scale-95 font-semibold text-[13px] font-sans ${!selectedProjectId ? 'bg-[#40513B] text-white' : 'bg-white border border-[#EDE7DA] text-[#40513B] hover:bg-[#F4F1EA]'}`}

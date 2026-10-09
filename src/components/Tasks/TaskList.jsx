@@ -31,18 +31,23 @@ export default function TaskList({
     try {
       const todaySessions = (sessions || []).filter((s) => {
         if (!s || typeof s !== 'object') return false;
-        const sDt = s.dateStr || (typeof s.completedAt === 'string' ? s.completedAt.split('T')[0] : '');
+        const sDt =
+          s.dateStr || (typeof s.completedAt === 'string' ? s.completedAt.split('T')[0] : '');
         return sDt === todayStr;
       });
-      const todayMins = todaySessions.reduce((acc, s) => acc + ((s && s.duration) ? Number(s.duration) : 25), 0);
+      const todayMins = todaySessions.reduce(
+        (acc, s) => acc + (s && s.duration ? Number(s.duration) : 25),
+        0
+      );
       const todayHours = Number((todayMins / 60).toFixed(1));
 
       let targetHours = 4.0;
       try {
         if (settings && settings.dailyGoalHours) targetHours = Number(settings.dailyGoalHours);
-      } catch (e) { }
+      } catch (e) {}
 
-      const progressPercent = targetHours > 0 ? Math.min(100, Math.round((todayHours / targetHours) * 100)) : 0;
+      const progressPercent =
+        targetHours > 0 ? Math.min(100, Math.round((todayHours / targetHours) * 100)) : 0;
 
       let streak = 0;
       const now = new Date();
@@ -52,7 +57,8 @@ export default function TaskList({
         const dStr = getLocalDateStr(d);
         const daySess = (sessions || []).filter((s) => {
           if (!s || typeof s !== 'object') return false;
-          const sDt = s.dateStr || (typeof s.completedAt === 'string' ? s.completedAt.split('T')[0] : '');
+          const sDt =
+            s.dateStr || (typeof s.completedAt === 'string' ? s.completedAt.split('T')[0] : '');
           return sDt === dStr;
         });
         if (daySess.length > 0) streak++;
@@ -67,7 +73,13 @@ export default function TaskList({
 
       return { todayHours, targetHours, progressPercent, streak: Math.max(streak, 14), statusText };
     } catch (err) {
-      return { todayHours: 0.0, targetHours: 4.0, progressPercent: 0, streak: 14, statusText: 'Ready to focus' };
+      return {
+        todayHours: 0.0,
+        targetHours: 4.0,
+        progressPercent: 0,
+        streak: 14,
+        statusText: 'Ready to focus',
+      };
     }
   };
 
@@ -115,7 +127,7 @@ export default function TaskList({
 
   return (
     <div className="flex-1 w-full bg-[#F9FBEE] pb-28 min-h-[100dvh] relative text-[#2A3A26]">
-      <div className="flex flex-col w-full px-5 pt-7 pb-24 max-w-md mx-auto">
+      <div className="flex flex-col w-full px-5 pt-15 pb-24 max-w-md mx-auto">
         {/* Greeting Header */}
         <header className="pt-2 pb-5 flex flex-col gap-1">
           <h1 className="text-[32px] leading-[38px] text-[#40513B] font-bold tracking-tight font-sans">
@@ -145,14 +157,16 @@ export default function TaskList({
             </div>
             <div className="flex flex-col gap-1.5">
               <div className="w-full h-2.5 bg-[#E5D9B6]/40 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-[#628141] rounded-full transition-all duration-500" 
+                <div
+                  className="h-full bg-[#628141] rounded-full transition-all duration-500"
                   style={{ width: `${progressPercent}%` }}
                 ></div>
               </div>
               <div className="flex items-center justify-between pt-0.5">
                 <span className="font-mono text-[11px] text-[#636F5A]">{statusText}</span>
-                <span className="font-mono text-[11px] font-bold text-[#40513B]">{progressPercent}%</span>
+                <span className="font-mono text-[11px] font-bold text-[#40513B]">
+                  {progressPercent}%
+                </span>
               </div>
             </div>
           </div>
@@ -176,24 +190,37 @@ export default function TaskList({
 
         {/* Category Filter Pills */}
         <section className="no-swipe -mx-5 px-5 flex items-center gap-2 overflow-x-auto pb-1 mb-5 no-scrollbar after:content-[''] after:w-1 after:shrink-0">
-          <button 
+          <button
             onClick={() => onSelectProject(null)}
-            className={`shrink-0 h-10 px-4 rounded-full flex items-center gap-2 shadow-sm transition-transform active:scale-95 font-semibold text-[13px] font-sans ${!selectedProjectId ? 'bg-[#40513B] text-white' : 'bg-white border border-[#EDE7DA] text-[#40513B] hover:bg-[#F4F1EA]'}`}
+            className={`shrink-0 h-10 px-4 rounded-full flex items-center gap-2 shadow-sm transition-transform active:scale-95 font-semibold text-[13px] font-sans ${
+              !selectedProjectId
+                ? 'bg-[#40513B] text-white'
+                : 'bg-white border border-[#EDE7DA] text-[#40513B] hover:bg-[#F4F1EA]'
+            }`}
           >
             {!selectedProjectId && <Check size={14} className="text-[#E5D9B6]" />}
             <span className="tracking-wide">All Tasks</span>
           </button>
-          
+
           {projects.map((proj) => {
             const isSel = selectedProjectId === proj.id;
             const cleanName = proj.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' ');
             return (
-              <button 
+              <button
                 key={proj.id}
                 onClick={() => onSelectProject(isSel ? null : proj.id)}
-                className={`shrink-0 h-10 px-4 rounded-full flex items-center gap-2 shadow-sm transition-transform active:scale-95 font-semibold text-[13px] font-sans ${isSel ? 'bg-[#40513B] text-white' : 'bg-white border border-[#EDE7DA] text-[#40513B] hover:bg-[#F4F1EA]'}`}
+                className={`shrink-0 h-10 px-4 rounded-full flex items-center gap-2 shadow-sm transition-transform active:scale-95 font-semibold text-[13px] font-sans ${
+                  isSel
+                    ? 'bg-[#40513B] text-white'
+                    : 'bg-white border border-[#EDE7DA] text-[#40513B] hover:bg-[#F4F1EA]'
+                }`}
               >
-                {!isSel && <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: proj.color || '#628141' }}></span>}
+                {!isSel && (
+                  <span
+                    className="w-2.5 h-2.5 rounded-full"
+                    style={{ backgroundColor: proj.color || '#628141' }}
+                  ></span>
+                )}
                 {isSel && <Check size={14} className="text-[#E5D9B6]" />}
                 <span className="tracking-wide uppercase">{cleanName}</span>
               </button>
@@ -211,10 +238,16 @@ export default function TaskList({
                   <button
                     key={tab}
                     onClick={() => setFilterTab(tab)}
-                    className={`relative pb-2.5 text-[15px] font-sans transition-colors shrink-0 ${on ? 'font-bold text-[#40513B]' : 'font-medium text-[#636F5A] hover:text-[#40513B]'}`}
+                    className={`relative pb-2.5 text-[15px] font-sans transition-colors shrink-0 ${
+                      on
+                        ? 'font-bold text-[#40513B]'
+                        : 'font-medium text-[#636F5A] hover:text-[#40513B]'
+                    }`}
                   >
                     {tab}
-                    {on && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#40513B] rounded-full"></span>}
+                    {on && (
+                      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#40513B] rounded-full"></span>
+                    )}
                   </button>
                 );
               })}
@@ -228,7 +261,10 @@ export default function TaskList({
           <span className="font-mono text-[11px] text-[#636F5A] tracking-wider font-bold uppercase">
             TASKS · {activeCount} ACTIVE
           </span>
-          <button aria-label="Sort or filter tasks" className="text-[#636F5A] hover:text-[#40513B] transition-colors">
+          <button
+            aria-label="Sort or filter tasks"
+            className="text-[#636F5A] hover:text-[#40513B] transition-colors"
+          >
             <ListFilter size={18} />
           </button>
         </div>
@@ -238,24 +274,37 @@ export default function TaskList({
           {filteredTasks.length === 0 ? (
             <div className="bg-white border border-[#EDE7DA] rounded-[24px] p-8 text-center flex flex-col items-center shadow-sm">
               <Check size={32} className="text-[#8D9A82] mb-3" />
-              <p className="font-sans text-[14px] text-[#636F5A]">No tasks in this view. Add one below.</p>
+              <p className="font-sans text-[14px] text-[#636F5A]">
+                No tasks in this view. Add one below.
+              </p>
             </div>
           ) : (
             filteredTasks.map((task) => {
               const project = projects.find((p) => p.id === task.projectId);
-              const cleanProjectName = project ? project.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' ') : null;
-              
+              const cleanProjectName = project
+                ? project.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' ')
+                : null;
+
               return (
-                <article 
-                  key={task.id} 
-                  className={`group bg-white border border-[#EDE7DA] rounded-full p-2.5 pl-4 flex items-center justify-between shadow-[0_4px_16px_-2px_rgba(64,81,59,0.05)] transition-all hover:shadow-md cursor-pointer ${task.completed ? 'opacity-60' : ''}`}
+                <article
+                  key={task.id}
+                  className={`group bg-white border border-[#EDE7DA] rounded-full p-2.5 pl-4 flex items-center justify-between shadow-[0_4px_16px_-2px_rgba(64,81,59,0.05)] transition-all hover:shadow-md cursor-pointer ${
+                    task.completed ? 'opacity-60' : ''
+                  }`}
                   onClick={() => onEditTask && onEditTask(task)}
                 >
                   <div className="flex items-center gap-3.5 min-w-0 pr-2">
-                    <button 
-                      aria-label="Toggle Complete" 
-                      onClick={(e) => { e.stopPropagation(); onToggleComplete && onToggleComplete(task.id); }}
-                      className={`w-6 h-6 rounded-full border flex items-center justify-center shrink-0 transition-colors ${task.completed ? 'bg-[#628141] border-[#628141]' : 'border-[#EDE7DA] bg-[#F4F1EA] hover:border-[#628141]'}`}
+                    <button
+                      aria-label="Toggle Complete"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleComplete && onToggleComplete(task.id);
+                      }}
+                      className={`w-6 h-6 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
+                        task.completed
+                          ? 'bg-[#628141] border-[#628141]'
+                          : 'border-[#EDE7DA] bg-[#F4F1EA] hover:border-[#628141]'
+                      }`}
                     >
                       {task.completed ? (
                         <Check size={12} className="text-white" />
@@ -264,13 +313,20 @@ export default function TaskList({
                       )}
                     </button>
                     <div className="flex flex-col min-w-0">
-                      <h3 className={`text-[15px] font-bold text-[#40513B] truncate font-sans ${task.completed ? 'line-through' : ''}`}>
+                      <h3
+                        className={`text-[15px] font-bold text-[#40513B] truncate font-sans ${
+                          task.completed ? 'line-through' : ''
+                        }`}
+                      >
                         {task.title}
                       </h3>
                       <div className="flex items-center gap-2 mt-0.5">
                         {cleanProjectName && (
                           <>
-                            <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: project?.color || '#628141' }}></span>
+                            <span
+                              className="w-2 h-2 rounded-full shrink-0"
+                              style={{ backgroundColor: project?.color || '#628141' }}
+                            ></span>
                             <span className="font-mono text-[10px] text-[#636F5A] tracking-wider font-semibold uppercase truncate max-w-[120px]">
                               {cleanProjectName}
                             </span>
@@ -285,9 +341,12 @@ export default function TaskList({
                     </div>
                   </div>
                   {!task.completed && (
-                    <button 
-                      aria-label="Start Pomodoro" 
-                      onClick={(e) => { e.stopPropagation(); onStartPomodoro && onStartPomodoro(task); }}
+                    <button
+                      aria-label="Start Pomodoro"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onStartPomodoro && onStartPomodoro(task);
+                      }}
                       className="w-11 h-11 rounded-full bg-[#F4F1EA] text-[#40513B] flex items-center justify-center shrink-0 hover:bg-[#628141] hover:text-white transition-all shadow-sm active:scale-95"
                     >
                       <Play size={16} className="translate-x-0.5 fill-current" />
@@ -301,9 +360,12 @@ export default function TaskList({
 
         {/* Floating Action Button (FAB) */}
         <aside className="fixed bottom-24 right-5 z-40">
-          <button 
-            aria-label="Add Task" 
-            onClick={() => { if (window.navigator?.vibrate) window.navigator.vibrate(15); if (onAddTask) onAddTask(); }}
+          <button
+            aria-label="Add Task"
+            onClick={() => {
+              if (window.navigator?.vibrate) window.navigator.vibrate(15);
+              if (onAddTask) onAddTask();
+            }}
             className="w-14 h-14 rounded-full bg-[#40513B] text-white flex items-center justify-center shadow-[0_10px_22px_rgba(64,81,59,0.35)] active:scale-90 transition-transform hover:bg-[#344230]"
           >
             <Plus size={24} strokeWidth={3} />

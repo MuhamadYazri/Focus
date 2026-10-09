@@ -95,11 +95,15 @@ export default function AnalyticsDashboard({ tasks = [], projects = [], sessions
   const totalMins = (filteredSessions || []).reduce((acc, s) => acc + (s.duration || 25), 0);
   const displayTotalTime = formatDisplayHours(totalMins);
 
-  const computedSegments = (projects && projects.length ? projects : [
-    { id: 'proj-1', name: '01 // STUDY', color: TAILWIND_COLORS[0] },
-    { id: 'proj-2', name: '02 // PERSONAL_APP_DEV', color: TAILWIND_COLORS[1] },
-    { id: 'proj-3', name: '03 // SYS_ARCHITECTURE', color: TAILWIND_COLORS[2] },
-  ])
+  const computedSegments = (
+    projects && projects.length
+      ? projects
+      : [
+          { id: 'proj-1', name: '01 // STUDY', color: TAILWIND_COLORS[0] },
+          { id: 'proj-2', name: '02 // PERSONAL_APP_DEV', color: TAILWIND_COLORS[1] },
+          { id: 'proj-3', name: '03 // SYS_ARCHITECTURE', color: TAILWIND_COLORS[2] },
+        ]
+  )
     .map((proj, idx) => {
       const projSessions = (filteredSessions || []).filter((s) => {
         return s.projectId === proj.id || (!s.projectId && idx === 0);
@@ -113,17 +117,22 @@ export default function AnalyticsDashboard({ tasks = [], projects = [], sessions
         count,
         mins: projMins,
         displayTime: formatDisplayHours(projMins),
-        color: proj.color?.startsWith('var(') || !proj.color ? TAILWIND_COLORS[idx % TAILWIND_COLORS.length] : proj.color,
+        color:
+          proj.color?.startsWith('var(') || !proj.color
+            ? TAILWIND_COLORS[idx % TAILWIND_COLORS.length]
+            : proj.color,
       };
     })
     .filter((seg) => seg.pct > 0 || seg.count > 0)
     .sort((a, b) => b.mins - a.mins);
 
-  const activeSegments = computedSegments.length ? computedSegments : [{ label: 'No Data', pct: 100, count: 0, mins: 0, displayTime: '0h 00m', color: '#E5D9B6' }];
+  const activeSegments = computedSegments.length
+    ? computedSegments
+    : [{ label: 'No Data', pct: 100, count: 0, mins: 0, displayTime: '0h 00m', color: '#E5D9B6' }];
 
   return (
-    <main className="flex-1 w-full bg-[#F9FBEE] pt-safe pb-28 min-h-[100dvh] relative text-[#191D15] selection:bg-[#40513B] selection:text-white">
-      <div className="flex flex-col w-full px-5 pt-7 pb-12 gap-3.5 max-w-md mx-auto">
+    <main className="flex-1 w-full bg-[#F9FBEE] pt-15 pb-28 min-h-[100dvh] relative text-[#191D15] selection:bg-[#40513B] selection:text-white">
+      <div className="flex flex-col w-full px-5  pb-12 gap-3.5 max-w-md mx-auto">
         <SharedActivitySection
           showKPIs={true}
           sessions={sessions}
@@ -135,13 +144,21 @@ export default function AnalyticsDashboard({ tasks = [], projects = [], sessions
 
         {/* Focus Distribution Donut Card */}
         <div className="bg-white rounded-2xl p-4 shadow-sm border border-[#EDE7DA] flex flex-col">
-          <span className="text-[11px] uppercase tracking-wider text-[#628141] font-bold mb-3 font-sans">FOCUS DISTRIBUTION</span>
+          <span className="text-[11px] uppercase tracking-wider text-[#628141] font-bold mb-3 font-sans">
+            FOCUS DISTRIBUTION
+          </span>
           <div className="flex items-center justify-between gap-4 py-1">
-            
             {/* SVG Donut Chart */}
             <div className="relative w-32 h-32 shrink-0 flex items-center justify-center">
               <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 120 120">
-                <circle cx={cx} cy={cy} fill="none" r={(r + ri) / 2} stroke="#EDE7DA" strokeWidth={r - ri}></circle>
+                <circle
+                  cx={cx}
+                  cy={cy}
+                  fill="none"
+                  r={(r + ri) / 2}
+                  stroke="#EDE7DA"
+                  strokeWidth={r - ri}
+                ></circle>
                 {activeSegments.map((seg) => {
                   const sweep = (seg.pct / 100) * 360;
                   const s = deg + gap / 2;
@@ -152,8 +169,12 @@ export default function AnalyticsDashboard({ tasks = [], projects = [], sessions
                 })}
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
-                <span className="text-sm text-[#191D15] font-bold font-sans">{displayTotalTime}</span>
-                <span className="text-[9px] uppercase font-bold text-[#747870] tracking-wider font-sans mt-0.5">TOTAL</span>
+                <span className="text-sm text-[#191D15] font-bold font-sans">
+                  {displayTotalTime}
+                </span>
+                <span className="text-[9px] uppercase font-bold text-[#747870] tracking-wider font-sans mt-0.5">
+                  TOTAL
+                </span>
               </div>
             </div>
 
@@ -163,18 +184,27 @@ export default function AnalyticsDashboard({ tasks = [], projects = [], sessions
                 <div key={seg.label} className="flex flex-col gap-1">
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 truncate">
-                      <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: seg.color }}></span>
-                      <span className="text-xs font-medium text-[#191D15] truncate font-sans">{seg.label}</span>
+                      <span
+                        className="w-2.5 h-2.5 rounded-full shrink-0"
+                        style={{ backgroundColor: seg.color }}
+                      ></span>
+                      <span className="text-xs font-medium text-[#191D15] truncate font-sans">
+                        {seg.label}
+                      </span>
                     </div>
-                    <span className="text-xs text-[#628141] shrink-0 font-medium font-sans">{seg.pct}%</span>
+                    <span className="text-xs text-[#628141] shrink-0 font-medium font-sans">
+                      {seg.pct}%
+                    </span>
                   </div>
                   <div className="w-full h-1.5 rounded-full bg-[#EDE7DA] overflow-hidden">
-                    <div className="h-full rounded-full" style={{ width: `${seg.pct}%`, backgroundColor: seg.color }}></div>
+                    <div
+                      className="h-full rounded-full"
+                      style={{ width: `${seg.pct}%`, backgroundColor: seg.color }}
+                    ></div>
                   </div>
                 </div>
               ))}
             </div>
-
           </div>
         </div>
       </div>

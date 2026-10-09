@@ -27,7 +27,10 @@ const AnimatedDigit = ({ char, isColon }) => {
   }, [char, curr]);
 
   return (
-    <span className="relative inline-block text-center h-[64px]" style={{ width: isColon ? '18px' : '40px' }}>
+    <span
+      className="relative inline-block text-center h-[64px]"
+      style={{ width: isColon ? '18px' : '40px' }}
+    >
       <style>
         {`
           @keyframes tickOut {
@@ -41,7 +44,7 @@ const AnimatedDigit = ({ char, isColon }) => {
         `}
       </style>
       {animating && (
-        <span 
+        <span
           key={`out-${prev}`}
           className="absolute top-0 left-0 w-full h-full flex items-center justify-center"
           style={{ animation: 'tickOut 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}
@@ -49,10 +52,12 @@ const AnimatedDigit = ({ char, isColon }) => {
           {prev}
         </span>
       )}
-      <span 
+      <span
         key={`in-${curr}`}
         className="absolute top-0 left-0 w-full h-full flex items-center justify-center"
-        style={{ animation: animating ? 'tickIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards' : 'none' }}
+        style={{
+          animation: animating ? 'tickIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards' : 'none',
+        }}
       >
         {curr}
       </span>
@@ -134,10 +139,13 @@ export default function TimerView({
         if (onToggleNav) onToggleNav();
       }}
     >
-      <div className="w-full max-w-md mx-auto grid grid-rows-[auto_1fr_auto] min-h-[100dvh] px-6 pt-8 pb-[110px] select-none">
-        
+      <div className="w-full max-w-md mx-auto grid grid-rows-[auto_1fr_auto] min-h-[100dvh] px-6 pt-15 pb-[110px] select-none">
         {/* TOP SECTION (Mode Pill & Status) */}
-        <div className={`grid transition-all duration-700 ease-in-out ${isNavHidden ? 'grid-rows-[0fr] opacity-0' : 'grid-rows-[1fr] opacity-100'}`}>
+        <div
+          className={`grid transition-all duration-700 ease-in-out ${
+            isNavHidden ? 'grid-rows-[0fr] opacity-0' : 'grid-rows-[1fr] opacity-100'
+          }`}
+        >
           <div className="overflow-hidden flex flex-col justify-end pointer-events-none">
             {/* Wrapper to restore pointer events for children */}
             <div className="pointer-events-auto">
@@ -170,7 +178,13 @@ export default function TimerView({
               {activeTask?.title ? (
                 <div className="flex flex-col items-center justify-center gap-1.5 mb-2 h-6">
                   <div className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${isRunning ? 'bg-[#628141] shadow-[0_0_8px_rgba(98,129,65,0.4)] animate-pulse' : 'bg-[#E5D9B6]'}`}></span>
+                    <span
+                      className={`w-2 h-2 rounded-full ${
+                        isRunning
+                          ? 'bg-[#628141] shadow-[0_0_8px_rgba(98,129,65,0.4)] animate-pulse'
+                          : 'bg-[#E5D9B6]'
+                      }`}
+                    ></span>
                     <span className="font-sans font-medium text-xs text-[#444841] tracking-wide">
                       {activeTask.title.substring(0, 25)}
                     </span>
@@ -185,7 +199,11 @@ export default function TimerView({
 
         {/* MIDDLE SECTION (TIMER) */}
         <div className="flex flex-col items-center justify-center w-full relative">
-          <div className={`relative w-full aspect-square max-w-[270px] mx-auto flex items-center justify-center transition-transform duration-700 ${isNavHidden ? 'scale-110' : 'scale-100'}`}>
+          <div
+            className={`relative w-full aspect-square max-w-[270px] mx-auto flex items-center justify-center transition-transform duration-700 ${
+              isNavHidden ? 'scale-110' : 'scale-100'
+            }`}
+          >
             <svg
               className="w-full h-full -rotate-90 transform drop-shadow-sm"
               viewBox="0 0 260 260"
@@ -214,20 +232,25 @@ export default function TimerView({
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
               <div className="text-[60px] leading-none font-bold tracking-normal text-[#40513B] font-sans flex items-center justify-center overflow-hidden h-[64px]">
-                {formatTime(timeLeft).split('').map((char, i) => (
-                  <AnimatedDigit key={i} char={char} isColon={char === ':'} />
-                ))}
+                {formatTime(timeLeft)
+                  .split('')
+                  .map((char, i) => (
+                    <AnimatedDigit key={i} char={char} isColon={char === ':'} />
+                  ))}
               </div>
             </div>
           </div>
         </div>
 
         {/* BOTTOM SECTION */}
-        <div className={`grid transition-all duration-700 ease-in-out ${isNavHidden ? 'grid-rows-[0fr] opacity-0' : 'grid-rows-[1fr] opacity-100'}`}>
+        <div
+          className={`grid transition-all duration-700 ease-in-out ${
+            isNavHidden ? 'grid-rows-[0fr] opacity-0' : 'grid-rows-[1fr] opacity-100'
+          }`}
+        >
           <div className="overflow-hidden flex flex-col justify-start pointer-events-none">
             {/* Wrapper to restore pointer events for children */}
             <div className="pointer-events-auto w-full flex flex-col gap-3">
-              
               {/* Cycle Stepper (Below timer) */}
               <div className="flex flex-col items-center justify-center gap-1 mt-3 mb-4">
                 <div className="flex items-center gap-1.5 my-0.5">
@@ -254,7 +277,10 @@ export default function TimerView({
               </div>
 
               {/* Elevated Controls Card */}
-              <div className="w-full bg-white border border-[#EDE7DA] rounded-3xl p-4 shadow-sm flex flex-col gap-3" onClick={stopProp}>
+              <div
+                className="w-full bg-white border border-[#EDE7DA] rounded-3xl p-4 shadow-sm flex flex-col gap-3"
+                onClick={stopProp}
+              >
                 {/* Action Buttons */}
                 <div className="flex items-center justify-center gap-5 pt-1">
                   <button
@@ -340,7 +366,10 @@ export default function TimerView({
               </div>
 
               {/* Strict Focus Toggle Card */}
-              <div className="w-full flex items-center justify-between px-5 py-3.5 rounded-2xl bg-white border border-[#EDE7DA] shadow-sm" onClick={stopProp}>
+              <div
+                className="w-full flex items-center justify-between px-5 py-3.5 rounded-2xl bg-white border border-[#EDE7DA] shadow-sm"
+                onClick={stopProp}
+              >
                 <div className="flex items-center gap-3">
                   {strictMode ? (
                     <Lock size={20} className="text-[#628141]" />

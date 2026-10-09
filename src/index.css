@@ -233,6 +233,17 @@
   transform: scale(0.95);
 }
 
+@keyframes tickSlideOutDown {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(40%); opacity: 0; }
+}
+@keyframes tickSlideInDown {
+  0% { transform: translateY(-40%); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.animate-tick-out { animation: tickSlideOutDown 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-tick-in { animation: tickSlideInDown 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
 @layer base {
   *, *::before, *::after {
     font-family: 'Poppins', sans-serif !important;

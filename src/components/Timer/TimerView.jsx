@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Play,
   Pause,
@@ -10,6 +10,55 @@ import {
   Unlock,
 } from 'lucide-react';
 import { soundEngine } from '../../services/soundEngine';
+
+const AnimatedDigit = ({ char, isColon }) => {
+  const [prev, setPrev] = useState(char);
+  const [curr, setCurr] = useState(char);
+  const [animating, setAnimating] = useState(false);
+
+  useEffect(() => {
+    if (char !== curr) {
+      setPrev(curr);
+      setCurr(char);
+      setAnimating(true);
+      const t = setTimeout(() => setAnimating(false), 250);
+      return () => clearTimeout(t);
+    }
+  }, [char, curr]);
+
+  return (
+    <span className="relative inline-block text-center h-[64px]" style={{ width: isColon ? '18px' : '40px' }}>
+      <style>
+        {`
+          @keyframes tickOut {
+            0% { transform: translateY(0%); opacity: 1; filter: blur(0px); }
+            100% { transform: translateY(50%); opacity: 0; filter: blur(2px); }
+          }
+          @keyframes tickIn {
+            0% { transform: translateY(-50%); opacity: 0; filter: blur(2px); }
+            100% { transform: translateY(0%); opacity: 1; filter: blur(0px); }
+          }
+        `}
+      </style>
+      {animating && (
+        <span 
+          key={`out-${prev}`}
+          className="absolute top-0 left-0 w-full h-full flex items-center justify-center"
+          style={{ animation: 'tickOut 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}
+        >
+          {prev}
+        </span>
+      )}
+      <span 
+        key={`in-${curr}`}
+        className="absolute top-0 left-0 w-full h-full flex items-center justify-center"
+        style={{ animation: animating ? 'tickIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards' : 'none' }}
+      >
+        {curr}
+      </span>
+    </span>
+  );
+};
 
 const MODE_TABS = [
   { key: 'work', label: 'Focus' },
@@ -80,53 +129,63 @@ export default function TimerView({
 
   return (
     <div
-      className={`flex flex-col h-[100dvh] w-full overflow-hidden transition-colors duration-700 ease-in-out bg-[#F9FBEE] text-[#191D15] selection:bg-[#628141]/20`}
+      className="flex flex-col h-[100dvh] w-full overflow-y-auto overflow-x-hidden transition-colors duration-700 ease-in-out bg-[#F9FBEE] text-[#191D15] selection:bg-[#628141]/20"
       onClick={() => {
         if (onToggleNav) onToggleNav();
       }}
     >
-      <div className="w-full max-w-md mx-auto flex flex-col px-6 pt-12 pb-32 select-none min-h-[100dvh] justify-center">
-        {/* Mode Selector Pill */}
-        <div
-          className={`w-full bg-white border border-[#EDE7DA] rounded-full p-1.5 flex items-center justify-between shadow-sm transition-all duration-500 overflow-hidden ${
-            isNavHidden
-              ? 'max-h-0 opacity-0 mb-0 border-transparent p-0'
-              : 'max-h-16 opacity-100 mb-4'
-          }`}
-          onClick={stopProp}
-        >
-          {MODE_TABS.map(({ key, label }) => {
-            const on = mode === key;
-            return (
-              <button
-                key={key}
-                onClick={() => {
-                  if (window.navigator?.vibrate) window.navigator.vibrate(10);
-                  if (onModeChange) onModeChange(key);
-                }}
-                className={`flex-1 py-2 px-3 rounded-full font-semibold text-xs md:text-sm transition-all ${
-                  on
-                    ? 'bg-[#40513B] text-white shadow-[0_2px_8px_rgba(64,81,59,0.2)]'
-                    : 'text-[#444841] font-medium hover:text-[#40513B]'
-                }`}
+      <div className="w-full max-w-md mx-auto grid grid-rows-[auto_1fr_auto] min-h-[100dvh] px-6 pt-8 pb-[110px] select-none">
+        
+        {/* TOP SECTION (Mode Pill & Status) */}
+        <div className={`grid transition-all duration-700 ease-in-out ${isNavHidden ? 'grid-rows-[0fr] opacity-0' : 'grid-rows-[1fr] opacity-100'}`}>
+          <div className="overflow-hidden flex flex-col justify-end pointer-events-none">
+            {/* Wrapper to restore pointer events for children */}
+            <div className="pointer-events-auto">
+              <div
+                className="w-full bg-white border border-[#EDE7DA] rounded-full p-1.5 flex items-center justify-between shadow-sm mb-4"
+                onClick={stopProp}
               >
-                {label}
-              </button>
-            );
-          })}
+                {MODE_TABS.map(({ key, label }) => {
+                  const on = mode === key;
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => {
+                        if (window.navigator?.vibrate) window.navigator.vibrate(10);
+                        if (onModeChange) onModeChange(key);
+                      }}
+                      className={`flex-1 py-1.5 px-3 rounded-full font-semibold text-xs md:text-sm transition-all ${
+                        on
+                          ? 'bg-[#40513B] text-white shadow-[0_2px_8px_rgba(64,81,59,0.2)]'
+                          : 'text-[#444841] font-medium hover:text-[#40513B]'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Status Indicator */}
+              {activeTask?.title ? (
+                <div className="flex flex-col items-center justify-center gap-1.5 mb-2 h-6">
+                  <div className="flex items-center gap-2">
+                    <span className={`w-2 h-2 rounded-full ${isRunning ? 'bg-[#628141] shadow-[0_0_8px_rgba(98,129,65,0.4)] animate-pulse' : 'bg-[#E5D9B6]'}`}></span>
+                    <span className="font-sans font-medium text-xs text-[#444841] tracking-wide">
+                      {activeTask.title.substring(0, 25)}
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div className="h-6 mb-2"></div>
+              )}
+            </div>
+          </div>
         </div>
 
-        {/* Center Container */}
-        <div className="flex flex-col items-center justify-center my-auto w-full">
-          {/* Status Indicator (Moves up/fades out) */}
-          <div
-            className={`flex flex-col items-center justify-center gap-1.5 transition-all duration-700 overflow-hidden ${
-              isNavHidden ? 'max-h-0 opacity-0 mb-0' : 'max-h-10 opacity-100 mb-6'
-            }`}
-          ></div>
-
-          {/* Large Circular Progress Ring */}
-          <div className="relative w-full aspect-square max-w-[280px] mx-auto flex items-center justify-center my-2 transition-transform duration-700">
+        {/* MIDDLE SECTION (TIMER) */}
+        <div className="flex flex-col items-center justify-center w-full relative">
+          <div className={`relative w-full aspect-square max-w-[270px] mx-auto flex items-center justify-center transition-transform duration-700 ${isNavHidden ? 'scale-110' : 'scale-100'}`}>
             <svg
               className="w-full h-full -rotate-90 transform drop-shadow-sm"
               viewBox="0 0 260 260"
@@ -141,7 +200,7 @@ export default function TimerView({
                 strokeWidth="10"
               />
               <circle
-                className="text-[#628141] transition-all duration-1000 ease-out"
+                className="text-[#628141] transition-all duration-1000 ease-linear"
                 cx="130"
                 cy="130"
                 r="110"
@@ -154,178 +213,162 @@ export default function TimerView({
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <span className="text-[64px] leading-none font-bold tracking-tight tabular-nums text-[#40513B] font-sans">
-                {formatTime(timeLeft)}
-              </span>
+              <div className="text-[60px] leading-none font-bold tracking-normal text-[#40513B] font-sans flex items-center justify-center overflow-hidden h-[64px]">
+                {formatTime(timeLeft).split('').map((char, i) => (
+                  <AnimatedDigit key={i} char={char} isColon={char === ':'} />
+                ))}
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <span
-              className={`w-2.5 h-2.5 rounded-full ${
-                isRunning
-                  ? 'bg-[#628141] shadow-[0_0_8px_rgba(98,129,65,0.4)] animate-pulse'
-                  : 'bg-[#E5D9B6]'
-              }`}
-            ></span>
-            <span className="font-sans font-medium text-xs text-[#444841] tracking-wide">
-              {isRunning ? 'Active' : 'Paused'}
-              {activeTask?.title ? ` · ${activeTask.title.substring(0, 15)}` : ''}
-            </span>
-          </div>
-
-          {/* Cycle Stepper (Below timer) */}
-          <div
-            className={`flex flex-col items-center justify-center gap-1 transition-all duration-700 overflow-hidden ${
-              isNavHidden ? 'max-h-0 opacity-0 mt-0' : 'max-h-10 opacity-100 mt-6'
-            }`}
-          >
-            <div className="flex items-center gap-1.5 my-0.5">
-              {[1, 2, 3, 4].map((n) => {
-                const isCurrent = n === currentSessionNumber;
-                const isDone = n < currentSessionNumber;
-                return (
-                  <span
-                    key={n}
-                    className={`h-1.5 rounded-full transition-all ${
-                      isCurrent
-                        ? 'w-4 bg-[#628141]'
-                        : isDone
-                        ? 'w-1.5 bg-[#628141]/60'
-                        : 'w-1.5 bg-[#E5D9B6]'
-                    }`}
-                  ></span>
-                );
-              })}
-            </div>
-            <span className="font-sans text-[11px] text-[#628141] font-bold tracking-wider uppercase">
-              {getSubLabel()}
-            </span>
           </div>
         </div>
 
-        {/* Bottom Controls */}
-        <div
-          className={`w-full flex flex-col gap-4 transition-all duration-700 overflow-hidden ${
-            isNavHidden
-              ? 'max-h-0 opacity-0 mt-0 pointer-events-none'
-              : 'max-h-[300px] opacity-100 mt-8'
-          }`}
-          onClick={stopProp}
-        >
-          {/* Elevated Controls Card */}
-          <div className="w-full bg-white border border-[#EDE7DA] rounded-3xl p-5 shadow-sm flex flex-col gap-4">
-            {/* Action Buttons */}
-            <div className="flex items-center justify-center gap-6 pt-1">
-              <button
-                onClick={() => {
-                  if (window.navigator?.vibrate) window.navigator.vibrate(10);
-                  if (onReset) onReset();
-                }}
-                className="w-12 h-12 rounded-full bg-[#F9FBEE] border border-[#EDE7DA] text-[#40513B] flex items-center justify-center transition-transform active:scale-95 hover:bg-[#EDE7DA]"
-              >
-                <RotateCcw size={20} strokeWidth={2.5} />
-              </button>
-
-              <button
-                onClick={() => {
-                  if (window.navigator?.vibrate) window.navigator.vibrate(20);
-                  if (onTogglePlay) onTogglePlay();
-                }}
-                className="w-16 h-16 rounded-full bg-[#40513B] text-white flex items-center justify-center shadow-md transition-transform active:scale-90 hover:scale-105"
-              >
-                {isRunning ? (
-                  <Pause size={28} className="fill-current" />
-                ) : (
-                  <Play size={28} className="translate-x-0.5 fill-current" />
-                )}
-              </button>
-
-              <button
-                onClick={() => {
-                  if (window.navigator?.vibrate) window.navigator.vibrate(10);
-                  if (onSkip) onSkip();
-                }}
-                className="w-12 h-12 rounded-full bg-[#F9FBEE] border border-[#EDE7DA] text-[#40513B] flex items-center justify-center transition-transform active:scale-95 hover:bg-[#EDE7DA]"
-              >
-                <SkipForward size={20} strokeWidth={2.5} />
-              </button>
-            </div>
-
-            <div className="w-full h-px bg-[#EDE7DA]"></div>
-
-            {/* Sound & Volume */}
-            <div className="flex items-center justify-between text-[#444841] px-1 pb-0.5">
-              <div className="relative flex items-center gap-2 cursor-pointer px-2.5 py-1.5 rounded-full hover:bg-[#F9FBEE] transition-colors">
-                <Headphones size={18} className="text-[#628141]" />
-                <select
-                  value={currentSound}
-                  onChange={(e) => handleSelectSound(e.target.value)}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-sm"
-                >
-                  {soundscapes.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.label}
-                    </option>
-                  ))}
-                </select>
-                <span className="text-sm font-semibold text-[#40513B] font-sans">
-                  {soundscapes.find((s) => s.id === currentSound)?.label || 'Silent'}
+        {/* BOTTOM SECTION */}
+        <div className={`grid transition-all duration-700 ease-in-out ${isNavHidden ? 'grid-rows-[0fr] opacity-0' : 'grid-rows-[1fr] opacity-100'}`}>
+          <div className="overflow-hidden flex flex-col justify-start pointer-events-none">
+            {/* Wrapper to restore pointer events for children */}
+            <div className="pointer-events-auto w-full flex flex-col gap-3">
+              
+              {/* Cycle Stepper (Below timer) */}
+              <div className="flex flex-col items-center justify-center gap-1 mt-3 mb-4">
+                <div className="flex items-center gap-1.5 my-0.5">
+                  {[1, 2, 3, 4].map((n) => {
+                    const isCurrent = n === currentSessionNumber;
+                    const isDone = n < currentSessionNumber;
+                    return (
+                      <span
+                        key={n}
+                        className={`h-1.5 rounded-full transition-all ${
+                          isCurrent
+                            ? 'w-4 bg-[#628141]'
+                            : isDone
+                            ? 'w-1.5 bg-[#628141]/60'
+                            : 'w-1.5 bg-[#E5D9B6]'
+                        }`}
+                      ></span>
+                    );
+                  })}
+                </div>
+                <span className="font-sans text-[11px] text-[#628141] font-bold tracking-wider uppercase">
+                  {getSubLabel()}
                 </span>
               </div>
 
-              <div className="flex items-center gap-2">
-                <Volume2 size={16} className="text-[#628141]" />
-                <div className="w-20 h-1.5 bg-[#E5D9B6] rounded-full overflow-hidden flex relative">
-                  <div
-                    className="h-full bg-[#628141] rounded-full"
-                    style={{ width: `${soundVolume * 100}%` }}
-                  ></div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="1"
-                    step="0.05"
-                    value={soundVolume}
-                    onChange={(e) => {
-                      const v = parseFloat(e.target.value);
-                      if (onChangeVolume) onChangeVolume(v);
-                      if (currentSound !== 'none') soundEngine.setVolume(v);
+              {/* Elevated Controls Card */}
+              <div className="w-full bg-white border border-[#EDE7DA] rounded-3xl p-4 shadow-sm flex flex-col gap-3" onClick={stopProp}>
+                {/* Action Buttons */}
+                <div className="flex items-center justify-center gap-5 pt-1">
+                  <button
+                    onClick={() => {
+                      if (window.navigator?.vibrate) window.navigator.vibrate(10);
+                      if (onReset) onReset();
                     }}
-                    className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                  />
+                    className="w-12 h-12 rounded-full bg-[#F9FBEE] border border-[#EDE7DA] text-[#40513B] flex items-center justify-center transition-transform active:scale-95 hover:bg-[#EDE7DA]"
+                  >
+                    <RotateCcw size={20} strokeWidth={2.5} />
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      if (window.navigator?.vibrate) window.navigator.vibrate(20);
+                      if (onTogglePlay) onTogglePlay();
+                    }}
+                    className="w-16 h-16 rounded-full bg-[#40513B] text-white flex items-center justify-center shadow-md transition-transform active:scale-90 hover:scale-105"
+                  >
+                    {isRunning ? (
+                      <Pause size={28} className="fill-current" />
+                    ) : (
+                      <Play size={28} className="translate-x-0.5 fill-current" />
+                    )}
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      if (window.navigator?.vibrate) window.navigator.vibrate(10);
+                      if (onSkip) onSkip();
+                    }}
+                    className="w-12 h-12 rounded-full bg-[#F9FBEE] border border-[#EDE7DA] text-[#40513B] flex items-center justify-center transition-transform active:scale-95 hover:bg-[#EDE7DA]"
+                  >
+                    <SkipForward size={20} strokeWidth={2.5} />
+                  </button>
+                </div>
+
+                <div className="w-full h-px bg-[#EDE7DA]"></div>
+
+                {/* Sound & Volume */}
+                <div className="flex items-center justify-between text-[#444841] px-1 pb-0.5">
+                  <div className="relative flex items-center gap-2 cursor-pointer px-2.5 py-1.5 rounded-full hover:bg-[#F9FBEE] transition-colors">
+                    <Headphones size={18} className="text-[#628141]" />
+                    <select
+                      value={currentSound}
+                      onChange={(e) => handleSelectSound(e.target.value)}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-sm"
+                    >
+                      {soundscapes.map((s) => (
+                        <option key={s.id} value={s.id}>
+                          {s.label}
+                        </option>
+                      ))}
+                    </select>
+                    <span className="text-sm font-semibold text-[#40513B] font-sans">
+                      {soundscapes.find((s) => s.id === currentSound)?.label || 'Silent'}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Volume2 size={16} className="text-[#628141]" />
+                    <div className="w-20 h-1.5 bg-[#E5D9B6] rounded-full overflow-hidden flex relative">
+                      <div
+                        className="h-full bg-[#628141] rounded-full"
+                        style={{ width: `${soundVolume * 100}%` }}
+                      ></div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.05"
+                        value={soundVolume}
+                        onChange={(e) => {
+                          const v = parseFloat(e.target.value);
+                          if (onChangeVolume) onChangeVolume(v);
+                          if (currentSound !== 'none') soundEngine.setVolume(v);
+                        }}
+                        className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* Strict Focus Toggle Card */}
-          <div className="w-full flex items-center justify-between px-5 py-3.5 rounded-2xl bg-white border border-[#EDE7DA] shadow-sm">
-            <div className="flex items-center gap-3">
-              {strictMode ? (
-                <Lock size={20} className="text-[#628141]" />
-              ) : (
-                <Unlock size={20} className="text-[#8D9A82]" />
-              )}
-              <div className="flex flex-col">
-                <span className="text-xs font-semibold text-[#40513B] leading-tight font-sans">
-                  Strict Focus
-                </span>
-                <span className="text-[11px] text-[#444841] leading-tight mt-0.5 font-sans">
-                  Block app interruptions
-                </span>
+              {/* Strict Focus Toggle Card */}
+              <div className="w-full flex items-center justify-between px-5 py-3.5 rounded-2xl bg-white border border-[#EDE7DA] shadow-sm" onClick={stopProp}>
+                <div className="flex items-center gap-3">
+                  {strictMode ? (
+                    <Lock size={20} className="text-[#628141]" />
+                  ) : (
+                    <Unlock size={20} className="text-[#8D9A82]" />
+                  )}
+                  <div className="flex flex-col">
+                    <span className="text-xs font-semibold text-[#40513B] leading-tight font-sans">
+                      Strict Focus
+                    </span>
+                    <span className="text-[11px] text-[#444841] leading-tight mt-0.5 font-sans">
+                      Block app interruptions
+                    </span>
+                  </div>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    className="sr-only peer"
+                    checked={strictMode}
+                    onChange={() => {
+                      if (onToggleStrictMode) onToggleStrictMode();
+                    }}
+                  />
+                  <div className="w-10 h-5 bg-[#E5D9B6] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#E5D9B6] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#628141] shadow-inner"></div>
+                </label>
               </div>
             </div>
-            <label className="relative inline-flex items-center cursor-pointer select-none">
-              <input
-                type="checkbox"
-                className="sr-only peer"
-                checked={strictMode}
-                onChange={() => {
-                  if (onToggleStrictMode) onToggleStrictMode();
-                }}
-              />
-              <div className="w-10 h-5 bg-[#E5D9B6] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#E5D9B6] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#628141] shadow-inner"></div>
-            </label>
           </div>
         </div>
       </div>

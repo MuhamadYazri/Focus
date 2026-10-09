@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import SharedActivitySection from '../Analytics/SharedActivitySection';
 import { storage } from '../../services/storage';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
 
 const G = "'Poppins', sans-serif";
 const M = "'Poppins', sans-serif";
@@ -106,23 +108,35 @@ export default function ProfileView({
     }
   };
 
+
+
   const handleBackup = async () => {
     try {
       setBackupStatus('backing-up');
       setBackupMsg('');
       const data = await storage.exportAllData();
+      const stringData = JSON.stringify(data, null, 2);
+      const fileName = `focus_backup_${new Date().toISOString().split('T')[0]}.json`;
 
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `focus_backup_${new Date().toISOString().split('T')[0]}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
+      // Natively write to the app's cache directory
+      const result = await Filesystem.writeFile({
+        path: fileName,
+        data: stringData,
+        directory: Directory.Cache,
+        encoding: 'utf8'
+      });
+
+      // Pop up the native Android share sheet
+      await Share.share({
+        title: 'Focus Backup',
+        text: 'Backup file for Focus To-Do app',
+        url: result.uri,
+        dialogTitle: 'Save or Share Backup',
+      });
 
       const now = new Date().toLocaleString();
       setBackupStatus('idle');
-      setBackupMsg(`Saved locally: ${now}`);
+      setBackupMsg(`Shared locally: ${now}`);
     } catch (e) {
       setBackupStatus('idle');
       setBackupMsg(`Error: ${e.message}`);

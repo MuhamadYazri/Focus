@@ -460,9 +460,10 @@ export default function App() {
   };
 
   const handleResetAllData = () => {
-    setProjects(DEFAULT_PROJECTS);
-    setTasks(DEFAULT_TASKS);
-    setSessions(generateSampleSessions());
+    // True clean wipe
+    setProjects([{ id: 'proj-1', name: 'Personal', color: '#40513B' }]);
+    setTasks([]);
+    setSessions([]);
     setSettings(DEFAULT_SETTINGS);
     setActiveTask(null);
     setCycleCount(0);

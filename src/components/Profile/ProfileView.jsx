@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import SharedActivitySection from '../Analytics/SharedActivitySection';
 import { storage } from '../../services/storage';
-import { backupToDrive, restoreFromDrive } from '../../services/googleDriveBackup';
 
 const G = "'Poppins', sans-serif";
 const M = "'Poppins', sans-serif";
@@ -66,7 +65,7 @@ export default function ProfileView({
   const handleResetData = () => {
     if (
       window.confirm(
-        'Are you sure you want to reset all telemetry data and tasks to default values?'
+        'Are you sure you want to completely wipe all tasks, projects, and focus history? This cannot be undone.'
       )
     ) {
       if (onResetAllData) onResetAllData();
@@ -78,10 +77,18 @@ export default function ProfileView({
       setBackupStatus('backing-up');
       setBackupMsg('');
       const data = await storage.exportAllData();
-      await backupToDrive(data);
+      
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `focus_backup_${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      
       const now = new Date().toLocaleString();
       setBackupStatus('idle');
-      setBackupMsg(`Backed up: ${now}`);
+      setBackupMsg(`Saved locally: ${now}`);
     } catch (e) {
       setBackupStatus('idle');
       setBackupMsg(`Error: ${e.message}`);
@@ -93,11 +100,36 @@ export default function ProfileView({
     try {
       setBackupStatus('restoring');
       setBackupMsg('');
-      const data = await restoreFromDrive();
-      await storage.importAllData(data);
-      setBackupStatus('idle');
-      setBackupMsg('Restored! Reloading...');
-      setTimeout(() => window.location.reload(), 1200);
+      
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'application/json';
+      input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) {
+          setBackupStatus('idle');
+          return;
+        }
+        try {
+          const text = await file.text();
+          const data = JSON.parse(text);
+          await storage.importAllData(data);
+          setBackupStatus('idle');
+          setBackupMsg('Restored! Reloading...');
+          setTimeout(() => window.location.reload(), 1200);
+        } catch (err) {
+          setBackupStatus('idle');
+          setBackupMsg(`Parse Error: ${err.message}`);
+        }
+      };
+      input.click();
+      
+      // If user cancels file dialog, we reset status (not always easy to detect, but we try)
+      window.addEventListener('focus', () => {
+        setTimeout(() => {
+          if (backupStatus === 'restoring') setBackupStatus('idle');
+        }, 1000);
+      }, { once: true });
     } catch (e) {
       setBackupStatus('idle');
       setBackupMsg(`Error: ${e.message}`);
@@ -542,7 +574,7 @@ export default function ProfileView({
             })}
           </div>
 
-          {/* Cloud Backup Card */}
+          {/* Local Backup Card */}
           <div className="bg-white rounded-2xl p-5 shadow-sm flex flex-col gap-3 border border-[#EDE7DA]">
             <div className="flex items-center gap-2">
               <svg
@@ -555,12 +587,13 @@ export default function ProfileView({
                 viewBox="0 0 24 24"
                 width="20"
               >
-                <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4C9.11 4 6.6 5.64 5.35 8.04C2.34 8.36 0 10.91 0 14C0 17.31 2.69 20 6 20H19C21.76 20 24 17.76 24 15C24 12.36 21.95 10.22 19.35 10.04Z"></path>
+                <path d="M19 21H5C4.44772 21 4 20.5523 4 20V4C4 3.44772 4.44772 3 5 3H14L20 9V20C20 20.5523 19.5523 21 19 21Z"></path>
+                <path d="M14 3V9H20"></path>
               </svg>
-              <span className="text-sm font-bold text-[#191D15] font-sans">Cloud Backup</span>
+              <span className="text-sm font-bold text-[#191D15] font-sans">Local Backup</span>
             </div>
             <p className="text-xs text-[#8A7968] font-sans">
-              Sync your data to Google Drive for safe keeping
+              Save your data as a local file for safe keeping
             </p>
 
             <div className="grid grid-cols-2 gap-2.5 pt-1">
@@ -634,10 +667,10 @@ export default function ProfileView({
           <div className="bg-white rounded-2xl p-5 shadow-sm flex items-center justify-between border border-[#EDE7DA] mb-6">
             <div className="flex flex-col">
               <span className="text-xs font-bold text-[#191D15] font-sans">
-                Reset Telemetry Data
+                Wipe All Data
               </span>
               <span className="text-[11px] text-[#8A7968] font-sans">
-                Restore initial sample tasks & projects
+                Permanently delete all tasks and focus history
               </span>
             </div>
             <button

@@ -22,7 +22,6 @@
     "@capacitor/haptics": "^8.0.2",
     "@capacitor/status-bar": "^8.0.2",
     "@capawesome-team/capacitor-android-foreground-service": "^8.1.0",
-    "@capawesome/capacitor-google-sign-in": "^0.1.2",
     "canvas-confetti": "^1.9.4",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",

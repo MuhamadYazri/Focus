@@ -88,133 +88,7 @@ export const DEFAULT_SETTINGS = {
   dailyGoalHours: 4.0,
 };
 
-// Generate historical study sessions from Focus To-Do data (Nov 2024 - Jul 2026)
-// Total Focus Time: 787h 6m (47,226 mins) | 1,010 Pomodoros | 232 Active Days
-export const generateSampleSessions = () => {
-  const HISTORICAL_MONTHS = [
-    // Nov 2024: 87h 28m = 5248m, 22 days, 112 sessions, peak 6.3h (378m)
-    { year: 2024, month: 11, totalMins: 5248, days: 22, sessions: 112, peakDay: 15, peakMins: 378 },
-    // Dec 2024: 115h 54m = 6954m, 31 days, 149 sessions, peak 6.3h (378m)
-    { year: 2024, month: 12, totalMins: 6954, days: 31, sessions: 149, peakDay: 18, peakMins: 378 },
-    // Jan 2025: 120h 33m = 7233m, 31 days, 155 sessions, peak 5.8h (348m)
-    { year: 2025, month: 1, totalMins: 7233, days: 31, sessions: 155, peakDay: 20, peakMins: 348 },
-    // Feb 2025: 37h 30m = 2250m, 10 days, 48 sessions, peak 5.0h (300m)
-    { year: 2025, month: 2, totalMins: 2250, days: 10, sessions: 48, peakDay: 12, peakMins: 300 },
-    // Mar 2025: 9h 10m = 550m, 4 days (27,28,29,30), 12 sessions, peak 3.3h (198m)
-    { year: 2025, month: 3, totalMins: 550, days: 4, sessions: 12, exactDays: [27, 28, 29, 30], peakDay: 30, peakMins: 198 },
-    // Apr 2025: 28h 20m = 1700m, 16 days, 36 sessions, peak 5.0h (300m)
-    { year: 2025, month: 4, totalMins: 1700, days: 16, sessions: 36, peakDay: 28, peakMins: 300 },
-    // May 2025: 84h 04m = 5044m, 26 days, 108 sessions, peak 6.0h (360m)
-    { year: 2025, month: 5, totalMins: 5044, days: 26, sessions: 108, peakDay: 31, peakMins: 360 },
-    // Jun 2025: 55h 23m = 3323m, 21 days, 71 sessions, peak 5.5h (330m)
-    { year: 2025, month: 6, totalMins: 3323, days: 21, sessions: 71, peakDay: 16, peakMins: 330 },
-    // Jul 2025: 20h 19m = 1219m, 13 days, 26 sessions, peak 3.3h (198m)
-    { year: 2025, month: 7, totalMins: 1219, days: 13, sessions: 26, peakDay: 15, peakMins: 198 },
-    // Apr 2026: 26h 27m = 1587m, 10 days, 34 sessions, peak 5.0h (300m)
-    { year: 2026, month: 4, totalMins: 1587, days: 10, sessions: 34, peakDay: 20, peakMins: 300 },
-    // May 2026: 65h 33m = 3933m, 20 days, 84 sessions, peak 6.9h (414m)
-    { year: 2026, month: 5, totalMins: 3933, days: 20, sessions: 84, peakDay: 18, peakMins: 414 },
-    // Jun 2026: 130h 35m = 7835m, 27 days, 167 sessions, peak 11.3h (678m on Jun 9)
-    { year: 2026, month: 6, totalMins: 7835, days: 27, sessions: 167, peakDay: 9, peakMins: 678 },
-    // Jul 2026: 5h 50m = 350m, 1 day (Jul 3), 8 sessions, peak 5.8h (350m on Jul 3)
-    { year: 2026, month: 7, totalMins: 350, days: 1, sessions: 8, exactDays: [3], peakDay: 3, peakMins: 350 },
-  ];
 
-  const sessions = [];
-
-  HISTORICAL_MONTHS.forEach((config) => {
-    const daysInMonth = new Date(config.year, config.month, 0).getDate();
-    let activeDays = [];
-
-    if (config.exactDays) {
-      activeDays = [...config.exactDays];
-    } else if (config.days === daysInMonth) {
-      for (let d = 1; d <= daysInMonth; d++) activeDays.push(d);
-    } else {
-      activeDays.push(config.peakDay);
-      const allOther = [];
-      for (let d = 1; d <= daysInMonth; d++) {
-        if (d !== config.peakDay) allOther.push(d);
-      }
-      const needed = config.days - 1;
-      for (let i = 0; i < needed; i++) {
-        const idx = Math.floor((i * allOther.length) / needed);
-        if (!activeDays.includes(allOther[idx])) {
-          activeDays.push(allOther[idx]);
-        }
-      }
-      activeDays.sort((a, b) => a - b);
-    }
-
-    const dayBuckets = activeDays.map((d) => ({
-      day: d,
-      mins: 0,
-      count: 0,
-      isPeak: d === config.peakDay,
-    }));
-
-    const peakBucket = dayBuckets.find((b) => b.isPeak) || dayBuckets[0];
-    peakBucket.mins = config.peakMins;
-    peakBucket.count = Math.max(
-      1,
-      Math.min(
-        config.sessions - (activeDays.length - 1),
-        Math.round(config.peakMins / 48)
-      )
-    );
-
-    const otherBuckets = dayBuckets.filter((b) => !b.isPeak);
-    if (otherBuckets.length > 0) {
-      const remCount = config.sessions - peakBucket.count;
-      const actualRemMins = config.totalMins - peakBucket.mins;
-
-      otherBuckets.forEach((b) => (b.count = 1));
-      let extraCount = remCount - otherBuckets.length;
-      let idx = 0;
-      while (extraCount > 0) {
-        otherBuckets[idx % otherBuckets.length].count++;
-        extraCount--;
-        idx++;
-      }
-
-      let assignedMins = 0;
-      otherBuckets.forEach((b) => {
-        b.mins = Math.floor((b.count / remCount) * actualRemMins);
-        assignedMins += b.mins;
-      });
-      let extraMins = actualRemMins - assignedMins;
-      idx = 0;
-      while (extraMins > 0) {
-        otherBuckets[idx % otherBuckets.length].mins++;
-        extraMins--;
-        idx++;
-      }
-    }
-
-    dayBuckets.forEach((b) => {
-      const baseDur = Math.floor(b.mins / b.count);
-      const remDur = b.mins % b.count;
-      for (let sIdx = 0; sIdx < b.count; sIdx++) {
-        const dur = baseDur + (sIdx < remDur ? 1 : 0);
-        const mStr = String(config.month).padStart(2, '0');
-        const dStr = String(b.day).padStart(2, '0');
-        const hourStr = String(8 + ((sIdx * 2) % 14)).padStart(2, '0');
-        const dateStr = `${config.year}-${mStr}-${dStr}`;
-        const completedAt = `${dateStr}T${hourStr}:00:00.000Z`;
-
-        sessions.push({
-          id: `hist-${config.year}-${mStr}-${dStr}-${sIdx}`,
-          projectId: 'proj-1',
-          duration: dur,
-          completedAt,
-          dateStr,
-        });
-      }
-    });
-  });
-
-  return sessions.sort((a, b) => (a.completedAt < b.completedAt ? 1 : -1));
-};
 
 // Helper for safe localStorage fallback
 const getLocal = (key, defaultVal) => {
@@ -237,16 +111,6 @@ export const storage = {
     try {
       let data = await get(STORAGE_KEYS.PROJECTS);
       data = data || getLocal(STORAGE_KEYS.PROJECTS, DEFAULT_PROJECTS);
-      if (data && Array.isArray(data) && data.length > 0) {
-        let changed = false;
-        if (data[0].id === 'proj-1' && (!data[0].name.toLowerCase().includes('study') || data[0].icon !== 'BookOpen' || data[0].pomodoros === 74 || data[0].pomodoros < 1000)) {
-          data[0].name = '01 // STUDY';
-          data[0].icon = 'BookOpen';
-          data[0].pomodoros = 1010;
-          changed = true;
-        }
-        if (changed) await this.saveProjects(data);
-      }
       return data;
     } catch (e) {
       return getLocal(STORAGE_KEYS.PROJECTS, DEFAULT_PROJECTS);
@@ -273,31 +137,10 @@ export const storage = {
   async getSessions() {
     try {
       let data = await get(STORAGE_KEYS.SESSIONS);
-      const defaultSess = generateSampleSessions();
-      data = data || getLocal(STORAGE_KEYS.SESSIONS, defaultSess);
-      if (data && Array.isArray(data)) {
-        let changed = false;
-        // Check if historical data is missing or needs migration
-        const hasHist = data.some((s) => s && s.id && String(s.id).startsWith('hist-'));
-        if (!hasHist) {
-          // Keep only user runtime sessions (exclude old dummy sess-0-0 pattern)
-          const runtimeSessions = data.filter((s) => s && s.id && !/^sess-\d+-\d+$/.test(String(s.id)));
-          data = [...runtimeSessions, ...defaultSess];
-          changed = true;
-        } else {
-          data = data.map((s) => {
-            if (s && s.id && String(s.id).startsWith('sess-') && s.projectId !== 'proj-1') {
-              changed = true;
-              return { ...s, projectId: 'proj-1' };
-            }
-            return s;
-          });
-        }
-        if (changed) await this.saveSessions(data);
-      }
+      data = data || getLocal(STORAGE_KEYS.SESSIONS, []);
       return data;
     } catch (e) {
-      return getLocal(STORAGE_KEYS.SESSIONS, generateSampleSessions());
+      return getLocal(STORAGE_KEYS.SESSIONS, []);
     }
   },
   async saveSessions(sessions) {

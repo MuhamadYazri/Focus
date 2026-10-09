@@ -71,13 +71,13 @@ export default function TaskList({
       else if (progressPercent >= 50) statusText = 'Making good progress';
       else if (todayHours > 0) statusText = 'In progress';
 
-      return { todayHours, targetHours, progressPercent, streak: Math.max(streak, 14), statusText };
+      return { todayHours, targetHours, progressPercent, streak, statusText };
     } catch (err) {
       return {
         todayHours: 0.0,
         targetHours: 4.0,
         progressPercent: 0,
-        streak: 14,
+        streak: 0,
         statusText: 'Ready to focus',
       };
     }

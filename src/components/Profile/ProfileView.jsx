@@ -37,17 +37,51 @@ export default function ProfileView({
   const [backupMsg, setBackupMsg] = useState('');
   const maxBarH = 48;
 
-  const realSessions = (sessions || []).filter((s) => s && s.id && s.id.length > 15);
-  const baseMinutes = 758 * 60 + 26;
+  const realSessions = sessions || [];
   const totalMinutes = Math.round(
-    realSessions.reduce((acc, s) => acc + (s.duration || 25), baseMinutes)
+    realSessions.reduce((acc, s) => acc + (s.duration || 0), 0)
   );
   const hours = Math.floor(totalMinutes / 60);
   const mins = totalMinutes % 60;
   const totalHoursDisplay = `${hours}h ${String(mins).padStart(2, '0')}m`;
 
-  const totalPomos = realSessions.length + 10008;
-  const totalDays = 600;
+  const totalPomos = realSessions.length;
+  
+  // Calculate total unique days focused based on sessions
+  const uniqueDays = new Set(realSessions.map(s => {
+    if (s.dateStr) return s.dateStr;
+    try { return new Date(s.completedAt).toISOString().split('T')[0]; }
+    catch(e) { return ''; }
+  }).filter(Boolean));
+  const totalDays = uniqueDays.size;
+
+  // Calculate Streak
+  let currentStreak = 0;
+  if (uniqueDays.size > 0) {
+    const sortedDates = Array.from(uniqueDays).sort((a, b) => (a < b ? 1 : -1)); // Descending
+    const today = new Date();
+    const todayStr = new Date(today.getTime() - today.getTimezoneOffset() * 60000).toISOString().split('T')[0];
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = new Date(yesterday.getTime() - yesterday.getTimezoneOffset() * 60000).toISOString().split('T')[0];
+
+    let checkDate = new Date(sortedDates[0]);
+    if (sortedDates[0] === todayStr || sortedDates[0] === yesterdayStr) {
+      currentStreak = 1;
+      for (let i = 1; i < sortedDates.length; i++) {
+        const expectedNextDate = new Date(checkDate);
+        expectedNextDate.setDate(expectedNextDate.getDate() - 1);
+        const expectedNextDateStr = new Date(expectedNextDate.getTime() - expectedNextDate.getTimezoneOffset() * 60000).toISOString().split('T')[0];
+        
+        if (sortedDates[i] === expectedNextDateStr) {
+          currentStreak++;
+          checkDate = expectedNextDate;
+        } else {
+          break;
+        }
+      }
+    }
+  }
 
   const handleChange = (key, value) => {
     if (onUpdateSettings) onUpdateSettings({ ...settings, [key]: value });
@@ -197,7 +231,7 @@ export default function ProfileView({
               <path d="M12 21.5C16.1421 21.5 19.5 18.1421 19.5 14C19.5 10.5 17 8 15 5.5C14.5 9 12 10 10.5 7.5C9.5 10.5 7.5 12 6.5 13.5C5.5 15 4.5 16.5 4.5 18C4.5 19.933 6.067 21.5 8 21.5"></path>
               <path d="M12 21.5C13.5 21.5 15 20 15 18.5C15 16.5 13.5 15.5 12 14C10.5 15.5 9.5 16.5 9.5 18.5C9.5 20 10.5 21.5 12 21.5Z"></path>
             </svg>
-            <span className="text-2xl font-bold text-[#191D15] font-sans">14</span>
+            <span className="text-2xl font-bold text-[#191D15] font-sans">{currentStreak}</span>
             <span className="text-[10px] font-bold uppercase tracking-wider text-[#747870] font-sans">
               DAY STREAK
             </span>

@@ -8,7 +8,7 @@ import TimerView from './components/Timer/TimerView';
 import StrictModeModal from './components/Timer/StrictModeModal';
 import AnalyticsDashboard from './components/Analytics/AnalyticsDashboard';
 import ProfileView from './components/Profile/ProfileView';
-import { storage, DEFAULT_PROJECTS, DEFAULT_TASKS, DEFAULT_SETTINGS, generateSampleSessions } from './services/storage';
+import { storage, DEFAULT_PROJECTS, DEFAULT_TASKS, DEFAULT_SETTINGS } from './services/storage';
 import { soundEngine } from './services/soundEngine';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { KeepAwake } from '@capacitor-community/keep-awake';

@@ -54,7 +54,7 @@ export default function TimerView({
 
   const circumference = 691.15;
   const progress = (totalTime - timeLeft) / totalTime;
-  const strokeDashoffset = circumference - circumference * (0.15 + progress * 0.7);
+  const strokeDashoffset = circumference * progress;
 
   const handleSelectSound = (soundId) => {
     if (onSelectSound) onSelectSound(soundId);
@@ -80,18 +80,18 @@ export default function TimerView({
 
   return (
     <div
-      className={`flex flex-col h-[100dvh] w-full overflow-hidden transition-colors duration-700 ease-in-out ${bgClass} text-[#191D15] selection:bg-[#628141]/20`}
+      className={`flex flex-col h-[100dvh] w-full overflow-hidden transition-colors duration-700 ease-in-out bg-[#F9FBEE] text-[#191D15] selection:bg-[#628141]/20`}
       onClick={() => {
         if (onToggleNav) onToggleNav();
       }}
     >
-      <div className="flex flex-col w-full px-5 pt-12 pb-32 max-w-md mx-auto flex-1 select-none">
+      <div className="w-full max-w-md mx-auto flex flex-col px-6 pt-12 pb-32 select-none min-h-[100dvh] justify-center">
         {/* Mode Selector Pill */}
         <div
-          className={`w-full bg-[#EAE4D7] border border-[#EDE7DA] rounded-full p-1.5 flex items-center justify-between shadow-sm mb-4 transition-all duration-500 ${
-            isImmersive
-              ? 'opacity-0 -translate-y-4 pointer-events-none'
-              : 'opacity-100 translate-y-0'
+          className={`w-full bg-white border border-[#EDE7DA] rounded-full p-1.5 flex items-center justify-between shadow-sm transition-all duration-500 overflow-hidden ${
+            isNavHidden
+              ? 'max-h-0 opacity-0 mb-0 border-transparent p-0'
+              : 'max-h-16 opacity-100 mb-4'
           }`}
           onClick={stopProp}
         >
@@ -106,7 +106,7 @@ export default function TimerView({
                 }}
                 className={`flex-1 py-2 px-3 rounded-full font-semibold text-xs md:text-sm transition-all ${
                   on
-                    ? 'bg-white text-[#40513B] shadow-[0_2px_8px_rgba(64,81,59,0.08)]'
+                    ? 'bg-[#40513B] text-white shadow-[0_2px_8px_rgba(64,81,59,0.2)]'
                     : 'text-[#444841] font-medium hover:text-[#40513B]'
                 }`}
               >
@@ -116,52 +116,49 @@ export default function TimerView({
           })}
         </div>
 
-        {/* Center: Large Circular Progress Ring */}
-        <div
-          className={`relative w-full aspect-square max-w-[270px] mx-auto flex items-center justify-center my-2 transition-transform duration-700 ${
-            isImmersive ? 'scale-110 mt-16' : 'scale-100'
-          }`}
-        >
-          <svg className="w-full h-full -rotate-90 transform drop-shadow-sm" viewBox="0 0 260 260">
-            <circle
-              className={isImmersive ? 'text-white/30' : 'text-[#E5D9B6]'}
-              cx="130"
-              cy="130"
-              r="110"
-              fill="transparent"
-              stroke="currentColor"
-              strokeWidth="10"
-            />
-            <circle
-              className="text-[#628141] transition-all duration-1000 ease-out"
-              cx="130"
-              cy="130"
-              r="110"
-              fill="transparent"
-              stroke="currentColor"
-              strokeWidth="10"
-              strokeLinecap="round"
-              strokeDasharray={circumference}
-              strokeDashoffset={strokeDashoffset}
-            />
-          </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-2">
-            <span
-              className={`text-[60px] leading-none font-bold tracking-tight tabular-nums transition-colors duration-700 ${
-                isImmersive ? 'text-[#40513B]' : 'text-[#40513B]'
-              }`}
-            >
-              {formatTime(timeLeft)}
-            </span>
-          </div>
-        </div>
+        {/* Center Container */}
+        <div className="flex flex-col items-center justify-center my-auto w-full">
+          {/* Status Indicator (Moves up/fades out) */}
+          <div
+            className={`flex flex-col items-center justify-center gap-1.5 transition-all duration-700 overflow-hidden ${
+              isNavHidden ? 'max-h-0 opacity-0 mb-0' : 'max-h-10 opacity-100 mb-6'
+            }`}
+          ></div>
 
-        {/* Status & Cycle Stepper Indicator */}
-        <div
-          className={`flex flex-col items-center justify-center mb-5 gap-1.5 transition-all duration-700 ${
-            isImmersive ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'
-          }`}
-        >
+          {/* Large Circular Progress Ring */}
+          <div className="relative w-full aspect-square max-w-[280px] mx-auto flex items-center justify-center my-2 transition-transform duration-700">
+            <svg
+              className="w-full h-full -rotate-90 transform drop-shadow-sm"
+              viewBox="0 0 260 260"
+            >
+              <circle
+                className="text-[#E5D9B6]"
+                cx="130"
+                cy="130"
+                r="110"
+                fill="transparent"
+                stroke="currentColor"
+                strokeWidth="10"
+              />
+              <circle
+                className="text-[#628141] transition-all duration-1000 ease-out"
+                cx="130"
+                cy="130"
+                r="110"
+                fill="transparent"
+                stroke="currentColor"
+                strokeWidth="10"
+                strokeLinecap="round"
+                strokeDasharray={circumference}
+                strokeDashoffset={strokeDashoffset}
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <span className="text-[64px] leading-none font-bold tracking-tight tabular-nums text-[#40513B] font-sans">
+                {formatTime(timeLeft)}
+              </span>
+            </div>
+          </div>
           <div className="flex items-center gap-2">
             <span
               className={`w-2.5 h-2.5 rounded-full ${
@@ -170,164 +167,166 @@ export default function TimerView({
                   : 'bg-[#E5D9B6]'
               }`}
             ></span>
-            <span className="font-mono text-xs text-[#444841] tracking-wide">
+            <span className="font-sans font-medium text-xs text-[#444841] tracking-wide">
               {isRunning ? 'Active' : 'Paused'}
               {activeTask?.title ? ` · ${activeTask.title.substring(0, 15)}` : ''}
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5 my-0.5">
-            {[1, 2, 3, 4].map((n) => {
-              const isCurrent = n === currentSessionNumber;
-              const isDone = n < currentSessionNumber;
-              return (
-                <span
-                  key={n}
-                  className={`h-1.5 rounded-full transition-all ${
-                    isCurrent
-                      ? 'w-4 bg-[#628141]'
-                      : isDone
-                      ? 'w-1.5 bg-[#628141]/60'
-                      : 'w-1.5 bg-[#E5D9B6]'
-                  }`}
-                ></span>
-              );
-            })}
+          {/* Cycle Stepper (Below timer) */}
+          <div
+            className={`flex flex-col items-center justify-center gap-1 transition-all duration-700 overflow-hidden ${
+              isNavHidden ? 'max-h-0 opacity-0 mt-0' : 'max-h-10 opacity-100 mt-6'
+            }`}
+          >
+            <div className="flex items-center gap-1.5 my-0.5">
+              {[1, 2, 3, 4].map((n) => {
+                const isCurrent = n === currentSessionNumber;
+                const isDone = n < currentSessionNumber;
+                return (
+                  <span
+                    key={n}
+                    className={`h-1.5 rounded-full transition-all ${
+                      isCurrent
+                        ? 'w-4 bg-[#628141]'
+                        : isDone
+                        ? 'w-1.5 bg-[#628141]/60'
+                        : 'w-1.5 bg-[#E5D9B6]'
+                    }`}
+                  ></span>
+                );
+              })}
+            </div>
+            <span className="font-sans text-[11px] text-[#628141] font-bold tracking-wider uppercase">
+              {getSubLabel()}
+            </span>
           </div>
-          <span className="font-mono text-[11px] text-[#628141] font-semibold tracking-wider uppercase">
-            {getSubLabel()}
-          </span>
         </div>
 
-        {/* Elevated Controls Card */}
+        {/* Bottom Controls */}
         <div
-          className={`w-full bg-white border border-[#EDE7DA] rounded-3xl p-5 shadow-[0_8px_24px_-4px_rgba(64,81,59,0.06),0_2px_6px_-1px_rgba(64,81,59,0.03)] flex flex-col gap-4 transition-all duration-700 ${
-            isImmersive
-              ? 'opacity-10 shadow-none bg-transparent border-transparent translate-y-12'
-              : 'opacity-100 translate-y-0'
+          className={`w-full flex flex-col gap-4 transition-all duration-700 overflow-hidden ${
+            isNavHidden
+              ? 'max-h-0 opacity-0 mt-0 pointer-events-none'
+              : 'max-h-[300px] opacity-100 mt-8'
           }`}
           onClick={stopProp}
         >
-          {/* Action Buttons */}
-          <div className="flex items-center justify-center gap-6 pt-1">
-            <button
-              onClick={() => {
-                if (window.navigator?.vibrate) window.navigator.vibrate(10);
-                if (onReset) onReset();
-              }}
-              className="w-12 h-12 rounded-full bg-[#F5F1E8] border border-[#E5D9B6]/60 text-[#40513B] flex items-center justify-center transition-transform active:scale-95 hover:bg-[#EDE7DA]"
-            >
-              <RotateCcw size={20} strokeWidth={2.5} />
-            </button>
-
-            <button
-              onClick={() => {
-                if (window.navigator?.vibrate) window.navigator.vibrate(20);
-                if (onTogglePlay) onTogglePlay();
-              }}
-              className="w-16 h-16 rounded-full bg-[#40513B] text-white flex items-center justify-center shadow-[0_10px_22px_rgba(64,81,59,0.28)] transition-transform active:scale-90 hover:scale-105"
-            >
-              {isRunning ? (
-                <Pause size={28} className="fill-current" />
-              ) : (
-                <Play size={28} className="translate-x-0.5 fill-current" />
-              )}
-            </button>
-
-            <button
-              onClick={() => {
-                if (window.navigator?.vibrate) window.navigator.vibrate(10);
-                if (onSkip) onSkip();
-              }}
-              className="w-12 h-12 rounded-full bg-[#F5F1E8] border border-[#E5D9B6]/60 text-[#40513B] flex items-center justify-center transition-transform active:scale-95 hover:bg-[#EDE7DA]"
-            >
-              <SkipForward size={20} strokeWidth={2.5} />
-            </button>
-          </div>
-
-          <div className="w-full h-px bg-[#EDE7DA]"></div>
-
-          {/* Sound & Volume */}
-          <div className="flex items-center justify-between text-[#444841] px-1 pb-0.5">
-            <div className="relative flex items-center gap-2 cursor-pointer px-2.5 py-1.5 rounded-full hover:bg-[#F9FBEE] transition-colors">
-              <Headphones size={18} className="text-[#628141]" />
-              <select
-                value={currentSound}
-                onChange={(e) => handleSelectSound(e.target.value)}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-sm"
+          {/* Elevated Controls Card */}
+          <div className="w-full bg-white border border-[#EDE7DA] rounded-3xl p-5 shadow-sm flex flex-col gap-4">
+            {/* Action Buttons */}
+            <div className="flex items-center justify-center gap-6 pt-1">
+              <button
+                onClick={() => {
+                  if (window.navigator?.vibrate) window.navigator.vibrate(10);
+                  if (onReset) onReset();
+                }}
+                className="w-12 h-12 rounded-full bg-[#F9FBEE] border border-[#EDE7DA] text-[#40513B] flex items-center justify-center transition-transform active:scale-95 hover:bg-[#EDE7DA]"
               >
-                {soundscapes.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.label}
-                  </option>
-                ))}
-              </select>
-              <span className="text-sm font-semibold text-[#40513B]">
-                {soundscapes.find((s) => s.id === currentSound)?.label || 'Silent'}
-              </span>
+                <RotateCcw size={20} strokeWidth={2.5} />
+              </button>
+
+              <button
+                onClick={() => {
+                  if (window.navigator?.vibrate) window.navigator.vibrate(20);
+                  if (onTogglePlay) onTogglePlay();
+                }}
+                className="w-16 h-16 rounded-full bg-[#40513B] text-white flex items-center justify-center shadow-md transition-transform active:scale-90 hover:scale-105"
+              >
+                {isRunning ? (
+                  <Pause size={28} className="fill-current" />
+                ) : (
+                  <Play size={28} className="translate-x-0.5 fill-current" />
+                )}
+              </button>
+
+              <button
+                onClick={() => {
+                  if (window.navigator?.vibrate) window.navigator.vibrate(10);
+                  if (onSkip) onSkip();
+                }}
+                className="w-12 h-12 rounded-full bg-[#F9FBEE] border border-[#EDE7DA] text-[#40513B] flex items-center justify-center transition-transform active:scale-95 hover:bg-[#EDE7DA]"
+              >
+                <SkipForward size={20} strokeWidth={2.5} />
+              </button>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Volume2 size={16} className="text-[#628141]" />
-              <div className="w-20 h-1.5 bg-[#E5D9B6] rounded-full overflow-hidden flex relative">
-                <div
-                  className="h-full bg-[#628141] rounded-full"
-                  style={{ width: `${soundVolume * 100}%` }}
-                ></div>
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.05"
-                  value={soundVolume}
-                  onChange={(e) => {
-                    const v = parseFloat(e.target.value);
-                    if (onChangeVolume) onChangeVolume(v);
-                    if (currentSound !== 'none') soundEngine.setVolume(v);
-                  }}
-                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                />
+            <div className="w-full h-px bg-[#EDE7DA]"></div>
+
+            {/* Sound & Volume */}
+            <div className="flex items-center justify-between text-[#444841] px-1 pb-0.5">
+              <div className="relative flex items-center gap-2 cursor-pointer px-2.5 py-1.5 rounded-full hover:bg-[#F9FBEE] transition-colors">
+                <Headphones size={18} className="text-[#628141]" />
+                <select
+                  value={currentSound}
+                  onChange={(e) => handleSelectSound(e.target.value)}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-sm"
+                >
+                  {soundscapes.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.label}
+                    </option>
+                  ))}
+                </select>
+                <span className="text-sm font-semibold text-[#40513B] font-sans">
+                  {soundscapes.find((s) => s.id === currentSound)?.label || 'Silent'}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Volume2 size={16} className="text-[#628141]" />
+                <div className="w-20 h-1.5 bg-[#E5D9B6] rounded-full overflow-hidden flex relative">
+                  <div
+                    className="h-full bg-[#628141] rounded-full"
+                    style={{ width: `${soundVolume * 100}%` }}
+                  ></div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.05"
+                    value={soundVolume}
+                    onChange={(e) => {
+                      const v = parseFloat(e.target.value);
+                      if (onChangeVolume) onChangeVolume(v);
+                      if (currentSound !== 'none') soundEngine.setVolume(v);
+                    }}
+                    className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                  />
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Strict Focus Toggle Card */}
-        <div
-          className={`w-full flex items-center justify-between px-5 py-3.5 mt-4 rounded-2xl bg-[#EAE4D7]/70 border border-[#EDE7DA] transition-all duration-700 ${
-            isImmersive
-              ? 'opacity-0 translate-y-8 pointer-events-none'
-              : 'opacity-100 translate-y-0'
-          }`}
-          onClick={stopProp}
-        >
-          <div className="flex items-center gap-3">
-            {strictMode ? (
-              <Lock size={20} className="text-[#628141]" />
-            ) : (
-              <Unlock size={20} className="text-[#8D9A82]" />
-            )}
-            <div className="flex flex-col">
-              <span className="text-xs font-semibold text-[#40513B] leading-tight">
-                Strict Focus
-              </span>
-              <span className="text-[11px] text-[#444841] leading-tight mt-0.5">
-                Block app interruptions
-              </span>
+          {/* Strict Focus Toggle Card */}
+          <div className="w-full flex items-center justify-between px-5 py-3.5 rounded-2xl bg-white border border-[#EDE7DA] shadow-sm">
+            <div className="flex items-center gap-3">
+              {strictMode ? (
+                <Lock size={20} className="text-[#628141]" />
+              ) : (
+                <Unlock size={20} className="text-[#8D9A82]" />
+              )}
+              <div className="flex flex-col">
+                <span className="text-xs font-semibold text-[#40513B] leading-tight font-sans">
+                  Strict Focus
+                </span>
+                <span className="text-[11px] text-[#444841] leading-tight mt-0.5 font-sans">
+                  Block app interruptions
+                </span>
+              </div>
             </div>
+            <label className="relative inline-flex items-center cursor-pointer select-none">
+              <input
+                type="checkbox"
+                className="sr-only peer"
+                checked={strictMode}
+                onChange={() => {
+                  if (onToggleStrictMode) onToggleStrictMode();
+                }}
+              />
+              <div className="w-10 h-5 bg-[#E5D9B6] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#E5D9B6] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#628141] shadow-inner"></div>
+            </label>
           </div>
-
-          <label className="relative inline-flex items-center cursor-pointer select-none">
-            <input
-              type="checkbox"
-              className="sr-only peer"
-              checked={strictMode}
-              onChange={() => {
-                if (onToggleStrictMode) onToggleStrictMode();
-              }}
-            />
-            <div className="w-10 h-5 bg-[#E5D9B6] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#E5D9B6] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#628141] shadow-inner"></div>
-          </label>
         </div>
       </div>
     </div>

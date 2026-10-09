@@ -88,16 +88,22 @@ export default function TaskList({
   const filteredTasks = tasks.filter((task) => {
     if (selectedProjectId && task.projectId !== selectedProjectId) return false;
     const st = task.scheduleType || 'today';
-    if (filterTab === 'Archive') return task.completed && st !== 'daily';
+    if (filterTab === 'Archive') return task.completed && st !== 'daily' && st !== 'weekly';
+    
     if (filterTab === 'Today') {
       if (st === 'daily') return true;
+      if (st === 'weekly') {
+        const d = new Date().getDay();
+        return Array.isArray(task.weeklyDays) && task.weeklyDays.includes(d);
+      }
       if (task.completed) return false;
       if (st === 'today') return true;
       if (st === 'date' && task.scheduledDate && task.scheduledDate <= todayStr) return true;
       return false;
     }
+    
     if (filterTab === 'This Week') {
-      if (st === 'daily') return true;
+      if (st === 'daily' || st === 'weekly') return true;
       if (task.completed) return false;
       if (st === 'today') return true;
       if (st === 'date') {

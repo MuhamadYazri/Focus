@@ -18,6 +18,7 @@ export default function TaskModal({
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [showSubtasks, setShowSubtasks] = useState(false);
   const [scheduleType, setScheduleType] = useState('today');
+  const [weeklyDays, setWeeklyDays] = useState([]);
 
   const getLocalDateStr = (d) => {
     try {
@@ -44,6 +45,7 @@ export default function TaskModal({
       setSubtasks(taskToEdit.subtasks || []);
       setScheduleType(taskToEdit.scheduleType || 'today');
       setScheduledDate(taskToEdit.scheduledDate || getLocalDateStr());
+      setWeeklyDays(taskToEdit.weeklyDays || []);
     } else {
       setTitle('');
       setProjectId(defaultProjectId || (projects[0] ? projects[0].id : ''));
@@ -51,6 +53,7 @@ export default function TaskModal({
       setSubtasks([]);
       setScheduleType('today');
       setScheduledDate(getLocalDateStr());
+      setWeeklyDays([]);
     }
     setNewSubtaskTitle('');
     setShowTags(false);
@@ -88,6 +91,7 @@ export default function TaskModal({
       subtasks: subtasks,
       scheduleType: scheduleType,
       scheduledDate: scheduleType === 'date' ? scheduledDate : null,
+      weeklyDays: scheduleType === 'weekly' ? weeklyDays : [],
       createdAt: taskToEdit ? taskToEdit.createdAt : new Date().toISOString(),
     });
     onClose();
@@ -259,10 +263,11 @@ export default function TaskModal({
             <label className="block text-[11px] font-bold uppercase tracking-wider text-[#747870] font-sans mb-1.5">
               Schedule
             </label>
-            <div className="flex gap-1.5 p-1 bg-[#F5F1E8] rounded-xl border border-[#EDE7DA]">
+            <div className="flex gap-1.5 p-1 bg-[#F5F1E8] rounded-xl border border-[#EDE7DA] flex-wrap">
               {[
                 { id: 'today', label: 'Today' },
                 { id: 'daily', label: 'Every Day' },
+                { id: 'weekly', label: 'Custom' },
                 { id: 'date', label: 'Date' },
               ].map((item) => {
                 const isSelected = scheduleType === item.id;
@@ -271,7 +276,7 @@ export default function TaskModal({
                     key={item.id}
                     type="button"
                     onClick={() => setScheduleType(item.id)}
-                    className={`flex-1 transition-all active:scale-95 py-2 px-1 rounded-lg text-center text-xs font-sans ${
+                    className={`flex-1 min-w-[70px] transition-all active:scale-95 py-2 px-1 rounded-lg text-center text-xs font-sans ${
                       isSelected ? 'bg-white font-bold text-[#40513B] shadow-sm' : 'font-medium text-[#747870] hover:text-[#191D15]'
                     }`}
                   >
@@ -280,6 +285,39 @@ export default function TaskModal({
                 );
               })}
             </div>
+            {scheduleType === 'weekly' && (
+              <div className="mt-2 flex gap-1.5 justify-between">
+                {[
+                  { day: 1, label: 'M' },
+                  { day: 2, label: 'T' },
+                  { day: 3, label: 'W' },
+                  { day: 4, label: 'T' },
+                  { day: 5, label: 'F' },
+                  { day: 6, label: 'S' },
+                  { day: 0, label: 'S' },
+                ].map(({ day, label }) => {
+                  const isSel = weeklyDays.includes(day);
+                  return (
+                    <button
+                      key={day}
+                      type="button"
+                      onClick={() => {
+                        if (isSel) {
+                          setWeeklyDays(weeklyDays.filter(d => d !== day));
+                        } else {
+                          setWeeklyDays([...weeklyDays, day]);
+                        }
+                      }}
+                      className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-sans font-bold transition-all ${
+                        isSel ? 'bg-[#40513B] text-white shadow-sm' : 'bg-[#F5F1E8] text-[#747870] border border-[#EDE7DA]'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
             {scheduleType === 'date' && (
               <div className="mt-2">
                 <input

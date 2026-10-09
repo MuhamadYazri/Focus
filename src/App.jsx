@@ -28,9 +28,19 @@ const getLocalDateStr = (d) => {
 function processDailyRollover(tasksList) {
   if (!tasksList || !tasksList.length) return tasksList;
   const todayStr = getLocalDateStr();
+  const currentDayOfWeek = new Date().getDay(); // 0 is Sun, 1 is Mon...
+  
   return tasksList.map((task) => {
     const compDate = task.completedDateStr || (typeof task.completedAt === 'string' ? task.completedAt.split('T')[0] : null);
-    if (task && task.scheduleType === 'daily' && task.completed && compDate && compDate !== todayStr) {
+    
+    let shouldRollover = false;
+    if (task.scheduleType === 'daily') {
+      shouldRollover = true;
+    } else if (task.scheduleType === 'weekly' && Array.isArray(task.weeklyDays) && task.weeklyDays.includes(currentDayOfWeek)) {
+      shouldRollover = true;
+    }
+
+    if (task && shouldRollover && task.completed && compDate && compDate !== todayStr) {
       return { ...task, completed: false, completedPomos: 0, completedDateStr: null, completedAt: null };
     }
     return task;

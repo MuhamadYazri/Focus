@@ -488,6 +488,28 @@ export default function ProfileView({
           <div className="bg-white rounded-2xl p-5 shadow-sm flex flex-col gap-4 border border-[#EDE7DA]">
             {[
               {
+                key: 'autoStartBreaks',
+                label: 'Auto-Start Breaks',
+                desc: 'Breaks start automatically after focus',
+                svg: (
+                  <svg fill="none" height="20" stroke="#576652" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="20">
+                    <path d="M5 12h14"></path>
+                    <path d="M12 5l7 7-7 7"></path>
+                  </svg>
+                ),
+              },
+              {
+                key: 'autoStartPomodoros',
+                label: 'Auto-Start Focus',
+                desc: 'Focus starts automatically after break',
+                svg: (
+                  <svg fill="none" height="20" stroke="#576652" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="20">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                ),
+              },
+              {
                 key: 'keepAwake',
                 label: 'Keep Screen Awake',
                 desc: 'Prevent display from turning off',

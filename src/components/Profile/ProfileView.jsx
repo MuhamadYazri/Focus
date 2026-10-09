@@ -77,7 +77,7 @@ export default function ProfileView({
       setBackupStatus('backing-up');
       setBackupMsg('');
       const data = await storage.exportAllData();
-      
+
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -85,7 +85,7 @@ export default function ProfileView({
       a.download = `focus_backup_${new Date().toISOString().split('T')[0]}.json`;
       a.click();
       URL.revokeObjectURL(url);
-      
+
       const now = new Date().toLocaleString();
       setBackupStatus('idle');
       setBackupMsg(`Saved locally: ${now}`);
@@ -100,7 +100,7 @@ export default function ProfileView({
     try {
       setBackupStatus('restoring');
       setBackupMsg('');
-      
+
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = 'application/json';
@@ -123,13 +123,17 @@ export default function ProfileView({
         }
       };
       input.click();
-      
+
       // If user cancels file dialog, we reset status (not always easy to detect, but we try)
-      window.addEventListener('focus', () => {
-        setTimeout(() => {
-          if (backupStatus === 'restoring') setBackupStatus('idle');
-        }, 1000);
-      }, { once: true });
+      window.addEventListener(
+        'focus',
+        () => {
+          setTimeout(() => {
+            if (backupStatus === 'restoring') setBackupStatus('idle');
+          }, 1000);
+        },
+        { once: true }
+      );
     } catch (e) {
       setBackupStatus('idle');
       setBackupMsg(`Error: ${e.message}`);
@@ -492,7 +496,16 @@ export default function ProfileView({
                 label: 'Auto-Start Breaks',
                 desc: 'Breaks start automatically after focus',
                 svg: (
-                  <svg fill="none" height="20" stroke="#576652" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="20">
+                  <svg
+                    fill="none"
+                    height="20"
+                    stroke="#576652"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                    width="20"
+                  >
                     <path d="M5 12h14"></path>
                     <path d="M12 5l7 7-7 7"></path>
                   </svg>
@@ -503,7 +516,16 @@ export default function ProfileView({
                 label: 'Auto-Start Focus',
                 desc: 'Focus starts automatically after break',
                 svg: (
-                  <svg fill="none" height="20" stroke="#576652" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="20">
+                  <svg
+                    fill="none"
+                    height="20"
+                    stroke="#576652"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                    width="20"
+                  >
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
                   </svg>
@@ -688,9 +710,7 @@ export default function ProfileView({
           {/* Reset Telemetry Data Card */}
           <div className="bg-white rounded-2xl p-5 shadow-sm flex items-center justify-between border border-[#EDE7DA] mb-6">
             <div className="flex flex-col">
-              <span className="text-xs font-bold text-[#191D15] font-sans">
-                Wipe All Data
-              </span>
+              <span className="text-xs font-bold text-[#191D15] font-sans">Wipe All Data</span>
               <span className="text-[11px] text-[#8A7968] font-sans">
                 Permanently delete all tasks and focus history
               </span>

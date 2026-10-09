@@ -206,6 +206,11 @@ export default function App() {
     const manageForegroundService = async () => {
       if (isRunning && settings.liveNotification) {
         try {
+          // Android 13+ requires explicit permission for notifications
+          if (ForegroundService.requestPermissions) {
+            await ForegroundService.requestPermissions();
+          }
+
           const modeLabel = timerMode === 'work' ? 'Focus Session' : (timerMode === 'shortBreak' ? 'Short Break' : 'Long Break');
           const mins = Math.floor(timeLeft / 60);
           const rem = timeLeft % 60;
@@ -213,9 +218,10 @@ export default function App() {
           
           await ForegroundService.startForegroundService({
             id: 1993,
-            title: formattedTime,
-            body: modeLabel,
-            smallIcon: 'ic_launcher'
+            title: modeLabel,
+            body: `CHRONO:${formattedTime}`,
+            smallIcon: 'ic_stat_icon',
+            serviceType: 1073741824 // FOREGROUND_SERVICE_TYPE_SPECIAL_USE
           });
         } catch (e) {
           console.log('ForegroundService start error:', e);
@@ -261,9 +267,11 @@ export default function App() {
               const modeLabel = timerMode === 'work' ? 'Focus Session' : (timerMode === 'shortBreak' ? 'Short Break' : 'Long Break');
               ForegroundService.updateForegroundService({
                 id: 1993,
-                title: formattedTime,
-                body: modeLabel,
-                smallIcon: 'ic_launcher'
+                title: modeLabel,
+                body: `CHRONO:${formattedTime}`,
+                smallIcon: 'ic_stat_icon',
+                silent: true,
+                serviceType: 1073741824 // FOREGROUND_SERVICE_TYPE_SPECIAL_USE
               }).catch(() => {});
             }
 

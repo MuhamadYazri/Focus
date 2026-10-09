@@ -89,7 +89,7 @@ export default function TaskList({
     if (selectedProjectId && task.projectId !== selectedProjectId) return false;
     const st = task.scheduleType || 'today';
     if (filterTab === 'Archive') return task.completed && st !== 'daily' && st !== 'weekly';
-    
+
     if (filterTab === 'Today') {
       if (st === 'daily') return true;
       if (st === 'weekly') {
@@ -101,7 +101,7 @@ export default function TaskList({
       if (st === 'date' && task.scheduledDate && task.scheduledDate <= todayStr) return true;
       return false;
     }
-    
+
     if (filterTab === 'This Week') {
       if (st === 'daily' || st === 'weekly') return true;
       if (task.completed) return false;
@@ -179,7 +179,7 @@ export default function TaskList({
 
           {/* Streak Card */}
           <div className="col-span-4 bg-[#40513B] text-[#F9FBEE] rounded-[24px] p-5 shadow-[0_10px_22px_rgba(64,81,59,0.22)] flex flex-col justify-between">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-evenly">
               <span className="font-mono text-[11px] text-[#E5D9B6] tracking-wider font-bold uppercase">
                 STREAK
               </span>

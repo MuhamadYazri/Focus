@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-
-const G = "'Geist', system-ui, sans-serif";
-const M = "'JetBrains Mono', monospace";
+import { Zap, Flame, Check, ListFilter, Play, Pause, Plus } from 'lucide-react';
 
 export default function TaskList({
   tasks = [],
@@ -12,13 +10,8 @@ export default function TaskList({
   onSelectProject,
   onAddTask,
   onEditTask,
-  onDeleteTask,
   onToggleComplete,
-  onToggleSubtask,
   onStartPomodoro,
-  onAddProject,
-  onEditProject,
-  onDeleteProject,
 }) {
   const getLocalDateStr = (d) => {
     try {
@@ -46,9 +39,7 @@ export default function TaskList({
 
       let targetHours = 4.0;
       try {
-        const hist = JSON.parse(localStorage.getItem('focus_daily_goals_history_v1') || '{}');
-        if (hist && hist[todayStr]) targetHours = Number(hist[todayStr]);
-        else if (settings && settings.dailyGoalHours) targetHours = Number(settings.dailyGoalHours);
+        if (settings && settings.dailyGoalHours) targetHours = Number(settings.dailyGoalHours);
       } catch (e) { }
 
       const progressPercent = targetHours > 0 ? Math.min(100, Math.round((todayHours / targetHours) * 100)) : 0;
@@ -123,233 +114,205 @@ export default function TaskList({
   };
 
   return (
-    <div className="min-h-[100dvh] pb-32" style={{ fontFamily: G }}>
-
-      {/* ── Sticky Header ── */}
-      <header className="glass sticky top-0 z-40 px-5 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <span className="material-symbols-outlined fill text-[22px]" style={{ color: 'var(--text-on-accent)' }}>grid_view</span>
-          <h1 style={{ fontFamily: G, fontSize: 22, fontWeight: 700, color: 'var(--text-on-accent)', letterSpacing: '-0.02em' }}>
-            Dashboard
-          </h1>
-        </div>
-        <span style={{ fontFamily: M, fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.1em' }}>
-          FOCUS
-        </span>
-      </header>
-
-      <div className="px-5 pt-6 flex flex-col gap-5 max-w-md mx-auto">
-
-        {/* ── Greeting ── */}
-        <section className="animate-slideUp" style={{ animationDelay: '0.05s' }}>
-          <h2 style={{ fontFamily: G, fontSize: 34, fontWeight: 700, color: 'var(--text-on-accent)', letterSpacing: '-0.025em', lineHeight: 1.1 }}>
+    <div className="flex-1 w-full bg-[#F9FBEE] pb-28 min-h-[100dvh] relative text-[#2A3A26]">
+      <div className="flex flex-col w-full px-5 pt-7 pb-24 max-w-md mx-auto">
+        {/* Greeting Header */}
+        <header className="pt-2 pb-5 flex flex-col gap-1">
+          <h1 className="text-[32px] leading-[38px] text-[#40513B] font-bold tracking-tight font-sans">
             {getGreeting()}
-          </h2>
-          <p style={{ fontFamily: G, fontSize: 15, color: 'var(--text-secondary)', marginTop: 6 }}>
+          </h1>
+          <p className="text-[15px] leading-5 text-[#636F5A] font-normal font-sans">
             {activeCount} task{activeCount !== 1 ? 's' : ''} scheduled for today.
           </p>
-        </section>
+        </header>
 
-        {/* ── Bento Grid: Target + Streak ── */}
-        <section className="animate-slideUp" style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 12, animationDelay: '0.1s' }}>
-
-          {/* Daily Target Card */}
-          <div className="card-2xl squish p-6 flex flex-col justify-between" style={{ minHeight: 130 }}>
-            <div className="flex items-start justify-between">
-              <div>
-                <p style={{ fontFamily: M, fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.06em' }}>DAILY TARGET</p>
-                <p style={{ fontFamily: G, fontSize: 15, color: 'var(--text-on-accent)', marginTop: 2 }}>
-                  {todayHours}h of {targetHours}h completed
-                </p>
+        {/* Metric Highlights Bento Row */}
+        <section className="grid grid-cols-12 gap-3 mb-6">
+          {/* Daily Target Progress Card */}
+          <div className="col-span-8 bg-white border border-[#EDE7DA] rounded-[24px] p-5 shadow-[0_4px_20px_-2px_rgba(64,81,59,0.06)] flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <span className="font-mono text-[11px] font-bold text-[#636F5A] tracking-wider uppercase">
+                DAILY TARGET
+              </span>
+              <div className="w-8 h-8 rounded-full bg-[#E5D9B6]/30 flex items-center justify-center text-[#628141]">
+                <Zap size={16} className="text-[#628141]" />
               </div>
-              <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: 24 }}>crisis_alert</span>
             </div>
-            <div style={{ marginTop: 12 }}>
-              <div style={{ width: '100%', height: 6, background: 'var(--surface-low)', borderRadius: 99, overflow: 'hidden' }}>
-                <div style={{ width: `${progressPercent}%`, height: '100%', background: 'var(--accent)', borderRadius: 99, transition: 'width 0.6s ease-out' }} />
+            <div className="my-3">
+              <h2 className="text-[19px] font-bold text-[#40513B] leading-tight font-sans">
+                {todayHours}h of {targetHours}h completed
+              </h2>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <div className="w-full h-2.5 bg-[#E5D9B6]/40 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-[#628141] rounded-full transition-all duration-500" 
+                  style={{ width: `${progressPercent}%` }}
+                ></div>
               </div>
-              <div className="flex justify-between" style={{ marginTop: 6 }}>
-                <span style={{ fontFamily: M, fontSize: 10, color: 'var(--text-muted)' }}>{statusText}</span>
-                <span style={{ fontFamily: M, fontSize: 10, color: 'var(--text-muted)' }}>{progressPercent}%</span>
+              <div className="flex items-center justify-between pt-0.5">
+                <span className="font-mono text-[11px] text-[#636F5A]">{statusText}</span>
+                <span className="font-mono text-[11px] font-bold text-[#40513B]">{progressPercent}%</span>
               </div>
             </div>
           </div>
 
           {/* Streak Card */}
-          <div
-            className="card-2xl squish flex flex-col justify-between p-5 relative overflow-hidden"
-            style={{ background: 'var(--text-primary)', minWidth: 110, minHeight: 130 }}
-          >
-            <div className="flex justify-between items-start">
-              <span style={{ fontFamily: M, fontSize: 9, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.06em' }}>STREAK</span>
-              <span className="material-symbols-outlined" style={{ color: 'rgba(255,255,255,0.7)', fontSize: 18 }}>local_fire_department</span>
+          <div className="col-span-4 bg-[#40513B] text-[#F9FBEE] rounded-[24px] p-5 shadow-[0_10px_22px_rgba(64,81,59,0.22)] flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <span className="font-mono text-[11px] text-[#E5D9B6] tracking-wider font-bold uppercase">
+                STREAK
+              </span>
+              <Flame size={20} className="text-[#E67E22] fill-current" />
             </div>
-            <div>
-              <div style={{ fontFamily: G, fontSize: 38, fontWeight: 700, color: '#fff', letterSpacing: '-0.03em', lineHeight: 1 }}>
+            <div className="my-auto pt-1 flex items-center flex-col text-center">
+              <span className="text-[34px] font-bold text-white leading-none tracking-tight font-sans">
                 {streak}
-              </div>
-              <p style={{ fontFamily: G, fontSize: 12, color: 'rgba(255,255,255,0.55)', marginTop: 2 }}>Days</p>
+              </span>
+              <span className="text-[13px] text-[#E5D9B6] font-medium mt-1 font-sans">Days</span>
             </div>
           </div>
         </section>
 
-        {/* ── Categories ── */}
-        <section className="animate-slideUp" style={{ animationDelay: '0.15s', overflow: 'visible' }}>
-          <div
-            className="flex gap-2 overflow-x-auto no-scrollbar py-4 -my-4 -mx-5 px-5"
-            style={{
-              maskImage: 'linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent)',
-              WebkitMaskImage: 'linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent)',
-            }}
+        {/* Category Filter Pills */}
+        <section 
+          className="-mx-5 px-5 flex items-center gap-2 overflow-x-auto pb-1 mb-5 no-scrollbar" 
+          style={{ maskImage: 'linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent)' }}
+        >
+          <button 
+            onClick={() => onSelectProject(null)}
+            className={`shrink-0 h-10 px-4 rounded-full flex items-center gap-2 shadow-sm transition-transform active:scale-95 font-semibold text-[13px] font-sans ${!selectedProjectId ? 'bg-[#40513B] text-white' : 'bg-white border border-[#EDE7DA] text-[#40513B] hover:bg-[#F4F1EA]'}`}
           >
-            {/* All Tasks chip */}
-            <button
-              type="button"
-              onClick={() => { if (window.navigator?.vibrate) window.navigator.vibrate(10); if (onSelectProject) onSelectProject(null); }}
-              className="squish flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all"
-              style={{
-                background: !selectedProjectId ? 'var(--text-primary)' : 'var(--surface-card)',
-                color: !selectedProjectId ? '#fff' : 'var(--text-primary)',
-                border: !selectedProjectId ? 'none' : '1px solid var(--surface-border)',
-                fontFamily: G, fontSize: 14, fontWeight: !selectedProjectId ? 600 : 400,
-                boxShadow: !selectedProjectId ? 'none' : 'var(--shadow-soft)',
-              }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: 18, opacity: 0.7 }}>task_alt</span>
-              All Tasks
-            </button>
-
-            {projects.map((proj) => {
-              const isSel = selectedProjectId === proj.id;
-              const cleanName = proj.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' ');
-              return (
-                <button
-                  key={proj.id}
-                  type="button"
-                  onClick={() => { if (window.navigator?.vibrate) window.navigator.vibrate(10); if (onSelectProject) onSelectProject(isSel ? null : proj.id); }}
-                  className="squish flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all"
-                  style={{
-                    background: isSel ? proj.color || 'var(--accent)' : 'var(--surface-card)',
-                    color: isSel ? 'var(--text-on-accent)' : 'var(--text-primary)',
-                    border: isSel ? 'none' : '1px solid var(--surface-border)',
-                    fontFamily: G,
-                    fontSize: 14,
-                    fontWeight: isSel ? 600 : 400,
-                    boxShadow: isSel ? 'none' : 'var(--shadow-soft)',
-                  }}
-                >
-                  <div style={{ width: 7, height: 7, borderRadius: '50%', background: isSel ? 'var(--text-on-accent)' : (proj.color || 'var(--accent)') }} />
-                  {cleanName}
-                </button>
-              );
-            })}
-          </div>
+            {!selectedProjectId && <Check size={14} className="text-[#E5D9B6]" />}
+            <span className="tracking-wide">All Tasks</span>
+          </button>
+          
+          {projects.map((proj) => {
+            const isSel = selectedProjectId === proj.id;
+            const cleanName = proj.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' ');
+            return (
+              <button 
+                key={proj.id}
+                onClick={() => onSelectProject(isSel ? null : proj.id)}
+                className={`shrink-0 h-10 px-4 rounded-full flex items-center gap-2 shadow-sm transition-transform active:scale-95 font-semibold text-[13px] font-sans ${isSel ? 'bg-[#40513B] text-white' : 'bg-white border border-[#EDE7DA] text-[#40513B] hover:bg-[#F4F1EA]'}`}
+              >
+                {!isSel && <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: proj.color || '#628141' }}></span>}
+                {isSel && <Check size={14} className="text-[#E5D9B6]" />}
+                <span className="tracking-wide uppercase">{cleanName}</span>
+              </button>
+            );
+          })}
         </section>
 
-        {/* ── Filter Tabs ── */}
-        <section className="animate-slideUp" style={{ animationDelay: '0.2s' }}>
-          <div className="flex gap-6 border-b" style={{ borderColor: 'var(--surface-border)', paddingBottom: 2 }}>
-            {['Today', 'This Week', 'Planned', 'Archive'].map((tab) => {
-              const on = filterTab === tab;
-              return (
-                <button
-                  key={tab}
-                  onClick={() => { if (window.navigator?.vibrate) window.navigator.vibrate(10); setFilterTab(tab); }}
-                  style={{
-                    fontFamily: G, fontSize: 15, fontWeight: on ? 600 : 400,
-                    color: on ? 'var(--text-primary)' : 'var(--text-secondary)',
-                    paddingBottom: 10,
-                    borderBottom: on ? '2px solid var(--text-primary)' : '2px solid transparent',
-                    marginBottom: -2,
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  {tab}
-                </button>
-              );
-            })}
+        {/* Timeline Tab Switcher */}
+        <section className="mb-5">
+          <div className="flex items-center justify-between relative overflow-x-auto no-scrollbar">
+            <div className="flex items-center gap-6">
+              {['Today', 'This Week', 'Planned', 'Archive'].map((tab) => {
+                const on = filterTab === tab;
+                return (
+                  <button
+                    key={tab}
+                    onClick={() => setFilterTab(tab)}
+                    className={`relative pb-2.5 text-[15px] font-sans transition-colors shrink-0 ${on ? 'font-bold text-[#40513B]' : 'font-medium text-[#636F5A] hover:text-[#40513B]'}`}
+                  >
+                    {tab}
+                    {on && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#40513B] rounded-full"></span>}
+                  </button>
+                );
+              })}
+            </div>
           </div>
+          <div className="w-full h-px bg-[#EDE7DA] mt-[-1px]"></div>
         </section>
 
-        {/* ── Task List ── */}
-        <section className="flex flex-col gap-3 animate-slideUp" style={{ animationDelay: '0.2s' }}>
-          <span style={{ fontFamily: M, fontSize: 10, color: 'var(--text-muted)', letterSpacing: '0.06em' }}>
+        {/* Tasks Subheader with Filter Icon */}
+        <div className="flex items-center justify-between mb-3 px-1">
+          <span className="font-mono text-[11px] text-[#636F5A] tracking-wider font-bold uppercase">
             TASKS · {activeCount} ACTIVE
           </span>
+          <button aria-label="Sort or filter tasks" className="text-[#636F5A] hover:text-[#40513B] transition-colors">
+            <ListFilter size={18} />
+          </button>
+        </div>
+
+        {/* Task List Cards */}
+        <section className="flex flex-col gap-3">
           {filteredTasks.length === 0 ? (
-            <div className="card-2xl p-8 text-center">
-              <span className="material-symbols-outlined" style={{ fontSize: 32, color: 'var(--text-muted)', display: 'block', marginBottom: 8 }}>check_circle</span>
-              <p style={{ fontFamily: G, fontSize: 14, color: 'var(--text-muted)' }}>No tasks in this view. Add one below.</p>
+            <div className="bg-white border border-[#EDE7DA] rounded-[24px] p-8 text-center flex flex-col items-center shadow-sm">
+              <Check size={32} className="text-[#8D9A82] mb-3" />
+              <p className="font-sans text-[14px] text-[#636F5A]">No tasks in this view. Add one below.</p>
             </div>
           ) : (
             filteredTasks.map((task) => {
               const project = projects.find((p) => p.id === task.projectId);
               const cleanProjectName = project ? project.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' ') : null;
+              
               return (
-                <div
-                  key={task.id}
-                  className="card-2xl squish flex items-center gap-4 p-4 group cursor-pointer"
-                  onClick={() => { if (onEditTask) onEditTask(task); }}
-                  style={{ opacity: task.completed ? 0.55 : 1 }}
+                <article 
+                  key={task.id} 
+                  className={`group bg-white border border-[#EDE7DA] rounded-full p-2.5 pl-4 flex items-center justify-between shadow-[0_4px_16px_-2px_rgba(64,81,59,0.05)] transition-all hover:shadow-md cursor-pointer ${task.completed ? 'opacity-60' : ''}`}
+                  onClick={() => onEditTask && onEditTask(task)}
                 >
-                  {/* Checkbox */}
-                  <button
-                    type="button"
-                    onClick={(e) => { e.stopPropagation(); if (window.navigator?.vibrate) window.navigator.vibrate(10); if (onToggleComplete) onToggleComplete(task.id); }}
-                    className="flex-shrink-0 flex items-center justify-center transition-all"
-                    style={{ width: 28, height: 28, borderRadius: '50%', border: `2px solid ${task.completed ? 'var(--accent)' : 'var(--surface-mid)'}`, background: task.completed ? 'var(--accent)' : 'transparent' }}
-                  >
-                    {task.completed && <span className="material-symbols-outlined fill" style={{ fontSize: 16, color: '#fff' }}>check</span>}
-                  </button>
-
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <p style={{ fontFamily: G, fontSize: 15, fontWeight: 500, color: 'var(--text-on-accent)', textDecoration: task.completed ? 'line-through' : 'none' }} className="truncate">
-                      {task.title}
-                    </p>
-                    <div className="flex items-center gap-3 mt-1">
-                      {cleanProjectName && (
-                        <span className="flex items-center gap-1" style={{ fontFamily: M, fontSize: 10, color: 'var(--text-secondary)' }}>
-                          <div style={{ width: 6, height: 6, borderRadius: '50%', background: project?.color || 'var(--accent)', flexShrink: 0 }} />
-                          {cleanProjectName}
-                        </span>
+                  <div className="flex items-center gap-3.5 min-w-0 pr-2">
+                    <button 
+                      aria-label="Toggle Complete" 
+                      onClick={(e) => { e.stopPropagation(); onToggleComplete && onToggleComplete(task.id); }}
+                      className={`w-6 h-6 rounded-full border flex items-center justify-center shrink-0 transition-colors ${task.completed ? 'bg-[#628141] border-[#628141]' : 'border-[#EDE7DA] bg-[#F4F1EA] hover:border-[#628141]'}`}
+                    >
+                      {task.completed ? (
+                        <Check size={12} className="text-white" />
+                      ) : (
+                        <span className="w-3.5 h-3.5 rounded-full bg-white shadow-inner"></span>
                       )}
-                      {task.estimatedPomos && (
-                        <span style={{ fontFamily: M, fontSize: 10, color: 'var(--text-muted)' }}>
-                          {task.completedPomos || 0}/{task.estimatedPomos} pomos
-                        </span>
-                      )}
+                    </button>
+                    <div className="flex flex-col min-w-0">
+                      <h3 className={`text-[15px] font-bold text-[#40513B] truncate font-sans ${task.completed ? 'line-through' : ''}`}>
+                        {task.title}
+                      </h3>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        {cleanProjectName && (
+                          <>
+                            <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: project?.color || '#628141' }}></span>
+                            <span className="font-mono text-[10px] text-[#636F5A] tracking-wider font-semibold uppercase truncate max-w-[120px]">
+                              {cleanProjectName}
+                            </span>
+                          </>
+                        )}
+                        {task.estimatedPomos && (
+                          <span className="font-mono text-[11px] text-[#8D9A82] shrink-0">
+                            {task.completedPomos || 0}/{task.estimatedPomos} pomos
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-
-                  {/* Play action */}
                   {!task.completed && (
-                    <button
-                      type="button"
-                      onClick={(e) => { e.stopPropagation(); if (window.navigator?.vibrate) window.navigator.vibrate(20); if (onStartPomodoro) onStartPomodoro(task); }}
-                      className="flex-shrink-0 p-2 rounded-lg transition-transform active:scale-95 flex items-center justify-center"
-                      style={{ background: 'var(--surface-low)' }}
+                    <button 
+                      aria-label="Start Pomodoro" 
+                      onClick={(e) => { e.stopPropagation(); onStartPomodoro && onStartPomodoro(task); }}
+                      className="w-11 h-11 rounded-full bg-[#F4F1EA] text-[#40513B] flex items-center justify-center shrink-0 hover:bg-[#628141] hover:text-white transition-all shadow-sm active:scale-95"
                     >
-                      <span className="material-symbols-outlined fill" style={{ fontSize: 22, color: 'var(--text-primary)' }}>play_arrow</span>
+                      <Play size={16} className="translate-x-0.5 fill-current" />
                     </button>
                   )}
-                </div>
+                </article>
               );
             })
           )}
         </section>
-      </div>
 
-      {/* ── FAB ── */}
-      <button
-        type="button"
-        onClick={() => { if (window.navigator?.vibrate) window.navigator.vibrate(15); if (onAddTask) onAddTask(); }}
-        className="animate-fab-in squish fixed right-5 bottom-24 z-40 flex items-center justify-center"
-        style={{ width: 56, height: 56, borderRadius: 16, background: 'var(--text-primary)', boxShadow: '0 4px 24px rgba(0,0,0,0.15)' }}
-        title="Add new task"
-      >
-        <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: 26 }}>add</span>
-      </button>
+        {/* Floating Action Button (FAB) */}
+        <aside className="fixed bottom-24 right-5 z-40">
+          <button 
+            aria-label="Add Task" 
+            onClick={() => { if (window.navigator?.vibrate) window.navigator.vibrate(15); if (onAddTask) onAddTask(); }}
+            className="w-14 h-14 rounded-full bg-[#40513B] text-white flex items-center justify-center shadow-[0_10px_22px_rgba(64,81,59,0.35)] active:scale-90 transition-transform hover:bg-[#344230]"
+          >
+            <Plus size={24} strokeWidth={3} />
+          </button>
+        </aside>
+      </div>
     </div>
   );
 }

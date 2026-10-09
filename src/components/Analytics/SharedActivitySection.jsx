@@ -1,12 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Check } from 'lucide-react';
-
-const G = "'Geist', system-ui, sans-serif";
-const M = "'JetBrains Mono', monospace";
+import { ChevronLeft, ChevronRight, Clock, CheckCircle } from 'lucide-react';
 
 const PERIODS = ['All', 'Daily', 'Weekly', 'Monthly', 'Yearly'];
-const HMAP_FILL = ['var(--surface-low)', 'var(--accent-pale)', '#A8F1FF', '#6FE6FC', 'var(--accent)'];
-const DAY_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
 const getLocalDateStr = (d) => {
   try {
@@ -41,7 +36,7 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
   const [period, setPeriod] = useState('Daily');
   const [offset, setOffset] = useState(0);
   const now = new Date();
-  const maxBarH = 48;
+  const maxBarH = 64; // Adjusted for new design
 
   const isAll = period === 'All';
 
@@ -144,14 +139,16 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
   let displaySubDays = '0 active days';
   let activeHeatmap = [];
   let activeChart = [];
-  let chartTitle = 'Focus distribution';
+  let chartTitle = 'Total per day';
   let chartPeakLabel = 'No activity';
-  let chartSubLabel = 'Time breakdown';
+  let chartSubLabel = 'Hours focused by day of week';
+  let heatmapTitleDate = 'Month';
 
   if (period === 'Daily') {
     const targetDate = new Date(now);
     targetDate.setDate(now.getDate() + offset);
     const targetStr = getLocalDateStr(targetDate);
+    heatmapTitleDate = targetDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
     const daySessions = (sessions || []).filter(s => {
       const sDt = s.dateStr || (s.completedAt && s.completedAt.split('T')[0]);
       return sDt === targetStr;
@@ -193,9 +190,7 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
       v: maxDayMins > 0 ? s.mins / maxDayMins : 0,
       isPeak: maxDayMins > 0 && s.mins === maxDayMins,
     }));
-    chartTitle = 'Total per day';
-    chartPeakLabel = maxDayMins > 0 ? `Peak: ${peakDayLabel} (${formatTimeNoDecimals(maxDayMins)})` : 'No activity';
-    chartSubLabel = 'Hours focused by day of week';
+    chartPeakLabel = maxDayMins > 0 ? formatDisplayHours(maxDayMins) : 'No activity';
     activeHeatmap = generateHeatmapGrid(targetDate, targetStr, targetStr);
 
   } else if (period === 'Weekly') {
@@ -204,6 +199,7 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
     wkStart.setDate(now.getDate() - dayOfWeek + 1 + offset * 7);
     const wkEnd = new Date(wkStart);
     wkEnd.setDate(wkStart.getDate() + 6);
+    heatmapTitleDate = wkStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
     const sStr = getLocalDateStr(wkStart);
     const eStr = getLocalDateStr(wkEnd);
 
@@ -242,8 +238,8 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
       v: maxWkMins > 0 ? s.mins / maxWkMins : 0,
       isPeak: maxWkMins > 0 && s.mins === maxWkMins,
     }));
-    chartTitle = 'Total per week (Last 4 Weeks)';
-    chartPeakLabel = maxWkMins > 0 ? `Peak: ${peakWkLabel} (${formatTimeNoDecimals(maxWkMins)})` : 'No activity';
+    chartTitle = 'Total per week';
+    chartPeakLabel = maxWkMins > 0 ? formatDisplayHours(maxWkMins) : 'No activity';
     chartSubLabel = 'Hours focused by weekly interval';
     activeHeatmap = generateHeatmapGrid(wkEnd, sStr, eStr);
 
@@ -252,6 +248,7 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
     const yrStr = String(targetMoDate.getFullYear());
     const moNum = targetMoDate.getMonth();
     const prefix = `${yrStr}-${String(moNum + 1).padStart(2, '0')}`;
+    heatmapTitleDate = targetMoDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
     const moSessions = (sessions || []).filter(s => (s.dateStr || s.completedAt || '').startsWith(prefix));
     const totalMins = moSessions.reduce((acc, s) => acc + (s.duration || 25), 0);
@@ -282,7 +279,7 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
       isPeak: maxMoMins > 0 && s.mins === maxMoMins,
     }));
     chartTitle = `Total per month (${yrStr})`;
-    chartPeakLabel = maxMoMins > 0 ? `Peak: ${peakMoLabel} (${formatTimeNoDecimals(maxMoMins)})` : 'No activity';
+    chartPeakLabel = maxMoMins > 0 ? formatDisplayHours(maxMoMins) : 'No activity';
     chartSubLabel = `Hours focused across ${yrStr}`;
     const endOfMo = (offset === 0 && now.getMonth() === moNum && now.getFullYear() === Number(yrStr))
       ? now
@@ -294,6 +291,7 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
   } else if (period === 'Yearly') {
     const targetYr = now.getFullYear() + offset;
     const yrStr = String(targetYr);
+    heatmapTitleDate = 'All Time';
     const yrSessions = (sessions || []).filter(s => (s.dateStr || s.completedAt || '').startsWith(yrStr));
     const totalMins = yrSessions.reduce((acc, s) => acc + (s.duration || 25), 0);
     displayHours = formatDisplayHours(totalMins);
@@ -323,11 +321,12 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
       isPeak: maxYrMins > 0 && s.mins === maxYrMins,
     }));
     chartTitle = 'Total per year';
-    chartPeakLabel = maxYrMins > 0 ? `Peak: ${peakYrLabel} (${formatTimeNoDecimals(maxYrMins)})` : 'No activity';
+    chartPeakLabel = maxYrMins > 0 ? formatDisplayHours(maxYrMins) : 'No activity';
     chartSubLabel = 'Annual focus time progression';
     activeHeatmap = generateHeatmapGrid(new Date(targetYr, 11, 31));
 
   } else if (period === 'All') {
+    heatmapTitleDate = 'All Time';
     const totalMins = (sessions || []).reduce((acc, s) => acc + (s.duration || 25), 0);
     displayHours = formatDisplayHours(totalMins);
     displayPomos = (sessions || []).length;
@@ -335,6 +334,32 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
     displaySubToday = `${formatTimeNoDecimals(totalMins / Math.max(1, uniqueDays))} avg / active day`;
     displaySubDays = `${uniqueDays} active days total`;
     activeHeatmap = generateHeatmapGrid(now);
+    
+    // Generate activeChart for 'All' (same as Yearly)
+    const targetYr = now.getFullYear();
+    const years = [targetYr - 2, targetYr - 1, targetYr];
+    let maxYrMins = 0;
+    let peakYrLabel = 'None';
+    const yearlySlots = years.map(y => {
+      const yStr = String(y);
+      const ySess = (sessions || []).filter(s => (s.dateStr || s.completedAt || '').startsWith(yStr));
+      const mins = ySess.reduce((acc, s) => acc + (s.duration || 25), 0);
+      if (mins > maxYrMins) { maxYrMins = mins; peakYrLabel = yStr; }
+      return {
+        h: yStr,
+        mins,
+        val: mins > 0 ? formatTimeNoDecimals(mins) : '0h',
+        isCurrent: y === targetYr,
+      };
+    });
+    activeChart = yearlySlots.map(s => ({
+      ...s,
+      v: maxYrMins > 0 ? s.mins / maxYrMins : 0,
+      isPeak: maxYrMins > 0 && s.mins === maxYrMins,
+    }));
+    chartTitle = 'Total per year';
+    chartPeakLabel = maxYrMins > 0 ? formatDisplayHours(maxYrMins) : 'No activity';
+    chartSubLabel = 'All-time focus progression';
   }
 
   const dateLabel = getDateRangeLabel(period, offset);
@@ -347,270 +372,161 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
   }, [period, offset, sessions]);
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* Tabs Row */}
-      <div className="animate-slideUp" style={{ animationDelay: '0.05s' }}>
-        <div className="flex rounded-xl p-1 gap-1" style={{ background: 'var(--surface-low)' }}>
-          {PERIODS.map((p) => {
-            const active = p === period;
-            return (
-              <button
-                key={p}
-                onClick={() => {
-                  if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(10);
-                  setPeriod(p);
-                  setOffset(0);
-                }}
-                className="flex-1 py-2 rounded-lg transition-all"
-                style={{
-                  background: active ? 'var(--surface-card)' : 'transparent',
-                  color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
-                  boxShadow: active ? 'var(--shadow-soft)' : 'none',
-                }}
-              >
-                <span style={{ fontFamily: M, fontSize: 10, fontWeight: active ? 700 : 500 }}>{p}</span>
-              </button>
-            );
-          })}
-        </div>
+    <div className="flex flex-col gap-3.5 mb-3.5">
+      
+      {/* Time Frame Segmented Track */}
+      <div className="w-full bg-[#EDE7DA]/70 p-1 rounded-full flex items-center justify-between border border-[#EDE7DA]">
+        {PERIODS.map((p) => {
+          const active = p === period;
+          return (
+            <button
+              key={p}
+              onClick={() => {
+                if (window.navigator?.vibrate) window.navigator.vibrate(10);
+                setPeriod(p);
+                setOffset(0);
+              }}
+              className={`flex-1 py-1.5 text-center rounded-full text-xs transition-all ${
+                active 
+                  ? 'bg-white text-[#191D15] shadow-sm font-semibold' 
+                  : 'text-[#444841] font-medium hover:text-[#191D15]'
+              }`}
+            >
+              {p}
+            </button>
+          );
+        })}
+      </div>
 
-        {/* Date Slider */}
-        <div
-          className="flex items-center justify-between mt-2 px-3 py-2 rounded-xl"
-          style={{
-            background: 'var(--surface-card)',
-            border: '1px solid var(--surface-border)',
-            opacity: isAll ? 0.4 : 1,
-            pointerEvents: isAll ? 'none' : 'auto',
-          }}
+      {/* Date Navigation Capsule */}
+      <div className={`w-full bg-white rounded-full px-4 py-2.5 flex items-center justify-between shadow-sm border border-[#EDE7DA] transition-opacity ${isAll ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+        <button
+          onClick={() => { if (window.navigator?.vibrate) window.navigator.vibrate(10); setOffset(prev => prev - 1); }}
+          className="flex items-center gap-1 text-[11px] font-bold tracking-wider text-[#444841] hover:text-[#191D15] transition-colors active:scale-95"
         >
-          <button
-            onClick={() => {
-              if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(10);
-              setOffset((prev) => prev - 1);
-            }}
-            disabled={isAll}
-            className="p-1 rounded transition-all active:scale-90 disabled:opacity-30"
-            style={{ color: 'var(--text-secondary)' }}>
-            <span style={{ fontFamily: M, fontSize: 11, fontWeight: 700 }}>{'< PREV'}</span>
-          </button>
-          <span style={{ fontFamily: M, fontSize: 10, fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '0.04em' }}>
-            {isAll ? `All Time (${displaySubDays})` : getDateRangeLabel(period, offset)}
-          </span>
-          <button
-            onClick={() => {
-              if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(10);
-              setOffset((prev) => Math.min(0, prev + 1));
-            }}
-            disabled={isAll || offset >= 0}
-            className="p-1 rounded transition-all active:scale-90 disabled:opacity-30"
-            style={{ color: 'var(--text-secondary)' }}>
-            <span style={{ fontFamily: M, fontSize: 11, fontWeight: 700 }}>{'NEXT >'}</span>
-          </button>
+          <ChevronLeft size={15} strokeWidth={2.5} />
+          <span className="tracking-widest uppercase">PREV</span>
+        </button>
+        <span className="text-xs text-[#191D15] font-semibold tracking-tight font-sans">
+          {dateLabel}
+        </span>
+        <button
+          onClick={() => { if (window.navigator?.vibrate) window.navigator.vibrate(10); setOffset(prev => Math.min(0, prev + 1)); }}
+          disabled={offset >= 0}
+          className={`flex items-center gap-1 text-[11px] font-bold tracking-wider transition-colors ${offset >= 0 ? 'text-[#C4C8BE] cursor-not-allowed' : 'text-[#444841] hover:text-[#191D15] active:scale-95'}`}
+        >
+          <span className="tracking-widest uppercase">NEXT</span>
+          <ChevronRight size={15} strokeWidth={2.5} />
+        </button>
+      </div>
+
+      {/* Dual Metric Summary Tiles */}
+      {showKPIs && (
+        <div className="grid grid-cols-2 gap-3.5 mt-1">
+          {/* Focus Time Tile */}
+          <div className="bg-white rounded-2xl p-4 shadow-sm border border-[#EDE7DA] flex flex-col justify-between min-h-[110px]">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-[#628141] mb-1.5 flex items-center justify-between">
+                <span>FOCUS TIME</span>
+                <Clock size={16} />
+              </p>
+              <p className="text-2xl text-[#191D15] font-bold tracking-tight font-sans">{displayHours}</p>
+            </div>
+            <p className="text-[11px] text-[#444841] mt-3 font-sans">{displaySubToday}</p>
+          </div>
+          
+          {/* Sessions Tile */}
+          <div className="bg-white rounded-2xl p-4 shadow-sm border border-[#EDE7DA] flex flex-col justify-between min-h-[110px]">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-[#628141] mb-1.5 flex items-center justify-between">
+                <span>SESSIONS</span>
+                <CheckCircle size={16} />
+              </p>
+              <p className="text-2xl text-[#191D15] font-bold tracking-tight font-sans">{displayPomos.toLocaleString()}</p>
+            </div>
+            <p className="text-[11px] text-[#444841] mt-3 font-sans">{displaySubDays}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Activity Heatmap Grid */}
+      <div className="bg-white rounded-2xl p-4 shadow-sm border border-[#EDE7DA] flex flex-col">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-[11px] uppercase tracking-wider text-[#628141] font-bold">ACTIVITY GRID</span>
+          <span className="text-xs text-[#747870] font-normal font-sans">{heatmapTitleDate}</span>
+        </div>
+        
+        <div className="grid grid-cols-7 gap-1 text-center mb-1.5">
+          {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
+            <span key={i} className="text-[11px] font-semibold text-[#628141]">{d}</span>
+          ))}
+        </div>
+        
+        <div className="grid grid-cols-7 gap-1 text-center text-xs select-none">
+          {activeHeatmap.map((week, wi) => 
+            week.map((cell, di) => {
+              const dayNum = cell?.dayNum;
+              const isCur = !!cell?.isCurrent;
+              const isSameMo = !!cell?.isSameMonth;
+              const val = cell?.val || 0;
+              
+              let bgClass = "bg-[#F9FBEE] text-[#444841]"; // default empty inside month
+              if (!isSameMo) {
+                bgClass = "bg-[#F5F1E8]/70 text-[#C4C8BE]";
+              } else if (val >= 3) {
+                bgClass = "bg-[#40513B] text-white font-semibold shadow-sm";
+              } else if (val >= 1) {
+                bgClass = "bg-[#628141] text-white font-semibold";
+              } else if (isCur) {
+                bgClass = "bg-[#E5D9B6]/40 text-[#191D15] font-bold border border-[#E5D9B6]";
+              }
+              
+              return (
+                <div key={`${wi}-${di}`} className={`h-9 rounded-xl flex items-center justify-center text-[11px] font-sans ${bgClass}`}>
+                  {dayNum}
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
 
-      {/* KPI Row (Only shown when requested or in Reports) */}
-      {showKPIs && (
-        <div className="grid grid-cols-2 gap-3 animate-slideUp" style={{ animationDelay: '0.1s' }}>
-          <div
-            className="card-2xl p-4"
-            style={{ borderLeft: '3px solid var(--accent)' }}
-          >
-            <p style={{ fontFamily: M, fontSize: 10, color: 'var(--text-muted)' }}>FOCUS TIME</p>
-            <p style={{ fontFamily: G, fontSize: 22, color: 'var(--text-primary)', fontWeight: 700, marginTop: 4, letterSpacing: '-0.03em' }}>
-              {displayHours}
-            </p>
-            <p style={{ fontFamily: M, fontSize: 10, color: 'var(--text-secondary)', marginTop: 4 }}>{displaySubToday}</p>
+      {/* Total Per Day Column Chart */}
+      <div className="bg-white rounded-2xl p-4 shadow-sm border border-[#EDE7DA] flex flex-col">
+        <div className="flex items-center justify-between mb-0.5">
+          <span className="text-sm font-bold text-[#191D15] font-sans">{chartTitle}</span>
+          <span className="text-[11px] text-[#628141] font-semibold px-2 py-0.5 rounded-full bg-[#E5D9B6]/40">
+              {chartPeakLabel}
+            </span>
           </div>
-          <div
-            className="card-2xl p-4"
-            style={{ borderLeft: '3px solid var(--accent-soft)' }}
+          <p className="text-[11px] text-[#444841] mb-6 font-sans">{chartSubLabel}</p>
+          
+          <div 
+            className="grid gap-2 items-end min-h-[88px] pb-1"
+            style={{ gridTemplateColumns: `repeat(${activeChart.length}, minmax(0, 1fr))` }}
           >
-            <p style={{ fontFamily: M, fontSize: 10, color: 'var(--text-muted)' }}>SESSIONS</p>
-            <p style={{ fontFamily: G, fontSize: 22, color: 'var(--text-primary)', fontWeight: 700, marginTop: 4, letterSpacing: '-0.03em' }}>
-              {displayPomos.toLocaleString()}
-            </p>
-            <p style={{ fontFamily: M, fontSize: 10, color: 'var(--text-secondary)', marginTop: 4 }}>{displaySubDays}</p>
-          </div>
-        </div>
-      )}
-
-      {/* Activity Heatmap Grid (Hidden when period === 'All' or 'Yearly') */}
-      {!isAll && period !== 'Yearly' && (
-        <div className="animate-slideUp" style={{ animationDelay: '0.15s' }}>
-          <div className="card-2xl p-4">
-            <div className="flex items-center justify-between mb-3">
-              <span style={{ fontFamily: M, fontSize: 10, color: 'var(--text-secondary)', letterSpacing: '0.04em' }}>ACTIVITY GRID</span>
-              <span style={{ fontFamily: M, fontSize: 10, color: 'var(--text-muted)' }}>5×7 month</span>
-            </div>
-            <div className="flex gap-[3px] mb-1">
-              {DAY_LABELS.map((d, i) => (
-                <div
-                  key={i}
-                  style={{ flex: 1, textAlign: 'center', fontFamily: M, fontSize: 9, color: 'var(--text-muted)', fontWeight: 500 }}
-                >{d}</div>
-              ))}
-            </div>
-            <div className="flex flex-col gap-[3px]">
-              {activeHeatmap.map((week, wi) => (
-                <div key={wi} className="flex gap-[3px]">
-                  {week.map((cell, di) => {
-                    const dayNum = cell && cell.dayNum !== undefined ? cell.dayNum : (wi * 7 + di + 1);
-                    const targetHours = cell && cell.targetHours !== undefined ? cell.targetHours : 4.0;
-                    const achievedHours = cell && cell.achievedHours !== undefined ? cell.achievedHours : 0;
-                    const val = cell && cell.val !== undefined ? cell.val : 0;
-                    const isGoalMet = val > 0 && achievedHours >= targetHours;
-                    const isCur = !!cell.isCurrent;
-
-                    // Compute fill — current cell gets a subtle overlay tint
-                    const baseFill = HMAP_FILL[val];
-                    const cellBg = isCur && val === 0
-                      ? 'rgba(185, 218, 255, 0.06)'
-                      : baseFill;
-
-                    return (
-                      <div
-                        key={di}
-                        className="transition-all duration-200 cursor-pointer hover:scale-105 hover:z-10"
-                        title={`${cell.dateStr || `Day ${dayNum}`}: ${achievedHours}h / ${targetHours}h goal`}
-                        style={{
-                          flex: 1,
-                          height: 36,
-                          background: cellBg,
-                          borderRadius: 6,
-                          position: 'relative',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          border: isCur
-                            ? '1.5px solid var(--accent)'
-                            : '1px solid var(--surface-border)',
-                          boxShadow: isCur ? '0 0 8px rgba(78, 215, 241, 0.3)' : 'none',
-                        }}
-                      >
-                        {/* Day number — always visible */}
-                        <span
-                          style={{
-                            fontFamily: M,
-                            fontSize: 8,
-                            color: !cell.isSameMonth
-                              ? 'var(--surface-mid)'
-                              : isCur
-                                ? 'var(--accent)'
-                                : val >= 3 ? 'var(--text-secondary)' : val > 0 ? 'var(--text-muted)' : 'var(--text-muted)',
-                            position: 'absolute',
-                            top: 3,
-                            left: 4,
-                            fontWeight: isCur ? 800 : 600,
-                            letterSpacing: '-0.02em',
-                          }}
-                        >
-                          {dayNum}
-                        </span>
-
-                        {/* Status indicator */}
-                        {isGoalMet ? (
-                          <div
-                            style={{
-                              width: 14,
-                              height: 14,
-                              borderRadius: '50%',
-                              background: isCur
-                                ? 'var(--accent)'
-                                : 'var(--accent-soft)',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              boxShadow: isCur ? '0 0 8px rgba(78,215,241,0.6)' : 'none',
-                            }}
-                          >
-                            <Check size={8} color={'#fff'} strokeWidth={3.5} />
-                          </div>
-                        ) : val > 0 ? (
-                          <div
-                            style={{
-                              width: 10,
-                              height: 10,
-                              borderRadius: '50%',
-                              border: isCur ? '2px solid var(--accent)' : '1.5px solid var(--accent-pale)',
-                              background: isCur ? 'rgba(78,215,241,0.1)' : 'transparent',
-                              boxShadow: isCur ? '0 0 6px rgba(78,215,241,0.3)' : 'none',
-                            }}
-                          />
-                        ) : null}
-                      </div>
-                    );
-                  })}
+            {activeChart.map((slot) => {
+              const hasVal = slot.v > 0;
+              const barH = hasVal ? Math.max(6, slot.v * maxBarH) : 6;
+              const isSelected = slot.isCurrent;
+              
+              return (
+                <div key={slot.h} className="flex flex-col items-center gap-1.5 min-w-0">
+                  <span className={`text-[10px] font-sans ${isSelected ? 'text-[#40513B] font-bold' : (hasVal ? 'text-[#628141] font-medium' : 'text-[#747870]')}`}>
+                    {slot.val}
+                  </span>
+                  <div 
+                    className={`w-full rounded-full transition-all duration-300 ${isSelected ? 'bg-[#40513B]' : (hasVal ? 'bg-[#628141]' : 'bg-[#EDE7DA]')}`}
+                    style={{ height: barH }}
+                  ></div>
+                  <span className={`text-[11px] font-sans ${isSelected ? 'text-[#40513B] font-bold' : 'text-[#444841] font-medium'} truncate w-full text-center`}>
+                    {slot.h}
+                  </span>
                 </div>
-              ))}
-            </div>
-          </div>
+              );
+            })}
         </div>
-      )}
-
-      {/* Dynamic Time Distribution Bar Chart (Hidden when period === 'All') */}
-      {!isAll && (
-        <div className="animate-slideUp" style={{ animationDelay: '0.2s' }}>
-          <div
-            className="card-2xl p-4 transition-all duration-300 hover:shadow-ambient"
-          >
-            <div className="flex items-center justify-between ">
-              <span style={{ fontFamily: M, fontSize: 10, color: 'var(--text-secondary)' }}>{chartTitle}</span>
-              <span style={{ fontFamily: M, fontSize: 10, color: 'var(--accent)' }}>{chartPeakLabel}</span>
-            </div>
-            <p style={{ fontFamily: M, fontSize: 10, color: 'var(--text-muted)', marginBottom: 36 }}>{chartSubLabel}</p>
-            <div className="flex items-end gap-[4px]" style={{ height: maxBarH + 20 }}>
-              {activeChart.map((slot) => {
-                const hasVal = slot.v > 0;
-                const barH = Math.max(3, slot.v * maxBarH);
-                return (
-                  <div key={slot.h} className="flex flex-col items-center gap-1 min-w-0" style={{ flex: 1 }}>
-                    <span
-                      style={{
-                        fontFamily: M,
-                        fontSize: 9,
-                        color: slot.isCurrent && hasVal ? 'var(--accent)' : (hasVal ? 'var(--text-secondary)' : 'var(--text-muted)'),
-                        fontWeight: slot.isCurrent ? 700 : (hasVal ? 600 : 400),
-                      }}
-                      className="truncate max-w-full"
-                    >
-                      {slot.val}
-                    </span>
-                    <div
-                      style={{
-                        width: '100%',
-                        height: maxBarH,
-                        display: 'flex',
-                        alignItems: 'flex-end',
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: '100%',
-                          height: barH,
-                          background: slot.isCurrent && hasVal ? 'var(--accent)' : (hasVal ? 'var(--accent-pale)' : 'var(--surface-low)'),
-                          borderRadius: '2px 2px 0 0',
-                          transition: 'height 0.3s ease',
-                        }}
-                      />
-                    </div>
-                    <span
-                      style={{
-                        fontFamily: M,
-                        fontSize: 9,
-                        color: slot.isCurrent ? 'var(--accent)' : (hasVal ? 'var(--text-primary)' : 'var(--text-secondary)'),
-                        fontWeight: slot.isCurrent ? 700 : (hasVal ? 600 : 400),
-                      }}
-                      className="truncate max-w-full"
-                    >{slot.h}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 }

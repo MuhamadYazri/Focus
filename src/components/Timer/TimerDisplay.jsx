@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
-const G = "'Geist', system-ui, sans-serif";
-const M = "'JetBrains Mono', monospace";
+const G = "'Poppins', sans-serif";
+const M = "'Poppins', sans-serif";
 
 const RADIUS = 46;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;

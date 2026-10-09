@@ -711,10 +711,10 @@ export default function App() {
               <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#fff' }}>check</span>
             </div>
             <div className="flex flex-col justify-center whitespace-nowrap" style={{ marginTop: -2 }}>
-              <span style={{ fontFamily: "'Geist', sans-serif", fontSize: 15, fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+              <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 15, fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
                 {sessionDoneAlert.title}
               </span>
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.04em', marginTop: 3 }}>
+              <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.04em', marginTop: 3 }}>
                 {sessionDoneAlert.subtitle}
               </span>
             </div>

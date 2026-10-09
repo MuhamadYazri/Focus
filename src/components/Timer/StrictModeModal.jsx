@@ -1,8 +1,8 @@
 import React from 'react';
 import { ShieldAlert } from 'lucide-react';
 
-const G = "Geist, 'Helvetica Neue', sans-serif";
-const M = "'JetBrains Mono', monospace";
+const G = "'Poppins', sans-serif";
+const M = "'Poppins', sans-serif";
 
 export default function StrictModeModal({ isOpen, onClose, onResetTimer }) {
   if (!isOpen) return null;

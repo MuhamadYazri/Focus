@@ -4,8 +4,8 @@ import SharedActivitySection from '../Analytics/SharedActivitySection';
 import { storage } from '../../services/storage';
 import { backupToDrive, restoreFromDrive } from '../../services/googleDriveBackup';
 
-const G = "'Geist', system-ui, sans-serif";
-const M = "'JetBrains Mono', monospace";
+const G = "'Poppins', sans-serif";
+const M = "'Poppins', sans-serif";
 
 export default function ProfileView({
   sessions = [],

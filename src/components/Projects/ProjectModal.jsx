@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { X, Check, Briefcase, BookOpen, Heart, Rocket, Code, Star, Target, Zap, Coffee, Music } from 'lucide-react';
 
-const G = "Geist, 'Helvetica Neue', sans-serif";
-const M = "'JetBrains Mono', monospace";
+const G = "'Poppins', sans-serif";
+const M = "'Poppins', sans-serif";
 
 const COLOR_PALETTE = [
   'var(--accent)', 'var(--text-secondary)', '#4A7090', 'var(--text-secondary)',

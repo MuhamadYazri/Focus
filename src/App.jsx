@@ -594,6 +594,7 @@ export default function App() {
   const handleTouchEnd = (e) => {
     if (isNavHidden) return; // Don't swipe when in fullscreen timer mode
     if (e.target.tagName?.toLowerCase() === 'input' && e.target.type === 'range') return;
+    if (e.target.closest('.no-swipe')) return; // Ignore swipes in horizontal scroll areas
 
     if (!touchStart.current.x || !touchEnd.current.x) return;
     const dx = touchStart.current.x - touchEnd.current.x;

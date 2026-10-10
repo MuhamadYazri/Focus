@@ -10,6 +10,7 @@ import {
   PauseIcon as Pause,
   RotateCcwIcon as RotateCcw,
   LockIcon as Lock,
+  XIcon,
 } from 'lucide-animated';
 import { soundEngine } from '../../services/soundEngine';
 
@@ -104,6 +105,7 @@ export default function TimerView({
 }) {
   const iconRefs = useRef({});
   const [lottieIndex, setLottieIndex] = useState(0);
+  const [showSoundModal, setShowSoundModal] = useState(false);
 
   // Toggle Lottie every time user enters immersive fullscreen mode
   useEffect(() => {
@@ -382,19 +384,14 @@ export default function TimerView({
 
                 {/* Sound & Volume */}
                 <div className="flex items-center justify-between text-[#444841] px-1 pb-0.5">
-                  <div className="relative flex items-center gap-2 cursor-pointer px-2.5 py-1.5 rounded-full hover:bg-canvas transition-colors">
+                  <div 
+                    onClick={() => {
+                      if (window.navigator?.vibrate) window.navigator.vibrate(10);
+                      setShowSoundModal(true);
+                    }}
+                    className="relative flex items-center gap-2 cursor-pointer px-2.5 py-1.5 rounded-full hover:bg-canvas transition-colors"
+                  >
                     <Headphones size={18} className="text-secondary" />
-                    <select
-                      value={currentSound}
-                      onChange={(e) => handleSelectSound(e.target.value)}
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-sm"
-                    >
-                      {soundscapes.map((s) => (
-                        <option key={s.id} value={s.id}>
-                          {s.label}
-                        </option>
-                      ))}
-                    </select>
                     <span className="text-sm font-semibold text-primary font-sans">
                       {soundscapes.find((s) => s.id === currentSound)?.label || 'Silent'}
                     </span>
@@ -471,6 +468,59 @@ export default function TimerView({
           </div>
         </div>
       </div>
+
+      {/* Soundscape Modal */}
+      {showSoundModal && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-canvas/40 backdrop-blur-md animate-fadeIn"
+          onClick={() => setShowSoundModal(false)}
+        >
+          <div
+            className="w-full max-w-sm rounded-3xl p-6 flex flex-col gap-5 border border-border bg-surface shadow-md"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between z-10 pb-2 border-b border-border">
+              <span className="text-sm text-text-main font-sans font-bold">
+                Select Soundscape
+              </span>
+              <button 
+                onClick={() => setShowSoundModal(false)}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-surface-hover text-text-sub hover:bg-border transition-colors"
+              >
+                <XIcon size={18} strokeWidth={2.5} />
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-2 max-h-72 overflow-y-auto no-scrollbar">
+              {soundscapes.map((s) => {
+                const isActive = s.id === currentSound;
+                return (
+                  <button
+                    key={s.id}
+                    onClick={() => {
+                      if (window.navigator?.vibrate) window.navigator.vibrate(10);
+                      handleSelectSound(s.id);
+                      setShowSoundModal(false);
+                    }}
+                    className={`flex items-center justify-between p-3.5 rounded-xl border transition-all text-left ${
+                      isActive ? 'border-primary bg-surface-hover shadow-sm' : 'border-border bg-surface hover:border-secondary'
+                    }`}
+                  >
+                    <span className={`text-sm font-sans ${isActive ? 'font-bold text-primary' : 'font-medium text-text-main'}`}>
+                      {s.label}
+                    </span>
+                    {isActive && (
+                      <svg fill="none" height="18" stroke="currentColor" className="stroke-primary" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="18">
+                        <path d="M20 6L9 17l-5-5"></path>
+                      </svg>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

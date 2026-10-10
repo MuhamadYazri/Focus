@@ -27,6 +27,7 @@ export default function ProfileView({
 }) {
   const [showReport, setShowReport] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState(null);
   const [reportData, setReportData] = useState({
     period: 'Daily',
     offset: 0,
@@ -378,9 +379,7 @@ export default function ProfileView({
                     <button
                       onClick={() => {
                         if (window.navigator?.vibrate) window.navigator.vibrate(10);
-                        if (confirm(`Delete "${cleanName}" and its tasks?`)) {
-                          if (onDeleteProject) onDeleteProject(proj.id);
-                        }
+                        setProjectToDelete(proj);
                       }}
                       aria-label="Delete category"
                       className="p-1 text-[#BA1A1A] hover:opacity-80 transition-opacity flex items-center justify-center"
@@ -858,6 +857,47 @@ export default function ProfileView({
               >
                 {copied ? <CheckIcon size={18} strokeWidth={2.5} /> : <CopyIcon size={18} strokeWidth={2} />}
                 {copied ? 'Copied to Clipboard' : 'Copy Text'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Project Modal */}
+      {projectToDelete && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-canvas/40 backdrop-blur-md animate-fadeIn"
+          onClick={() => setProjectToDelete(null)}
+        >
+          <div
+            className="w-full max-w-sm rounded-3xl p-6 flex flex-col gap-5 border border-border bg-surface shadow-md"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex flex-col gap-2">
+              <span className="text-lg font-bold text-text-main font-sans">
+                Delete Category?
+              </span>
+              <p className="text-sm text-text-sub font-sans leading-relaxed">
+                Are you sure you want to delete <span className="font-semibold text-text-main">{projectToDelete.name.replace(/^[^\w\s]+\s*/, '')}</span> and all of its associated tasks?
+              </p>
+            </div>
+            
+            <div className="flex items-center gap-3 mt-2">
+              <button
+                onClick={() => setProjectToDelete(null)}
+                className="flex-1 p-3 rounded-2xl border border-border text-text-main bg-surface-hover hover:bg-border font-sans font-semibold text-sm transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (window.navigator?.vibrate) window.navigator.vibrate(20);
+                  if (onDeleteProject) onDeleteProject(projectToDelete.id);
+                  setProjectToDelete(null);
+                }}
+                className="flex-1 p-3 rounded-2xl border border-transparent text-white bg-[#BA1A1A] hover:opacity-90 font-sans font-semibold text-sm transition-opacity shadow-sm"
+              >
+                Delete
               </button>
             </div>
           </div>

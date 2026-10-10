@@ -1,19 +1,7 @@
 import React, { useState } from 'react';
 import SharedActivitySection from './SharedActivitySection';
 
-function polarToXY(cx, cy, r, deg) {
-  const rad = ((deg - 90) * Math.PI) / 180;
-  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
-}
-
-function donutArc(cx, cy, r, ri, s, e) {
-  const a = polarToXY(cx, cy, r, s),
-    b = polarToXY(cx, cy, r, e);
-  const c = polarToXY(cx, cy, ri, e),
-    d = polarToXY(cx, cy, ri, s);
-  const lg = e - s > 180 ? 1 : 0;
-  return `M${a.x} ${a.y} A${r} ${r} 0 ${lg} 1 ${b.x} ${b.y} L${c.x} ${c.y} A${ri} ${ri} 0 ${lg} 0 ${d.x} ${d.y}Z`;
-}
+import RingChart from '../animata/graphs/ring-chart';
 
 const getLocalDateStr = (d) => {
   try {
@@ -75,13 +63,6 @@ const TAILWIND_COLORS = ['#E5D9B6', 'var(--theme-secondary)', 'var(--theme-prima
 export default function AnalyticsDashboard({ tasks = [], projects = [], sessions = [] }) {
   const [currentPeriod, setCurrentPeriod] = useState('Daily');
   const [currentOffset, setCurrentOffset] = useState(0);
-
-  const cx = 60,
-    cy = 60,
-    r = 54,
-    ri = 42,
-    gap = 4;
-  let deg = 0;
 
   const formatDisplayHours = (mins) => {
     if (!mins || mins <= 0) return '0h 00m';
@@ -148,34 +129,25 @@ export default function AnalyticsDashboard({ tasks = [], projects = [], sessions
             FOCUS DISTRIBUTION
           </span>
           <div className="flex items-center justify-between gap-4 py-1">
-            {/* SVG Donut Chart */}
-            <div className="relative w-32 h-32 shrink-0 flex items-center justify-center">
-              <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 120 120">
-                <circle
-                  cx={cx}
-                  cy={cy}
-                  fill="none"
-                  r={(r + ri) / 2}
-                  className="stroke-border"
-                  strokeWidth={r - ri}
-                ></circle>
-                {activeSegments.map((seg) => {
-                  const sweep = (seg.pct / 100) * 360;
-                  const s = deg + gap / 2;
-                  const e = deg + sweep - gap / 2;
-                  const path = donutArc(cx, cy, r, ri, s, e);
-                  deg += sweep;
-                  return <path key={seg.label} d={path} fill={seg.color} />;
-                })}
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
+            {/* Animata Ring Chart */}
+            <div className="relative shrink-0 flex items-center justify-center -ml-2 -mt-2">
+              <RingChart
+                size={60}
+                gap={6}
+                width={8}
+                rings={activeSegments.map(seg => ({
+                  progress: seg.pct,
+                  color: seg.color,
+                  trackColor: 'rgba(0,0,0,0.05)'
+                }))}
+              >
                 <span className="text-sm text-text-main font-bold font-sans">
                   {displayTotalTime}
                 </span>
                 <span className="text-[9px] uppercase font-bold text-text-sub tracking-wider font-sans mt-0.5">
                   TOTAL
                 </span>
-              </div>
+              </RingChart>
             </div>
 
             {/* Legend & Baseline */}

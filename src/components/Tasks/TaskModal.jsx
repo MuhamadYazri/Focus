@@ -85,7 +85,7 @@ export default function TaskModal({
       completedPomos: taskToEdit ? taskToEdit.completedPomos : 0,
       completed: taskToEdit ? taskToEdit.completed : false,
       priority: taskToEdit ? taskToEdit.priority : 'NONE',
-      accent: selectedProject.color || '#40513B',
+      accent: selectedProject.color || 'var(--theme-primary)',
       tag: cleanName,
       index: idNum,
       subtasks: subtasks,
@@ -156,7 +156,7 @@ export default function TaskModal({
       onTouchEnd={handlePointerUp}
     >
       <div
-        className={`w-full max-w-md mx-auto bg-white rounded-t-3xl overflow-hidden shadow-2xl border-t border-l border-r border-[#EDE7DA] ${isClosing || isDragging || dragY > 0 ? '' : 'animate-sheet-up'}`}
+        className={`w-full max-w-md mx-auto bg-surface rounded-t-3xl overflow-hidden shadow-2xl border-t border-l border-r border-border ${isClosing || isDragging || dragY > 0 ? '' : 'animate-sheet-up'}`}
         onClick={(e) => e.stopPropagation()}
         style={{
           transform: isClosing ? 'translateY(100%)' : `translateY(${dragY}px)`,
@@ -165,7 +165,7 @@ export default function TaskModal({
       >
         {/* Drag handle */}
         <div
-          className="flex justify-center pt-4 pb-2 cursor-grab active:cursor-grabbing touch-none bg-white"
+          className="flex justify-center pt-4 pb-2 cursor-grab active:cursor-grabbing touch-none bg-surface"
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
@@ -175,26 +175,26 @@ export default function TaskModal({
           onTouchEnd={handlePointerUp}
           style={{ touchAction: 'none' }}
         >
-          <div className={`w-10 h-1.5 rounded-full transition-colors ${isDragging ? 'bg-[#628141]' : 'bg-[#EDE7DA]'}`} />
+          <div className={`w-10 h-1.5 rounded-full transition-colors ${isDragging ? 'bg-secondary' : 'bg-border'}`} />
         </div>
 
         {/* Header */}
-        <div className="flex items-center justify-between px-6 pt-1 pb-4 border-b border-[#F5F1E8]">
-          <h3 className="font-sans text-xl font-bold text-[#191D15] tracking-tight">
+        <div className="flex items-center justify-between px-6 pt-1 pb-4 border-b border-surface-hover">
+          <h3 className="font-sans text-xl font-bold text-text-main tracking-tight">
             {taskToEdit ? 'Edit task' : 'New task'}
           </h3>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-full bg-[#F5F1E8] text-[#747870] hover:text-[#191D15] hover:bg-[#EDE7DA] transition-colors"
+            className="p-1.5 rounded-full bg-surface-hover text-text-sub hover:text-text-main hover:bg-border transition-colors"
           >
             <X size={18} strokeWidth={2.5} />
           </button>
         </div>
 
-        <div className="px-6 py-5 flex flex-col gap-6 max-h-[75vh] overflow-y-auto bg-white">
+        <div className="px-6 py-5 flex flex-col gap-6 max-h-[75vh] overflow-y-auto bg-surface">
           {/* Title input */}
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider text-[#747870] font-sans mb-1.5">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-text-sub font-sans mb-1.5">
               Task title
             </label>
             <input
@@ -203,31 +203,31 @@ export default function TaskModal({
               onChange={(e) => setTitle(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
               placeholder="What needs to be done?"
-              className="w-full bg-[#F9FBEE] border border-[#EDE7DA] rounded-xl px-4 py-3.5 font-sans text-[15px] font-semibold text-[#191D15] placeholder:text-[#C4C8BE] outline-none focus:border-[#628141] focus:bg-white transition-all shadow-inner"
+              className="w-full bg-canvas border border-border rounded-xl px-4 py-3.5 font-sans text-[15px] font-semibold text-text-main placeholder:text-text-sub/50 outline-none focus:border-secondary focus:bg-surface transition-all shadow-inner"
             />
           </div>
 
           {/* Category/Project selector */}
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider text-[#747870] font-sans mb-1.5">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-text-sub font-sans mb-1.5">
               Category
             </label>
             <button
               type="button"
               onClick={() => setShowTags((v) => !v)}
-              className={`w-full flex items-center justify-between bg-white border ${showTags ? 'border-[#628141] shadow-sm' : 'border-[#EDE7DA]'} rounded-xl px-4 py-3.5 transition-all`}
+              className={`w-full flex items-center justify-between bg-surface border ${showTags ? 'border-secondary shadow-sm' : 'border-border'} rounded-xl px-4 py-3.5 transition-all`}
             >
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: selectedProject.color || '#40513B' }} />
-                <span className="font-sans text-[14px] font-bold text-[#191D15]">
+                <div className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: selectedProject.color || 'var(--theme-primary)' }} />
+                <span className="font-sans text-[14px] font-bold text-text-main">
                   {selectedProject.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' ')}
                 </span>
               </div>
-              {showTags ? <ChevronUp size={16} className="text-[#444841]" strokeWidth={2.5} /> : <ChevronDown size={16} className="text-[#C4C8BE]" strokeWidth={2.5} />}
+              {showTags ? <ChevronUp size={16} className="text-[#444841]" strokeWidth={2.5} /> : <ChevronDown size={16} className="text-text-sub/50" strokeWidth={2.5} />}
             </button>
 
             {showTags && (
-              <div className="mt-2 bg-white border border-[#EDE7DA] rounded-xl overflow-hidden shadow-sm max-h-48 overflow-y-auto">
+              <div className="mt-2 bg-surface border border-border rounded-xl overflow-hidden shadow-sm max-h-48 overflow-y-auto">
                 {projects.map((p, i) => {
                   const isSel = p.id === selectedProject.id;
                   return (
@@ -235,13 +235,13 @@ export default function TaskModal({
                       key={p.id}
                       type="button"
                       onClick={() => { setProjectId(p.id); setShowTags(false); }}
-                      className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors border-b border-[#F5F1E8] last:border-none ${isSel ? 'bg-[#F9FBEE]' : 'hover:bg-[#F5F1E8]'}`}
+                      className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors border-b border-surface-hover last:border-none ${isSel ? 'bg-canvas' : 'hover:bg-surface-hover'}`}
                     >
-                      <div className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: p.color || '#40513B' }} />
-                      <span className={`font-sans text-[14px] ${isSel ? 'font-bold text-[#40513B]' : 'font-medium text-[#444841]'}`}>
+                      <div className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: p.color || 'var(--theme-primary)' }} />
+                      <span className={`font-sans text-[14px] ${isSel ? 'font-bold text-primary' : 'font-medium text-[#444841]'}`}>
                         {p.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' ')}
                       </span>
-                      {isSel && <Check size={16} className="ml-auto text-[#628141] font-bold" strokeWidth={3} />}
+                      {isSel && <Check size={16} className="ml-auto text-secondary font-bold" strokeWidth={3} />}
                     </button>
                   );
                 })}
@@ -249,7 +249,7 @@ export default function TaskModal({
                   <button
                     type="button"
                     onClick={() => { setShowTags(false); onOpenCreateProject(); }}
-                    className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#F5F1E8] text-[#628141] font-bold text-xs font-sans hover:bg-[#EDE7DA] transition-colors"
+                    className="w-full flex items-center justify-center gap-2 py-3.5 bg-surface-hover text-secondary font-bold text-xs font-sans hover:bg-border transition-colors"
                   >
                     <Plus size={14} strokeWidth={3} /> NEW CATEGORY
                   </button>
@@ -260,10 +260,10 @@ export default function TaskModal({
 
           {/* Schedule selection */}
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider text-[#747870] font-sans mb-1.5">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-text-sub font-sans mb-1.5">
               Schedule
             </label>
-            <div className="flex gap-1.5 p-1 bg-[#F5F1E8] rounded-xl border border-[#EDE7DA] flex-wrap">
+            <div className="flex gap-1.5 p-1 bg-surface-hover rounded-xl border border-border flex-wrap">
               {[
                 { id: 'today', label: 'Today' },
                 { id: 'daily', label: 'Every Day' },
@@ -277,7 +277,7 @@ export default function TaskModal({
                     type="button"
                     onClick={() => setScheduleType(item.id)}
                     className={`flex-1 min-w-[70px] transition-all active:scale-95 py-2 px-1 rounded-lg text-center text-xs font-sans ${
-                      isSelected ? 'bg-white font-bold text-[#40513B] shadow-sm' : 'font-medium text-[#747870] hover:text-[#191D15]'
+                      isSelected ? 'bg-surface font-bold text-primary shadow-sm' : 'font-medium text-text-sub hover:text-text-main'
                     }`}
                   >
                     {item.label}
@@ -309,7 +309,7 @@ export default function TaskModal({
                         }
                       }}
                       className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-sans font-bold transition-all ${
-                        isSel ? 'bg-[#40513B] text-white shadow-sm' : 'bg-[#F5F1E8] text-[#747870] border border-[#EDE7DA]'
+                        isSel ? 'bg-primary text-white shadow-sm' : 'bg-surface-hover text-text-sub border border-border'
                       }`}
                     >
                       {label}
@@ -324,7 +324,7 @@ export default function TaskModal({
                   type="date"
                   value={scheduledDate}
                   onChange={(e) => setScheduledDate(e.target.value)}
-                  className="w-full bg-[#F9FBEE] border border-[#EDE7DA] rounded-xl px-4 py-3 font-sans text-sm font-semibold text-[#191D15] outline-none focus:border-[#628141] focus:bg-white transition-all shadow-inner"
+                  className="w-full bg-canvas border border-border rounded-xl px-4 py-3 font-sans text-sm font-semibold text-text-main outline-none focus:border-secondary focus:bg-surface transition-all shadow-inner"
                 />
               </div>
             )}
@@ -332,29 +332,29 @@ export default function TaskModal({
 
           {/* Pomodoros Planned */}
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider text-[#747870] font-sans mb-1.5">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-text-sub font-sans mb-1.5">
               Pomodoros planned
             </label>
             <div className="flex items-center gap-4">
               <button
                 type="button"
                 onClick={() => setPomoTotal((v) => Math.max(1, v - 1))}
-                className="w-12 h-12 shrink-0 rounded-xl border border-[#EDE7DA] bg-[#F5F1E8] flex items-center justify-center text-[#40513B] active:scale-95 transition-all hover:bg-[#EDE7DA] shadow-sm"
+                className="w-12 h-12 shrink-0 rounded-xl border border-border bg-surface-hover flex items-center justify-center text-primary active:scale-95 transition-all hover:bg-border shadow-sm"
               >
                 <span className="font-sans text-3xl leading-none font-medium mb-1">−</span>
               </button>
               <div className="flex-1 text-center flex flex-col justify-center h-12">
-                <span className="font-sans text-3xl text-[#191D15] font-bold tracking-tight leading-none">
+                <span className="font-sans text-3xl text-text-main font-bold tracking-tight leading-none">
                   {pomoTotal}
                 </span>
-                <span className="font-sans text-[10px] uppercase font-bold tracking-widest text-[#747870] mt-1 leading-none">
+                <span className="font-sans text-[10px] uppercase font-bold tracking-widest text-text-sub mt-1 leading-none">
                   {pomoTotal === 1 ? 'session' : 'sessions'}
                 </span>
               </div>
               <button
                 type="button"
                 onClick={() => setPomoTotal((v) => Math.min(12, v + 1))}
-                className="w-12 h-12 shrink-0 rounded-xl border border-[#EDE7DA] bg-[#F5F1E8] flex items-center justify-center text-[#40513B] active:scale-95 transition-all hover:bg-[#EDE7DA] shadow-sm"
+                className="w-12 h-12 shrink-0 rounded-xl border border-border bg-surface-hover flex items-center justify-center text-primary active:scale-95 transition-all hover:bg-border shadow-sm"
               >
                 <Plus size={20} strokeWidth={3} />
               </button>
@@ -364,7 +364,7 @@ export default function TaskModal({
               {Array.from({ length: 12 }).map((_, i) => (
                 <div
                   key={i}
-                  className={`flex-1 rounded-full transition-colors ${i < pomoTotal ? 'bg-[#628141]' : 'bg-[#F5F1E8]'}`}
+                  className={`flex-1 rounded-full transition-colors ${i < pomoTotal ? 'bg-secondary' : 'bg-surface-hover'}`}
                 />
               ))}
             </div>
@@ -377,15 +377,15 @@ export default function TaskModal({
               onClick={() => setShowSubtasks(!showSubtasks)}
               className="flex items-center justify-between w-full py-2 group active:opacity-70 transition-opacity"
             >
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#747870] font-sans group-hover:text-[#40513B] transition-colors">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-text-sub font-sans group-hover:text-primary transition-colors">
                 SUBTASKS ({subtasks.length})
               </span>
-              <div className="p-1 rounded-full bg-[#F5F1E8] group-hover:bg-[#EDE7DA] text-[#747870] transition-colors">
+              <div className="p-1 rounded-full bg-surface-hover group-hover:bg-border text-text-sub transition-colors">
                 {showSubtasks ? <ChevronUp size={14} strokeWidth={3} /> : <ChevronDown size={14} strokeWidth={3} />}
               </div>
             </button>
             {showSubtasks && (
-              <div className="mt-2 p-3 rounded-xl bg-[#F9FBEE] border border-[#EDE7DA] flex flex-col gap-3 shadow-inner">
+              <div className="mt-2 p-3 rounded-xl bg-canvas border border-border flex flex-col gap-3 shadow-inner">
                 <div className="flex gap-2">
                   <input
                     type="text"
@@ -393,25 +393,25 @@ export default function TaskModal({
                     onChange={(e) => setNewSubtaskTitle(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleAddSubtask(e)}
                     placeholder="Add a subtask..."
-                    className="flex-1 bg-white px-3 py-2.5 border border-[#EDE7DA] rounded-lg text-sm font-sans font-medium text-[#191D15] placeholder:text-[#C4C8BE] outline-none focus:border-[#628141] transition-colors shadow-sm"
+                    className="flex-1 bg-surface px-3 py-2.5 border border-border rounded-lg text-sm font-sans font-medium text-text-main placeholder:text-text-sub/50 outline-none focus:border-secondary transition-colors shadow-sm"
                   />
                   <button
                     type="button"
                     onClick={handleAddSubtask}
-                    className="px-4 py-2.5 bg-[#40513B] text-white text-xs font-bold font-sans rounded-lg active:scale-95 transition-transform shadow-sm hover:bg-[#344230]"
+                    className="px-4 py-2.5 bg-primary text-white text-xs font-bold font-sans rounded-lg active:scale-95 transition-transform shadow-sm hover:bg-primary-hover"
                   >
                     Add
                   </button>
                 </div>
                 {subtasks.length > 0 && (
-                  <div className="flex flex-col mt-1 bg-white rounded-lg border border-[#EDE7DA] shadow-sm overflow-hidden">
+                  <div className="flex flex-col mt-1 bg-surface rounded-lg border border-border shadow-sm overflow-hidden">
                     {subtasks.map((sub) => (
-                      <div key={sub.id} className="flex items-center justify-between py-2.5 px-3 border-b border-[#F5F1E8] last:border-none">
+                      <div key={sub.id} className="flex items-center justify-between py-2.5 px-3 border-b border-surface-hover last:border-none">
                         <span className="font-sans text-xs font-semibold text-[#444841]">{sub.title}</span>
                         <button
                           type="button"
                           onClick={() => setSubtasks(subtasks.filter((s) => s.id !== sub.id))}
-                          className="text-[#C4C8BE] hover:text-[#BA1A1A] p-1 transition-colors"
+                          className="text-text-sub/50 hover:text-[#BA1A1A] p-1 transition-colors"
                         >
                           <X size={14} strokeWidth={3} />
                         </button>
@@ -430,8 +430,8 @@ export default function TaskModal({
             disabled={!title.trim()}
             className={`w-full flex items-center justify-center gap-2 rounded-xl py-4 mt-2 transition-all active:scale-[0.98] ${
               title.trim() 
-                ? 'bg-[#40513B] text-white shadow-md hover:bg-[#344230]' 
-                : 'bg-[#F5F1E8] text-[#C4C8BE] border border-[#EDE7DA] cursor-not-allowed'
+                ? 'bg-primary text-white shadow-md hover:bg-primary-hover' 
+                : 'bg-surface-hover text-text-sub/50 border border-border cursor-not-allowed'
             }`}
           >
             {title.trim() && <Plus size={18} strokeWidth={3} />}

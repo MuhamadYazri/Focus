@@ -219,7 +219,7 @@ export default function ProfileView({
   };
 
   return (
-    <main className="flex-1 w-full bg-[#F9FBEE] pt-15 pb-32 selection:bg-[#E5D9B6] selection:text-[#40513B]">
+    <main className="flex-1 w-full bg-canvas pt-15 pb-32 selection:bg-[#E5D9B6] selection:text-primary">
       <div className="flex flex-col w-full max-w-md mx-auto px-5  gap-4">
         {/* ── Activity ── */}
         <SharedActivitySection
@@ -231,7 +231,7 @@ export default function ProfileView({
         {/* ── 3 Key Metric Cards ── */}
         <div className="grid grid-cols-3 gap-3">
           {/* Streak */}
-          <div className="bg-white rounded-2xl p-4 flex flex-col items-center text-center justify-center gap-1.5 shadow-sm border border-[#EDE7DA]">
+          <div className="bg-surface rounded-2xl p-4 flex flex-col items-center text-center justify-center gap-1.5 shadow-sm border border-border">
             <svg
               fill="none"
               height="24"
@@ -245,17 +245,17 @@ export default function ProfileView({
               <path d="M12 21.5C16.1421 21.5 19.5 18.1421 19.5 14C19.5 10.5 17 8 15 5.5C14.5 9 12 10 10.5 7.5C9.5 10.5 7.5 12 6.5 13.5C5.5 15 4.5 16.5 4.5 18C4.5 19.933 6.067 21.5 8 21.5"></path>
               <path d="M12 21.5C13.5 21.5 15 20 15 18.5C15 16.5 13.5 15.5 12 14C10.5 15.5 9.5 16.5 9.5 18.5C9.5 20 10.5 21.5 12 21.5Z"></path>
             </svg>
-            <span className="text-2xl font-bold text-[#191D15] font-sans">{currentStreak}</span>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#747870] font-sans">
+            <span className="text-2xl font-bold text-text-main font-sans">{currentStreak}</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-text-sub font-sans">
               DAY STREAK
             </span>
           </div>
           {/* Focused */}
-          <div className="bg-white rounded-2xl p-4 flex flex-col items-center text-center justify-center gap-1.5 shadow-sm border border-[#EDE7DA]">
+          <div className="bg-surface rounded-2xl p-4 flex flex-col items-center text-center justify-center gap-1.5 shadow-sm border border-border">
             <svg
               fill="none"
               height="24"
-              stroke="#628141"
+              className="stroke-secondary"
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth="2"
@@ -266,17 +266,17 @@ export default function ProfileView({
               <path d="M12 9V13L15 15"></path>
               <path d="M10 2H14"></path>
             </svg>
-            <span className="text-2xl font-bold text-[#191D15] font-sans">{hours}h</span>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#747870] font-sans">
+            <span className="text-2xl font-bold text-text-main font-sans">{hours}h</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-text-sub font-sans">
               FOCUSED
             </span>
           </div>
           {/* Sessions */}
-          <div className="bg-white rounded-2xl p-4 flex flex-col items-center text-center justify-center gap-1.5 shadow-sm border border-[#EDE7DA]">
+          <div className="bg-surface rounded-2xl p-4 flex flex-col items-center text-center justify-center gap-1.5 shadow-sm border border-border">
             <svg
               fill="none"
               height="24"
-              stroke="#40513B"
+              className="stroke-primary"
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth="2"
@@ -286,10 +286,10 @@ export default function ProfileView({
               <circle cx="12" cy="12" r="10"></circle>
               <path d="M8.5 12.5L11 15L16 9"></path>
             </svg>
-            <span className="text-xl font-bold text-[#191D15] font-sans">
+            <span className="text-xl font-bold text-text-main font-sans">
               {totalPomos.toLocaleString()}
             </span>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#747870] font-sans">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-text-sub font-sans">
               SESSIONS
             </span>
           </div>
@@ -301,7 +301,7 @@ export default function ProfileView({
             if (window.navigator?.vibrate) window.navigator.vibrate(15);
             setShowReport(true);
           }}
-          className="w-full h-12 py-3 px-5 rounded-full bg-[#40513B] text-white font-semibold text-sm flex items-center justify-center gap-2.5 shadow-sm active:scale-[0.99] hover:bg-[#344230] transition-all"
+          className="w-full h-12 py-3 px-5 rounded-full bg-primary text-white font-semibold text-sm flex items-center justify-center gap-2.5 shadow-sm active:scale-[0.99] hover:bg-primary-hover transition-all"
         >
           <svg
             fill="none"
@@ -325,7 +325,7 @@ export default function ProfileView({
         {/* ── Section: Focus Categories ── */}
         <div className="flex flex-col gap-2.5 pt-2">
           <div className="flex items-center justify-between px-1 pb-1">
-            <h2 className="text-[11px] font-bold uppercase tracking-wider text-[#747870] font-sans">
+            <h2 className="text-[11px] font-bold uppercase tracking-wider text-text-sub font-sans">
               FOCUS CATEGORIES
             </h2>
             <button
@@ -333,7 +333,7 @@ export default function ProfileView({
                 if (window.navigator?.vibrate) window.navigator.vibrate(10);
                 if (onAddProject) onAddProject();
               }}
-              className="flex items-center gap-1 text-[#628141] text-xs font-bold hover:text-[#40513B] transition-colors"
+              className="flex items-center gap-1 text-secondary text-xs font-bold hover:text-primary transition-colors"
             >
               <svg
                 fill="none"
@@ -356,14 +356,14 @@ export default function ProfileView({
             return (
               <div
                 key={proj.id}
-                className="bg-white rounded-full px-5 py-3.5 flex items-center justify-between shadow-sm border border-[#EDE7DA]"
+                className="bg-surface rounded-full px-5 py-3.5 flex items-center justify-between shadow-sm border border-border"
               >
                 <div className="flex items-center gap-3">
                   <div
                     className="w-3 h-3 rounded-full shadow-sm"
-                    style={{ backgroundColor: proj.color || '#40513B' }}
+                    style={{ backgroundColor: proj.color || 'var(--theme-primary)' }}
                   ></div>
-                  <span className="text-xs font-bold text-[#191D15] tracking-wide font-sans truncate max-w-[140px]">
+                  <span className="text-xs font-bold text-text-main tracking-wide font-sans truncate max-w-[140px]">
                     {cleanName}
                   </span>
                 </div>
@@ -374,7 +374,7 @@ export default function ProfileView({
                       if (onEditProject) onEditProject(proj);
                     }}
                     aria-label="Edit category"
-                    className="p-1 text-[#747870] hover:text-[#191D15] transition-colors flex items-center justify-center"
+                    className="p-1 text-text-sub hover:text-text-main transition-colors flex items-center justify-center"
                   >
                     <svg
                       fill="none"
@@ -427,18 +427,109 @@ export default function ProfileView({
         {/* ── Section: Preferences ── */}
         <div className="flex flex-col gap-3 pt-2">
           <div className="px-1 pb-1">
-            <h2 className="text-[11px] font-bold uppercase tracking-wider text-[#747870] font-sans">
+            <h2 className="text-[11px] font-bold uppercase tracking-wider text-text-sub font-sans">
               PREFERENCES
             </h2>
           </div>
 
-          {/* Timer Durations Card */}
-          <div className="bg-white rounded-2xl p-5 shadow-sm flex flex-col gap-4 border border-[#EDE7DA]">
-            <div className="flex items-center gap-2 pb-1 border-b border-[#EDE7DA]">
+          {/* Appearance / Theme Card */}
+          <div className="bg-surface rounded-2xl p-5 shadow-sm flex flex-col gap-4 border border-border">
+            <div className="flex items-center gap-2 pb-1 border-b border-border">
               <svg
                 fill="none"
                 height="20"
-                stroke="#628141"
+                className="stroke-secondary"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                width="20"
+              >
+                <path d="M12 2v4"></path>
+                <path d="M12 18v4"></path>
+                <path d="M4.93 4.93l2.83 2.83"></path>
+                <path d="M16.24 16.24l2.83 2.83"></path>
+                <path d="M2 12h4"></path>
+                <path d="M18 12h4"></path>
+                <path d="M4.93 19.07l2.83-2.83"></path>
+                <path d="M16.24 7.76l2.83-2.83"></path>
+              </svg>
+              <span className="text-sm font-bold text-text-main font-sans">Appearance</span>
+            </div>
+            
+            <div className="flex flex-col gap-3">
+              {[
+                { id: 'japandi', name: 'Zen Japandi', colors: ['#F9FBEE', '#40513B'] },
+                { id: 'dark', name: 'Dark Mode', colors: ['#1C1C1E', '#6B8B5B'] },
+                { id: 'ocean', name: 'Ocean Wave', colors: ['#F0F8FF', '#2C5282'] },
+                { id: 'custom', name: 'Custom DIY', colors: [settings.customCanvas || '#FFFFFF', settings.customPrimary || '#3B82F6'] },
+              ].map((theme) => {
+                const isActive = (settings.theme || 'japandi') === theme.id;
+                return (
+                  <button
+                    key={theme.id}
+                    onClick={() => {
+                      if (window.navigator?.vibrate) window.navigator.vibrate(10);
+                      handleChange('theme', theme.id);
+                    }}
+                    className={`flex items-center justify-between p-3 rounded-xl border transition-all ${
+                      isActive ? 'border-primary bg-surface-hover shadow-sm' : 'border-border bg-surface hover:border-secondary'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex -space-x-1">
+                        <div className="w-5 h-5 rounded-full border border-border shadow-sm z-10" style={{ background: theme.colors[0] }} />
+                        <div className="w-5 h-5 rounded-full border border-border shadow-sm" style={{ background: theme.colors[1] }} />
+                      </div>
+                      <span className={`text-sm font-sans ${isActive ? 'font-bold text-primary' : 'font-medium text-text-main'}`}>
+                        {theme.name}
+                      </span>
+                    </div>
+                    {isActive && (
+                      <svg fill="none" height="18" stroke="currentColor" className="stroke-primary" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="18">
+                        <path d="M20 6L9 17l-5-5"></path>
+                      </svg>
+                    )}
+                  </button>
+                );
+              })}
+
+              {settings.theme === 'custom' && (
+                <div className="mt-2 p-4 bg-surface-hover border border-border rounded-xl flex flex-col gap-4 animate-fadeIn">
+                  {[
+                    { key: 'customCanvas', label: 'Canvas (Background)', default: '#FFFFFF' },
+                    { key: 'customSurface', label: 'Surface (Cards)', default: '#F3F4F6' },
+                    { key: 'customBorder', label: 'Borders', default: '#E5E7EB' },
+                    { key: 'customPrimary', label: 'Primary Accent (Icons)', default: '#3B82F6' },
+                    { key: 'customSecondary', label: 'Secondary Accent', default: '#60A5FA' },
+                    { key: 'customTextMain', label: 'Primary Text', default: '#111827' },
+                    { key: 'customTextSub', label: 'Secondary Text', default: '#6B7280' },
+                  ].map(colorOpt => (
+                    <div key={colorOpt.key} className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-text-main font-sans">{colorOpt.label}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] uppercase font-mono text-text-sub">{settings[colorOpt.key] || colorOpt.default}</span>
+                        <input
+                          type="color"
+                          value={settings[colorOpt.key] || colorOpt.default}
+                          onChange={(e) => handleChange(colorOpt.key, e.target.value)}
+                          className="w-8 h-8 rounded cursor-pointer bg-transparent border-0 p-0"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Timer Durations Card */}
+          <div className="bg-surface rounded-2xl p-5 shadow-sm flex flex-col gap-4 border border-border">
+            <div className="flex items-center gap-2 pb-1 border-b border-border">
+              <svg
+                fill="none"
+                height="20"
+                className="stroke-secondary"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth="2"
@@ -450,7 +541,7 @@ export default function ProfileView({
                 <path d="M17 22V16.6C17 15.6 16.5 14.6 15.6 14L12 11.5L8.4 14C7.5 14.6 7 15.6 7 16.6V22"></path>
                 <path d="M7 2V7.4C7 8.4 7.5 9.4 8.4 10L12 12.5L15.6 10C16.5 9.4 17 8.4 17 7.4V2"></path>
               </svg>
-              <span className="text-sm font-bold text-[#191D15] font-sans">Timer Durations</span>
+              <span className="text-sm font-bold text-text-main font-sans">Timer Durations</span>
             </div>
             {[
               { key: 'workDuration', label: 'Focus Session', presets: [25, 45, 60] },
@@ -458,8 +549,8 @@ export default function ProfileView({
               { key: 'longBreakDuration', label: 'Long Break', presets: [15, 20, 30] },
             ].map(({ key, label, presets }) => (
               <div key={key} className="flex items-center justify-between">
-                <span className="text-xs font-medium text-[#191D15] font-sans">{label}</span>
-                <div className="bg-[#F4F0E8] p-1 rounded-full flex items-center gap-1 border border-[#EDE7DA]">
+                <span className="text-xs font-medium text-text-main font-sans">{label}</span>
+                <div className="bg-[#F4F0E8] p-1 rounded-full flex items-center gap-1 border border-border">
                   {presets.map((p) => {
                     const isActive = (settings[key] ?? presets[0]) === p;
                     return (
@@ -472,8 +563,8 @@ export default function ProfileView({
                         }}
                         className={`px-3 py-1 rounded-full text-xs font-sans transition-colors ${
                           isActive
-                            ? 'bg-[#40513B] font-bold text-white shadow-sm'
-                            : 'text-[#576652] hover:text-[#191D15]'
+                            ? 'bg-primary font-bold text-white shadow-sm'
+                            : 'text-[#576652] hover:text-text-main'
                         }`}
                       >
                         {p}m
@@ -486,13 +577,13 @@ export default function ProfileView({
           </div>
 
           {/* Daily Goal Card */}
-          <div className="bg-white rounded-2xl p-5 shadow-sm flex flex-col gap-3.5 border border-[#EDE7DA]">
-            <div className="flex items-center justify-between pb-1 border-b border-[#EDE7DA]">
+          <div className="bg-surface rounded-2xl p-5 shadow-sm flex flex-col gap-3.5 border border-border">
+            <div className="flex items-center justify-between pb-1 border-b border-border">
               <div className="flex items-center gap-2">
                 <svg
                   fill="none"
                   height="20"
-                  stroke="#628141"
+                  className="stroke-secondary"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
@@ -503,12 +594,12 @@ export default function ProfileView({
                   <circle cx="12" cy="12" r="6"></circle>
                   <circle cx="12" cy="12" r="2"></circle>
                 </svg>
-                <span className="text-sm font-bold text-[#191D15] font-sans">Daily Goal</span>
+                <span className="text-sm font-bold text-text-main font-sans">Daily Goal</span>
               </div>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-[#191D15] font-sans">Target Hours</span>
-              <span className="text-base font-bold text-[#40513B] font-sans">
+              <span className="text-xs font-medium text-text-main font-sans">Target Hours</span>
+              <span className="text-base font-bold text-primary font-sans">
                 {settings.dailyGoalHours || 4.0}h
               </span>
             </div>
@@ -525,8 +616,8 @@ export default function ProfileView({
                     }}
                     className={`py-1.5 rounded-full text-xs text-center font-sans transition-colors ${
                       isActive
-                        ? 'bg-[#40513B] font-bold text-white shadow-sm'
-                        : 'bg-[#F4F0E8] text-[#191D15] border border-[#EDE7DA] hover:bg-[#EDE7DA]'
+                        ? 'bg-primary font-bold text-white shadow-sm'
+                        : 'bg-[#F4F0E8] text-text-main border border-border hover:bg-border'
                     }`}
                   >
                     {h}h
@@ -537,7 +628,7 @@ export default function ProfileView({
           </div>
 
           {/* System Toggles Card */}
-          <div className="bg-white rounded-2xl p-5 shadow-sm flex flex-col gap-4 border border-[#EDE7DA]">
+          <div className="bg-surface rounded-2xl p-5 shadow-sm flex flex-col gap-4 border border-border">
             {[
               {
                 key: 'autoStartBreaks',
@@ -646,7 +737,7 @@ export default function ProfileView({
                   <div className="flex items-center gap-3">
                     {svg}
                     <div className="flex flex-col">
-                      <span className="text-xs font-bold text-[#191D15] font-sans">{label}</span>
+                      <span className="text-xs font-bold text-text-main font-sans">{label}</span>
                       <span className="text-[11px] text-[#8A7968] font-sans">{desc}</span>
                     </div>
                   </div>
@@ -656,10 +747,10 @@ export default function ProfileView({
                       handleChange(key, !isOn);
                     }}
                     className={`w-11 h-6 rounded-full p-0.5 flex items-center shadow-inner cursor-pointer transition-all ${
-                      isOn ? 'bg-[#628141] justify-end' : 'bg-[#EDE7DA] justify-start'
+                      isOn ? 'bg-secondary justify-end' : 'bg-border justify-start'
                     }`}
                   >
-                    <div className="w-5 h-5 rounded-full bg-white shadow-sm transition-transform"></div>
+                    <div className="w-5 h-5 rounded-full bg-surface shadow-sm transition-transform"></div>
                   </button>
                 </div>
               );
@@ -667,12 +758,12 @@ export default function ProfileView({
           </div>
 
           {/* Local Backup Card */}
-          <div className="bg-white rounded-2xl p-5 shadow-sm flex flex-col gap-3 border border-[#EDE7DA]">
+          <div className="bg-surface rounded-2xl p-5 shadow-sm flex flex-col gap-3 border border-border">
             <div className="flex items-center gap-2">
               <svg
                 fill="none"
                 height="20"
-                stroke="#628141"
+                className="stroke-secondary"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth="2"
@@ -682,7 +773,7 @@ export default function ProfileView({
                 <path d="M19 21H5C4.44772 21 4 20.5523 4 20V4C4 3.44772 4.44772 3 5 3H14L20 9V20C20 20.5523 19.5523 21 19 21Z"></path>
                 <path d="M14 3V9H20"></path>
               </svg>
-              <span className="text-sm font-bold text-[#191D15] font-sans">Local Backup</span>
+              <span className="text-sm font-bold text-text-main font-sans">Local Backup</span>
             </div>
             <p className="text-xs text-[#8A7968] font-sans">
               Save your data as a local file for safe keeping
@@ -692,7 +783,7 @@ export default function ProfileView({
               <button
                 onClick={handleBackup}
                 disabled={backupStatus !== 'idle'}
-                className="py-2.5 px-4 rounded-full bg-[#40513B] text-white text-xs font-semibold flex items-center justify-center gap-2 shadow-sm active:scale-[0.98] hover:bg-[#344230] transition-all disabled:opacity-50"
+                className="py-2.5 px-4 rounded-full bg-primary text-white text-xs font-semibold flex items-center justify-center gap-2 shadow-sm active:scale-[0.98] hover:bg-primary-hover transition-all disabled:opacity-50"
               >
                 {backupStatus === 'backing-up' ? (
                   <Loader2 size={16} className="animate-spin" />
@@ -719,7 +810,7 @@ export default function ProfileView({
               <button
                 onClick={handleRestore}
                 disabled={backupStatus !== 'idle'}
-                className="py-2.5 px-4 rounded-full bg-[#F4F0E8] text-[#191D15] text-xs font-semibold flex items-center justify-center gap-2 hover:bg-[#EDE7DA] transition-colors border border-[#EDE7DA] active:scale-[0.98] disabled:opacity-50"
+                className="py-2.5 px-4 rounded-full bg-[#F4F0E8] text-text-main text-xs font-semibold flex items-center justify-center gap-2 hover:bg-border transition-colors border border-border active:scale-[0.98] disabled:opacity-50"
               >
                 {backupStatus === 'restoring' ? (
                   <Loader2 size={16} className="animate-spin" />
@@ -747,7 +838,7 @@ export default function ProfileView({
             {backupMsg && (
               <p
                 className={`text-[11px] font-sans pt-1 ${
-                  backupMsg.startsWith('Error') ? 'text-[#BA1A1A]' : 'text-[#628141]'
+                  backupMsg.startsWith('Error') ? 'text-[#BA1A1A]' : 'text-secondary'
                 }`}
               >
                 {backupMsg}
@@ -756,9 +847,9 @@ export default function ProfileView({
           </div>
 
           {/* Reset Telemetry Data Card */}
-          <div className="bg-white rounded-2xl p-5 shadow-sm flex items-center justify-between border border-[#EDE7DA] mb-6">
+          <div className="bg-surface rounded-2xl p-5 shadow-sm flex items-center justify-between border border-border mb-6">
             <div className="flex flex-col">
-              <span className="text-xs font-bold text-[#191D15] font-sans">Wipe All Data</span>
+              <span className="text-xs font-bold text-text-main font-sans">Wipe All Data</span>
               <span className="text-[11px] text-[#8A7968] font-sans">
                 Permanently delete all tasks and focus history
               </span>
@@ -800,22 +891,22 @@ export default function ProfileView({
           onClick={() => setShowReport(false)}
         >
           <div
-            className="w-full max-w-sm rounded-3xl p-5 flex flex-col gap-5 border border-[#EDE7DA] bg-white shadow-sm"
+            className="w-full max-w-sm rounded-3xl p-5 flex flex-col gap-5 border border-border bg-surface shadow-sm"
             onClick={(e) => e.stopPropagation()}
           >
             {/* The "Share Card" */}
             <div
-              className="relative w-full rounded-2xl overflow-hidden flex flex-col p-6 border border-[#EDE7DA]"
-              style={{ background: 'linear-gradient(135deg, #F9FBEE 0%, #EDE7DA 100%)' }}
+              className="relative w-full rounded-2xl overflow-hidden flex flex-col p-6 border border-border"
+              style={{ background: 'linear-gradient(135deg, var(--theme-canvas) 0%, var(--theme-border) 100%)' }}
             >
               <div className="flex items-center justify-between z-10 mb-8">
-                <span className="text-[10px] text-[#747870] tracking-widest font-sans font-bold">
+                <span className="text-[10px] text-text-sub tracking-widest font-sans font-bold">
                   FOCUS // {getReportTitle()}
                 </span>
                 <svg
                   fill="none"
                   height="18"
-                  stroke="#40513B"
+                  className="stroke-primary"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
@@ -831,26 +922,26 @@ export default function ProfileView({
               </div>
 
               <div className="z-10 flex flex-col gap-1 mb-10">
-                <h3 className="text-3xl font-bold text-[#191D15] tracking-tight leading-tight font-sans">
+                <h3 className="text-3xl font-bold text-text-main tracking-tight leading-tight font-sans">
                   {getReportHeading()}
                 </h3>
-                <p className="text-xs text-[#628141] font-bold mt-1 font-sans">
+                <p className="text-xs text-secondary font-bold mt-1 font-sans">
                   {reportData.displaySubDays}
                 </p>
               </div>
 
               <div className="z-10 grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1">
-                  <span className="text-[10px] text-[#747870] font-bold font-sans">
+                  <span className="text-[10px] text-text-sub font-bold font-sans">
                     TOTAL FOCUS
                   </span>
-                  <span className="text-2xl font-bold text-[#191D15] font-sans">
+                  <span className="text-2xl font-bold text-text-main font-sans">
                     {reportData.displayHours}
                   </span>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <span className="text-[10px] text-[#747870] font-bold font-sans">SESSIONS</span>
-                  <span className="text-2xl font-bold text-[#191D15] font-sans">
+                  <span className="text-[10px] text-text-sub font-bold font-sans">SESSIONS</span>
+                  <span className="text-2xl font-bold text-text-main font-sans">
                     {reportData.displayPomos}
                   </span>
                 </div>
@@ -861,7 +952,7 @@ export default function ProfileView({
             <div className="flex gap-3">
               <button
                 onClick={() => setShowReport(false)}
-                className="flex items-center justify-center p-4 rounded-2xl transition-all border border-[#EDE7DA] text-[#40513B] bg-[#F4F0E8] hover:bg-[#EDE7DA]"
+                className="flex items-center justify-center p-4 rounded-2xl transition-all border border-border text-primary bg-[#F4F0E8] hover:bg-border"
               >
                 <svg
                   fill="none"
@@ -879,7 +970,7 @@ export default function ProfileView({
               </button>
               <button
                 onClick={handleCopyReport}
-                className="flex-1 flex items-center justify-center gap-2 p-4 rounded-2xl bg-[#40513B] text-white font-semibold font-sans text-sm hover:bg-[#344230]"
+                className="flex-1 flex items-center justify-center gap-2 p-4 rounded-2xl bg-primary text-white font-semibold font-sans text-sm hover:bg-primary-hover"
               >
                 <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
                   {copied ? 'check' : 'content_copy'}

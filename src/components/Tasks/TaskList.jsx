@@ -132,11 +132,11 @@ export default function TaskList({
   };
 
   return (
-    <div className="flex-1 w-full bg-[#F9FBEE] pb-28 min-h-[100dvh] relative text-[#2A3A26]">
+    <div className="flex-1 w-full bg-canvas pb-28 min-h-[100dvh] relative text-[#2A3A26]">
       <div className="flex flex-col w-full px-5 pt-15 pb-24 max-w-md mx-auto">
         {/* Greeting Header */}
         <header className="pt-2 pb-5 flex flex-col gap-1">
-          <h1 className="text-[32px] leading-[38px] text-[#40513B] font-bold tracking-tight font-sans">
+          <h1 className="text-[32px] leading-[38px] text-primary font-bold tracking-tight font-sans">
             {getGreeting()}
           </h1>
           <p className="text-[15px] leading-5 text-[#636F5A] font-normal font-sans">
@@ -147,30 +147,30 @@ export default function TaskList({
         {/* Metric Highlights Bento Row */}
         <section className="grid grid-cols-12 gap-3 mb-6">
           {/* Daily Target Progress Card */}
-          <div className="col-span-8 bg-white border border-[#EDE7DA] rounded-[24px] p-5 shadow-[0_4px_20px_-2px_rgba(64,81,59,0.06)] flex flex-col justify-between">
+          <div className="col-span-8 bg-surface border border-border rounded-[24px] p-5 shadow-[0_4px_20px_-2px_rgba(64,81,59,0.06)] flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <span className="font-mono text-[11px] font-bold text-[#636F5A] tracking-wider uppercase">
                 DAILY TARGET
               </span>
-              <div className="w-8 h-8 rounded-full bg-[#E5D9B6]/30 flex items-center justify-center text-[#628141]">
-                <Zap size={16} className="text-[#628141]" />
+              <div className="w-8 h-8 rounded-full bg-[#E5D9B6]/30 flex items-center justify-center text-secondary">
+                <Zap size={16} className="text-secondary" />
               </div>
             </div>
             <div className="my-3">
-              <h2 className="text-[19px] font-bold text-[#40513B] leading-tight font-sans">
+              <h2 className="text-[19px] font-bold text-primary leading-tight font-sans">
                 {todayHours}h of {targetHours}h completed
               </h2>
             </div>
             <div className="flex flex-col gap-1.5">
               <div className="w-full h-2.5 bg-[#E5D9B6]/40 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-[#628141] rounded-full transition-all duration-500"
+                  className="h-full bg-secondary rounded-full transition-all duration-500"
                   style={{ width: `${progressPercent}%` }}
                 ></div>
               </div>
               <div className="flex items-center justify-between pt-0.5">
                 <span className="font-mono text-[11px] text-[#636F5A]">{statusText}</span>
-                <span className="font-mono text-[11px] font-bold text-[#40513B]">
+                <span className="font-mono text-[11px] font-bold text-primary">
                   {progressPercent}%
                 </span>
               </div>
@@ -178,7 +178,7 @@ export default function TaskList({
           </div>
 
           {/* Streak Card */}
-          <div className="col-span-4 bg-[#40513B] text-[#F9FBEE] rounded-[24px] p-5 shadow-[0_10px_22px_rgba(64,81,59,0.22)] flex flex-col justify-between">
+          <div className="col-span-4 bg-primary text-canvas rounded-[24px] p-5 shadow-[0_10px_22px_rgba(64,81,59,0.22)] flex flex-col justify-between">
             <div className="flex items-center justify-evenly">
               <span className="font-mono text-[11px] text-[#E5D9B6] tracking-wider font-bold uppercase">
                 STREAK
@@ -200,8 +200,8 @@ export default function TaskList({
             onClick={() => onSelectProject(null)}
             className={`shrink-0 h-10 px-4 rounded-full flex items-center gap-2 shadow-sm transition-transform active:scale-95 font-semibold text-[13px] font-sans ${
               !selectedProjectId
-                ? 'bg-[#40513B] text-white'
-                : 'bg-white border border-[#EDE7DA] text-[#40513B] hover:bg-[#F4F1EA]'
+                ? 'bg-primary text-white'
+                : 'bg-surface border border-border text-primary hover:bg-[#F4F1EA]'
             }`}
           >
             {!selectedProjectId && <Check size={14} className="text-[#E5D9B6]" />}
@@ -217,14 +217,14 @@ export default function TaskList({
                 onClick={() => onSelectProject(isSel ? null : proj.id)}
                 className={`shrink-0 h-10 px-4 rounded-full flex items-center gap-2 shadow-sm transition-transform active:scale-95 font-semibold text-[13px] font-sans ${
                   isSel
-                    ? 'bg-[#40513B] text-white'
-                    : 'bg-white border border-[#EDE7DA] text-[#40513B] hover:bg-[#F4F1EA]'
+                    ? 'bg-primary text-white'
+                    : 'bg-surface border border-border text-primary hover:bg-[#F4F1EA]'
                 }`}
               >
                 {!isSel && (
                   <span
                     className="w-2.5 h-2.5 rounded-full"
-                    style={{ backgroundColor: proj.color || '#628141' }}
+                    style={{ backgroundColor: proj.color || 'var(--theme-secondary)' }}
                   ></span>
                 )}
                 {isSel && <Check size={14} className="text-[#E5D9B6]" />}
@@ -246,20 +246,20 @@ export default function TaskList({
                     onClick={() => setFilterTab(tab)}
                     className={`relative pb-2.5 text-[15px] font-sans transition-colors shrink-0 ${
                       on
-                        ? 'font-bold text-[#40513B]'
-                        : 'font-medium text-[#636F5A] hover:text-[#40513B]'
+                        ? 'font-bold text-primary'
+                        : 'font-medium text-[#636F5A] hover:text-primary'
                     }`}
                   >
                     {tab}
                     {on && (
-                      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#40513B] rounded-full"></span>
+                      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full"></span>
                     )}
                   </button>
                 );
               })}
             </div>
           </div>
-          <div className="w-full h-px bg-[#EDE7DA] mt-[-1px]"></div>
+          <div className="w-full h-px bg-border mt-[-1px]"></div>
         </section>
 
         {/* Tasks Subheader with Filter Icon */}
@@ -269,7 +269,7 @@ export default function TaskList({
           </span>
           <button
             aria-label="Sort or filter tasks"
-            className="text-[#636F5A] hover:text-[#40513B] transition-colors"
+            className="text-[#636F5A] hover:text-primary transition-colors"
           >
             <ListFilter size={18} />
           </button>
@@ -278,7 +278,7 @@ export default function TaskList({
         {/* Task List Cards */}
         <section className="flex flex-col gap-3">
           {filteredTasks.length === 0 ? (
-            <div className="bg-white border border-[#EDE7DA] rounded-[24px] p-8 text-center flex flex-col items-center shadow-sm">
+            <div className="bg-surface border border-border rounded-[24px] p-8 text-center flex flex-col items-center shadow-sm">
               <Check size={32} className="text-[#8D9A82] mb-3" />
               <p className="font-sans text-[14px] text-[#636F5A]">
                 No tasks in this view. Add one below.
@@ -294,7 +294,7 @@ export default function TaskList({
               return (
                 <article
                   key={task.id}
-                  className={`group bg-white border border-[#EDE7DA] rounded-full p-2.5 pl-4 flex items-center justify-between shadow-[0_4px_16px_-2px_rgba(64,81,59,0.05)] transition-all hover:shadow-md cursor-pointer ${
+                  className={`group bg-surface border border-border rounded-full p-2.5 pl-4 flex items-center justify-between shadow-[0_4px_16px_-2px_rgba(64,81,59,0.05)] transition-all hover:shadow-md cursor-pointer ${
                     task.completed ? 'opacity-60' : ''
                   }`}
                   onClick={() => onEditTask && onEditTask(task)}
@@ -308,19 +308,19 @@ export default function TaskList({
                       }}
                       className={`w-6 h-6 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
                         task.completed
-                          ? 'bg-[#628141] border-[#628141]'
-                          : 'border-[#EDE7DA] bg-[#F4F1EA] hover:border-[#628141]'
+                          ? 'bg-secondary border-secondary'
+                          : 'border-border bg-[#F4F1EA] hover:border-secondary'
                       }`}
                     >
                       {task.completed ? (
                         <Check size={12} className="text-white" />
                       ) : (
-                        <span className="w-3.5 h-3.5 rounded-full bg-white shadow-inner"></span>
+                        <span className="w-3.5 h-3.5 rounded-full bg-surface shadow-inner"></span>
                       )}
                     </button>
                     <div className="flex flex-col min-w-0">
                       <h3
-                        className={`text-[15px] font-bold text-[#40513B] truncate font-sans ${
+                        className={`text-[15px] font-bold text-primary truncate font-sans ${
                           task.completed ? 'line-through' : ''
                         }`}
                       >
@@ -331,7 +331,7 @@ export default function TaskList({
                           <>
                             <span
                               className="w-2 h-2 rounded-full shrink-0"
-                              style={{ backgroundColor: project?.color || '#628141' }}
+                              style={{ backgroundColor: project?.color || 'var(--theme-secondary)' }}
                             ></span>
                             <span className="font-mono text-[10px] text-[#636F5A] tracking-wider font-semibold uppercase truncate max-w-[120px]">
                               {cleanProjectName}
@@ -353,7 +353,7 @@ export default function TaskList({
                         e.stopPropagation();
                         onStartPomodoro && onStartPomodoro(task);
                       }}
-                      className="w-11 h-11 rounded-full bg-[#F4F1EA] text-[#40513B] flex items-center justify-center shrink-0 hover:bg-[#628141] hover:text-white transition-all shadow-sm active:scale-95"
+                      className="w-11 h-11 rounded-full bg-[#F4F1EA] text-primary flex items-center justify-center shrink-0 hover:bg-secondary hover:text-white transition-all shadow-sm active:scale-95"
                     >
                       <Play size={16} className="translate-x-0.5 fill-current" />
                     </button>
@@ -378,7 +378,7 @@ export default function TaskList({
               if (window.navigator?.vibrate) window.navigator.vibrate(15);
               if (onAddTask) onAddTask();
             }}
-            className="w-14 h-14 rounded-full bg-[#40513B] text-white flex items-center justify-center shadow-[0_10px_22px_rgba(64,81,59,0.35)] active:scale-90 transition-transform hover:bg-[#344230]"
+            className="w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center shadow-[0_10px_22px_rgba(64,81,59,0.35)] active:scale-90 transition-transform hover:bg-primary-hover"
           >
             <Plus size={24} strokeWidth={3} />
           </button>

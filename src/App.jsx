@@ -112,8 +112,34 @@ export default function App() {
       setProjects(p || DEFAULT_PROJECTS);
       setTasks(processDailyRollover(t || DEFAULT_TASKS));
       setSessions(s || []);
-      setSettings(set || DEFAULT_SETTINGS);
-      setTimeLeft((set ? set.workDuration : 25) * 60);
+      const loadedSettings = set || DEFAULT_SETTINGS;
+      setSettings(loadedSettings);
+      
+      const theme = loadedSettings.theme || 'japandi';
+      document.documentElement.setAttribute('data-theme', theme);
+      if (theme === 'custom') {
+        document.documentElement.style.setProperty('--theme-canvas', loadedSettings.customCanvas || '#FFFFFF');
+        document.documentElement.style.setProperty('--theme-surface', loadedSettings.customSurface || '#F3F4F6');
+        document.documentElement.style.setProperty('--theme-border', loadedSettings.customBorder || '#E5E7EB');
+        document.documentElement.style.setProperty('--theme-primary', loadedSettings.customPrimary || '#3B82F6');
+        document.documentElement.style.setProperty('--theme-secondary', loadedSettings.customSecondary || '#60A5FA');
+        document.documentElement.style.setProperty('--theme-text-main', loadedSettings.customTextMain || '#111827');
+        document.documentElement.style.setProperty('--theme-text-sub', loadedSettings.customTextSub || '#6B7280');
+        document.documentElement.style.setProperty('--theme-surface-hover', loadedSettings.customSurfaceHover || '#E5E7EB');
+        document.documentElement.style.setProperty('--theme-primary-hover', loadedSettings.customPrimaryHover || '#2563EB');
+      } else {
+        document.documentElement.style.removeProperty('--theme-canvas');
+        document.documentElement.style.removeProperty('--theme-surface');
+        document.documentElement.style.removeProperty('--theme-border');
+        document.documentElement.style.removeProperty('--theme-primary');
+        document.documentElement.style.removeProperty('--theme-secondary');
+        document.documentElement.style.removeProperty('--theme-text-main');
+        document.documentElement.style.removeProperty('--theme-text-sub');
+        document.documentElement.style.removeProperty('--theme-surface-hover');
+        document.documentElement.style.removeProperty('--theme-primary-hover');
+      }
+
+      setTimeLeft((loadedSettings.workDuration) * 60);
       setCurrentSound(set ? set.soundscape : 'none');
       try {
         await StatusBar.hide();
@@ -141,6 +167,30 @@ export default function App() {
   useEffect(() => {
     if (isLoaded) {
       storage.saveSettings(settings);
+      const theme = settings.theme || 'japandi';
+      document.documentElement.setAttribute('data-theme', theme);
+      if (theme === 'custom') {
+        document.documentElement.style.setProperty('--theme-canvas', settings.customCanvas || '#FFFFFF');
+        document.documentElement.style.setProperty('--theme-surface', settings.customSurface || '#F3F4F6');
+        document.documentElement.style.setProperty('--theme-border', settings.customBorder || '#E5E7EB');
+        document.documentElement.style.setProperty('--theme-primary', settings.customPrimary || '#3B82F6');
+        document.documentElement.style.setProperty('--theme-secondary', settings.customSecondary || '#60A5FA');
+        document.documentElement.style.setProperty('--theme-text-main', settings.customTextMain || '#111827');
+        document.documentElement.style.setProperty('--theme-text-sub', settings.customTextSub || '#6B7280');
+        document.documentElement.style.setProperty('--theme-surface-hover', settings.customSurfaceHover || '#E5E7EB');
+        document.documentElement.style.setProperty('--theme-primary-hover', settings.customPrimaryHover || '#2563EB');
+      } else {
+        document.documentElement.style.removeProperty('--theme-canvas');
+        document.documentElement.style.removeProperty('--theme-surface');
+        document.documentElement.style.removeProperty('--theme-border');
+        document.documentElement.style.removeProperty('--theme-primary');
+        document.documentElement.style.removeProperty('--theme-secondary');
+        document.documentElement.style.removeProperty('--theme-text-main');
+        document.documentElement.style.removeProperty('--theme-text-sub');
+        document.documentElement.style.removeProperty('--theme-surface-hover');
+        document.documentElement.style.removeProperty('--theme-primary-hover');
+      }
+
       if (!isRunning && timerMode === 'work') {
         setTimeLeft(settings.workDuration * 60);
       }
@@ -479,7 +529,7 @@ export default function App() {
 
   const handleResetAllData = () => {
     // True clean wipe
-    setProjects([{ id: 'proj-1', name: 'Personal', color: '#40513B' }]);
+    setProjects([{ id: 'proj-1', name: 'Personal', color: 'var(--theme-primary)' }]);
     setTasks([]);
     setSessions([]);
     setSettings(DEFAULT_SETTINGS);
@@ -662,9 +712,8 @@ export default function App() {
 
       {/* Bottom Screen Fade Overlay */}
       <div 
-        className="fixed bottom-0 left-0 right-0 h-32 pointer-events-none z-40 transition-opacity duration-500 backdrop-blur-md"
+        className="fixed bottom-0 left-0 right-0 h-32 pointer-events-none z-40 transition-opacity duration-500 backdrop-blur-md bg-canvas/80"
         style={{
-          background: 'rgba(250, 250, 250, 0.8)', // slight transparency for the blur to show
           maskImage: 'linear-gradient(to top, black 25%, transparent)',
           WebkitMaskImage: 'linear-gradient(to top, black 25%, transparent)',
           opacity: (isNavHidden && activeTab === 'timer') ? 0 : 1,

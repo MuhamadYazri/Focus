@@ -81,7 +81,7 @@ export default function ProjectList({
               <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                 <button
                   onClick={() => onEditProject(project)}
-                  className="p-2 rounded-lg text-slate-400 hover:text-[var(--text-primary)] hover:bg-white/5 transition"
+                  className="p-2 rounded-lg text-slate-400 hover:text-[var(--text-primary)] hover:bg-surface/5 transition"
                   title="Edit Proyek"
                 >
                   <Edit2 className="w-4 h-4" />

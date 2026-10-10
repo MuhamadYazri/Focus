@@ -70,7 +70,7 @@ function filterSessionsForPeriod(sessions, period, offset) {
   return [];
 }
 
-const TAILWIND_COLORS = ['#E5D9B6', '#628141', '#40513B', '#D9CFC7'];
+const TAILWIND_COLORS = ['#E5D9B6', 'var(--theme-secondary)', 'var(--theme-primary)', '#D9CFC7'];
 
 export default function AnalyticsDashboard({ tasks = [], projects = [], sessions = [] }) {
   const [currentPeriod, setCurrentPeriod] = useState('Daily');
@@ -131,7 +131,7 @@ export default function AnalyticsDashboard({ tasks = [], projects = [], sessions
     : [{ label: 'No Data', pct: 100, count: 0, mins: 0, displayTime: '0h 00m', color: '#E5D9B6' }];
 
   return (
-    <main className="flex-1 w-full bg-[#F9FBEE] pt-15 pb-28 min-h-[100dvh] relative text-[#191D15] selection:bg-[#40513B] selection:text-white">
+    <main className="flex-1 w-full bg-canvas pt-15 pb-28 min-h-[100dvh] relative text-text-main selection:bg-primary selection:text-white">
       <div className="flex flex-col w-full px-5  pb-12 gap-3.5 max-w-md mx-auto">
         <SharedActivitySection
           showKPIs={true}
@@ -143,8 +143,8 @@ export default function AnalyticsDashboard({ tasks = [], projects = [], sessions
         />
 
         {/* Focus Distribution Donut Card */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-[#EDE7DA] flex flex-col">
-          <span className="text-[11px] uppercase tracking-wider text-[#628141] font-bold mb-3 font-sans">
+        <div className="bg-surface rounded-2xl p-4 shadow-sm border border-border flex flex-col">
+          <span className="text-[11px] uppercase tracking-wider text-secondary font-bold mb-3 font-sans">
             FOCUS DISTRIBUTION
           </span>
           <div className="flex items-center justify-between gap-4 py-1">
@@ -156,7 +156,7 @@ export default function AnalyticsDashboard({ tasks = [], projects = [], sessions
                   cy={cy}
                   fill="none"
                   r={(r + ri) / 2}
-                  stroke="#EDE7DA"
+                  className="stroke-border"
                   strokeWidth={r - ri}
                 ></circle>
                 {activeSegments.map((seg) => {
@@ -169,10 +169,10 @@ export default function AnalyticsDashboard({ tasks = [], projects = [], sessions
                 })}
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
-                <span className="text-sm text-[#191D15] font-bold font-sans">
+                <span className="text-sm text-text-main font-bold font-sans">
                   {displayTotalTime}
                 </span>
-                <span className="text-[9px] uppercase font-bold text-[#747870] tracking-wider font-sans mt-0.5">
+                <span className="text-[9px] uppercase font-bold text-text-sub tracking-wider font-sans mt-0.5">
                   TOTAL
                 </span>
               </div>
@@ -188,15 +188,15 @@ export default function AnalyticsDashboard({ tasks = [], projects = [], sessions
                         className="w-2.5 h-2.5 rounded-full shrink-0"
                         style={{ backgroundColor: seg.color }}
                       ></span>
-                      <span className="text-xs font-medium text-[#191D15] truncate font-sans">
+                      <span className="text-xs font-medium text-text-main truncate font-sans">
                         {seg.label}
                       </span>
                     </div>
-                    <span className="text-xs text-[#628141] shrink-0 font-medium font-sans">
+                    <span className="text-xs text-secondary shrink-0 font-medium font-sans">
                       {seg.pct}%
                     </span>
                   </div>
-                  <div className="w-full h-1.5 rounded-full bg-[#EDE7DA] overflow-hidden">
+                  <div className="w-full h-1.5 rounded-full bg-border overflow-hidden">
                     <div
                       className="h-full rounded-full"
                       style={{ width: `${seg.pct}%`, backgroundColor: seg.color }}

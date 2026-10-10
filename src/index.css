@@ -1,37 +1,63 @@
 @import "tailwindcss";
 
+@theme {
+  --color-canvas: var(--theme-canvas);
+  --color-surface: var(--theme-surface);
+  --color-surface-hover: var(--theme-surface-hover);
+  --color-border: var(--theme-border);
+  --color-primary: var(--theme-primary);
+  --color-primary-hover: var(--theme-primary-hover);
+  --color-secondary: var(--theme-secondary);
+  --color-text-main: var(--theme-text-main);
+  --color-text-sub: var(--theme-text-sub);
+}
+
 /* ── Design Tokens ─────────────────────────────────────────── */
 @layer base {
   :root {
-    /* Canvas & Surfaces */
-    --canvas:          #F0FBFF;
-    --surface-card:    #FFFFFF;
-    --surface-low:     #E8F8FC;
-    --surface-mid:     #D6F3FA;
-    --surface-border:  rgba(0, 0, 0, 0.08);
-    --glass-bg:        rgba(250, 250, 250, 0.55);
-
-    /* Text */
-    --text-primary:    #09090B;
-    --text-secondary:  #52525B;
-    --text-muted:      #A1A1AA;
-    --text-on-accent:  #09090B;
-
-    /* Accent */
-    --accent:          #4ED7F1;
-    --accent-soft:     #6FE6FC;
-    --accent-pale:     #A8F1FF;
-    --highlight:       #FFFA8D;
+    /* Theme: Japandi (Default) */
+    --theme-canvas: #F9FBEE;
+    --theme-surface: #FFFFFF;
+    --theme-surface-hover: #F5F1E8;
+    --theme-border: #EDE7DA;
+    --theme-primary: #40513B;
+    --theme-primary-hover: #344230;
+    --theme-secondary: #628141;
+    --theme-text-main: #191D15;
+    --theme-text-sub: #747870;
 
     /* Shadow */
-    --shadow-soft:     0 4px 6px -1px rgba(0,0,0,0.05), 0 10px 15px -3px rgba(0,0,0,0.03);
-    --shadow-ambient:  0 0 40px -10px rgba(0,0,0,0.05);
-    --shadow-focus:    0 0 8px rgba(78, 215, 241, 0.3);
+    --shadow-soft: 0 4px 6px -1px rgba(0,0,0,0.05), 0 10px 15px -3px rgba(0,0,0,0.03);
+    --shadow-ambient: 0 0 40px -10px rgba(0,0,0,0.05);
+  }
+
+  [data-theme='dark'] {
+    --theme-canvas: #1C1C1E;
+    --theme-surface: #2C2C2E;
+    --theme-surface-hover: #3A3A3C;
+    --theme-border: #3A3A3C;
+    --theme-primary: #6B8B5B;
+    --theme-primary-hover: #5A7A4A;
+    --theme-secondary: #8CA87C;
+    --theme-text-main: #F4F4F5;
+    --theme-text-sub: #A1A1AA;
+  }
+  
+  [data-theme='ocean'] {
+    --theme-canvas: #F0F8FF;
+    --theme-surface: #FFFFFF;
+    --theme-surface-hover: #E6F3FF;
+    --theme-border: #D1E8FF;
+    --theme-primary: #2C5282;
+    --theme-primary-hover: #1A365D;
+    --theme-secondary: #4299E1;
+    --theme-text-main: #1A202C;
+    --theme-text-sub: #4A5568;
   }
 
   body {
-    background-color: var(--canvas);
-    color: var(--text-primary);
+    background-color: var(--theme-canvas);
+    color: var(--theme-text-main);
     font-family: 'Poppins', sans-serif !important;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

@@ -441,7 +441,7 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
   return (
     <div className="flex flex-col gap-3.5">
       {/* Time Frame Segmented Track */}
-      <div className="w-full bg-[#EDE7DA]/70 p-1 rounded-full flex items-center justify-between border border-[#EDE7DA]">
+      <div className="w-full bg-border/70 p-1 rounded-full flex items-center justify-between border border-border">
         {PERIODS.map((p) => {
           const active = p === period;
           return (
@@ -454,8 +454,8 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
               }}
               className={`flex-1 py-1.5 text-center rounded-full text-xs transition-all ${
                 active
-                  ? 'bg-white text-[#191D15] shadow-sm font-semibold'
-                  : 'text-[#444841] font-medium hover:text-[#191D15]'
+                  ? 'bg-surface text-text-main shadow-sm font-semibold'
+                  : 'text-[#444841] font-medium hover:text-text-main'
               }`}
             >
               {p}
@@ -466,7 +466,7 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
 
       {/* Date Navigation Capsule */}
       <div
-        className={`w-full bg-white rounded-full px-4 py-2.5 flex items-center justify-between shadow-sm border border-[#EDE7DA] transition-opacity ${
+        className={`w-full bg-surface rounded-full px-4 py-2.5 flex items-center justify-between shadow-sm border border-border transition-opacity ${
           isAll ? 'opacity-50 pointer-events-none' : 'opacity-100'
         }`}
       >
@@ -475,12 +475,12 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
             if (window.navigator?.vibrate) window.navigator.vibrate(10);
             setOffset((prev) => prev - 1);
           }}
-          className="flex items-center gap-1 text-[11px] font-bold tracking-wider text-[#444841] hover:text-[#191D15] transition-colors active:scale-95"
+          className="flex items-center gap-1 text-[11px] font-bold tracking-wider text-[#444841] hover:text-text-main transition-colors active:scale-95"
         >
           <ChevronLeft size={15} strokeWidth={2.5} />
           <span className="tracking-widest uppercase">PREV</span>
         </button>
-        <span className="text-xs text-[#191D15] font-semibold tracking-tight font-sans">
+        <span className="text-xs text-text-main font-semibold tracking-tight font-sans">
           {dateLabel}
         </span>
         <button
@@ -491,8 +491,8 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
           disabled={offset >= 0}
           className={`flex items-center gap-1 text-[11px] font-bold tracking-wider transition-colors ${
             offset >= 0
-              ? 'text-[#C4C8BE] cursor-not-allowed'
-              : 'text-[#444841] hover:text-[#191D15] active:scale-95'
+              ? 'text-text-sub/50 cursor-not-allowed'
+              : 'text-[#444841] hover:text-text-main active:scale-95'
           }`}
         >
           <span className="tracking-widest uppercase">NEXT</span>
@@ -504,13 +504,13 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
       {showKPIs && (
         <div className="grid grid-cols-2 gap-3.5 mt-1">
           {/* Focus Time Tile */}
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-[#EDE7DA] flex flex-col justify-between min-h-[110px]">
+          <div className="bg-surface rounded-2xl p-4 shadow-sm border border-border flex flex-col justify-between min-h-[110px]">
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-[#628141] mb-1.5 flex items-center justify-between">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-secondary mb-1.5 flex items-center justify-between">
                 <span>FOCUS TIME</span>
                 <Clock size={16} />
               </p>
-              <p className="text-2xl text-[#191D15] font-bold tracking-tight font-sans">
+              <p className="text-2xl text-text-main font-bold tracking-tight font-sans">
                 {displayHours}
               </p>
             </div>
@@ -518,13 +518,13 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
           </div>
 
           {/* Sessions Tile */}
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-[#EDE7DA] flex flex-col justify-between min-h-[110px]">
+          <div className="bg-surface rounded-2xl p-4 shadow-sm border border-border flex flex-col justify-between min-h-[110px]">
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-[#628141] mb-1.5 flex items-center justify-between">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-secondary mb-1.5 flex items-center justify-between">
                 <span>SESSIONS</span>
                 <CheckCircle size={16} />
               </p>
-              <p className="text-2xl text-[#191D15] font-bold tracking-tight font-sans">
+              <p className="text-2xl text-text-main font-bold tracking-tight font-sans">
                 {displayPomos.toLocaleString()}
               </p>
             </div>
@@ -534,17 +534,17 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
       )}
 
       {/* Activity Heatmap Grid */}
-      <div className="bg-white rounded-2xl p-4 shadow-sm border border-[#EDE7DA] flex flex-col">
+      <div className="bg-surface rounded-2xl p-4 shadow-sm border border-border flex flex-col">
         <div className="flex items-center justify-between mb-3">
-          <span className="text-[11px] uppercase tracking-wider text-[#628141] font-bold">
+          <span className="text-[11px] uppercase tracking-wider text-secondary font-bold">
             ACTIVITY GRID
           </span>
-          <span className="text-xs text-[#747870] font-normal font-sans">{heatmapTitleDate}</span>
+          <span className="text-xs text-text-sub font-normal font-sans">{heatmapTitleDate}</span>
         </div>
 
         <div className="grid grid-cols-7 gap-1 text-center mb-1.5">
           {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
-            <span key={i} className="text-[11px] font-semibold text-[#628141]">
+            <span key={i} className="text-[11px] font-semibold text-secondary">
               {d}
             </span>
           ))}
@@ -558,15 +558,15 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
               const isSameMo = !!cell?.isSameMonth;
               const val = cell?.val || 0;
 
-              let bgClass = 'bg-[#F9FBEE] text-[#444841]'; // default empty inside month
+              let bgClass = 'bg-canvas text-[#444841]'; // default empty inside month
               if (!isSameMo) {
-                bgClass = 'bg-[#F5F1E8]/70 text-[#C4C8BE]';
+                bgClass = 'bg-surface-hover/70 text-text-sub/50';
               } else if (val >= 3) {
-                bgClass = 'bg-[#40513B] text-white font-semibold shadow-sm';
+                bgClass = 'bg-primary text-white font-semibold shadow-sm';
               } else if (val >= 1) {
-                bgClass = 'bg-[#628141] text-white font-semibold';
+                bgClass = 'bg-secondary text-white font-semibold';
               } else if (isCur) {
-                bgClass = 'bg-[#E5D9B6]/40 text-[#191D15] font-bold border border-[#E5D9B6]';
+                bgClass = 'bg-[#E5D9B6]/40 text-text-main font-bold border border-[#E5D9B6]';
               }
 
               return (
@@ -583,10 +583,10 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
       </div>
 
       {/* Total Per Day Column Chart */}
-      <div className="bg-white rounded-2xl p-4 shadow-sm border border-[#EDE7DA] flex flex-col">
+      <div className="bg-surface rounded-2xl p-4 shadow-sm border border-border flex flex-col">
         <div className="flex items-center justify-between mb-0.5">
-          <span className="text-sm font-bold text-[#191D15] font-sans">{chartTitle}</span>
-          <span className="text-[11px] text-[#628141] font-semibold px-2 py-0.5 rounded-full bg-[#E5D9B6]/40">
+          <span className="text-sm font-bold text-text-main font-sans">{chartTitle}</span>
+          <span className="text-[11px] text-secondary font-semibold px-2 py-0.5 rounded-full bg-[#E5D9B6]/40">
             {chartPeakLabel}
           </span>
         </div>
@@ -606,23 +606,23 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
                 <span
                   className={`text-[10px] font-sans ${
                     isSelected
-                      ? 'text-[#40513B] font-bold'
+                      ? 'text-primary font-bold'
                       : hasVal
-                      ? 'text-[#628141] font-medium'
-                      : 'text-[#747870]'
+                      ? 'text-secondary font-medium'
+                      : 'text-text-sub'
                   }`}
                 >
                   {slot.val}
                 </span>
                 <div
                   className={`w-full rounded-full transition-all duration-300 ${
-                    isSelected ? 'bg-[#40513B]' : hasVal ? 'bg-[#628141]' : 'bg-[#EDE7DA]'
+                    isSelected ? 'bg-primary' : hasVal ? 'bg-secondary' : 'bg-border'
                   }`}
                   style={{ height: barH }}
                 ></div>
                 <span
                   className={`text-[11px] font-sans ${
-                    isSelected ? 'text-[#40513B] font-bold' : 'text-[#444841] font-medium'
+                    isSelected ? 'text-primary font-bold' : 'text-[#444841] font-medium'
                   } truncate w-full text-center`}
                 >
                   {slot.h}

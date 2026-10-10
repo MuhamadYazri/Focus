@@ -16,7 +16,7 @@ export default function BottomNav({ activeTab, setActiveTab, isHidden = false })
       }`}
     >
       <div className="max-w-md mx-auto px-4 pb-5 pt-1 pointer-events-auto flex justify-center">
-        <div className="w-full bg-white/95 border border-[#EDE7DA] backdrop-blur-xl rounded-full p-1.5 shadow-[0_8px_24px_-4px_rgba(64,81,59,0.12),0_2px_6px_-1px_rgba(64,81,59,0.06)] flex items-center justify-between">
+        <div className="w-full bg-surface/95 border border-border backdrop-blur-xl rounded-full p-1.5 shadow-[0_8px_24px_-4px_rgba(64,81,59,0.12),0_2px_6px_-1px_rgba(64,81,59,0.06)] flex items-center justify-between">
           {NAV_ITEMS.map(({ key, label, Icon }) => {
             const on = activeTab === key;
             return (
@@ -28,8 +28,8 @@ export default function BottomNav({ activeTab, setActiveTab, isHidden = false })
                 }}
                 className={`flex-1 min-h-[44px] rounded-full flex items-center justify-center transition-all ${
                   on 
-                    ? 'gap-2 px-3.5 bg-[#40513B] text-white shadow-[0_4px_12px_rgba(64,81,59,0.28)]' 
-                    : 'text-[#636F5A] hover:text-[#40513B] active:scale-95'
+                    ? 'gap-2 px-3.5 bg-primary text-white shadow-[0_4px_12px_rgba(64,81,59,0.28)]' 
+                    : 'text-[#636F5A] hover:text-primary active:scale-95'
                 }`}
               >
                 <Icon size={on ? 18 : 20} strokeWidth={on ? 2.5 : 2} />

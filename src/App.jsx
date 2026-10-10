@@ -137,30 +137,7 @@ export default function App() {
       const loadedSettings = set || DEFAULT_SETTINGS;
       setSettings(loadedSettings);
       
-      const theme = loadedSettings.theme || 'japandi';
-      document.documentElement.setAttribute('data-theme', theme);
-      if (theme === 'custom') {
-        document.documentElement.style.setProperty('--theme-canvas', loadedSettings.customCanvas || '#FFFFFF');
-        document.documentElement.style.setProperty('--theme-surface', loadedSettings.customSurface || '#F3F4F6');
-        document.documentElement.style.setProperty('--theme-border', loadedSettings.customBorder || '#E5E7EB');
-        document.documentElement.style.setProperty('--theme-primary', loadedSettings.customPrimary || '#3B82F6');
-        document.documentElement.style.setProperty('--theme-secondary', loadedSettings.customSecondary || '#60A5FA');
-        document.documentElement.style.setProperty('--theme-text-main', loadedSettings.customTextMain || '#111827');
-        document.documentElement.style.setProperty('--theme-text-sub', loadedSettings.customTextSub || '#6B7280');
-        document.documentElement.style.setProperty('--theme-surface-hover', loadedSettings.customSurfaceHover || '#E5E7EB');
-        document.documentElement.style.setProperty('--theme-primary-hover', loadedSettings.customPrimaryHover || '#2563EB');
-      } else {
-        document.documentElement.style.removeProperty('--theme-canvas');
-        document.documentElement.style.removeProperty('--theme-surface');
-        document.documentElement.style.removeProperty('--theme-border');
-        document.documentElement.style.removeProperty('--theme-primary');
-        document.documentElement.style.removeProperty('--theme-secondary');
-        document.documentElement.style.removeProperty('--theme-text-main');
-        document.documentElement.style.removeProperty('--theme-text-sub');
-        document.documentElement.style.removeProperty('--theme-surface-hover');
-        document.documentElement.style.removeProperty('--theme-primary-hover');
-      }
-
+      document.documentElement.setAttribute('data-theme', 'japandi');
       setTimeLeft((loadedSettings.workDuration) * 60);
       setCurrentSound(set ? set.soundscape : 'none');
       try {
@@ -189,30 +166,7 @@ export default function App() {
   useEffect(() => {
     if (isLoaded) {
       storage.saveSettings(settings);
-      const theme = settings.theme || 'japandi';
-      document.documentElement.setAttribute('data-theme', theme);
-      if (theme === 'custom') {
-        document.documentElement.style.setProperty('--theme-canvas', settings.customCanvas || '#FFFFFF');
-        document.documentElement.style.setProperty('--theme-surface', settings.customSurface || '#F3F4F6');
-        document.documentElement.style.setProperty('--theme-border', settings.customBorder || '#E5E7EB');
-        document.documentElement.style.setProperty('--theme-primary', settings.customPrimary || '#3B82F6');
-        document.documentElement.style.setProperty('--theme-secondary', settings.customSecondary || '#60A5FA');
-        document.documentElement.style.setProperty('--theme-text-main', settings.customTextMain || '#111827');
-        document.documentElement.style.setProperty('--theme-text-sub', settings.customTextSub || '#6B7280');
-        document.documentElement.style.setProperty('--theme-surface-hover', settings.customSurfaceHover || '#E5E7EB');
-        document.documentElement.style.setProperty('--theme-primary-hover', settings.customPrimaryHover || '#2563EB');
-      } else {
-        document.documentElement.style.removeProperty('--theme-canvas');
-        document.documentElement.style.removeProperty('--theme-surface');
-        document.documentElement.style.removeProperty('--theme-border');
-        document.documentElement.style.removeProperty('--theme-primary');
-        document.documentElement.style.removeProperty('--theme-secondary');
-        document.documentElement.style.removeProperty('--theme-text-main');
-        document.documentElement.style.removeProperty('--theme-text-sub');
-        document.documentElement.style.removeProperty('--theme-surface-hover');
-        document.documentElement.style.removeProperty('--theme-primary-hover');
-      }
-
+      document.documentElement.setAttribute('data-theme', 'japandi');
       if (!isRunning && timerMode === 'work') {
         setTimeLeft(settings.workDuration * 60);
       }

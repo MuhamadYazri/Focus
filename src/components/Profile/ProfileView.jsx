@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FlameIcon, ClockIcon, BookmarkCheckIcon } from 'lucide-animated';
+import { FlameIcon, ClockIcon, BookmarkCheckIcon, CopyIcon, CheckIcon, XIcon } from 'lucide-animated';
 import { Loader2 } from 'lucide-react';
 import SharedActivitySection from '../Analytics/SharedActivitySection';
 import { storage } from '../../services/storage';
@@ -417,96 +417,7 @@ export default function ProfileView({
             </h2>
           </div>
 
-          {/* Appearance / Theme Card */}
-          <div className="bg-surface rounded-2xl p-5 shadow-sm flex flex-col gap-4 border border-border">
-            <div className="flex items-center gap-2 pb-1 border-b border-border">
-              <svg
-                fill="none"
-                height="20"
-                className="stroke-secondary"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-                width="20"
-              >
-                <path d="M12 2v4"></path>
-                <path d="M12 18v4"></path>
-                <path d="M4.93 4.93l2.83 2.83"></path>
-                <path d="M16.24 16.24l2.83 2.83"></path>
-                <path d="M2 12h4"></path>
-                <path d="M18 12h4"></path>
-                <path d="M4.93 19.07l2.83-2.83"></path>
-                <path d="M16.24 7.76l2.83-2.83"></path>
-              </svg>
-              <span className="text-sm font-bold text-text-main font-sans">Appearance</span>
-            </div>
-            
-            <div className="flex flex-col gap-3">
-              {[
-                { id: 'japandi', name: 'Zen Japandi', colors: ['#F9FBEE', '#40513B'] },
-                { id: 'dark', name: 'Dark Mode', colors: ['#1C1C1E', '#6B8B5B'] },
-                { id: 'ocean', name: 'Ocean Wave', colors: ['#F0F8FF', '#2C5282'] },
-                { id: 'custom', name: 'Custom DIY', colors: [settings.customCanvas || '#FFFFFF', settings.customPrimary || '#3B82F6'] },
-              ].map((theme) => {
-                const isActive = (settings.theme || 'japandi') === theme.id;
-                return (
-                  <button
-                    key={theme.id}
-                    onClick={() => {
-                      if (window.navigator?.vibrate) window.navigator.vibrate(10);
-                      handleChange('theme', theme.id);
-                    }}
-                    className={`flex items-center justify-between p-3 rounded-xl border transition-all ${
-                      isActive ? 'border-primary bg-surface-hover shadow-sm' : 'border-border bg-surface hover:border-secondary'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="flex -space-x-1">
-                        <div className="w-5 h-5 rounded-full border border-border shadow-sm z-10" style={{ background: theme.colors[0] }} />
-                        <div className="w-5 h-5 rounded-full border border-border shadow-sm" style={{ background: theme.colors[1] }} />
-                      </div>
-                      <span className={`text-sm font-sans ${isActive ? 'font-bold text-primary' : 'font-medium text-text-main'}`}>
-                        {theme.name}
-                      </span>
-                    </div>
-                    {isActive && (
-                      <svg fill="none" height="18" stroke="currentColor" className="stroke-primary" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="18">
-                        <path d="M20 6L9 17l-5-5"></path>
-                      </svg>
-                    )}
-                  </button>
-                );
-              })}
 
-              {settings.theme === 'custom' && (
-                <div className="mt-2 p-4 bg-surface-hover border border-border rounded-xl flex flex-col gap-4 animate-fadeIn">
-                  {[
-                    { key: 'customCanvas', label: 'Canvas (Background)', default: '#FFFFFF' },
-                    { key: 'customSurface', label: 'Surface (Cards)', default: '#F3F4F6' },
-                    { key: 'customBorder', label: 'Borders', default: '#E5E7EB' },
-                    { key: 'customPrimary', label: 'Primary Accent (Icons)', default: '#3B82F6' },
-                    { key: 'customSecondary', label: 'Secondary Accent', default: '#60A5FA' },
-                    { key: 'customTextMain', label: 'Primary Text', default: '#111827' },
-                    { key: 'customTextSub', label: 'Secondary Text', default: '#6B7280' },
-                  ].map(colorOpt => (
-                    <div key={colorOpt.key} className="flex items-center justify-between">
-                      <span className="text-xs font-medium text-text-main font-sans">{colorOpt.label}</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] uppercase font-mono text-text-sub">{settings[colorOpt.key] || colorOpt.default}</span>
-                        <input
-                          type="color"
-                          value={settings[colorOpt.key] || colorOpt.default}
-                          onChange={(e) => handleChange(colorOpt.key, e.target.value)}
-                          className="w-8 h-8 rounded cursor-pointer bg-transparent border-0 p-0"
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
 
           {/* Timer Durations Card */}
           <div className="bg-surface rounded-2xl p-5 shadow-sm flex flex-col gap-4 border border-border">
@@ -867,7 +778,7 @@ export default function ProfileView({
       {/* ── Share Report Modal ── */}
       {showReport && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4"
           style={{
             background: 'rgba(25, 29, 21, 0.4)',
             backdropFilter: 'blur(8px)',
@@ -939,27 +850,13 @@ export default function ProfileView({
                 onClick={() => setShowReport(false)}
                 className="flex items-center justify-center p-4 rounded-2xl transition-all border border-border text-primary bg-[#F4F0E8] hover:bg-border"
               >
-                <svg
-                  fill="none"
-                  height="20"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                  width="20"
-                >
-                  <path d="M18 6L6 18"></path>
-                  <path d="M6 6L18 18"></path>
-                </svg>
+                <XIcon size={20} strokeWidth={2} />
               </button>
               <button
                 onClick={handleCopyReport}
-                className="flex-1 flex items-center justify-center gap-2 p-4 rounded-2xl bg-primary text-white font-semibold font-sans text-sm hover:bg-primary-hover"
+                className="flex-1 flex items-center justify-center gap-2 p-4 rounded-2xl bg-primary text-white font-semibold font-sans text-sm hover:bg-primary-hover active:scale-[0.98] transition-all"
               >
-                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
-                  {copied ? 'check' : 'content_copy'}
-                </span>
+                {copied ? <CheckIcon size={18} strokeWidth={2.5} /> : <CopyIcon size={18} strokeWidth={2} />}
                 {copied ? 'Copied to Clipboard' : 'Copy Text'}
               </button>
             </div>

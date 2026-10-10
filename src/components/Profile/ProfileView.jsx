@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { FlameIcon, ClockIcon, BookmarkCheckIcon } from 'lucide-animated';
 import { Loader2 } from 'lucide-react';
 import SharedActivitySection from '../Analytics/SharedActivitySection';
 import { storage } from '../../services/storage';
@@ -38,6 +39,27 @@ export default function ProfileView({
   const [backupStatus, setBackupStatus] = useState('idle');
   const [backupMsg, setBackupMsg] = useState('');
   const maxBarH = 48;
+
+  const flameRef = useRef(null);
+  const clockRef = useRef(null);
+  const sessionRef = useRef(null);
+
+  useEffect(() => {
+    let isReversed = false;
+    const interval = setInterval(() => {
+      isReversed = !isReversed;
+      if (isReversed) {
+        flameRef.current?.startAnimation?.();
+        clockRef.current?.startAnimation?.();
+        sessionRef.current?.startAnimation?.();
+      } else {
+        flameRef.current?.stopAnimation?.();
+        clockRef.current?.stopAnimation?.();
+        sessionRef.current?.stopAnimation?.();
+      }
+    }, 1500); // 1.5s loop gives it time to animate and reverse
+    return () => clearInterval(interval);
+  }, []);
 
   const realSessions = sessions || [];
   const totalMinutes = Math.round(
@@ -232,19 +254,7 @@ export default function ProfileView({
         <div className="grid grid-cols-3 gap-3">
           {/* Streak */}
           <div className="bg-surface rounded-2xl p-4 flex flex-col items-center text-center justify-center gap-1.5 shadow-sm border border-border">
-            <svg
-              fill="none"
-              height="24"
-              stroke="#E67E22"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-              width="24"
-            >
-              <path d="M12 21.5C16.1421 21.5 19.5 18.1421 19.5 14C19.5 10.5 17 8 15 5.5C14.5 9 12 10 10.5 7.5C9.5 10.5 7.5 12 6.5 13.5C5.5 15 4.5 16.5 4.5 18C4.5 19.933 6.067 21.5 8 21.5"></path>
-              <path d="M12 21.5C13.5 21.5 15 20 15 18.5C15 16.5 13.5 15.5 12 14C10.5 15.5 9.5 16.5 9.5 18.5C9.5 20 10.5 21.5 12 21.5Z"></path>
-            </svg>
+            <FlameIcon ref={flameRef} size={24} color="#E67E22" strokeWidth={2} />
             <span className="text-2xl font-bold text-text-main font-sans">{currentStreak}</span>
             <span className="text-[10px] font-bold uppercase tracking-wider text-text-sub font-sans">
               DAY STREAK
@@ -252,20 +262,7 @@ export default function ProfileView({
           </div>
           {/* Focused */}
           <div className="bg-surface rounded-2xl p-4 flex flex-col items-center text-center justify-center gap-1.5 shadow-sm border border-border">
-            <svg
-              fill="none"
-              height="24"
-              className="stroke-secondary"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-              width="24"
-            >
-              <circle cx="12" cy="13" r="9"></circle>
-              <path d="M12 9V13L15 15"></path>
-              <path d="M10 2H14"></path>
-            </svg>
+            <ClockIcon ref={clockRef} size={24} className="text-secondary" strokeWidth={2} />
             <span className="text-2xl font-bold text-text-main font-sans">{hours}h</span>
             <span className="text-[10px] font-bold uppercase tracking-wider text-text-sub font-sans">
               FOCUSED
@@ -273,19 +270,7 @@ export default function ProfileView({
           </div>
           {/* Sessions */}
           <div className="bg-surface rounded-2xl p-4 flex flex-col items-center text-center justify-center gap-1.5 shadow-sm border border-border">
-            <svg
-              fill="none"
-              height="24"
-              className="stroke-primary"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-              width="24"
-            >
-              <circle cx="12" cy="12" r="10"></circle>
-              <path d="M8.5 12.5L11 15L16 9"></path>
-            </svg>
+            <BookmarkCheckIcon ref={sessionRef} size={24} className="text-primary" strokeWidth={2} />
             <span className="text-xl font-bold text-text-main font-sans">
               {totalPomos.toLocaleString()}
             </span>

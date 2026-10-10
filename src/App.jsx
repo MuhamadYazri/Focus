@@ -823,38 +823,6 @@ export default function App() {
         </div>
       )}
 
-      {/* Temporary Test Buttons for Notification Modal */}
-      <div className="fixed bottom-[100px] right-4 z-[60] flex flex-col gap-2">
-        <button
-          onClick={() => {
-            setIsAlertClosing(false);
-            setSessionDoneAlert({ title: 'Focus Completed', subtitle: 'Great job! Take a moment to rest and stretch.', mode: 'work' });
-          }}
-          className="bg-primary text-white p-2 rounded-lg text-[10px] opacity-50 hover:opacity-100"
-        >
-          Test Focus
-        </button>
-        <button
-          onClick={() => {
-            setIsAlertClosing(false);
-            setSessionDoneAlert({ title: 'Break Completed', subtitle: 'Refreshed? Ready to focus again?', mode: 'shortBreak' });
-          }}
-          className="bg-secondary text-white p-2 rounded-lg text-[10px] opacity-50 hover:opacity-100"
-        >
-          Test Short
-        </button>
-        <button
-          onClick={() => {
-            setIsAlertClosing(false);
-            setSessionDoneAlert({ title: 'Break Completed', subtitle: 'Refreshed? Ready to focus again?', mode: 'longBreak' });
-          }}
-          className="bg-[#D3A29D] text-white p-2 rounded-lg text-[10px] opacity-50 hover:opacity-100"
-        >
-          Test Long
-        </button>
-      </div>
-
-
     </div>
   );
 }

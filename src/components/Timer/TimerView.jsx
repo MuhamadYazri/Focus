@@ -1,5 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import readAnimationWebm from '../../assets/readAnimation1.webm';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import studyingLottie1 from '../../assets/studyingAnimation.lottie';
+import studyingLottie2 from '../../assets/studyingAnimation2.lottie';
+import relaxLottie from '../../assets/relaxAnimation.lottie';
+import catSleepLottie from '../../assets/catSleepAnimation.lottie';
 import { SkipForward, Headphones, Volume2, Unlock } from 'lucide-react';
 import {
   PlayIcon as Play,
@@ -99,6 +103,14 @@ export default function TimerView({
   onToggleNav,
 }) {
   const iconRefs = useRef({});
+  const [lottieIndex, setLottieIndex] = useState(0);
+
+  // Toggle Lottie every time user enters immersive fullscreen mode
+  useEffect(() => {
+    if (isRunning && isNavHidden) {
+      setLottieIndex((prev) => (prev === 0 ? 1 : 0));
+    }
+  }, [isRunning, isNavHidden]);
 
   const formatTime = (secs) => {
     const m = Math.floor(secs / 60);
@@ -122,6 +134,14 @@ export default function TimerView({
   // In focus mode and running, we show a clean warm sand background.
   const isImmersive = isRunning && isNavHidden;
   const bgClass = isImmersive ? 'bg-[#E5D9B6]' : 'bg-canvas';
+  
+  const currentLottie = (() => {
+    if (mode === 'work') {
+      return lottieIndex === 0 ? studyingLottie1 : studyingLottie2;
+    } else {
+      return lottieIndex === 0 ? relaxLottie : catSleepLottie;
+    }
+  })();
 
   // Sub Label Logic
   const getSubLabel = () => {
@@ -241,17 +261,16 @@ export default function TimerView({
 
           {/* Immersive Animation */}
           <div
-            className={`transition-all duration-700 ease-in-out flex justify-center items-center pointer-events-none overflow-hidden ${
-              isImmersive ? 'opacity-100 max-h-[240px] mt-12' : 'opacity-0 max-h-0 mt-0'
+            className={`transition-all duration-700 ease-in-out flex justify-center items-center pointer-events-none overflow-hidden w-full ${
+              isImmersive ? 'opacity-100 max-h-[400px] mt-12' : 'opacity-0 max-h-0 mt-0'
             }`}
           >
-            <video
-              src={readAnimationWebm}
-              autoPlay
+            <DotLottieReact
+              key={currentLottie}
+              src={currentLottie}
               loop
-              muted
-              playsInline
-              className="max-w-[220px] h-auto object-contain mix-blend-multiply opacity-90"
+              autoplay
+              className="w-full h-auto object-contain mix-blend-multiply opacity-90"
             />
           </div>
         </div>

@@ -288,12 +288,12 @@ export default function App() {
 
   // Auto hide/show bottom nav when timer starts or stops
   useEffect(() => {
-    if (isRunning && activeTab === 'timer') {
+    if (isRunning) {
       setIsNavHidden(true);
     } else {
       setIsNavHidden(false);
     }
-  }, [isRunning, activeTab]);
+  }, [isRunning]);
 
   // Timer Tick Logic
   useEffect(() => {

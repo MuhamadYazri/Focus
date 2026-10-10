@@ -1,10 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  SkipForward,
-  Headphones,
-  Volume2,
-  Unlock,
-} from 'lucide-react';
+import readAnimationWebm from '../../assets/readAnimation1.webm';
+import { SkipForward, Headphones, Volume2, Unlock } from 'lucide-react';
 import {
   PlayIcon as Play,
   PauseIcon as Pause,
@@ -242,6 +238,22 @@ export default function TimerView({
               </div>
             </div>
           </div>
+
+          {/* Immersive Animation */}
+          <div
+            className={`transition-all duration-700 ease-in-out flex justify-center items-center pointer-events-none overflow-hidden ${
+              isImmersive ? 'opacity-100 max-h-[240px] mt-12' : 'opacity-0 max-h-0 mt-0'
+            }`}
+          >
+            <video
+              src={readAnimationWebm}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="max-w-[220px] h-auto object-contain mix-blend-multiply opacity-90"
+            />
+          </div>
         </div>
 
         {/* BOTTOM SECTION */}
@@ -250,9 +262,7 @@ export default function TimerView({
             isNavHidden ? 'grid-rows-[0fr] opacity-0' : 'grid-rows-[1fr] opacity-100'
           }`}
         >
-          <div
-            className="transition-all duration-700 ease-in-out overflow-hidden flex flex-col justify-start pointer-events-none p-6 -m-6"
-          >
+          <div className="transition-all duration-700 ease-in-out overflow-hidden flex flex-col justify-start pointer-events-none p-6 -m-6">
             {/* Wrapper to restore pointer events for children */}
             <div className="pointer-events-auto w-full flex flex-col gap-3">
               {/* Cycle Stepper (Below timer) */}
@@ -300,7 +310,12 @@ export default function TimerView({
                     }}
                     className="w-12 h-12 rounded-full bg-canvas border border-border text-primary flex items-center justify-center transition-transform active:scale-95 hover:bg-border"
                   >
-                    <RotateCcw ref={el => iconRefs.current.reset = el} animateOnHover={false} size={20} strokeWidth={2.5} />
+                    <RotateCcw
+                      ref={(el) => (iconRefs.current.reset = el)}
+                      animateOnHover={false}
+                      size={20}
+                      strokeWidth={2.5}
+                    />
                   </button>
 
                   <button
@@ -317,9 +332,19 @@ export default function TimerView({
                     className="w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center shadow-md transition-transform active:scale-90 hover:scale-105"
                   >
                     {isRunning ? (
-                      <Pause ref={el => iconRefs.current.playPause = el} animateOnHover={false} size={28} className="fill-current" />
+                      <Pause
+                        ref={(el) => (iconRefs.current.playPause = el)}
+                        animateOnHover={false}
+                        size={28}
+                        className="fill-current"
+                      />
                     ) : (
-                      <Play ref={el => iconRefs.current.playPause = el} animateOnHover={false} size={28} className="translate-x-0.5 fill-current" />
+                      <Play
+                        ref={(el) => (iconRefs.current.playPause = el)}
+                        animateOnHover={false}
+                        size={28}
+                        className="translate-x-0.5 fill-current"
+                      />
                     )}
                   </button>
 
@@ -388,7 +413,12 @@ export default function TimerView({
               >
                 <div className="flex items-center gap-3">
                   {strictMode ? (
-                    <Lock ref={el => iconRefs.current.lock = el} animateOnHover={false} size={20} className="text-secondary" />
+                    <Lock
+                      ref={(el) => (iconRefs.current.lock = el)}
+                      animateOnHover={false}
+                      size={20}
+                      className="text-secondary"
+                    />
                   ) : (
                     <Unlock size={20} className="text-[#8D9A82]" />
                   )}

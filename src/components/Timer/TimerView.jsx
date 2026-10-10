@@ -164,7 +164,7 @@ export default function TimerView({
                       }}
                       className={`flex-1 py-1.5 px-3 rounded-full font-semibold text-xs md:text-sm transition-all ${
                         on
-                          ? 'bg-primary text-white shadow-[0_2px_8px_rgba(64,81,59,0.2)]'
+                          ? 'bg-primary text-white shadow-sm'
                           : 'text-[#444841] font-medium hover:text-primary'
                       }`}
                     >
@@ -181,7 +181,7 @@ export default function TimerView({
                     <span
                       className={`w-2 h-2 rounded-full ${
                         isRunning
-                          ? 'bg-secondary shadow-[0_0_8px_rgba(98,129,65,0.4)] animate-pulse'
+                          ? 'bg-secondary shadow-sm animate-pulse'
                           : 'bg-[#E5D9B6]'
                       }`}
                     ></span>

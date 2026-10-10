@@ -12,7 +12,7 @@ export default function StrictModeModal({ isOpen, onClose, onResetTimer }) {
       className="fixed inset-0 z-50 flex items-center justify-center p-4 select-none animate-fadeIn"
       style={{ background: 'rgba(10, 38, 53, 0.4)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
     >
-      <div className="w-full max-w-sm border rounded-2xl shadow-[var(--shadow-focus)] p-6 text-center space-y-6 relative animate-slideUp" style={{ background: 'var(--surface-card)', borderColor: 'var(--surface-border)' }}>
+      <div className="w-full max-w-sm border rounded-2xl shadow-lg p-6 text-center space-y-6 relative animate-slideUp" style={{ background: 'var(--surface-card)', borderColor: 'var(--surface-border)' }}>
         
         <div className="flex flex-col items-center gap-1">
           <ShieldAlert className="w-6 h-6 mb-3" style={{ color: 'var(--text-primary)' }} strokeWidth={1.5} />

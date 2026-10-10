@@ -28,7 +28,7 @@ export default function WhiteNoisePlayer({ currentSound, onSelectSound, volume, 
   };
 
   return (
-    <div className="w-full max-w-md mx-auto border rounded-2xl p-4 space-y-3 shadow-[var(--shadow-soft)]" style={{ background: 'var(--surface-card)', borderColor: 'var(--surface-border)' }}>
+    <div className="w-full max-w-md mx-auto border rounded-2xl p-4 space-y-3 shadow-sm" style={{ background: 'var(--surface-card)', borderColor: 'var(--surface-border)' }}>
       <div className="flex items-center justify-between">
         <span className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5" style={{ color: 'var(--text-muted)' }}>
           <Volume2 className="w-4 h-4" style={{ color: 'var(--accent)' }} />

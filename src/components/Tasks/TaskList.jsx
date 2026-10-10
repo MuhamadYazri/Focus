@@ -145,9 +145,9 @@ export default function TaskList({
         </header>
 
         {/* Metric Highlights Bento Row */}
-        <section className="grid grid-cols-12 gap-3 mb-6">
+        <section className="grid grid-cols-12 gap-3">
           {/* Daily Target Progress Card */}
-          <div className="col-span-8 bg-surface border border-border rounded-[24px] p-5 shadow-[0_4px_20px_-2px_rgba(64,81,59,0.06)] flex flex-col justify-between">
+          <div className="col-span-8 bg-surface border border-border rounded-[24px] p-5 shadow-md flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <span className="font-mono text-[11px] font-bold text-[#636F5A] tracking-wider uppercase">
                 DAILY TARGET
@@ -178,7 +178,7 @@ export default function TaskList({
           </div>
 
           {/* Streak Card */}
-          <div className="col-span-4 bg-primary text-canvas rounded-[24px] p-5 shadow-[0_10px_22px_rgba(64,81,59,0.22)] flex flex-col justify-between">
+          <div className="col-span-4 bg-primary text-canvas rounded-[24px] p-5 shadow-lg flex flex-col justify-between">
             <div className="flex items-center justify-evenly">
               <span className="font-mono text-[11px] text-[#E5D9B6] tracking-wider font-bold uppercase">
                 STREAK
@@ -195,10 +195,10 @@ export default function TaskList({
         </section>
 
         {/* Category Filter Pills */}
-        <section className="no-swipe -mx-5 px-5 flex items-center gap-2 overflow-x-auto pb-1 mb-5 no-scrollbar after:content-[''] after:w-1 after:shrink-0">
+        <section className="no-swipe -mx-5 px-5 flex items-center gap-2 overflow-x-auto py-4 mb-2 no-scrollbar after:content-[''] after:w-1 after:shrink-0">
           <button
             onClick={() => onSelectProject(null)}
-            className={`shrink-0 h-10 px-4 rounded-full flex items-center gap-2 shadow-sm transition-transform active:scale-95 font-semibold text-[13px] font-sans ${
+            className={`shrink-0 h-10 px-4 rounded-full flex items-center gap-2 transition-transform active:scale-95 font-semibold text-[13px] font-sans ${
               !selectedProjectId
                 ? 'bg-primary text-white'
                 : 'bg-surface border border-border text-primary hover:bg-[#F4F1EA]'
@@ -215,7 +215,7 @@ export default function TaskList({
               <button
                 key={proj.id}
                 onClick={() => onSelectProject(isSel ? null : proj.id)}
-                className={`shrink-0 h-10 px-4 rounded-full flex items-center gap-2 shadow-sm transition-transform active:scale-95 font-semibold text-[13px] font-sans ${
+                className={`shrink-0 h-10 px-4 rounded-full flex items-center gap-2 drop-shadow-sm transition-transform active:scale-95 font-semibold text-[13px] font-sans ${
                   isSel
                     ? 'bg-primary text-white'
                     : 'bg-surface border border-border text-primary hover:bg-[#F4F1EA]'
@@ -238,7 +238,7 @@ export default function TaskList({
         <section className="mb-5">
           <div className="flex items-center justify-between relative overflow-x-auto no-scrollbar">
             <div className="flex items-center gap-6">
-              {['Today', 'This Week', 'Planned', 'Archive'].map((tab) => {
+              {['Today', 'This Week', 'Planned', 'Done'].map((tab) => {
                 const on = filterTab === tab;
                 return (
                   <button
@@ -294,7 +294,7 @@ export default function TaskList({
               return (
                 <article
                   key={task.id}
-                  className={`group bg-surface border border-border rounded-full p-2.5 pl-4 flex items-center justify-between shadow-[0_4px_16px_-2px_rgba(64,81,59,0.05)] transition-all hover:shadow-md cursor-pointer ${
+                  className={`group bg-surface border border-border rounded-full p-2.5 pl-4 flex items-center justify-between shadow-sm transition-all hover:shadow-md cursor-pointer ${
                     task.completed ? 'opacity-60' : ''
                   }`}
                   onClick={() => onEditTask && onEditTask(task)}
@@ -331,7 +331,9 @@ export default function TaskList({
                           <>
                             <span
                               className="w-2 h-2 rounded-full shrink-0"
-                              style={{ backgroundColor: project?.color || 'var(--theme-secondary)' }}
+                              style={{
+                                backgroundColor: project?.color || 'var(--theme-secondary)',
+                              }}
                             ></span>
                             <span className="font-mono text-[10px] text-[#636F5A] tracking-wider font-semibold uppercase truncate max-w-[120px]">
                               {cleanProjectName}
@@ -378,7 +380,7 @@ export default function TaskList({
               if (window.navigator?.vibrate) window.navigator.vibrate(15);
               if (onAddTask) onAddTask();
             }}
-            className="w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center shadow-[0_10px_22px_rgba(64,81,59,0.35)] active:scale-90 transition-transform hover:bg-primary-hover"
+            className="w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center shadow-lg active:scale-90 transition-transform hover:bg-primary-hover"
           >
             <Plus size={24} strokeWidth={3} />
           </button>

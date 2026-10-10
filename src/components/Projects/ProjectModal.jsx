@@ -62,7 +62,7 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md border rounded-2xl shadow-[var(--shadow-focus)] p-5 relative animate-slideUp"
+        className="w-full max-w-md border rounded-2xl shadow-lg p-5 relative animate-slideUp"
         style={{ fontFamily: G, background: 'var(--surface-card)', borderColor: 'var(--surface-border)', color: 'var(--text-on-accent)' }}
         onClick={(e) => e.stopPropagation()}
       >

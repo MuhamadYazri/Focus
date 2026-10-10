@@ -280,3 +280,21 @@
   }
 }
 
+
+@keyframes zoomInAlert {
+  0% { transform: scale(0.9); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.animate-zoomInAlert { animation: zoomInAlert 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+@keyframes zoomOutAlert {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0; }
+}
+.animate-zoomOutAlert { animation: zoomOutAlert 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+.animate-fadeOut { animation: fadeOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }

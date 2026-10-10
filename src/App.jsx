@@ -13,6 +13,10 @@ import { storage, DEFAULT_PROJECTS, DEFAULT_TASKS, DEFAULT_SETTINGS } from './se
 import { soundEngine } from './services/soundEngine';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { KeepAwake } from '@capacitor-community/keep-awake';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import clockTickingLottie from './assets/clockTicking.lottie';
+import relaxLottie from './assets/relaxAnimation.lottie';
+import catSleepLottie from './assets/catSleepAnimation.lottie';
 import { ForegroundService } from '@capawesome-team/capacitor-android-foreground-service';
 
 const getLocalDateStr = (d) => {
@@ -71,6 +75,23 @@ export default function App() {
   const [activeTask, setActiveTask] = useState(null);
   const [currentSound, setCurrentSound] = useState('none');
   const [sessionDoneAlert, setSessionDoneAlert] = useState(null);
+  const [alertLottieRef, setAlertLottieRef] = useState(null);
+  const [isAlertClosing, setIsAlertClosing] = useState(false);
+
+  useEffect(() => {
+    if (alertLottieRef) {
+      const handleComplete = () => {
+        setIsAlertClosing(true);
+        setTimeout(() => {
+          setSessionDoneAlert(null);
+          setIsAlertClosing(false);
+        }, 300);
+      };
+      alertLottieRef.addEventListener('complete', handleComplete);
+      return () => alertLottieRef.removeEventListener('complete', handleComplete);
+    }
+  }, [alertLottieRef]);
+
   const [isNavHidden, setIsNavHidden] = useState(false);
 
   // Modals State
@@ -353,9 +374,6 @@ export default function App() {
       title: timerMode === 'work' ? `Session ${cycleCount + 1} Completed` : 'Break Completed',
       subtitle: timerMode === 'work' ? 'Great focus! Enjoy a moment of calm.' : 'Refreshed? Ready to focus again?',
     });
-    setTimeout(() => {
-      setSessionDoneAlert(null);
-    }, 5000);
 
     if (timerMode === 'work') {
 
@@ -785,35 +803,56 @@ export default function App() {
         }}
       />
 
-      {/* Minimalist Session Completion Banner */}
+      {/* Fullscreen Session Completion Modal */}
       {sessionDoneAlert && (
-        <div className="fixed top-8 left-1/2 z-50 animate-slideDown" style={{ transform: 'translateX(-50%)' }}>
-          <div
-            className="flex items-center gap-3.5 select-none"
-            style={{
-              background: 'rgba(250, 250, 250, 0.85)',
-              backdropFilter: 'blur(32px)',
-              WebkitBackdropFilter: 'blur(32px)',
-              border: '1px solid var(--surface-border)',
-              boxShadow: '0 16px 40px -12px rgba(0,0,0,0.15)',
-              borderRadius: 99,
-              padding: '12px 24px 12px 14px',
-            }}
-          >
-            <div className="flex items-center justify-center shrink-0" style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--text-primary)' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#fff' }}>check</span>
-            </div>
-            <div className="flex flex-col justify-center whitespace-nowrap" style={{ marginTop: -2 }}>
-              <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 15, fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-                {sessionDoneAlert.title}
-              </span>
-              <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.04em', marginTop: 3 }}>
-                {sessionDoneAlert.subtitle}
-              </span>
-            </div>
+        <div className={`fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/20 backdrop-blur-sm ${isAlertClosing ? 'animate-fadeOut' : 'animate-fadeIn'}`}>
+          <div className={`bg-surface rounded-[24px] p-6 max-w-[280px] w-full flex flex-col items-center text-center shadow-xl border border-border ${isAlertClosing ? 'animate-zoomOutAlert' : 'animate-zoomInAlert'}`}>
+            <DotLottieReact
+              src={clockTickingLottie}
+              autoplay
+              dotLottieRefCallback={setAlertLottieRef}
+              className="w-28 h-28 mb-3 opacity-90 mix-blend-multiply"
+            />
+            <h2 className="text-[17px] font-bold text-text-main mb-1.5 font-sans tracking-tight">
+              {sessionDoneAlert.title}
+            </h2>
+            <p className="text-[12px] text-text-sub font-sans leading-relaxed">
+              {sessionDoneAlert.subtitle}
+            </p>
           </div>
         </div>
       )}
+
+      {/* Temporary Test Buttons for Notification Modal */}
+      <div className="fixed bottom-[100px] right-4 z-[60] flex flex-col gap-2">
+        <button
+          onClick={() => {
+            setIsAlertClosing(false);
+            setSessionDoneAlert({ title: 'Focus Completed', subtitle: 'Great job! Take a moment to rest and stretch.', mode: 'work' });
+          }}
+          className="bg-primary text-white p-2 rounded-lg text-[10px] opacity-50 hover:opacity-100"
+        >
+          Test Focus
+        </button>
+        <button
+          onClick={() => {
+            setIsAlertClosing(false);
+            setSessionDoneAlert({ title: 'Break Completed', subtitle: 'Refreshed? Ready to focus again?', mode: 'shortBreak' });
+          }}
+          className="bg-secondary text-white p-2 rounded-lg text-[10px] opacity-50 hover:opacity-100"
+        >
+          Test Short
+        </button>
+        <button
+          onClick={() => {
+            setIsAlertClosing(false);
+            setSessionDoneAlert({ title: 'Break Completed', subtitle: 'Refreshed? Ready to focus again?', mode: 'longBreak' });
+          }}
+          className="bg-[#D3A29D] text-white p-2 rounded-lg text-[10px] opacity-50 hover:opacity-100"
+        >
+          Test Long
+        </button>
+      </div>
 
 
     </div>

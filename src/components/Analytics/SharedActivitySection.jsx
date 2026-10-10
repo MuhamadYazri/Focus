@@ -502,7 +502,7 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
 
       {/* Dual Metric Summary Tiles */}
       {showKPIs && (
-        <div className="grid grid-cols-2 gap-3.5 mt-1">
+        <div className="grid grid-cols-2 gap-3.5 ">
           {/* Focus Time Tile */}
           <div className="bg-surface rounded-2xl p-4 shadow-sm border border-border flex flex-col justify-between min-h-[110px]">
             <div>
@@ -570,7 +570,9 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
               }
 
               // If this date is in the currently selected period, give it a distinctive ring
-              const selectionRing = isCur ? 'ring-2 ring-primary/60 ring-offset-1 ring-offset-surface' : '';
+              const selectionRing = isCur
+                ? 'ring-2 ring-primary/60 ring-offset-1 ring-offset-surface'
+                : '';
 
               return (
                 <div

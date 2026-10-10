@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { LayoutGridIcon as LayoutGrid, HourglassIcon as Timer, TrendingUpIcon as BarChart2, UserIcon as User } from 'lucide-animated';
 
 const NAV_ITEMS = [
@@ -34,23 +35,32 @@ export default function BottomNav({ activeTab, setActiveTab, isHidden = false })
                   }
                   setTimeout(() => setActiveTab(key), 50);
                 }}
-                className={`flex-1 min-h-[44px] rounded-full flex items-center justify-center transition-all ${
+                className={`relative flex-1 min-h-[44px] rounded-full flex items-center justify-center transition-colors z-0 ${
                   on 
-                    ? 'gap-2 px-3.5 bg-primary text-white shadow-md' 
+                    ? 'gap-2 px-3.5 text-white' 
                     : 'text-text-sub hover:text-primary active:scale-95'
                 }`}
               >
-                <Icon 
-                  ref={el => iconRefs.current[key] = el}
-                  animateOnHover={false}
-                  size={on ? 18 : 20} 
-                  strokeWidth={on ? 2.5 : 2} 
-                />
                 {on && (
-                  <span className="text-[13px] font-semibold tracking-tight font-sans">
-                    {label}
-                  </span>
+                  <motion.div
+                    layoutId="fluidNavTab"
+                    className="absolute inset-0 bg-primary rounded-full shadow-md z-[-1]"
+                    transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
+                  />
                 )}
+                <div className="relative z-10 flex items-center justify-center gap-2">
+                  <Icon 
+                    ref={el => iconRefs.current[key] = el}
+                    animateOnHover={false}
+                    size={on ? 18 : 20} 
+                    strokeWidth={on ? 2.5 : 2} 
+                  />
+                  {on && (
+                    <span className="text-[13px] font-semibold tracking-tight font-sans">
+                      {label}
+                    </span>
+                  )}
+                </div>
               </button>
             );
           })}

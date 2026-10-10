@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Zap, Flame, Check, ListFilter, Play, Pause, Plus } from 'lucide-react';
+import fireWebm from '../../assets/fireAnimation.webm';
 
 export default function TaskList({
   tasks = [],
@@ -179,11 +180,18 @@ export default function TaskList({
 
           {/* Streak Card */}
           <div className="col-span-4 bg-primary text-canvas rounded-[24px] p-5 shadow-lg flex flex-col justify-between">
-            <div className="flex items-center justify-evenly">
-              <span className="font-mono text-[11px] text-[#E5D9B6] tracking-wider font-bold uppercase">
+            <div className="flex items-center justify-center gap-1.5 translate-x-1">
+              <span className="font-mono text-[11px] text-[#E5D9B6] tracking-wider font-bold uppercase translate-y-0.5">
                 STREAK
               </span>
-              <Flame size={20} className="text-[#E67E22] fill-current" />
+              <video 
+                src={fireWebm} 
+                autoPlay 
+                loop 
+                muted 
+                playsInline 
+                className="w-8 h-8 object-contain"
+              />
             </div>
             <div className="my-auto pt-1 flex items-center flex-col text-center">
               <span className="text-[34px] font-bold text-white leading-none tracking-tight font-sans">

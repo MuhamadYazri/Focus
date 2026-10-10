@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Clock, CheckCircle } from 'lucide-react';
+import RollText from '../animata/text/roll-text';
 
 const PERIODS = ['All', 'Daily', 'Weekly', 'Monthly', 'Yearly'];
 
@@ -480,9 +481,10 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
           <ChevronLeft size={15} strokeWidth={2.5} />
           <span className="tracking-widest uppercase">PREV</span>
         </button>
-        <span className="text-xs text-text-main font-semibold tracking-tight font-sans">
-          {dateLabel}
-        </span>
+        <RollText 
+          text={dateLabel} 
+          className="text-xs text-text-main font-semibold tracking-tight font-sans" 
+        />
         <button
           onClick={() => {
             if (window.navigator?.vibrate) window.navigator.vibrate(10);

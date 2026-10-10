@@ -566,13 +566,16 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
               } else if (val >= 1) {
                 bgClass = 'bg-secondary text-white font-semibold';
               } else if (isCur) {
-                bgClass = 'bg-[#E5D9B6]/40 text-text-main font-bold border border-[#E5D9B6]';
+                bgClass = 'bg-[#E5D9B6]/40 text-text-main font-bold';
               }
+
+              // If this date is in the currently selected period, give it a distinctive ring
+              const selectionRing = isCur ? 'ring-2 ring-primary/60 ring-offset-1 ring-offset-surface' : '';
 
               return (
                 <div
                   key={`${wi}-${di}`}
-                  className={`h-9 rounded-xl flex items-center justify-center text-[11px] font-sans ${bgClass}`}
+                  className={`h-9 rounded-xl flex items-center justify-center text-[11px] font-sans ${bgClass} ${selectionRing}`}
                 >
                   {dayNum}
                 </div>

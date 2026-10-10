@@ -728,12 +728,18 @@ export default function App() {
             aria-label="Add Task"
             onClick={() => {
               if (window.navigator?.vibrate) window.navigator.vibrate(15);
-              setTaskToEdit(null);
-              setTaskModalOpen(true);
+              if (window.plusRef?.current) {
+                window.plusRef.current.startAnimation();
+                setTimeout(() => window.plusRef.current?.stopAnimation(), 600);
+              }
+              setTimeout(() => {
+                setTaskToEdit(null);
+                setTaskModalOpen(true);
+              }, 50);
             }}
             className="w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center shadow-lg active:scale-90 transition-transform hover:bg-primary-hover"
           >
-            <Plus animateOnHover={false} size={24} strokeWidth={3} />
+            <Plus ref={el => { if (!window.plusRef) window.plusRef = {current: null}; window.plusRef.current = el; }} animateOnHover={false} size={24} strokeWidth={3} />
           </button>
         </aside>
       )}

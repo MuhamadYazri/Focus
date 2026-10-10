@@ -292,6 +292,9 @@ export default function TimerView({
                       if (window.navigator?.vibrate) window.navigator.vibrate(10);
                       iconRefs.current.reset?.startAnimation();
                       setTimeout(() => {
+                        iconRefs.current.reset?.stopAnimation();
+                      }, 600);
+                      setTimeout(() => {
                         if (onReset) onReset();
                       }, 50);
                     }}
@@ -304,6 +307,9 @@ export default function TimerView({
                     onClick={() => {
                       if (window.navigator?.vibrate) window.navigator.vibrate(20);
                       iconRefs.current.playPause?.startAnimation();
+                      setTimeout(() => {
+                        iconRefs.current.playPause?.stopAnimation();
+                      }, 600);
                       setTimeout(() => {
                         if (onTogglePlay) onTogglePlay();
                       }, 50);
@@ -398,6 +404,9 @@ export default function TimerView({
                 <button
                   onClick={() => {
                     iconRefs.current.lock?.startAnimation();
+                    setTimeout(() => {
+                      iconRefs.current.lock?.stopAnimation();
+                    }, 600);
                     setTimeout(() => {
                       if (onToggleStrictMode) onToggleStrictMode();
                     }, 50);

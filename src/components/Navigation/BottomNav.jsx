@@ -28,6 +28,9 @@ export default function BottomNav({ activeTab, setActiveTab, isHidden = false })
                   if (window.navigator?.vibrate) window.navigator.vibrate(10);
                   if (iconRefs.current[key]) {
                     iconRefs.current[key].startAnimation();
+                    setTimeout(() => {
+                      if (iconRefs.current[key]) iconRefs.current[key].stopAnimation();
+                    }, 600);
                   }
                   setTimeout(() => setActiveTab(key), 50);
                 }}

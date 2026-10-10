@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Zap, Flame, Check, ListFilter, Play, Pause, Plus } from 'lucide-react';
 import fireWebm from '../../assets/fireAnimation.webm';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import emptyLottie from '../../assets/emptyAnimation.lottie';
 
 export default function TaskList({
   tasks = [],
@@ -287,7 +289,12 @@ export default function TaskList({
         <section className="flex flex-col gap-3">
           {filteredTasks.length === 0 ? (
             <div className="bg-surface border border-border rounded-[24px] p-8 text-center flex flex-col items-center shadow-sm">
-              <Check size={32} className="text-[#8D9A82] mb-3" />
+              <DotLottieReact
+                src={emptyLottie}
+                loop
+                autoplay
+                className="w-32 h-32 mb-1 opacity-80 mix-blend-multiply"
+              />
               <p className="font-sans text-[14px] text-[#636F5A]">
                 No tasks in this view. Add one below.
               </p>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus } from 'lucide-react';
+import { PlusIcon as Plus } from 'lucide-animated';
 import BottomNav from './components/Navigation/BottomNav';
 import TaskList from './components/Tasks/TaskList';
 import TaskModal from './components/Tasks/TaskModal';
@@ -733,7 +733,7 @@ export default function App() {
             }}
             className="w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center shadow-lg active:scale-90 transition-transform hover:bg-primary-hover"
           >
-            <Plus size={24} strokeWidth={3} />
+            <Plus animateOnHover={false} size={24} strokeWidth={3} />
           </button>
         </aside>
       )}

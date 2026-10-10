@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutGrid, Timer, BarChart2, User } from 'lucide-react';
+import { LayoutGridIcon as LayoutGrid, HourglassIcon as Timer, TrendingUpIcon as BarChart2, UserIcon as User } from 'lucide-animated';
 
 const NAV_ITEMS = [
   { key: 'home',    label: 'Home',    Icon: LayoutGrid },
@@ -9,6 +9,8 @@ const NAV_ITEMS = [
 ];
 
 export default function BottomNav({ activeTab, setActiveTab, isHidden = false }) {
+  const iconRefs = React.useRef({});
+
   return (
     <nav
       className={`fixed bottom-0 w-full z-50 pointer-events-none transition-all duration-500 pb-[env(safe-area-inset-bottom,0px)] ${
@@ -24,7 +26,10 @@ export default function BottomNav({ activeTab, setActiveTab, isHidden = false })
                 key={key}
                 onClick={() => {
                   if (window.navigator?.vibrate) window.navigator.vibrate(10);
-                  setActiveTab(key);
+                  if (iconRefs.current[key]) {
+                    iconRefs.current[key].startAnimation();
+                  }
+                  setTimeout(() => setActiveTab(key), 50);
                 }}
                 className={`flex-1 min-h-[44px] rounded-full flex items-center justify-center transition-all ${
                   on 
@@ -32,7 +37,12 @@ export default function BottomNav({ activeTab, setActiveTab, isHidden = false })
                     : 'text-text-sub hover:text-primary active:scale-95'
                 }`}
               >
-                <Icon size={on ? 18 : 20} strokeWidth={on ? 2.5 : 2} />
+                <Icon 
+                  ref={el => iconRefs.current[key] = el}
+                  animateOnHover={false}
+                  size={on ? 18 : 20} 
+                  strokeWidth={on ? 2.5 : 2} 
+                />
                 {on && (
                   <span className="text-[13px] font-semibold tracking-tight font-sans">
                     {label}

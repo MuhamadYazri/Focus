@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
-  Play,
-  Pause,
-  RotateCcw,
   SkipForward,
   Headphones,
   Volume2,
-  Lock,
   Unlock,
 } from 'lucide-react';
+import {
+  PlayIcon as Play,
+  PauseIcon as Pause,
+  RotateCcwIcon as RotateCcw,
+  LockIcon as Lock,
+} from 'lucide-animated';
 import { soundEngine } from '../../services/soundEngine';
 
 const AnimatedDigit = ({ char, isColon }) => {
@@ -100,6 +102,8 @@ export default function TimerView({
   isNavHidden,
   onToggleNav,
 }) {
+  const iconRefs = useRef({});
+
   const formatTime = (secs) => {
     const m = Math.floor(secs / 60);
     const s = secs % 60;
@@ -286,24 +290,30 @@ export default function TimerView({
                   <button
                     onClick={() => {
                       if (window.navigator?.vibrate) window.navigator.vibrate(10);
-                      if (onReset) onReset();
+                      iconRefs.current.reset?.startAnimation();
+                      setTimeout(() => {
+                        if (onReset) onReset();
+                      }, 50);
                     }}
                     className="w-12 h-12 rounded-full bg-canvas border border-border text-primary flex items-center justify-center transition-transform active:scale-95 hover:bg-border"
                   >
-                    <RotateCcw size={20} strokeWidth={2.5} />
+                    <RotateCcw ref={el => iconRefs.current.reset = el} animateOnHover={false} size={20} strokeWidth={2.5} />
                   </button>
 
                   <button
                     onClick={() => {
                       if (window.navigator?.vibrate) window.navigator.vibrate(20);
-                      if (onTogglePlay) onTogglePlay();
+                      iconRefs.current.playPause?.startAnimation();
+                      setTimeout(() => {
+                        if (onTogglePlay) onTogglePlay();
+                      }, 50);
                     }}
                     className="w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center shadow-md transition-transform active:scale-90 hover:scale-105"
                   >
                     {isRunning ? (
-                      <Pause size={28} className="fill-current" />
+                      <Pause ref={el => iconRefs.current.playPause = el} animateOnHover={false} size={28} className="fill-current" />
                     ) : (
-                      <Play size={28} className="translate-x-0.5 fill-current" />
+                      <Play ref={el => iconRefs.current.playPause = el} animateOnHover={false} size={28} className="translate-x-0.5 fill-current" />
                     )}
                   </button>
 
@@ -372,7 +382,7 @@ export default function TimerView({
               >
                 <div className="flex items-center gap-3">
                   {strictMode ? (
-                    <Lock size={20} className="text-secondary" />
+                    <Lock ref={el => iconRefs.current.lock = el} animateOnHover={false} size={20} className="text-secondary" />
                   ) : (
                     <Unlock size={20} className="text-[#8D9A82]" />
                   )}
@@ -387,7 +397,10 @@ export default function TimerView({
                 </div>
                 <button
                   onClick={() => {
-                    if (onToggleStrictMode) onToggleStrictMode();
+                    iconRefs.current.lock?.startAnimation();
+                    setTimeout(() => {
+                      if (onToggleStrictMode) onToggleStrictMode();
+                    }, 50);
                   }}
                   className={`w-11 h-6 rounded-full p-0.5 flex items-center shadow-inner cursor-pointer transition-all ${
                     strictMode ? 'bg-secondary justify-end' : 'bg-border justify-start'

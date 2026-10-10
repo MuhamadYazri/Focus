@@ -180,9 +180,7 @@ export default function TimerView({
                   <div className="flex items-center gap-2">
                     <span
                       className={`w-2 h-2 rounded-full ${
-                        isRunning
-                          ? 'bg-secondary shadow-sm animate-pulse'
-                          : 'bg-[#E5D9B6]'
+                        isRunning ? 'bg-secondary shadow-sm animate-pulse' : 'bg-[#E5D9B6]'
                       }`}
                     ></span>
                     <span className="font-sans font-medium text-xs text-[#444841] tracking-wide">
@@ -248,7 +246,9 @@ export default function TimerView({
             isNavHidden ? 'grid-rows-[0fr] opacity-0' : 'grid-rows-[1fr] opacity-100'
           }`}
         >
-          <div className="overflow-hidden flex flex-col justify-start pointer-events-none">
+          <div
+            className="transition-all duration-700 ease-in-out overflow-hidden flex flex-col justify-start pointer-events-none p-6 -m-6"
+          >
             {/* Wrapper to restore pointer events for children */}
             <div className="pointer-events-auto w-full flex flex-col gap-3">
               {/* Cycle Stepper (Below timer) */}
@@ -380,22 +380,21 @@ export default function TimerView({
                     <span className="text-xs font-semibold text-primary leading-tight font-sans">
                       Strict Focus
                     </span>
-                    <span className="text-[11px] text-[#444841] leading-tight mt-0.5 font-sans">
+                    <span className="text-[11px] text-text-sub leading-tight mt-0.5 font-sans">
                       Block app interruptions
                     </span>
                   </div>
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    className="sr-only peer"
-                    checked={strictMode}
-                    onChange={() => {
-                      if (onToggleStrictMode) onToggleStrictMode();
-                    }}
-                  />
-                  <div className="w-10 h-5 bg-[#E5D9B6] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:border-[#E5D9B6] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-secondary shadow-inner"></div>
-                </label>
+                <button
+                  onClick={() => {
+                    if (onToggleStrictMode) onToggleStrictMode();
+                  }}
+                  className={`w-11 h-6 rounded-full p-0.5 flex items-center shadow-inner cursor-pointer transition-all ${
+                    strictMode ? 'bg-secondary justify-end' : 'bg-border justify-start'
+                  }`}
+                >
+                  <div className="w-5 h-5 rounded-full bg-surface shadow-sm transition-transform"></div>
+                </button>
               </div>
             </div>
           </div>

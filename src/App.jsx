@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Plus } from 'lucide-react';
 import BottomNav from './components/Navigation/BottomNav';
 import TaskList from './components/Tasks/TaskList';
 import TaskModal from './components/Tasks/TaskModal';
@@ -719,6 +720,23 @@ export default function App() {
           opacity: (isNavHidden && activeTab === 'timer') ? 0 : 1,
         }}
       />
+
+      {/* Floating Action Button (FAB) for Home Tab */}
+      {activeTab === 'home' && (
+        <aside className="fixed bottom-24 right-5 z-50 animate-fab-in">
+          <button
+            aria-label="Add Task"
+            onClick={() => {
+              if (window.navigator?.vibrate) window.navigator.vibrate(15);
+              setTaskToEdit(null);
+              setTaskModalOpen(true);
+            }}
+            className="w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center shadow-lg active:scale-90 transition-transform hover:bg-primary-hover"
+          >
+            <Plus size={24} strokeWidth={3} />
+          </button>
+        </aside>
+      )}
 
       {/* Bottom Navigation */}
       <BottomNav

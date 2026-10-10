@@ -367,24 +367,6 @@ export default function TaskList({
         </section>
 
         {/* Floating Action Button (FAB) */}
-        <aside className="fixed bottom-24 right-5 z-50 animate-[popIn_0.5s_cubic-bezier(0.16,1,0.3,1)_forwards]">
-          <style>{`
-            @keyframes popIn {
-              0% { opacity: 0; transform: scale(0.5) translateY(20px); }
-              100% { opacity: 1; transform: scale(1) translateY(0); }
-            }
-          `}</style>
-          <button
-            aria-label="Add Task"
-            onClick={() => {
-              if (window.navigator?.vibrate) window.navigator.vibrate(15);
-              if (onAddTask) onAddTask();
-            }}
-            className="w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center shadow-lg active:scale-90 transition-transform hover:bg-primary-hover"
-          >
-            <Plus size={24} strokeWidth={3} />
-          </button>
-        </aside>
       </div>
     </div>
   );

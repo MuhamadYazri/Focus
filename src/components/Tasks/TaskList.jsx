@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Zap, Flame, Check, ListFilter, Play, Pause, Plus } from 'lucide-react';
 import fireWebm from '../../assets/fireAnimation.webm';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
@@ -28,9 +28,9 @@ function TaskList({
   };
 
   const [filterTab, setFilterTab] = useState('Today');
-  const todayStr = getLocalDateStr();
+  const todayStr = useMemo(() => getLocalDateStr(), []);
 
-  const calculateDailyProgress = () => {
+  const { todayHours, targetHours, progressPercent, streak, statusText } = useMemo(() => {
     try {
       const todaySessions = (sessions || []).filter((s) => {
         if (!s || typeof s !== 'object') return false;
@@ -84,48 +84,48 @@ function TaskList({
         statusText: 'Ready to focus',
       };
     }
-  };
+  }, [sessions, settings?.dailyGoalHours, todayStr]);
 
-  const { todayHours, targetHours, progressPercent, streak, statusText } = calculateDailyProgress();
+  const filteredTasks = useMemo(() => {
+    return tasks.filter((task) => {
+      if (selectedProjectId && task.projectId !== selectedProjectId) return false;
+      const st = task.scheduleType || 'today';
+      if (filterTab === 'Archive') return task.completed && st !== 'daily' && st !== 'weekly';
 
-  const filteredTasks = tasks.filter((task) => {
-    if (selectedProjectId && task.projectId !== selectedProjectId) return false;
-    const st = task.scheduleType || 'today';
-    if (filterTab === 'Archive') return task.completed && st !== 'daily' && st !== 'weekly';
-
-    if (filterTab === 'Today') {
-      if (st === 'daily') return true;
-      if (st === 'weekly') {
-        const d = new Date().getDay();
-        return Array.isArray(task.weeklyDays) && task.weeklyDays.includes(d);
+      if (filterTab === 'Today') {
+        if (st === 'daily') return true;
+        if (st === 'weekly') {
+          const d = new Date().getDay();
+          return Array.isArray(task.weeklyDays) && task.weeklyDays.includes(d);
+        }
+        if (task.completed) return false;
+        if (st === 'today') return true;
+        if (st === 'date' && task.scheduledDate && task.scheduledDate <= todayStr) return true;
+        return false;
       }
-      if (task.completed) return false;
-      if (st === 'today') return true;
-      if (st === 'date' && task.scheduledDate && task.scheduledDate <= todayStr) return true;
-      return false;
-    }
 
-    if (filterTab === 'This Week') {
-      if (st === 'daily' || st === 'weekly') return true;
-      if (task.completed) return false;
-      if (st === 'today') return true;
-      if (st === 'date') {
-        const endOfWeek = new Date();
-        endOfWeek.setDate(new Date().getDate() + 7);
-        const endStr = getLocalDateStr(endOfWeek);
-        return !task.scheduledDate || task.scheduledDate <= endStr;
+      if (filterTab === 'This Week') {
+        if (st === 'daily' || st === 'weekly') return true;
+        if (task.completed) return false;
+        if (st === 'today') return true;
+        if (st === 'date') {
+          const endOfWeek = new Date();
+          endOfWeek.setDate(new Date().getDate() + 7);
+          const endStr = getLocalDateStr(endOfWeek);
+          return !task.scheduledDate || task.scheduledDate <= endStr;
+        }
+        return false;
       }
-      return false;
-    }
-    if (filterTab === 'Planned') {
-      if (task.completed) return false;
-      if (st === 'date') return true;
-      return false;
-    }
-    return true;
-  });
+      if (filterTab === 'Planned') {
+        if (task.completed) return false;
+        if (st === 'date') return true;
+        return false;
+      }
+      return true;
+    });
+  }, [tasks, selectedProjectId, filterTab, todayStr]);
 
-  const activeCount = tasks.filter((t) => !t.completed).length;
+  const activeCount = useMemo(() => tasks.filter((t) => !t.completed).length, [tasks]);
 
   const getGreeting = () => {
     const h = new Date().getHours();

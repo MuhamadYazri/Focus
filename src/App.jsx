@@ -121,7 +121,7 @@ export default function App() {
     setTimeout(() => {
       setIsTransitioning(false);
       setPrevTab(null);
-    }, 320);
+    }, 280);
   };
 
   // Load initial data from IDB/localStorage
@@ -683,12 +683,11 @@ export default function App() {
         </div>
       </main>
 
-      {/* Bottom Screen Fade Overlay */}
+      {/* Bottom Screen Fade Overlay (Pure GPU gradient, zero backdrop-blur overhead) */}
       <div 
-        className="fixed bottom-0 left-0 right-0 h-32 pointer-events-none z-40 transition-opacity duration-500 backdrop-blur-md bg-canvas/80"
+        className="fixed bottom-0 left-0 right-0 h-28 pointer-events-none z-40 transition-opacity duration-300"
         style={{
-          maskImage: 'linear-gradient(to top, black 25%, transparent)',
-          WebkitMaskImage: 'linear-gradient(to top, black 25%, transparent)',
+          background: 'linear-gradient(to top, var(--theme-canvas) 20%, transparent 100%)',
           opacity: (isNavHidden && activeTab === 'timer') ? 0 : 1,
         }}
       />

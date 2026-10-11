@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { Zap, Flame, Check, ListFilter, Play, Pause, Plus } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Zap, Flame, Check, ListFilter, Play, Pause, Plus, ArrowUpDown } from 'lucide-react';
 import fireWebm from '../../assets/fireAnimation.webm';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import emptyLottie from '../../assets/emptyAnimation.lottie';
@@ -16,6 +17,8 @@ function TaskList({
   onToggleComplete,
   justCompletedId = null,
   onStartPomodoro,
+  activeTaskId = null,
+  isTimerRunning = false,
 }) {
   const getLocalDateStr = (d) => {
     try {
@@ -29,7 +32,17 @@ function TaskList({
   };
 
   const [filterTab, setFilterTab] = useState('Today');
+  const [sortBy, setSortBy] = useState('default'); // 'default' | 'pomo' | 'priority' | 'name'
   const todayStr = useMemo(() => getLocalDateStr(), []);
+
+  const formatLabel = (str) => {
+    if (!str) return '';
+    return str
+      .toLowerCase()
+      .split(' ')
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ');
+  };
 
   const { todayHours, targetHours, progressPercent, streak, statusText } = useMemo(() => {
     try {
@@ -88,7 +101,7 @@ function TaskList({
   }, [sessions, settings?.dailyGoalHours, todayStr]);
 
   const filteredTasks = useMemo(() => {
-    return tasks.filter((task) => {
+    const list = tasks.filter((task) => {
       if (selectedProjectId && task.projectId !== selectedProjectId) return false;
       if (
         justCompletedId === task.id &&
@@ -97,8 +110,12 @@ function TaskList({
       ) {
         return true; // keep visible while the completion animation plays
       }
+
+      if (filterTab === 'Done') {
+        return task.completed;
+      }
+
       const st = task.scheduleType || 'today';
-      if (filterTab === 'Archive') return task.completed && st !== 'daily' && st !== 'weekly';
 
       if (filterTab === 'Today') {
         if (st === 'daily') return true;
@@ -129,9 +146,21 @@ function TaskList({
         if (st === 'date') return true;
         return false;
       }
-      return true;
+      return !task.completed;
     });
-  }, [tasks, selectedProjectId, filterTab, todayStr, justCompletedId]);
+
+    if (sortBy === 'pomo') {
+      return [...list].sort((a, b) => (b.estimatedPomos || 0) - (a.estimatedPomos || 0));
+    }
+    if (sortBy === 'priority') {
+      const pMap = { P1: 3, HIGH: 3, P2: 2, MEDIUM: 2, P3: 1, LOW: 1 };
+      return [...list].sort((a, b) => (pMap[b.priority] || 0) - (pMap[a.priority] || 0));
+    }
+    if (sortBy === 'name') {
+      return [...list].sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+    }
+    return list;
+  }, [tasks, selectedProjectId, filterTab, todayStr, justCompletedId, sortBy]);
 
   const activeCount = useMemo(() => tasks.filter((t) => !t.completed).length, [tasks]);
 
@@ -189,9 +218,12 @@ function TaskList({
           </div>
 
           {/* Streak Card */}
-          <div className="col-span-4 bg-primary text-canvas rounded-[24px] p-5 shadow-md shadow-primary/25 ring-1 ring-white/15 flex flex-col justify-between relative overflow-hidden">
-            <div className="flex items-center justify-center gap-1.5 translate-x-1 relative z-10">
-              <span className="font-mono text-[11px] text-[#E5D9B6] tracking-wider font-bold uppercase translate-y-0.5">
+          <div className="col-span-4 bg-gradient-to-br from-[#475742] via-primary to-[#334230] text-canvas rounded-[24px] p-5 shadow-md shadow-primary/25 ring-1 ring-white/15 border border-white/10 flex flex-col justify-between relative overflow-hidden">
+            {/* Ambient subtle warm glow */}
+            <div className="absolute -top-6 -right-6 w-20 h-20 bg-[#E5D9B6]/10 rounded-full blur-xl pointer-events-none" />
+
+            <div className="flex items-center justify-center gap-1.5 relative z-10">
+              <span className="font-mono text-[11px] text-[#E5D9B6] tracking-wider font-bold uppercase">
                 STREAK
               </span>
               <video
@@ -200,14 +232,14 @@ function TaskList({
                 loop
                 muted
                 playsInline
-                className="w-8 h-8 object-contain drop-shadow-sm"
+                className="w-7 h-7 object-contain drop-shadow-sm shrink-0"
               />
             </div>
             <div className="my-auto pt-1 flex items-center flex-col text-center relative z-10">
               <span className="text-[34px] font-bold text-white leading-none tracking-tight font-sans drop-shadow-sm">
                 {streak}
               </span>
-              <span className="text-[13px] text-[#E5D9B6] font-medium mt-1 font-sans">Days</span>
+              <span className="text-[12px] text-[#E5D9B6]/90 font-medium mt-1 font-sans">Days</span>
             </div>
           </div>
         </section>
@@ -246,7 +278,7 @@ function TaskList({
                   ></span>
                 )}
                 {isSel && <Check size={14} className="text-[#E5D9B6]" />}
-                <span className="tracking-wide uppercase">{cleanName}</span>
+                <span className="tracking-wide font-medium">{formatLabel(cleanName)}</span>
               </button>
             );
           })}
@@ -270,7 +302,11 @@ function TaskList({
                   >
                     {tab}
                     {on && (
-                      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full"></span>
+                      <motion.span
+                        layoutId="timeline-tab-indicator"
+                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full"
+                        transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                      />
                     )}
                   </button>
                 );
@@ -280,16 +316,29 @@ function TaskList({
           <div className="w-full h-px bg-border mt-[-1px]"></div>
         </section>
 
-        {/* Tasks Subheader with Filter Icon */}
+        {/* Tasks Subheader with Sort Toggle */}
         <div className="flex items-center justify-between mb-3 px-1">
           <span className="font-mono text-[11px] text-[#636F5A] tracking-wider font-bold uppercase">
-            TASKS · {activeCount} ACTIVE
+            {filterTab === 'Done'
+              ? `COMPLETED · ${filteredTasks.length}`
+              : `TASKS · ${filteredTasks.length} ACTIVE`}
+            {sortBy !== 'default' ? ` (BY ${sortBy.toUpperCase()})` : ''}
           </span>
           <button
-            aria-label="Sort or filter tasks"
-            className="text-[#636F5A] hover:text-primary transition-colors"
+            aria-label="Sort tasks"
+            onClick={() => {
+              const modes = ['default', 'priority', 'pomo', 'name'];
+              const next = modes[(modes.indexOf(sortBy) + 1) % modes.length];
+              setSortBy(next);
+            }}
+            className={`p-1 rounded-md transition-colors flex items-center gap-1 text-[11px] font-mono ${
+              sortBy !== 'default'
+                ? 'text-secondary font-bold bg-secondary/10'
+                : 'text-[#636F5A] hover:text-primary'
+            }`}
+            title={`Current sort: ${sortBy}. Click to change.`}
           >
-            <ListFilter size={18} />
+            <ListFilter size={17} />
           </button>
         </div>
 
@@ -315,60 +364,79 @@ function TaskList({
                 : null;
 
               const isJust = justCompletedId === task.id && task.completed;
+              const isCurrentFocus = activeTaskId === task.id && isTimerRunning;
+              const subtasks = Array.isArray(task.subtasks) ? task.subtasks : [];
+              const completedSubtasksCount = subtasks.filter((s) => s.completed).length;
 
               return (
                 <article
                   key={task.id}
-                  className={`group bg-surface border border-border rounded-full p-2.5 pl-4 flex items-center justify-between shadow-xs ring-1 ring-white/60 transition-all hover:shadow-sm active:scale-[0.99] cursor-pointer ${
-                    task.completed ? 'opacity-60 bg-surface/70' : ''
-                  } ${isJust ? 'animate-task-exit' : ''}`}
+                  className={`group bg-surface border rounded-full p-2.5 pl-4 flex items-center justify-between shadow-xs transition-all hover:shadow-sm active:scale-[0.99] cursor-pointer ${
+                    isCurrentFocus
+                      ? 'border-secondary/60 ring-2 ring-secondary/30 shadow-sm'
+                      : 'border-border ring-1 ring-white/60'
+                  } ${task.completed ? 'opacity-60 bg-surface/70' : ''} ${
+                    isJust ? 'animate-task-exit' : ''
+                  }`}
                   onClick={() => onEditTask && onEditTask(task)}
                 >
-                  <div className="flex items-center gap-3.5 min-w-0 pr-2">
+                  <div className="flex items-center gap-3 min-w-0 pr-2">
                     <button
                       aria-label="Toggle Complete"
                       onClick={(e) => {
                         e.stopPropagation();
                         onToggleComplete && onToggleComplete(task.id);
                       }}
-                      className={`w-6 h-6 rounded-full border flex items-center justify-center shrink-0 transition-colors shadow-2xs ${
-                        task.completed
-                          ? 'bg-secondary border-secondary text-white'
-                          : 'border-border bg-[#F4F1EA] hover:border-secondary'
-                      } ${isJust ? 'animate-check-pop' : ''}`}
+                      className="p-1.5 -m-1.5 flex items-center justify-center shrink-0"
                     >
-                      {task.completed ? (
-                        isJust ? (
-                          <svg
-                            className="check-draw"
-                            width="14"
-                            height="14"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="white"
-                            strokeWidth="3.2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
-                            <path d="M5 12.5l4.5 4.5L19 7" />
-                          </svg>
+                      <div
+                        className={`w-6 h-6 rounded-full border flex items-center justify-center shrink-0 transition-colors shadow-2xs ${
+                          task.completed
+                            ? 'bg-secondary border-secondary text-white'
+                            : 'border-border bg-[#F4F1EA] group-hover:border-secondary'
+                        } ${isJust ? 'animate-check-pop' : ''}`}
+                      >
+                        {task.completed ? (
+                          isJust ? (
+                            <svg
+                              className="check-draw"
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="white"
+                              strokeWidth="3.2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="M5 12.5l4.5 4.5L19 7" />
+                            </svg>
+                          ) : (
+                            <Check size={12} className="text-white" />
+                          )
                         ) : (
-                          <Check size={12} className="text-white" />
-                        )
-                      ) : (
-                        <span className="w-3.5 h-3.5 rounded-full bg-surface shadow-inner"></span>
-                      )}
+                          <span className="w-3.5 h-3.5 rounded-full bg-surface shadow-inner"></span>
+                        )}
+                      </div>
                     </button>
                     <div className="flex flex-col min-w-0">
-                      <h3 className="text-[15px] font-bold text-primary truncate font-sans">
-                        <span
-                          className={
-                            isJust ? 'strike-anim' : task.completed ? 'line-through' : ''
-                          }
-                        >
-                          {task.title}
-                        </span>
-                      </h3>
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <h3 className="text-[15px] font-bold text-primary truncate font-sans">
+                          <span
+                            className={
+                              isJust ? 'strike-anim' : task.completed ? 'line-through' : ''
+                            }
+                          >
+                            {task.title}
+                          </span>
+                        </h3>
+                        {isCurrentFocus && (
+                          <span className="shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-secondary/15 text-secondary text-[9px] font-mono font-bold tracking-wider animate-pulse">
+                            <span className="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                            FOCUS
+                          </span>
+                        )}
+                      </div>
                       <div className="flex items-center gap-2 mt-0.5">
                         {cleanProjectName && (
                           <>
@@ -378,7 +446,7 @@ function TaskList({
                                 backgroundColor: project?.color || 'var(--theme-secondary)',
                               }}
                             ></span>
-                            <span className="font-mono text-[10px] text-[#636F5A] tracking-wider font-semibold uppercase truncate max-w-[120px]">
+                            <span className="font-mono text-[10px] text-[#636F5A] tracking-wider font-semibold uppercase truncate max-w-[110px]">
                               {cleanProjectName}
                             </span>
                           </>
@@ -393,14 +461,22 @@ function TaskList({
                   </div>
                   {!task.completed && (
                     <button
-                      aria-label="Start Pomodoro"
+                      aria-label={isCurrentFocus ? 'Pause Focus' : 'Start Pomodoro'}
                       onClick={(e) => {
                         e.stopPropagation();
                         onStartPomodoro && onStartPomodoro(task);
                       }}
-                      className="w-11 h-11 rounded-full bg-[#F4F1EA] border border-border/60 text-primary flex items-center justify-center shrink-0 hover:bg-secondary hover:text-white transition-all shadow-xs ring-1 ring-white/80 active:scale-95"
+                      className={`w-11 h-11 rounded-full flex items-center justify-center shrink-0 transition-all active:scale-95 ${
+                        isCurrentFocus
+                          ? 'bg-secondary text-white shadow-sm ring-2 ring-secondary/30 animate-pulse'
+                          : 'bg-[#F4F1EA] border border-border/60 text-primary hover:bg-secondary hover:text-white shadow-xs ring-1 ring-white/80'
+                      }`}
                     >
-                      <Play size={16} className="translate-x-0.5 fill-current" />
+                      {isCurrentFocus ? (
+                        <Pause size={16} className="fill-current" />
+                      ) : (
+                        <Play size={16} className="translate-x-0.5 fill-current" />
+                      )}
                     </button>
                   )}
                 </article>

@@ -9,7 +9,7 @@ import { Share } from '@capacitor/share';
 const G = "'Poppins', sans-serif";
 const M = "'Poppins', sans-serif";
 
-export default function ProfileView({
+function ProfileView({
   sessions = [],
   settings = {
     workDuration: 25,
@@ -906,3 +906,5 @@ export default function ProfileView({
     </main>
   );
 }
+
+export default React.memo(ProfileView);

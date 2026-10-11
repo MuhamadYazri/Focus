@@ -60,7 +60,7 @@ function filterSessionsForPeriod(sessions, period, offset) {
 
 const TAILWIND_COLORS = ['#E5D9B6', 'var(--theme-secondary)', 'var(--theme-primary)', '#D9CFC7'];
 
-export default function AnalyticsDashboard({ tasks = [], projects = [], sessions = [] }) {
+function AnalyticsDashboard({ tasks = [], projects = [], sessions = [] }) {
   const [currentPeriod, setCurrentPeriod] = useState('Daily');
   const [currentOffset, setCurrentOffset] = useState(0);
 
@@ -183,3 +183,5 @@ export default function AnalyticsDashboard({ tasks = [], projects = [], sessions
     </main>
   );
 }
+
+export default React.memo(AnalyticsDashboard);

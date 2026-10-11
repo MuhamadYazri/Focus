@@ -83,7 +83,7 @@ const soundscapes = [
   { id: 'clock', label: 'Ticking' },
 ];
 
-export default function TimerView({
+function TimerView({
   mode,
   timeLeft,
   totalTime,
@@ -524,3 +524,5 @@ export default function TimerView({
     </div>
   );
 }
+
+export default React.memo(TimerView);

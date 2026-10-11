@@ -4,7 +4,7 @@ import fireWebm from '../../assets/fireAnimation.webm';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import emptyLottie from '../../assets/emptyAnimation.lottie';
 
-export default function TaskList({
+function TaskList({
   tasks = [],
   projects = [],
   sessions = [],
@@ -386,3 +386,5 @@ export default function TaskList({
     </div>
   );
 }
+
+export default React.memo(TaskList);

@@ -186,12 +186,12 @@ function TaskList({
               <span className="font-mono text-[11px] text-[#E5D9B6] tracking-wider font-bold uppercase translate-y-0.5">
                 STREAK
               </span>
-              <video 
-                src={fireWebm} 
-                autoPlay 
-                loop 
-                muted 
-                playsInline 
+              <video
+                src={fireWebm}
+                autoPlay
+                loop
+                muted
+                playsInline
                 className="w-8 h-8 object-contain"
               />
             </div>
@@ -225,7 +225,7 @@ function TaskList({
               <button
                 key={proj.id}
                 onClick={() => onSelectProject(isSel ? null : proj.id)}
-                className={`shrink-0 h-10 px-4 rounded-full flex items-center gap-2 drop-shadow-sm transition-transform active:scale-95 font-semibold text-[13px] font-sans ${
+                className={`shrink-0 h-10 px-4 rounded-full flex items-center gap-2 shadow-xs transition-transform active:scale-95 font-semibold text-[13px] font-sans ${
                   isSel
                     ? 'bg-primary text-white'
                     : 'bg-surface border border-border text-primary hover:bg-[#F4F1EA]'
@@ -296,7 +296,7 @@ function TaskList({
                 className="w-32 h-32 mb-1 opacity-80 mix-blend-multiply"
               />
               <p className="font-sans text-[14px] text-[#636F5A]">
-                No tasks in this view. Add one below.
+                No <span className="font-bold">tasks</span> in this view. Add one below.
               </p>
             </div>
           ) : (

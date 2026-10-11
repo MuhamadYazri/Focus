@@ -9,6 +9,17 @@ diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/
 new file mode 100644
 index 0000000..ee15070
 Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/1f0e311665e859248dcd3f2dcaf82a4c/transformed/classes/classes_dex/classes.dex differ
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/2082e10f3397219f12a9713195e8005d/results.bin b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/2082e10f3397219f12a9713195e8005d/results.bin
+new file mode 100644
+index 0000000..0d259dd
+--- /dev/null
++++ b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/2082e10f3397219f12a9713195e8005d/results.bin
+@@ -0,0 +1 @@
++o/classes
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/2082e10f3397219f12a9713195e8005d/transformed/classes/classes_dex/classes.dex b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/2082e10f3397219f12a9713195e8005d/transformed/classes/classes_dex/classes.dex
+new file mode 100644
+index 0000000..5155a69
+Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/2082e10f3397219f12a9713195e8005d/transformed/classes/classes_dex/classes.dex differ
 diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/56d5a5b903aece17062c4a33865e93ee/results.bin b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/56d5a5b903aece17062c4a33865e93ee/results.bin
 new file mode 100644
 index 0000000..0d259dd
@@ -20,6 +31,17 @@ diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/
 new file mode 100644
 index 0000000..864cb9c
 Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/56d5a5b903aece17062c4a33865e93ee/transformed/classes/classes_dex/classes.dex differ
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/7d84e832a52676740540bc6db8f9907a/results.bin b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/7d84e832a52676740540bc6db8f9907a/results.bin
+new file mode 100644
+index 0000000..0d259dd
+--- /dev/null
++++ b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/7d84e832a52676740540bc6db8f9907a/results.bin
+@@ -0,0 +1 @@
++o/classes
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/7d84e832a52676740540bc6db8f9907a/transformed/classes/classes_dex/classes.dex b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/7d84e832a52676740540bc6db8f9907a/transformed/classes/classes_dex/classes.dex
+new file mode 100644
+index 0000000..5155a69
+Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/7d84e832a52676740540bc6db8f9907a/transformed/classes/classes_dex/classes.dex differ
 diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml
 new file mode 100644
 index 0000000..77bc329
@@ -63,7 +85,7 @@ index 0000000..9ea9257
 \ No newline at end of file
 diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/aar_main_jar/debug/syncDebugLibJars/classes.jar b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/aar_main_jar/debug/syncDebugLibJars/classes.jar
 new file mode 100644
-index 0000000..135535c
+index 0000000..5137ce0
 Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/aar_main_jar/debug/syncDebugLibJars/classes.jar differ
 diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties
 new file mode 100644
@@ -90,7 +112,7 @@ new file mode 100644
 index 0000000..e69de29
 diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar
 new file mode 100644
-index 0000000..5374cdd
+index 0000000..b366cb6
 Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar differ
 diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar
 new file mode 100644
@@ -148,7 +170,7 @@ index 0000000..5c2d4bf
 \ No newline at end of file
 diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/capawesome/capacitorjs/plugins/foregroundservice/AndroidForegroundService.class b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/capawesome/capacitorjs/plugins/foregroundservice/AndroidForegroundService.class
 new file mode 100644
-index 0000000..4284ccf
+index 0000000..0b624d2
 Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/capawesome/capacitorjs/plugins/foregroundservice/AndroidForegroundService.class differ
 diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/capawesome/capacitorjs/plugins/foregroundservice/ForegroundService.class b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/capawesome/capacitorjs/plugins/foregroundservice/ForegroundService.class
 new file mode 100644
@@ -229,7 +251,7 @@ index 0000000..08f4ebe
 \ No newline at end of file
 diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar
 new file mode 100644
-index 0000000..a8cb30b
+index 0000000..8c49ba3
 Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar differ
 diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt
 new file mode 100644
@@ -240,7 +262,7 @@ index 0000000..023f096
 +io.capawesome.capacitorjs.plugins.foregroundservice
 diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/outputs/aar/capawesome-team-capacitor-android-foreground-service-debug.aar b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/outputs/aar/capawesome-team-capacitor-android-foreground-service-debug.aar
 new file mode 100644
-index 0000000..06e470e
+index 0000000..71d22ba
 Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/outputs/aar/capawesome-team-capacitor-android-foreground-service-debug.aar differ
 diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/outputs/logs/manifest-merger-debug-report.txt b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/outputs/logs/manifest-merger-debug-report.txt
 new file mode 100644
@@ -278,42 +300,364 @@ index 0000000..28a6851
 Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/ForegroundService.class.uniqueId0 differ
 diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin
 new file mode 100644
-index 0000000..994cc5f
+index 0000000..709d056
 Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin differ
 diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/main/java/io/capawesome/capacitorjs/plugins/foregroundservice/AndroidForegroundService.java b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/main/java/io/capawesome/capacitorjs/plugins/foregroundservice/AndroidForegroundService.java
-index 3df5ad5..53019a1 100644
+index 3df5ad5..4a96e52 100644
 --- a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/main/java/io/capawesome/capacitorjs/plugins/foregroundservice/AndroidForegroundService.java
 +++ b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/main/java/io/capawesome/capacitorjs/plugins/foregroundservice/AndroidForegroundService.java
-@@ -51,6 +51,32 @@ public class AndroidForegroundService extends Service {
-                 .setSmallIcon(icon)
-                 .setPriority(Notification.PRIORITY_HIGH)
-                 .setOnlyAlertOnce(silent);
+@@ -9,73 +9,322 @@ import android.content.Intent;
+ import android.os.Build;
+ import android.os.Bundle;
+ import android.os.IBinder;
++import android.os.PowerManager;
++import android.os.VibrationEffect;
++import android.os.Vibrator;
+ import androidx.annotation.Nullable;
+ import com.getcapacitor.Logger;
+ import java.util.ArrayList;
++import java.util.concurrent.Executors;
++import java.util.concurrent.ScheduledExecutorService;
++import java.util.concurrent.TimeUnit;
+ 
+ public class AndroidForegroundService extends Service {
+ 
++    private ScheduledExecutorService tickerExecutor;
++    private PowerManager.WakeLock wakeLock;
 +
-+            if (body != null && body.startsWith("CHRONO:")) {
-+                try {
-+                    String timeStr = body.substring(7);
-+                    String[] parts = timeStr.split(":");
-+                    if (parts.length >= 2) {
-+                        int mins = Integer.parseInt(parts[0]);
-+                        int secs = Integer.parseInt(parts[1]);
-+                        long base = System.currentTimeMillis() + (mins * 60 + secs) * 1000L;
-+                        builder.setUsesChronometer(true);
-+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-+                            builder.setChronometerCountDown(true);
++    private int notificationId = 1993;
++    private String currentTitle = "Focus Session";
++    private int currentIcon = 0;
++    private boolean isSilent = true;
++    private String currentChannelId = ForegroundService.DEFAULT_NOTIFICATION_CHANNEL_ID;
++    private ArrayList<Bundle> currentButtons = new ArrayList<>();
++    private int currentServiceType = 0;
++    private PendingIntent currentContentIntent;
++
++    private long targetEndTimeMs = 0;
++    private long stopwatchStartTimeMs = 0;
++    private boolean isStopwatch = false;
++    private boolean isTimerActive = false;
++
+     @Nullable
+     @Override
+     public IBinder onBind(Intent intent) {
+         return null;
+     }
+ 
++    @Override
++    public void onCreate() {
++        super.onCreate();
++        try {
++            PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
++            if (powerManager != null) {
++                wakeLock = powerManager.newWakeLock(
++                    PowerManager.PARTIAL_WAKE_LOCK,
++                    "FocusApp::ForegroundServiceWakeLock"
++                );
++                wakeLock.setReferenceCounted(false);
++                wakeLock.acquire(4 * 60 * 60 * 1000L); // 4-hour safety timeout
++            }
++        } catch (Exception e) {
++            Logger.error(ForegroundServicePlugin.TAG, "Failed to acquire wake lock in service", e);
++        }
++    }
++
++    @Override
++    public void onDestroy() {
++        stopTicker();
++        releaseWakeLock();
++        super.onDestroy();
++    }
++
++    private void releaseWakeLock() {
++        try {
++            if (wakeLock != null && wakeLock.isHeld()) {
++                wakeLock.release();
++            }
++        } catch (Exception e) {}
++    }
++
+     @Override
+     public int onStartCommand(Intent intent, int flags, int startId) {
+         try {
++            if (intent == null) {
++                return START_STICKY;
++            }
+             String action = intent.getAction();
+             Bundle extras = intent.getExtras();
+-            String channelId = extras.getString("channelId", ForegroundService.DEFAULT_NOTIFICATION_CHANNEL_ID);
++            if (extras == null) {
++                return START_STICKY;
++            }
++
++            currentChannelId = extras.getString("channelId", ForegroundService.DEFAULT_NOTIFICATION_CHANNEL_ID);
+             Bundle notificationBundle = extras.getBundle("notification");
++            if (notificationBundle == null) {
++                return START_STICKY;
++            }
++
+             String body = notificationBundle.getString("body");
+-            int id = notificationBundle.getInt("id");
+-            int icon = notificationBundle.getInt("icon");
+-            String title = notificationBundle.getString("title");
+-            boolean silent = notificationBundle.getBoolean("silent", false);
+-            ArrayList<Bundle> buttonsBundle = notificationBundle.getParcelableArrayList("buttons");
+-            int serviceType = notificationBundle.getInt("serviceType", 0);
+-
+-            PendingIntent contentIntent = buildContentIntent(id);
+-            Notification.Builder builder;
+-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+-                builder = new Notification.Builder(getApplicationContext(), channelId);
++            notificationId = notificationBundle.getInt("id", 1993);
++            currentIcon = notificationBundle.getInt("icon", 0);
++            currentTitle = notificationBundle.getString("title", "Focus Session");
++            isSilent = notificationBundle.getBoolean("silent", true);
++            ArrayList<Bundle> buttons = notificationBundle.getParcelableArrayList("buttons");
++            if (buttons != null) {
++                currentButtons = buttons;
++            }
++            currentServiceType = notificationBundle.getInt("serviceType", 0);
++            currentContentIntent = buildContentIntent(notificationId);
++
++            boolean isChrono = false;
++            if (body != null && (body.startsWith("CHRONO:") || body.startsWith("CHRONO_UP:"))) {
++                isChrono = true;
++                boolean isUp = body.startsWith("CHRONO_UP:");
++                String timeStr = body.substring(isUp ? 10 : 7);
++                String[] parts = timeStr.split(":");
++                if (parts.length >= 2) {
++                    int mins = Integer.parseInt(parts[0]);
++                    int secs = Integer.parseInt(parts[1]);
++                    int totalSecs = mins * 60 + secs;
++
++                    isStopwatch = isUp;
++                    if (isStopwatch) {
++                        long proposedStart = System.currentTimeMillis() - totalSecs * 1000L;
++                        if (!isTimerActive || Math.abs(stopwatchStartTimeMs - proposedStart) > 2000L) {
++                            stopwatchStartTimeMs = proposedStart;
 +                        }
-+                        builder.setWhen(base);
-+                        builder.setContentText("Tap to return to focus"); // Clean up the body text
-+                        
-+                        // Android 16 Promoted Ongoing (Dynamic Island Status Pill)
-+                        if (Build.VERSION.SDK_INT >= 36) {
-+                            builder.getExtras().putBoolean("android.requestPromotedOngoing", true);
-+                            try {
-+                                builder.setShortCriticalText(timeStr);
-+                            } catch (NoSuchMethodError e) {}
++                    } else {
++                        long proposedEnd = System.currentTimeMillis() + totalSecs * 1000L;
++                        if (!isTimerActive || Math.abs(targetEndTimeMs - proposedEnd) > 2000L) {
++                            targetEndTimeMs = proposedEnd;
 +                        }
 +                    }
-+                } catch (Exception e) {}
++                    isTimerActive = true;
++                }
+             } else {
+-                builder = new Notification.Builder(getApplicationContext());
+-            }
+-            builder
+-                .setContentTitle(title)
+-                .setContentText(body)
+-                .setContentIntent(contentIntent)
+-                .setOngoing(true)
+-                .setSmallIcon(icon)
+-                .setPriority(Notification.PRIORITY_HIGH)
+-                .setOnlyAlertOnce(silent);
+-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+-                Notification.Action[] actions = convertBundlesToNotificationActions(
+-                    buttonsBundle.toArray(new Bundle[buttonsBundle.size()])
+-                );
+-                builder.setActions(actions);
++                isTimerActive = false;
+             }
+ 
+-            Notification notification = builder.build();
++            Notification notification = buildNotification(body, isChrono);
+ 
+             if (ForegroundService.ACTION_UPDATE.equals(action)) {
+                 NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+-                notificationManager.notify(id, notification);
++                if (notificationManager != null) {
++                    notificationManager.notify(notificationId, notification);
++                }
+             } else {
+-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && serviceType != 0) {
+-                    startForeground(id, notification, serviceType);
++                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && currentServiceType != 0) {
++                    startForeground(notificationId, notification, currentServiceType);
+                 } else {
+-                    startForeground(id, notification);
++                    startForeground(notificationId, notification);
+                 }
+             }
++
++            if (isTimerActive) {
++                startTicker();
++            } else {
++                stopTicker();
 +            }
-             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                 Notification.Action[] actions = convertBundlesToNotificationActions(
-                     buttonsBundle.toArray(new Bundle[buttonsBundle.size()])
++
+         } catch (Exception exception) {
+             Logger.error(ForegroundServicePlugin.TAG, exception.getMessage(), exception);
+         }
+         return START_STICKY;
+     }
+ 
++    private Notification buildNotification(String body, boolean isChrono) {
++        Notification.Builder builder;
++        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
++            builder = new Notification.Builder(getApplicationContext(), currentChannelId);
++        } else {
++            builder = new Notification.Builder(getApplicationContext());
++        }
++
++        String timeStr = "";
++        long whenTime = 0;
++
++        if (isChrono) {
++            if (isStopwatch) {
++                long elapsedMs = Math.max(0, System.currentTimeMillis() - stopwatchStartTimeMs);
++                int totalSecs = (int) (elapsedMs / 1000L);
++                timeStr = String.format("%02d:%02d", totalSecs / 60, totalSecs % 60);
++                whenTime = stopwatchStartTimeMs;
++            } else {
++                long remainingMs = Math.max(0, targetEndTimeMs - System.currentTimeMillis());
++                int remainingSecs = (int) Math.round(remainingMs / 1000.0);
++                timeStr = String.format("%02d:%02d", remainingSecs / 60, remainingSecs % 60);
++                whenTime = targetEndTimeMs;
++            }
++        }
++
++        String displayText = isChrono ? timeStr : (body != null ? body : "");
++        String subText = isChrono ? (currentTitle + " • " + timeStr) : null;
++
++        builder
++            .setContentTitle(currentTitle)
++            .setContentText(displayText)
++            .setContentIntent(currentContentIntent)
++            .setOngoing(true)
++            .setSmallIcon(currentIcon)
++            .setPriority(Notification.PRIORITY_HIGH)
++            .setOnlyAlertOnce(true);
++
++        if (subText != null) {
++            builder.setSubText(subText);
++        }
++
++        if (isChrono) {
++            builder.setUsesChronometer(true);
++            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
++                builder.setChronometerCountDown(!isStopwatch);
++            }
++            builder.setWhen(whenTime);
++            builder.setTicker(timeStr);
++
++            // Android 16 Promoted Ongoing (Dynamic Island / Origin Island / Status Pill)
++            if (Build.VERSION.SDK_INT >= 36) {
++                builder.getExtras().putBoolean("android.requestPromotedOngoing", true);
++                try {
++                    builder.setShortCriticalText(timeStr);
++                } catch (NoSuchMethodError e) {}
++            }
++        }
++
++        if (currentButtons != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
++            Notification.Action[] actions = convertBundlesToNotificationActions(
++                currentButtons.toArray(new Bundle[currentButtons.size()])
++            );
++            builder.setActions(actions);
++        }
++
++        return builder.build();
++    }
++
++    private synchronized void startTicker() {
++        if (tickerExecutor != null && !tickerExecutor.isShutdown()) {
++            return;
++        }
++        tickerExecutor = Executors.newSingleThreadScheduledExecutor();
++        tickerExecutor.scheduleAtFixedRate(new Runnable() {
++            @Override
++            public void run() {
++                try {
++                    updateNotificationTick();
++                } catch (Exception e) {
++                    Logger.error(ForegroundServicePlugin.TAG, "Ticker error", e);
++                }
++            }
++        }, 1, 1, TimeUnit.SECONDS);
++    }
++
++    private synchronized void stopTicker() {
++        if (tickerExecutor != null) {
++            try {
++                tickerExecutor.shutdownNow();
++            } catch (Exception e) {}
++            tickerExecutor = null;
++        }
++    }
++
++    private void updateNotificationTick() {
++        if (!isTimerActive) return;
++
++        boolean isFinished = false;
++        if (!isStopwatch) {
++            long remainingMs = targetEndTimeMs - System.currentTimeMillis();
++            if (remainingMs <= 500) {
++                isFinished = true;
++            }
++        }
++
++        Notification notification;
++        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
++
++        if (isFinished) {
++            isTimerActive = false;
++            stopTicker();
++
++            Notification.Builder finishBuilder;
++            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
++                finishBuilder = new Notification.Builder(getApplicationContext(), currentChannelId);
++            } else {
++                finishBuilder = new Notification.Builder(getApplicationContext());
++            }
++
++            finishBuilder
++                .setContentTitle(currentTitle.contains("Break") ? "Break Completed" : "Session Completed")
++                .setContentText("00:00 • Great job! Tap to return.")
++                .setContentIntent(currentContentIntent)
++                .setOngoing(false)
++                .setAutoCancel(true)
++                .setSmallIcon(currentIcon)
++                .setPriority(Notification.PRIORITY_HIGH)
++                .setOnlyAlertOnce(false);
++
++            if (Build.VERSION.SDK_INT >= 36) {
++                try {
++                    finishBuilder.setShortCriticalText("00:00");
++                } catch (NoSuchMethodError e) {}
++            }
++
++            notification = finishBuilder.build();
++            if (notificationManager != null) {
++                notificationManager.notify(notificationId, notification);
++            }
++            triggerFinishAlert();
++            return;
++        }
++
++        notification = buildNotification(null, true);
++        if (notificationManager != null) {
++            notificationManager.notify(notificationId, notification);
++        }
++    }
++
++    private void triggerFinishAlert() {
++        try {
++            Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
++            if (v != null) {
++                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
++                    v.vibrate(VibrationEffect.createWaveform(new long[]{0, 250, 150, 250, 150, 450}, -1));
++                } else {
++                    v.vibrate(new long[]{0, 250, 150, 250, 150, 450}, -1);
++                }
++            }
++        } catch (Exception e) {}
++    }
++
+     private PendingIntent buildContentIntent(int id) {
+         Intent launchIntent = getPackageManager().getLaunchIntentForPackage(getPackageName());
+         if (launchIntent == null) {

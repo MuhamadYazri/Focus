@@ -44,7 +44,9 @@ const AnimatedDigit = ({ char, isColon }) => {
       )}
       <span
         key={`in-${curr}`}
-        className={`absolute top-0 left-0 w-full h-full flex items-center justify-center ${animating ? 'animate-tick-in' : ''}`}
+        className={`absolute top-0 left-0 w-full h-full flex items-center justify-center ${
+          animating ? 'animate-tick-in' : ''
+        }`}
       >
         {curr}
       </span>
@@ -67,10 +69,7 @@ const TimerClockRing = React.memo(function TimerClockRing({ timeLeft, totalTime,
         isNavHidden ? 'scale-110' : 'scale-100'
       }`}
     >
-      <svg
-        className="w-full h-full -rotate-90 transform drop-shadow-sm"
-        viewBox="0 0 260 260"
-      >
+      <svg className="w-full h-full -rotate-90 transform drop-shadow-sm" viewBox="0 0 260 260">
         <circle
           className="text-[#E5D9B6]"
           cx="130"
@@ -172,7 +171,7 @@ function TimerView({
   // In focus mode and running, we show a clean warm sand background.
   const isImmersive = isRunning && isNavHidden;
   const bgClass = isImmersive ? 'bg-[#E5D9B6]' : 'bg-canvas';
-  
+
   const currentLottie = (() => {
     if (mode === 'work') {
       return lottieIndex === 0 ? studyingLottie1 : studyingLottie2;
@@ -204,11 +203,11 @@ function TimerView({
             isNavHidden ? 'grid-rows-[0fr] opacity-0' : 'grid-rows-[1fr] opacity-100'
           }`}
         >
-          <div className="overflow-hidden flex flex-col justify-end pointer-events-none">
+          <div className="overflow-visible flex flex-col justify-end pointer-events-none">
             {/* Wrapper to restore pointer events for children */}
             <div className="pointer-events-auto">
               <div
-                className="w-full bg-surface border border-border rounded-full p-1.5 flex items-center justify-between shadow-sm mb-4"
+                className="w-full bg-surface border border-border rounded-full p-1.5 flex items-center justify-between shadow-lg mb-4"
                 onClick={stopProp}
               >
                 {MODE_TABS.map(({ key, label }) => {
@@ -220,7 +219,7 @@ function TimerView({
                         if (window.navigator?.vibrate) window.navigator.vibrate(10);
                         if (onModeChange) onModeChange(key);
                       }}
-                      className={`flex-1 py-1.5 px-3 rounded-full font-semibold text-xs md:text-sm transition-all ${
+                      className={`flex-1 py-2.5 px-3 rounded-full font-semibold text-xs md:text-sm transition-all ${
                         on
                           ? 'bg-primary text-white shadow-sm'
                           : 'text-[#444841] font-medium hover:text-primary'
@@ -255,11 +254,7 @@ function TimerView({
 
         {/* MIDDLE SECTION (TIMER) */}
         <div className="flex flex-col items-center justify-center w-full relative">
-          <TimerClockRing
-            timeLeft={timeLeft}
-            totalTime={totalTime}
-            isNavHidden={isNavHidden}
-          />
+          <TimerClockRing timeLeft={timeLeft} totalTime={totalTime} isNavHidden={isNavHidden} />
 
           {/* Immersive Animation */}
           <div
@@ -384,7 +379,7 @@ function TimerView({
 
                 {/* Sound & Volume */}
                 <div className="flex items-center justify-between text-[#444841] px-1 pb-0.5">
-                  <div 
+                  <div
                     onClick={() => {
                       if (window.navigator?.vibrate) window.navigator.vibrate(10);
                       setShowSoundModal(true);
@@ -480,10 +475,8 @@ function TimerView({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between z-10 pb-2 border-b border-border">
-              <span className="text-sm text-text-main font-sans font-bold">
-                Select Soundscape
-              </span>
-              <button 
+              <span className="text-sm text-text-main font-sans font-bold">Select Soundscape</span>
+              <button
                 onClick={() => setShowSoundModal(false)}
                 className="w-8 h-8 flex items-center justify-center rounded-full bg-surface-hover text-text-sub hover:bg-border transition-colors"
               >
@@ -503,14 +496,30 @@ function TimerView({
                       setShowSoundModal(false);
                     }}
                     className={`flex items-center justify-between p-3.5 rounded-xl border transition-all text-left ${
-                      isActive ? 'border-primary bg-surface-hover shadow-sm' : 'border-border bg-surface hover:border-secondary'
+                      isActive
+                        ? 'border-primary bg-surface-hover'
+                        : 'border-border bg-surface hover:border-secondary'
                     }`}
                   >
-                    <span className={`text-sm font-sans ${isActive ? 'font-bold text-primary' : 'font-medium text-text-main'}`}>
+                    <span
+                      className={`text-sm font-sans ${
+                        isActive ? 'font-bold text-primary' : 'font-medium text-text-main'
+                      }`}
+                    >
                       {s.label}
                     </span>
                     {isActive && (
-                      <svg fill="none" height="18" stroke="currentColor" className="stroke-primary" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="18">
+                      <svg
+                        fill="none"
+                        height="18"
+                        stroke="currentColor"
+                        className="stroke-primary"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                        width="18"
+                      >
                         <path d="M20 6L9 17l-5-5"></path>
                       </svg>
                     )}

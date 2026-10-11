@@ -244,10 +244,11 @@ export default function App() {
           const rem = timeLeft % 60;
           const formattedTime = `${mins.toString().padStart(2, '0')}:${rem.toString().padStart(2, '0')}`;
           
+          const prefix = timerMode === 'stopwatch' ? 'CHRONO_UP:' : 'CHRONO:';
           await ForegroundService.startForegroundService({
             id: 1993,
             title: modeLabel,
-            body: `CHRONO:${formattedTime}`,
+            body: `${prefix}${formattedTime}`,
             smallIcon: 'ic_stat_icon',
             serviceType: 1073741824 // FOREGROUND_SERVICE_TYPE_SPECIAL_USE
           });
@@ -272,6 +273,43 @@ export default function App() {
     }
   }, [isRunning]);
 
+  // Immediate catch-up when returning to foreground / unlocking screen
+  useEffect(() => {
+    const handleSyncOnForeground = () => {
+      if (isRunning && lastTickRef.current) {
+        const now = Date.now();
+        const deltaSecs = Math.floor((now - lastTickRef.current) / 1000);
+        if (deltaSecs >= 1) {
+          lastTickRef.current += deltaSecs * 1000;
+          setTimeLeft((prev) => {
+            let nextVal = prev;
+            if (timerMode === 'stopwatch') nextVal = prev + deltaSecs;
+            else if (prev - deltaSecs <= 0) nextVal = 0;
+            else nextVal = prev - deltaSecs;
+
+            if (nextVal === 0 && timerMode !== 'stopwatch') {
+              if (timerRef.current) clearInterval(timerRef.current);
+              setTimeout(() => handleTimerFinish(), 0);
+              return 0;
+            }
+            return nextVal;
+          });
+        }
+      }
+    };
+
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        handleSyncOnForeground();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [isRunning, timerMode]);
+
   // Timer Tick Logic
   useEffect(() => {
     if (isRunning) {
@@ -293,10 +331,11 @@ export default function App() {
               const rem = nextVal % 60;
               const formattedTime = `${mins.toString().padStart(2, '0')}:${rem.toString().padStart(2, '0')}`;
               const modeLabel = timerMode === 'work' ? 'Focus Session' : (timerMode === 'shortBreak' ? 'Short Break' : 'Long Break');
+              const prefix = timerMode === 'stopwatch' ? 'CHRONO_UP:' : 'CHRONO:';
               ForegroundService.updateForegroundService({
                 id: 1993,
                 title: modeLabel,
-                body: `CHRONO:${formattedTime}`,
+                body: `${prefix}${formattedTime}`,
                 smallIcon: 'ic_stat_icon',
                 silent: true,
                 serviceType: 1073741824 // FOREGROUND_SERVICE_TYPE_SPECIAL_USE

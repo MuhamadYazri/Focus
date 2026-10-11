@@ -19,6 +19,7 @@ import relaxLottie from './assets/relaxAnimation.lottie';
 import catSleepLottie from './assets/catSleepAnimation.lottie';
 import { ForegroundService } from '@capawesome-team/capacitor-android-foreground-service';
 import SplitRevealPreloader from './components/animata/preloader/SplitRevealPreloader';
+import TimeframeHeader from './components/Analytics/TimeframeHeader';
 
 const getLocalDateStr = (d) => {
   try {
@@ -71,6 +72,10 @@ export default function App() {
   const handleFinishPreloader = useCallback(() => {
     setShowPreloader(false);
   }, []);
+
+  // Shared Analytics & Profile Timeframe State
+  const [activityPeriod, setActivityPeriod] = useState('Daily');
+  const [activityOffset, setActivityOffset] = useState(0);
 
   // Timer State
   const [timerMode, setTimerMode] = useState('work');
@@ -634,6 +639,11 @@ export default function App() {
           tasks={tasks}
           projects={projects}
           sessions={sessions}
+          period={activityPeriod}
+          setPeriod={setActivityPeriod}
+          offset={activityOffset}
+          setOffset={setActivityOffset}
+          hideHeader={true}
         />
       );
     }
@@ -654,6 +664,11 @@ export default function App() {
             setProjectModalOpen(true);
           }}
           onDeleteProject={handleDeleteProject}
+          period={activityPeriod}
+          setPeriod={setActivityPeriod}
+          offset={activityOffset}
+          setOffset={setActivityOffset}
+          hideHeader={true}
         />
       );
     }
@@ -699,10 +714,14 @@ export default function App() {
     touchEnd.current = { x: null, y: null };
   };
 
+  const getScreenKey = (t) => (t === 'reports' || t === 'profile' ? 'analytics_group' : t);
+  const activeScreen = getScreenKey(activeTab);
+  const prevScreen = prevTab ? getScreenKey(prevTab) : null;
+  const isScreenTransitioning = isTransitioning && prevScreen !== activeScreen;
+
   return (
     <div 
-      className={`min-h-[100dvh] flex flex-col font-sans ${isNavHidden ? 'overflow-hidden h-[100dvh]' : ''}`} 
-      style={{ background: 'var(--canvas)', color: 'var(--text-primary)' }}
+      className={`min-h-[100dvh] flex flex-col font-sans bg-canvas text-text-main ${isNavHidden ? 'overflow-hidden h-[100dvh]' : ''}`} 
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -715,11 +734,10 @@ export default function App() {
       {/* Tab Screens (Pre-mounted for instant 0ms switching) */}
       <main className={`flex-1 relative ${isNavHidden ? 'overflow-hidden' : 'overflow-x-hidden'}`}>
         <div className="relative w-full min-h-full">
-          {['home', 'timer', 'reports', 'profile'].map((tabKey) => {
-            const isActive = activeTab === tabKey;
-            const isPrev = isTransitioning && prevTab === tabKey;
-            
-            // Only mount into DOM if tab is active, previous transitioning tab, or already visited
+          {['home', 'timer', 'analytics_group'].map((screenKey) => {
+            const isActive = activeScreen === screenKey;
+            const isPrev = isScreenTransitioning && prevScreen === screenKey;
+
             if (!isActive && !isPrev) {
               return null;
             }
@@ -730,20 +748,65 @@ export default function App() {
             if (isPrev) {
               animClass = slideDir === 'left' ? 'animate-slide-out-left' : 'animate-slide-out-right';
               style = { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10 };
-            } else if (isActive && isTransitioning) {
+            } else if (isActive && isScreenTransitioning) {
               animClass = slideDir === 'left' ? 'animate-slide-in-right' : 'animate-slide-in-left';
               style = { position: 'relative', width: '100%', minHeight: '100%', zIndex: 20 };
             } else {
               style = { position: 'relative', width: '100%', minHeight: '100%', zIndex: 1 };
             }
 
+            if (screenKey === 'home') {
+              return (
+                <div key={screenKey} className={`w-full min-h-full ${animClass}`} style={style}>
+                  {renderTabContent('home')}
+                </div>
+              );
+            }
+
+            if (screenKey === 'timer') {
+              return (
+                <div key={screenKey} className={`w-full min-h-full ${animClass}`} style={style}>
+                  {renderTabContent('timer')}
+                </div>
+              );
+            }
+
+            // analytics_group: Stationary TimeframeHeader for Reports & Profile
+            const isSubTransitioning =
+              isTransitioning &&
+              (prevTab === 'reports' || prevTab === 'profile') &&
+              (activeTab === 'reports' || activeTab === 'profile');
+
+            const subAnimClass = isSubTransitioning
+              ? slideDir === 'left'
+                ? 'animate-slide-in-right'
+                : 'animate-slide-in-left'
+              : '';
+
             return (
               <div
-                key={tabKey}
-                className={`w-full min-h-full ${animClass}`}
+                key="analytics_group"
+                className={`w-full min-h-full flex flex-col ${animClass}`}
                 style={style}
               >
-                {renderTabContent(tabKey)}
+                {/* Stationary Header (Never slides when swiping between Reports and Profile) */}
+                <div className="w-full bg-transparent z-30 select-none">
+                  <div className="w-full max-w-md mx-auto px-5 pt-14 pb-1">
+                    <TimeframeHeader
+                      period={activityPeriod}
+                      setPeriod={setActivityPeriod}
+                      offset={activityOffset}
+                      setOffset={setActivityOffset}
+                    />
+                  </div>
+                </div>
+
+                {/* Sub-content: Only this slides between Reports and Profile */}
+                <div className="flex-1 w-full relative overflow-x-hidden">
+                  <div key={activeTab} className={`w-full ${subAnimClass}`}>
+                    {renderTabContent(activeTab === 'profile' ? 'profile' : 'reports')}
+                  </div>
+                </div>
               </div>
             );
           })}

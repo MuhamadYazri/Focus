@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { ChevronLeft, ChevronRight, Clock, CheckCircle } from 'lucide-react';
-import RollText from '../animata/text/roll-text';
-
-const PERIODS = ['All', 'Daily', 'Weekly', 'Monthly', 'Yearly'];
+import { Clock, CheckCircle } from 'lucide-react';
+import TimeframeHeader, { PERIODS, getDateRangeLabel } from './TimeframeHeader';
 
 const getLocalDateStr = (d) => {
   try {
@@ -33,9 +31,24 @@ const formatDisplayHours = (totalMins) => {
   return `${hrs}h ${String(mins).padStart(2, '0')}m`;
 };
 
-function SharedActivitySection({ showKPIs = true, sessions = [], onPeriodChange }) {
-  const [period, setPeriod] = useState('Daily');
-  const [offset, setOffset] = useState(0);
+function SharedActivitySection({
+  showKPIs = true,
+  sessions = [],
+  onPeriodChange,
+  period: controlledPeriod,
+  setPeriod: controlledSetPeriod,
+  offset: controlledOffset,
+  setOffset: controlledSetOffset,
+  hideHeader = false,
+}) {
+  const [internalPeriod, setInternalPeriod] = useState('Daily');
+  const [internalOffset, setInternalOffset] = useState(0);
+
+  const period = controlledPeriod !== undefined ? controlledPeriod : internalPeriod;
+  const setPeriod = controlledSetPeriod || setInternalPeriod;
+  const offset = controlledOffset !== undefined ? controlledOffset : internalOffset;
+  const setOffset = controlledSetOffset || setInternalOffset;
+
   const maxBarH = 64; // Adjusted for new design
 
   const isAll = period === 'All';
@@ -165,274 +178,277 @@ function SharedActivitySection({ showKPIs = true, sessions = [], onPeriodChange 
     let chartSubLabel = 'Hours focused by day of week';
     let heatmapTitleDate = 'Month';
 
-  if (period === 'Daily') {
-    const targetDate = new Date(now);
-    targetDate.setDate(now.getDate() + offset);
-    const targetStr = getLocalDateStr(targetDate);
-    heatmapTitleDate = targetDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-    const daySessions = (sessions || []).filter((s) => {
-      const sDt = s.dateStr || (s.completedAt && s.completedAt.split('T')[0]);
-      return sDt === targetStr;
-    });
-    const totalMins = daySessions.reduce((acc, s) => acc + (s.duration || 25), 0);
-    displayHours = formatDisplayHours(totalMins);
-    displayPomos = daySessions.length;
-    displaySubToday = `${displayHours} on this day`;
-    displaySubDays = daySessions.length > 0 ? '1 active day' : '0 active days';
-
-    const dayOfWeek = targetDate.getDay() || 7;
-    const monDate = new Date(targetDate);
-    monDate.setDate(targetDate.getDate() - dayOfWeek + 1);
-    const chartDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    let maxDayMins = 0;
-    let peakDayLabel = 'None';
-    const dailySlots = chartDays.map((label, idx) => {
-      const d = new Date(monDate);
-      d.setDate(monDate.getDate() + idx);
-      const dStr = getLocalDateStr(d);
-      const dSess = (sessions || []).filter((s) => {
+    if (period === 'Daily') {
+      const targetDate = new Date(now);
+      targetDate.setDate(now.getDate() + offset);
+      const targetStr = getLocalDateStr(targetDate);
+      heatmapTitleDate = targetDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      const daySessions = (sessions || []).filter((s) => {
         const sDt = s.dateStr || (s.completedAt && s.completedAt.split('T')[0]);
-        return sDt === dStr;
+        return sDt === targetStr;
       });
-      const mins = dSess.reduce((acc, s) => acc + (s.duration || 25), 0);
-      if (mins > maxDayMins) {
-        maxDayMins = mins;
-        peakDayLabel = label;
-      }
-      return {
-        h: label,
-        mins,
-        val: mins > 0 ? formatTimeNoDecimals(mins) : '0h',
-        isCurrent: dStr === targetStr,
-      };
-    });
-    activeChart = dailySlots.map((s) => ({
-      ...s,
-      v: maxDayMins > 0 ? s.mins / maxDayMins : 0,
-      isPeak: maxDayMins > 0 && s.mins === maxDayMins,
-    }));
-    chartPeakLabel = maxDayMins > 0 ? formatDisplayHours(maxDayMins) : 'No activity';
-    activeHeatmap = generateHeatmapGrid(targetDate, targetStr, targetStr);
-  } else if (period === 'Weekly') {
-    const dayOfWeek = now.getDay() || 7;
-    const wkStart = new Date(now);
-    wkStart.setDate(now.getDate() - dayOfWeek + 1 + offset * 7);
-    const wkEnd = new Date(wkStart);
-    wkEnd.setDate(wkStart.getDate() + 6);
-    heatmapTitleDate = wkStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-    const sStr = getLocalDateStr(wkStart);
-    const eStr = getLocalDateStr(wkEnd);
+      const totalMins = daySessions.reduce((acc, s) => acc + (s.duration || 25), 0);
+      displayHours = formatDisplayHours(totalMins);
+      displayPomos = daySessions.length;
+      displaySubToday = `${displayHours} on this day`;
+      displaySubDays = daySessions.length > 0 ? '1 active day' : '0 active days';
 
-    const weekSessions = (sessions || []).filter((s) => {
-      const dt = s.dateStr || (s.completedAt && s.completedAt.split('T')[0]);
-      return dt >= sStr && dt <= eStr;
-    });
-    const totalMins = weekSessions.reduce((acc, s) => acc + (s.duration || 25), 0);
-    displayHours = formatDisplayHours(totalMins);
-    displayPomos = weekSessions.length;
-    const uniqueDays = new Set(
-      weekSessions.map((s) => s.dateStr || (s.completedAt && s.completedAt.split('T')[0]))
-    ).size;
-    displaySubToday = `${formatTimeNoDecimals(totalMins / 7)} avg / day`;
-    displaySubDays = `${uniqueDays} days focused`;
+      const dayOfWeek = targetDate.getDay() || 7;
+      const monDate = new Date(targetDate);
+      monDate.setDate(targetDate.getDate() - dayOfWeek + 1);
+      const chartDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      let maxDayMins = 0;
+      let peakDayLabel = 'None';
+      const dailySlots = chartDays.map((label, idx) => {
+        const d = new Date(monDate);
+        d.setDate(monDate.getDate() + idx);
+        const dStr = getLocalDateStr(d);
+        const dSess = (sessions || []).filter((s) => {
+          const sDt = s.dateStr || (s.completedAt && s.completedAt.split('T')[0]);
+          return sDt === dStr;
+        });
+        const mins = dSess.reduce((acc, s) => acc + (s.duration || 25), 0);
+        if (mins > maxDayMins) {
+          maxDayMins = mins;
+          peakDayLabel = label;
+        }
+        return {
+          h: label,
+          mins,
+          val: mins > 0 ? formatTimeNoDecimals(mins) : '0h',
+          isCurrent: dStr === targetStr,
+        };
+      });
+      activeChart = dailySlots.map((s) => ({
+        ...s,
+        v: maxDayMins > 0 ? s.mins / maxDayMins : 0,
+        isPeak: maxDayMins > 0 && s.mins === maxDayMins,
+      }));
+      chartPeakLabel = maxDayMins > 0 ? formatDisplayHours(maxDayMins) : 'No activity';
+      activeHeatmap = generateHeatmapGrid(targetDate, targetStr, targetStr);
+    } else if (period === 'Weekly') {
+      const dayOfWeek = now.getDay() || 7;
+      const wkStart = new Date(now);
+      wkStart.setDate(now.getDate() - dayOfWeek + 1 + offset * 7);
+      const wkEnd = new Date(wkStart);
+      wkEnd.setDate(wkStart.getDate() + 6);
+      heatmapTitleDate = wkStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      const sStr = getLocalDateStr(wkStart);
+      const eStr = getLocalDateStr(wkEnd);
 
-    const weeklySlots = [];
-    let maxWkMins = 0;
-    let peakWkLabel = 'None';
-    for (let i = -3; i <= 0; i++) {
-      const curStart = new Date(wkStart);
-      curStart.setDate(wkStart.getDate() + i * 7);
-      const curEnd = new Date(curStart);
-      curEnd.setDate(curStart.getDate() + 6);
-      const csStr = getLocalDateStr(curStart);
-      const ceStr = getLocalDateStr(curEnd);
-      const wSess = (sessions || []).filter((s) => {
+      const weekSessions = (sessions || []).filter((s) => {
         const dt = s.dateStr || (s.completedAt && s.completedAt.split('T')[0]);
-        return dt >= csStr && dt <= ceStr;
+        return dt >= sStr && dt <= eStr;
       });
-      const mins = wSess.reduce((acc, s) => acc + (s.duration || 25), 0);
-      const label = i === 0 ? 'This Wk' : `${Math.abs(i)}Wk Ago`;
-      if (mins > maxWkMins) {
-        maxWkMins = mins;
-        peakWkLabel = label;
+      const totalMins = weekSessions.reduce((acc, s) => acc + (s.duration || 25), 0);
+      displayHours = formatDisplayHours(totalMins);
+      displayPomos = weekSessions.length;
+      const uniqueDays = new Set(
+        weekSessions.map((s) => s.dateStr || (s.completedAt && s.completedAt.split('T')[0]))
+      ).size;
+      displaySubToday = `${formatTimeNoDecimals(totalMins / 7)} avg / day`;
+      displaySubDays = `${uniqueDays} days focused`;
+
+      const weeklySlots = [];
+      let maxWkMins = 0;
+      let peakWkLabel = 'None';
+      for (let i = -3; i <= 0; i++) {
+        const curStart = new Date(wkStart);
+        curStart.setDate(wkStart.getDate() + i * 7);
+        const curEnd = new Date(curStart);
+        curEnd.setDate(curStart.getDate() + 6);
+        const csStr = getLocalDateStr(curStart);
+        const ceStr = getLocalDateStr(curEnd);
+        const wSess = (sessions || []).filter((s) => {
+          const dt = s.dateStr || (s.completedAt && s.completedAt.split('T')[0]);
+          return dt >= csStr && dt <= ceStr;
+        });
+        const mins = wSess.reduce((acc, s) => acc + (s.duration || 25), 0);
+        const label = i === 0 ? 'This Wk' : `${Math.abs(i)}Wk Ago`;
+        if (mins > maxWkMins) {
+          maxWkMins = mins;
+          peakWkLabel = label;
+        }
+        weeklySlots.push({
+          h: label,
+          mins,
+          val: mins > 0 ? formatTimeNoDecimals(mins) : '0h',
+          isCurrent: i === 0,
+        });
       }
-      weeklySlots.push({
-        h: label,
-        mins,
-        val: mins > 0 ? formatTimeNoDecimals(mins) : '0h',
-        isCurrent: i === 0,
+      activeChart = weeklySlots.map((s) => ({
+        ...s,
+        v: maxWkMins > 0 ? s.mins / maxWkMins : 0,
+        isPeak: maxWkMins > 0 && s.mins === maxWkMins,
+      }));
+      chartTitle = 'Total per week';
+      chartPeakLabel = maxWkMins > 0 ? formatDisplayHours(maxWkMins) : 'No activity';
+      chartSubLabel = 'Hours focused by weekly interval';
+      activeHeatmap = generateHeatmapGrid(wkEnd, sStr, eStr);
+    } else if (period === 'Monthly') {
+      const targetMoDate = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+      const yrStr = String(targetMoDate.getFullYear());
+      const moNum = targetMoDate.getMonth();
+      const prefix = `${yrStr}-${String(moNum + 1).padStart(2, '0')}`;
+      heatmapTitleDate = targetMoDate.toLocaleDateString('en-US', {
+        month: 'long',
+        year: 'numeric',
       });
+
+      const moSessions = (sessions || []).filter((s) =>
+        (s.dateStr || s.completedAt || '').startsWith(prefix)
+      );
+      const totalMins = moSessions.reduce((acc, s) => acc + (s.duration || 25), 0);
+      displayHours = formatDisplayHours(totalMins);
+      displayPomos = moSessions.length;
+      const uniqueDays = new Set(
+        moSessions.map((s) => s.dateStr || (s.completedAt && s.completedAt.split('T')[0]))
+      ).size;
+      displaySubToday = `${formatTimeNoDecimals(
+        totalMins / Math.max(1, uniqueDays)
+      )} avg / active day`;
+      displaySubDays = `${uniqueDays} days focused`;
+
+      const monthNames = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ];
+      let maxMoMins = 0;
+      let peakMoLabel = 'None';
+      const monthlySlots = monthNames.map((mName, idx) => {
+        const pfx = `${yrStr}-${String(idx + 1).padStart(2, '0')}`;
+        const mSess = (sessions || []).filter((s) =>
+          (s.dateStr || s.completedAt || '').startsWith(pfx)
+        );
+        const mins = mSess.reduce((acc, s) => acc + (s.duration || 25), 0);
+        if (mins > maxMoMins) {
+          maxMoMins = mins;
+          peakMoLabel = mName;
+        }
+        return {
+          h: mName,
+          mins,
+          val: mins > 0 ? formatTimeNoDecimals(mins) : '0h',
+          isCurrent: idx === moNum,
+        };
+      });
+      activeChart = monthlySlots.map((s) => ({
+        ...s,
+        v: maxMoMins > 0 ? s.mins / maxMoMins : 0,
+        isPeak: maxMoMins > 0 && s.mins === maxMoMins,
+      }));
+      chartTitle = `Total per month (${yrStr})`;
+      chartPeakLabel = maxMoMins > 0 ? formatDisplayHours(maxMoMins) : 'No activity';
+      chartSubLabel = `Hours focused across ${yrStr}`;
+      const endOfMo =
+        offset === 0 && now.getMonth() === moNum && now.getFullYear() === Number(yrStr)
+          ? now
+          : new Date(Number(yrStr), moNum + 1, 0);
+      const moStart = `${yrStr}-${String(moNum + 1).padStart(2, '0')}-01`;
+      const moEnd = getLocalDateStr(new Date(Number(yrStr), moNum + 1, 0));
+      activeHeatmap = generateHeatmapGrid(endOfMo, moStart, moEnd);
+    } else if (period === 'Yearly') {
+      const targetYr = now.getFullYear() + offset;
+      const yrStr = String(targetYr);
+      heatmapTitleDate = 'All Time';
+      const yrSessions = (sessions || []).filter((s) =>
+        (s.dateStr || s.completedAt || '').startsWith(yrStr)
+      );
+      const totalMins = yrSessions.reduce((acc, s) => acc + (s.duration || 25), 0);
+      displayHours = formatDisplayHours(totalMins);
+      displayPomos = yrSessions.length;
+      const uniqueDays = new Set(
+        yrSessions.map((s) => s.dateStr || (s.completedAt && s.completedAt.split('T')[0]))
+      ).size;
+      displaySubToday = `${formatTimeNoDecimals(
+        totalMins / Math.max(1, uniqueDays)
+      )} avg / active day`;
+      displaySubDays = `${uniqueDays} days focused`;
+
+      const years = [targetYr - 2, targetYr - 1, targetYr];
+      let maxYrMins = 0;
+      let peakYrLabel = 'None';
+      const yearlySlots = years.map((y) => {
+        const yStr = String(y);
+        const ySess = (sessions || []).filter((s) =>
+          (s.dateStr || s.completedAt || '').startsWith(yStr)
+        );
+        const mins = ySess.reduce((acc, s) => acc + (s.duration || 25), 0);
+        if (mins > maxYrMins) {
+          maxYrMins = mins;
+          peakYrLabel = yStr;
+        }
+        return {
+          h: yStr,
+          mins,
+          val: mins > 0 ? formatTimeNoDecimals(mins) : '0h',
+          isCurrent: y === targetYr,
+        };
+      });
+      activeChart = yearlySlots.map((s) => ({
+        ...s,
+        v: maxYrMins > 0 ? s.mins / maxYrMins : 0,
+        isPeak: maxYrMins > 0 && s.mins === maxYrMins,
+      }));
+      chartTitle = 'Total per year';
+      chartPeakLabel = maxYrMins > 0 ? formatDisplayHours(maxYrMins) : 'No activity';
+      chartSubLabel = 'Annual focus time progression';
+      activeHeatmap = generateHeatmapGrid(new Date(targetYr, 11, 31));
+    } else if (period === 'All') {
+      heatmapTitleDate = 'All Time';
+      const totalMins = (sessions || []).reduce((acc, s) => acc + (s.duration || 25), 0);
+      displayHours = formatDisplayHours(totalMins);
+      displayPomos = (sessions || []).length;
+      const uniqueDays = new Set(
+        (sessions || []).map((s) => s.dateStr || (s.completedAt && s.completedAt.split('T')[0]))
+      ).size;
+      displaySubToday = `${formatTimeNoDecimals(
+        totalMins / Math.max(1, uniqueDays)
+      )} avg / active day`;
+      displaySubDays = `${uniqueDays} active days total`;
+      activeHeatmap = generateHeatmapGrid(now);
+
+      // Generate activeChart for 'All' (same as Yearly)
+      const targetYr = now.getFullYear();
+      const years = [targetYr - 2, targetYr - 1, targetYr];
+      let maxYrMins = 0;
+      let peakYrLabel = 'None';
+      const yearlySlots = years.map((y) => {
+        const yStr = String(y);
+        const ySess = (sessions || []).filter((s) =>
+          (s.dateStr || s.completedAt || '').startsWith(yStr)
+        );
+        const mins = ySess.reduce((acc, s) => acc + (s.duration || 25), 0);
+        if (mins > maxYrMins) {
+          maxYrMins = mins;
+          peakYrLabel = yStr;
+        }
+        return {
+          h: yStr,
+          mins,
+          val: mins > 0 ? formatTimeNoDecimals(mins) : '0h',
+          isCurrent: y === targetYr,
+        };
+      });
+      activeChart = yearlySlots.map((s) => ({
+        ...s,
+        v: maxYrMins > 0 ? s.mins / maxYrMins : 0,
+        isPeak: maxYrMins > 0 && s.mins === maxYrMins,
+      }));
+      chartTitle = 'Total per year';
+      chartPeakLabel = maxYrMins > 0 ? formatDisplayHours(maxYrMins) : 'No activity';
+      chartSubLabel = 'All-time focus progression';
     }
-    activeChart = weeklySlots.map((s) => ({
-      ...s,
-      v: maxWkMins > 0 ? s.mins / maxWkMins : 0,
-      isPeak: maxWkMins > 0 && s.mins === maxWkMins,
-    }));
-    chartTitle = 'Total per week';
-    chartPeakLabel = maxWkMins > 0 ? formatDisplayHours(maxWkMins) : 'No activity';
-    chartSubLabel = 'Hours focused by weekly interval';
-    activeHeatmap = generateHeatmapGrid(wkEnd, sStr, eStr);
-  } else if (period === 'Monthly') {
-    const targetMoDate = new Date(now.getFullYear(), now.getMonth() + offset, 1);
-    const yrStr = String(targetMoDate.getFullYear());
-    const moNum = targetMoDate.getMonth();
-    const prefix = `${yrStr}-${String(moNum + 1).padStart(2, '0')}`;
-    heatmapTitleDate = targetMoDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-
-    const moSessions = (sessions || []).filter((s) =>
-      (s.dateStr || s.completedAt || '').startsWith(prefix)
-    );
-    const totalMins = moSessions.reduce((acc, s) => acc + (s.duration || 25), 0);
-    displayHours = formatDisplayHours(totalMins);
-    displayPomos = moSessions.length;
-    const uniqueDays = new Set(
-      moSessions.map((s) => s.dateStr || (s.completedAt && s.completedAt.split('T')[0]))
-    ).size;
-    displaySubToday = `${formatTimeNoDecimals(
-      totalMins / Math.max(1, uniqueDays)
-    )} avg / active day`;
-    displaySubDays = `${uniqueDays} days focused`;
-
-    const monthNames = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    let maxMoMins = 0;
-    let peakMoLabel = 'None';
-    const monthlySlots = monthNames.map((mName, idx) => {
-      const pfx = `${yrStr}-${String(idx + 1).padStart(2, '0')}`;
-      const mSess = (sessions || []).filter((s) =>
-        (s.dateStr || s.completedAt || '').startsWith(pfx)
-      );
-      const mins = mSess.reduce((acc, s) => acc + (s.duration || 25), 0);
-      if (mins > maxMoMins) {
-        maxMoMins = mins;
-        peakMoLabel = mName;
-      }
-      return {
-        h: mName,
-        mins,
-        val: mins > 0 ? formatTimeNoDecimals(mins) : '0h',
-        isCurrent: idx === moNum,
-      };
-    });
-    activeChart = monthlySlots.map((s) => ({
-      ...s,
-      v: maxMoMins > 0 ? s.mins / maxMoMins : 0,
-      isPeak: maxMoMins > 0 && s.mins === maxMoMins,
-    }));
-    chartTitle = `Total per month (${yrStr})`;
-    chartPeakLabel = maxMoMins > 0 ? formatDisplayHours(maxMoMins) : 'No activity';
-    chartSubLabel = `Hours focused across ${yrStr}`;
-    const endOfMo =
-      offset === 0 && now.getMonth() === moNum && now.getFullYear() === Number(yrStr)
-        ? now
-        : new Date(Number(yrStr), moNum + 1, 0);
-    const moStart = `${yrStr}-${String(moNum + 1).padStart(2, '0')}-01`;
-    const moEnd = getLocalDateStr(new Date(Number(yrStr), moNum + 1, 0));
-    activeHeatmap = generateHeatmapGrid(endOfMo, moStart, moEnd);
-  } else if (period === 'Yearly') {
-    const targetYr = now.getFullYear() + offset;
-    const yrStr = String(targetYr);
-    heatmapTitleDate = 'All Time';
-    const yrSessions = (sessions || []).filter((s) =>
-      (s.dateStr || s.completedAt || '').startsWith(yrStr)
-    );
-    const totalMins = yrSessions.reduce((acc, s) => acc + (s.duration || 25), 0);
-    displayHours = formatDisplayHours(totalMins);
-    displayPomos = yrSessions.length;
-    const uniqueDays = new Set(
-      yrSessions.map((s) => s.dateStr || (s.completedAt && s.completedAt.split('T')[0]))
-    ).size;
-    displaySubToday = `${formatTimeNoDecimals(
-      totalMins / Math.max(1, uniqueDays)
-    )} avg / active day`;
-    displaySubDays = `${uniqueDays} days focused`;
-
-    const years = [targetYr - 2, targetYr - 1, targetYr];
-    let maxYrMins = 0;
-    let peakYrLabel = 'None';
-    const yearlySlots = years.map((y) => {
-      const yStr = String(y);
-      const ySess = (sessions || []).filter((s) =>
-        (s.dateStr || s.completedAt || '').startsWith(yStr)
-      );
-      const mins = ySess.reduce((acc, s) => acc + (s.duration || 25), 0);
-      if (mins > maxYrMins) {
-        maxYrMins = mins;
-        peakYrLabel = yStr;
-      }
-      return {
-        h: yStr,
-        mins,
-        val: mins > 0 ? formatTimeNoDecimals(mins) : '0h',
-        isCurrent: y === targetYr,
-      };
-    });
-    activeChart = yearlySlots.map((s) => ({
-      ...s,
-      v: maxYrMins > 0 ? s.mins / maxYrMins : 0,
-      isPeak: maxYrMins > 0 && s.mins === maxYrMins,
-    }));
-    chartTitle = 'Total per year';
-    chartPeakLabel = maxYrMins > 0 ? formatDisplayHours(maxYrMins) : 'No activity';
-    chartSubLabel = 'Annual focus time progression';
-    activeHeatmap = generateHeatmapGrid(new Date(targetYr, 11, 31));
-  } else if (period === 'All') {
-    heatmapTitleDate = 'All Time';
-    const totalMins = (sessions || []).reduce((acc, s) => acc + (s.duration || 25), 0);
-    displayHours = formatDisplayHours(totalMins);
-    displayPomos = (sessions || []).length;
-    const uniqueDays = new Set(
-      (sessions || []).map((s) => s.dateStr || (s.completedAt && s.completedAt.split('T')[0]))
-    ).size;
-    displaySubToday = `${formatTimeNoDecimals(
-      totalMins / Math.max(1, uniqueDays)
-    )} avg / active day`;
-    displaySubDays = `${uniqueDays} active days total`;
-    activeHeatmap = generateHeatmapGrid(now);
-
-    // Generate activeChart for 'All' (same as Yearly)
-    const targetYr = now.getFullYear();
-    const years = [targetYr - 2, targetYr - 1, targetYr];
-    let maxYrMins = 0;
-    let peakYrLabel = 'None';
-    const yearlySlots = years.map((y) => {
-      const yStr = String(y);
-      const ySess = (sessions || []).filter((s) =>
-        (s.dateStr || s.completedAt || '').startsWith(yStr)
-      );
-      const mins = ySess.reduce((acc, s) => acc + (s.duration || 25), 0);
-      if (mins > maxYrMins) {
-        maxYrMins = mins;
-        peakYrLabel = yStr;
-      }
-      return {
-        h: yStr,
-        mins,
-        val: mins > 0 ? formatTimeNoDecimals(mins) : '0h',
-        isCurrent: y === targetYr,
-      };
-    });
-    activeChart = yearlySlots.map((s) => ({
-      ...s,
-      v: maxYrMins > 0 ? s.mins / maxYrMins : 0,
-      isPeak: maxYrMins > 0 && s.mins === maxYrMins,
-    }));
-    chartTitle = 'Total per year';
-    chartPeakLabel = maxYrMins > 0 ? formatDisplayHours(maxYrMins) : 'No activity';
-    chartSubLabel = 'All-time focus progression';
-  }
 
     return {
       displayHours,
@@ -466,67 +482,15 @@ function SharedActivitySection({ showKPIs = true, sessions = [], onPeriodChange 
   }, [period, offset, sessions]);
 
   return (
-    <div className="flex flex-col gap-3.5">
-      {/* Time Frame Segmented Track */}
-      <div className="w-full bg-border/70 p-1 rounded-full flex items-center justify-between border border-border">
-        {PERIODS.map((p) => {
-          const active = p === period;
-          return (
-            <button
-              key={p}
-              onClick={() => {
-                if (window.navigator?.vibrate) window.navigator.vibrate(10);
-                setPeriod(p);
-                setOffset(0);
-              }}
-              className={`flex-1 py-1.5 text-center rounded-full text-xs transition-all ${
-                active
-                  ? 'bg-surface text-text-main shadow-sm font-semibold'
-                  : 'text-[#444841] font-medium hover:text-text-main'
-              }`}
-            >
-              {p}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Date Navigation Capsule */}
-      <div
-        className={`w-full bg-surface rounded-full px-4 py-2.5 flex items-center justify-between shadow-sm border border-border transition-opacity ${
-          isAll ? 'opacity-50 pointer-events-none' : 'opacity-100'
-        }`}
-      >
-        <button
-          onClick={() => {
-            if (window.navigator?.vibrate) window.navigator.vibrate(10);
-            setOffset((prev) => prev - 1);
-          }}
-          className="flex items-center gap-1 text-[11px] font-bold tracking-wider text-[#444841] hover:text-text-main transition-colors active:scale-95"
-        >
-          <ChevronLeft size={15} strokeWidth={2.5} />
-          <span className="tracking-widest uppercase">PREV</span>
-        </button>
-        <RollText 
-          text={dateLabel} 
-          className="text-xs text-text-main font-semibold tracking-tight font-sans" 
+    <div className="flex flex-col gap-3.5 ">
+      {!hideHeader && (
+        <TimeframeHeader
+          period={period}
+          setPeriod={setPeriod}
+          offset={offset}
+          setOffset={setOffset}
         />
-        <button
-          onClick={() => {
-            if (window.navigator?.vibrate) window.navigator.vibrate(10);
-            setOffset((prev) => Math.min(0, prev + 1));
-          }}
-          disabled={offset >= 0}
-          className={`flex items-center gap-1 text-[11px] font-bold tracking-wider transition-colors ${
-            offset >= 0
-              ? 'text-text-sub/50 cursor-not-allowed'
-              : 'text-[#444841] hover:text-text-main active:scale-95'
-          }`}
-        >
-          <span className="tracking-widest uppercase">NEXT</span>
-          <ChevronRight size={15} strokeWidth={2.5} />
-        </button>
-      </div>
+      )}
 
       {/* Dual Metric Summary Tiles */}
       {showKPIs && (
@@ -562,7 +526,7 @@ function SharedActivitySection({ showKPIs = true, sessions = [], onPeriodChange 
       )}
 
       {/* Activity Heatmap Grid */}
-      <div className="bg-surface rounded-2xl p-4 shadow-sm border border-border flex flex-col">
+      <div className="bg-surface rounded-2xl p-4 shadow-sm border border-border flex flex-col ">
         <div className="flex items-center justify-between mb-3">
           <span className="text-[11px] uppercase tracking-wider text-secondary font-bold">
             ACTIVITY GRID

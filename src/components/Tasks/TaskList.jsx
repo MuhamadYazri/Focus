@@ -135,7 +135,7 @@ function TaskList({
   };
 
   return (
-    <div className="flex-1 w-full bg-canvas pb-28 min-h-[100dvh] relative text-[#2A3A26]">
+    <div className="flex-1 w-full bg-transparent pb-28 min-h-[100dvh] relative text-[#2A3A26]">
       <div className="flex flex-col w-full px-5 pt-15 pb-24 max-w-md mx-auto">
         {/* Greeting Header */}
         <header className="pt-2 pb-5 flex flex-col gap-1">

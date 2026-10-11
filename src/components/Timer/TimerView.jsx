@@ -191,7 +191,7 @@ function TimerView({
 
   return (
     <div
-      className="flex flex-col h-[100dvh] w-full overflow-y-auto overflow-x-hidden transition-colors duration-700 ease-in-out bg-canvas text-text-main selection:bg-secondary/20"
+      className="flex flex-col h-[100dvh] w-full overflow-y-auto overflow-x-hidden transition-colors duration-700 ease-in-out bg-transparent text-text-main selection:bg-secondary/20"
       onClick={() => {
         if (onToggleNav) onToggleNav();
       }}

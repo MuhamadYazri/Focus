@@ -24,6 +24,11 @@ function ProfileView({
   onAddProject,
   onEditProject,
   onDeleteProject,
+  period: controlledPeriod,
+  setPeriod: controlledSetPeriod,
+  offset: controlledOffset,
+  setOffset: controlledSetOffset,
+  hideHeader = false,
 }) {
   const [showReport, setShowReport] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -242,12 +247,17 @@ function ProfileView({
   };
 
   return (
-    <main className="flex-1 w-full bg-canvas pt-15 pb-32 selection:bg-[#E5D9B6] selection:text-primary">
+    <main className={`flex-1 w-full bg-transparent ${hideHeader ? 'pt-2.5' : 'pt-15'} pb-32 selection:bg-[#E5D9B6] selection:text-primary`}>
       <div className="flex flex-col w-full max-w-md mx-auto px-5  gap-4">
         {/* ── Activity ── */}
         <SharedActivitySection
           showKPIs={false}
           sessions={sessions}
+          period={controlledPeriod}
+          setPeriod={controlledSetPeriod}
+          offset={controlledOffset}
+          setOffset={controlledSetOffset}
+          hideHeader={hideHeader}
           onPeriodChange={setReportData}
         />
 

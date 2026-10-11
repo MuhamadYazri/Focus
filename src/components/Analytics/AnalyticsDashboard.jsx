@@ -60,9 +60,23 @@ function filterSessionsForPeriod(sessions, period, offset) {
 
 const TAILWIND_COLORS = ['#E5D9B6', 'var(--theme-secondary)', 'var(--theme-primary)', '#D9CFC7'];
 
-function AnalyticsDashboard({ tasks = [], projects = [], sessions = [] }) {
-  const [currentPeriod, setCurrentPeriod] = useState('Daily');
-  const [currentOffset, setCurrentOffset] = useState(0);
+function AnalyticsDashboard({
+  tasks = [],
+  projects = [],
+  sessions = [],
+  period: controlledPeriod,
+  setPeriod: controlledSetPeriod,
+  offset: controlledOffset,
+  setOffset: controlledSetOffset,
+  hideHeader = false,
+}) {
+  const [internalPeriod, setInternalPeriod] = useState('Daily');
+  const [internalOffset, setInternalOffset] = useState(0);
+
+  const currentPeriod = controlledPeriod !== undefined ? controlledPeriod : internalPeriod;
+  const setCurrentPeriod = controlledSetPeriod || setInternalPeriod;
+  const currentOffset = controlledOffset !== undefined ? controlledOffset : internalOffset;
+  const setCurrentOffset = controlledSetOffset || setInternalOffset;
 
   const formatDisplayHours = (mins) => {
     if (!mins || mins <= 0) return '0h 00m';
@@ -83,13 +97,14 @@ function AnalyticsDashboard({ tasks = [], projects = [], sessions = [] }) {
   const displayTotalTime = useMemo(() => formatDisplayHours(totalMins), [totalMins]);
 
   const activeSegments = useMemo(() => {
-    const projList = (projects && projects.length)
-      ? projects
-      : [
-          { id: 'proj-1', name: '01 // STUDY', color: TAILWIND_COLORS[0] },
-          { id: 'proj-2', name: '02 // PERSONAL_APP_DEV', color: TAILWIND_COLORS[1] },
-          { id: 'proj-3', name: '03 // SYS_ARCHITECTURE', color: TAILWIND_COLORS[2] },
-        ];
+    const projList =
+      projects && projects.length
+        ? projects
+        : [
+            { id: 'proj-1', name: '01 // STUDY', color: TAILWIND_COLORS[0] },
+            { id: 'proj-2', name: '02 // PERSONAL_APP_DEV', color: TAILWIND_COLORS[1] },
+            { id: 'proj-3', name: '03 // SYS_ARCHITECTURE', color: TAILWIND_COLORS[2] },
+          ];
 
     const computed = projList
       .map((proj, idx) => {
@@ -116,15 +131,33 @@ function AnalyticsDashboard({ tasks = [], projects = [], sessions = [] }) {
 
     return computed.length
       ? computed
-      : [{ label: 'No Data', pct: 100, count: 0, mins: 0, displayTime: '0h 00m', color: '#E5D9B6' }];
+      : [
+          {
+            label: 'No Data',
+            pct: 100,
+            count: 0,
+            mins: 0,
+            displayTime: '0h 00m',
+            color: '#E5D9B6',
+          },
+        ];
   }, [projects, filteredSessions, totalMins]);
 
   return (
-    <main className="flex-1 w-full bg-canvas pt-15 pb-28 min-h-[100dvh] relative text-text-main selection:bg-primary selection:text-white">
+    <main
+      className={`flex-1 w-full bg-transparent ${
+        hideHeader ? 'pt-2.5' : 'pt-15'
+      } pb-28 min-h-[100dvh] relative text-text-main selection:bg-primary selection:text-white`}
+    >
       <div className="flex flex-col w-full px-5  pb-12 gap-3.5 max-w-md mx-auto">
         <SharedActivitySection
           showKPIs={true}
           sessions={sessions}
+          period={currentPeriod}
+          setPeriod={setCurrentPeriod}
+          offset={currentOffset}
+          setOffset={setCurrentOffset}
+          hideHeader={hideHeader}
           onPeriodChange={(data) => {
             setCurrentPeriod(data.period);
             setCurrentOffset(data.offset);
@@ -143,10 +176,10 @@ function AnalyticsDashboard({ tasks = [], projects = [], sessions = [] }) {
                 size={60}
                 gap={6}
                 width={8}
-                rings={activeSegments.map(seg => ({
+                rings={activeSegments.map((seg) => ({
                   progress: seg.pct,
                   color: seg.color,
-                  trackColor: 'rgba(0,0,0,0.05)'
+                  trackColor: 'rgba(0,0,0,0.05)',
                 }))}
               >
                 <span className="text-sm text-text-main font-bold font-sans">

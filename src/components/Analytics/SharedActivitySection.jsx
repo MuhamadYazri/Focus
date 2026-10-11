@@ -137,6 +137,69 @@ const HeatmapCell = React.memo(function HeatmapCell({ cell, period, setOffset })
   );
 });
 
+const ChartBarColumn = React.memo(function ChartBarColumn({ slot, setOffset }) {
+  const isSelected = slot.isCurrent;
+  const hasVal = slot.v > 0;
+  const isGoalMet = !!slot.isGoalMet;
+  const barH = hasVal ? Math.max(8, Math.min(64, Math.round(slot.v * 64))) : 0;
+
+  const handleSlotClick = () => {
+    if (slot.targetOffset !== undefined) {
+      if (window.navigator?.vibrate) window.navigator.vibrate(10);
+      setOffset(slot.targetOffset);
+    }
+  };
+
+  return (
+    <div
+      onClick={handleSlotClick}
+      className="flex flex-col items-center gap-1.5 min-w-0 cursor-pointer active:scale-95 transition-transform"
+    >
+      <span
+        className={`text-[10px] font-sans transition-colors ${
+          isGoalMet
+            ? 'text-primary font-bold'
+            : isSelected
+            ? 'text-primary font-bold'
+            : hasVal
+            ? 'text-secondary font-semibold'
+            : 'text-text-sub/70'
+        }`}
+      >
+        {slot.val}
+      </span>
+
+      {/* Tactile track capsule with seamless flush fill */}
+      <div
+        className={`w-full h-16 bg-[#EDE7DA]/60 rounded-full flex flex-col justify-end overflow-hidden shadow-2xs relative ${
+          isSelected ? 'ring-2 ring-primary ring-offset-1 ring-offset-surface z-10' : ''
+        }`}
+      >
+        {hasVal && (
+          <div
+            className={`w-full transition-all duration-500 ease-out ${
+              isGoalMet
+                ? 'bg-primary shadow-xs'
+                : isSelected
+                ? 'bg-primary shadow-xs'
+                : 'bg-[#4F7775]'
+            }`}
+            style={{ height: `${barH}px` }}
+          />
+        )}
+      </div>
+
+      <span
+        className={`text-[11px] font-sans transition-colors ${
+          isSelected ? 'text-primary font-bold' : 'text-text-sub font-medium'
+        } truncate w-full text-center`}
+      >
+        {slot.h}
+      </span>
+    </div>
+  );
+});
+
 function SharedActivitySection({
   showKPIs = true,
   sessions = [],
@@ -742,69 +805,9 @@ function SharedActivitySection({
           className="grid gap-2 items-end min-h-[96px] pb-1"
           style={{ gridTemplateColumns: `repeat(${activeChart.length}, minmax(0, 1fr))` }}
         >
-          {activeChart.map((slot) => {
-            const isSelected = slot.isCurrent;
-            const hasVal = slot.v > 0;
-            const isGoalMet = !!slot.isGoalMet;
-            const barH = hasVal ? Math.max(8, Math.min(64, Math.round(slot.v * 64))) : 0;
-
-            const handleSlotClick = () => {
-              if (slot.targetOffset !== undefined) {
-                if (window.navigator?.vibrate) window.navigator.vibrate(10);
-                setOffset(slot.targetOffset);
-              }
-            };
-
-            return (
-              <div
-                key={slot.h}
-                onClick={handleSlotClick}
-                className="flex flex-col items-center gap-1.5 min-w-0 cursor-pointer active:scale-95 transition-transform"
-              >
-                <span
-                  className={`text-[10px] font-sans transition-colors ${
-                    isGoalMet
-                      ? 'text-primary font-bold'
-                      : isSelected
-                      ? 'text-primary font-bold'
-                      : hasVal
-                      ? 'text-secondary font-semibold'
-                      : 'text-text-sub/70'
-                  }`}
-                >
-                  {slot.val}
-                </span>
-
-                {/* Tactile track capsule with seamless flush fill */}
-                <div
-                  className={`w-full h-16 bg-[#EDE7DA]/60 rounded-full flex flex-col justify-end overflow-hidden shadow-2xs relative ${
-                    isSelected ? 'ring-2 ring-primary ring-offset-1 ring-offset-surface z-10' : ''
-                  }`}
-                >
-                  {hasVal && (
-                    <div
-                      className={`w-full transition-all duration-500 ease-out ${
-                        isGoalMet
-                          ? 'bg-primary shadow-xs'
-                          : isSelected
-                          ? 'bg-primary shadow-xs'
-                          : 'bg-[#4F7775]'
-                      }`}
-                      style={{ height: `${barH}px` }}
-                    />
-                  )}
-                </div>
-
-                <span
-                  className={`text-[11px] font-sans transition-colors ${
-                    isSelected ? 'text-primary font-bold' : 'text-text-sub font-medium'
-                  } truncate w-full text-center`}
-                >
-                  {slot.h}
-                </span>
-              </div>
-            );
-          })}
+          {activeChart.map((slot) => (
+            <ChartBarColumn key={slot.h} slot={slot} setOffset={setOffset} />
+          ))}
         </div>
       </div>
     </div>

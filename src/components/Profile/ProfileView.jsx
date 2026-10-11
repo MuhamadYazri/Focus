@@ -1,10 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { FlameIcon, ClockIcon, BookmarkCheckIcon, CopyIcon, CheckIcon, XIcon } from 'lucide-animated';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Share2 } from 'lucide-react';
 import SharedActivitySection from '../Analytics/SharedActivitySection';
 import { storage } from '../../services/storage';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
+
+const toTitleCase = (str) => {
+  if (!str) return '';
+  return str
+    .toLowerCase()
+    .split(' ')
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+};
 
 const G = "'Poppins', sans-serif";
 const M = "'Poppins', sans-serif";
@@ -246,8 +256,32 @@ function ProfileView({
     }
   };
 
+  const handleShareReport = async () => {
+    const text = `Focus // ${getReportTitle()}\n📅 ${getReportHeading()}\n\n⏱ Total Focus: ${reportData.displayHours}\n🍅 Sessions: ${reportData.displayPomos.toLocaleString()} pomodoros\n📊 ${reportData.displaySubToday}\n📆 ${reportData.displaySubDays}`;
+    try {
+      if (Share?.share) {
+        await Share.share({
+          title: `Focus - ${getReportTitle()}`,
+          text: text,
+          dialogTitle: 'Share Focus Report',
+        });
+      } else if (navigator.share) {
+        await navigator.share({
+          title: `Focus - ${getReportTitle()}`,
+          text: text,
+        });
+      } else {
+        handleCopyReport();
+      }
+    } catch (e) {
+      if (e?.name !== 'AbortError') {
+        handleCopyReport();
+      }
+    }
+  };
+
   return (
-    <main className={`flex-1 w-full bg-transparent ${hideHeader ? 'pt-2.5' : 'pt-15'} pb-32 selection:bg-[#E5D9B6] selection:text-primary`}>
+    <main className={`flex-1 w-full bg-transparent ${hideHeader ? 'pt-2.5' : 'pt-15'} pb-36 selection:bg-[#E5D9B6] selection:text-primary`}>
       <div className="flex flex-col w-full max-w-md mx-auto px-5  gap-4">
         {/* ── Activity ── */}
         <SharedActivitySection
@@ -349,38 +383,39 @@ function ProfileView({
           </div>
           {projects.map((proj) => {
             const cleanName = proj.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' ');
+            const displayName = toTitleCase(cleanName);
             return (
               <div
                 key={proj.id}
-                className="bg-surface rounded-full px-5 py-3.5 flex items-center justify-between shadow-xs border border-border ring-1 ring-white/60 hover:shadow-sm"
+                className="bg-surface rounded-full px-5 py-3 flex items-center justify-between shadow-xs border border-border ring-1 ring-white/60 hover:shadow-sm transition-all"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 min-w-0">
                   <div
-                    className="w-3 h-3 rounded-full shadow-sm"
+                    className="w-3 h-3 rounded-full shadow-sm shrink-0"
                     style={{ backgroundColor: proj.color || 'var(--theme-primary)' }}
-                  ></div>
-                  <span className="text-xs font-bold text-text-main tracking-wide font-sans truncate max-w-[140px]">
-                    {cleanName}
+                  />
+                  <span className="text-xs font-bold text-text-main tracking-wide font-sans truncate">
+                    {displayName}
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 shrink-0">
                   <button
                     onClick={() => {
                       if (window.navigator?.vibrate) window.navigator.vibrate(10);
                       if (onEditProject) onEditProject(proj);
                     }}
                     aria-label="Edit category"
-                    className="p-1 text-text-sub hover:text-text-main transition-colors flex items-center justify-center"
+                    className="p-1.5 rounded-lg text-text-sub hover:text-text-main hover:bg-[#F4F0E8] transition-colors flex items-center justify-center active:scale-95"
                   >
                     <svg
                       fill="none"
-                      height="17"
+                      height="16"
                       stroke="currentColor"
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth="2"
                       viewBox="0 0 24 24"
-                      width="17"
+                      width="16"
                     >
                       <path d="M16.474 5.408l2.118 2.118m-.756-3.95a2.121 2.121 0 113 3L7.5 19.914 3 21l1.086-4.5 13.332-13.042z"></path>
                     </svg>
@@ -392,17 +427,17 @@ function ProfileView({
                         setProjectToDelete(proj);
                       }}
                       aria-label="Delete category"
-                      className="p-1 text-[#BA1A1A] hover:opacity-80 transition-opacity flex items-center justify-center"
+                      className="p-1.5 rounded-lg text-[#BA1A1A] hover:bg-[#BA1A1A]/10 transition-colors flex items-center justify-center active:scale-95"
                     >
                       <svg
                         fill="none"
-                        height="17"
+                        height="16"
                         stroke="currentColor"
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth="2"
                         viewBox="0 0 24 24"
-                        width="17"
+                        width="16"
                       >
                         <path d="M19 6L18 20H6L5 6"></path>
                         <path d="M10 11V16"></path>
@@ -504,31 +539,28 @@ function ProfileView({
             </div>
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-text-main font-sans">Target Hours</span>
-              <span className="text-base font-bold text-primary font-sans">
-                {settings.dailyGoalHours || 4.0}h
-              </span>
-            </div>
-            <div className="grid grid-cols-4 gap-2 pt-1">
-              {[2.0, 4.0, 6.0, 8.0].map((h) => {
-                const isActive = (settings.dailyGoalHours || 4.0) === h;
-                return (
-                  <button
-                    key={h}
-                    type="button"
-                    onClick={() => {
-                      if (window.navigator?.vibrate) window.navigator.vibrate(10);
-                      handleChange('dailyGoalHours', h);
-                    }}
-                    className={`py-1.5 rounded-full text-xs text-center font-sans transition-colors ${
-                      isActive
-                        ? 'bg-primary font-bold text-white shadow-xs ring-1 ring-white/20'
-                        : 'bg-[#F4F0E8] text-text-main border border-border/60 hover:bg-border shadow-2xs'
-                    }`}
-                  >
-                    {h}h
-                  </button>
-                );
-              })}
+              <div className="bg-[#F4F0E8] p-1 rounded-full flex items-center gap-1 border border-border shadow-inner">
+                {[2.0, 4.0, 6.0, 8.0].map((h) => {
+                  const isActive = (settings.dailyGoalHours || 4.0) === h;
+                  return (
+                    <button
+                      key={h}
+                      type="button"
+                      onClick={() => {
+                        if (window.navigator?.vibrate) window.navigator.vibrate(10);
+                        handleChange('dailyGoalHours', h);
+                      }}
+                      className={`px-3 py-1 rounded-full text-xs font-sans transition-all ${
+                        isActive
+                          ? 'bg-primary font-bold text-white shadow-xs ring-1 ring-white/20'
+                          : 'text-[#576652] hover:text-text-main'
+                      }`}
+                    >
+                      {h}h
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
@@ -651,11 +683,16 @@ function ProfileView({
                       if (window.navigator?.vibrate) window.navigator.vibrate(10);
                       handleChange(key, !isOn);
                     }}
-                    className={`w-11 h-6 rounded-full p-0.5 flex items-center shadow-inner cursor-pointer transition-all ${
-                      isOn ? 'bg-secondary justify-end' : 'bg-border justify-start'
+                    aria-label={`Toggle ${label}`}
+                    className={`relative w-11 h-6 rounded-full p-0.5 transition-colors duration-200 ease-out cursor-pointer shadow-inner ${
+                      isOn ? 'bg-primary ring-1 ring-primary/40' : 'bg-[#DDD6C8]/80'
                     }`}
                   >
-                    <div className="w-5 h-5 rounded-full bg-surface shadow-xs transition-transform"></div>
+                    <div
+                      className={`w-5 h-5 rounded-full bg-surface shadow-xs ring-1 ring-black/5 transform transition-transform duration-200 ease-out ${
+                        isOn ? 'translate-x-5' : 'translate-x-0'
+                      }`}
+                    />
                   </button>
                 </div>
               );
@@ -761,7 +798,7 @@ function ProfileView({
             </div>
             <button
               onClick={handleResetData}
-              className="px-3.5 py-1.5 rounded-full bg-[#E67E22]/15 text-[#E67E22] text-[11px] font-bold flex items-center gap-1.5 hover:bg-[#E67E22]/25 transition-colors border border-[#E67E22]/30 shadow-2xs"
+              className="px-3.5 py-1.5 rounded-full bg-[#BA1A1A]/10 text-[#BA1A1A] text-[11px] font-bold flex items-center gap-1.5 hover:bg-[#BA1A1A]/15 active:scale-95 transition-all border border-[#BA1A1A]/25 shadow-2xs"
             >
               <svg
                 fill="none"
@@ -840,11 +877,11 @@ function ProfileView({
       </div>
 
       {/* ── Share Report Modal ── */}
-      {showReport && (
+      {showReport && createPortal(
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center p-4"
+          className="fixed inset-0 z-[70] flex items-center justify-center p-4 animate-fadeIn"
           style={{
-            background: 'rgba(25, 29, 21, 0.4)',
+            background: 'rgba(25, 29, 21, 0.45)',
             backdropFilter: 'blur(8px)',
             WebkitBackdropFilter: 'blur(8px)',
           }}
@@ -863,25 +900,10 @@ function ProfileView({
                 <span className="text-[10px] text-text-sub tracking-widest font-sans font-bold">
                   FOCUS // {getReportTitle()}
                 </span>
-                <svg
-                  fill="none"
-                  height="18"
-                  className="stroke-primary"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                  width="18"
-                >
-                  <circle cx="18" cy="5" r="3"></circle>
-                  <circle cx="6" cy="12" r="3"></circle>
-                  <circle cx="18" cy="19" r="3"></circle>
-                  <line x1="8.59" x2="15.42" y1="13.51" y2="17.49"></line>
-                  <line x1="15.41" x2="8.59" y1="6.51" y2="10.49"></line>
-                </svg>
+                <Share2 size={18} className="text-primary" strokeWidth={2} />
               </div>
 
-              <div className="z-10 flex flex-col gap-1 mb-10">
+              <div className="z-10 flex flex-col gap-1 mb-8">
                 <h3 className="text-3xl font-bold text-text-main tracking-tight leading-tight font-sans">
                   {getReportHeading()}
                 </h3>
@@ -909,29 +931,43 @@ function ProfileView({
             </div>
 
             {/* Actions */}
-            <div className="flex gap-3">
+            <div className="flex items-center gap-2.5">
               <button
                 onClick={() => setShowReport(false)}
-                className="flex items-center justify-center p-4 rounded-2xl transition-all border border-border text-primary bg-[#F4F0E8] hover:bg-border shadow-2xs"
+                aria-label="Close"
+                className="flex items-center justify-center p-3.5 rounded-2xl transition-all border border-border text-primary bg-[#F4F0E8] hover:bg-border active:scale-95 shadow-2xs"
               >
                 <XIcon size={20} strokeWidth={2} />
               </button>
               <button
                 onClick={handleCopyReport}
-                className="flex-1 flex items-center justify-center gap-2 p-4 rounded-2xl bg-primary text-white font-semibold font-sans text-sm hover:bg-primary-hover active:scale-[0.98] transition-all shadow-md shadow-primary/25 ring-1 ring-white/20"
+                className="flex-1 flex items-center justify-center gap-2 p-3.5 rounded-2xl bg-[#F4F0E8] text-text-main font-semibold font-sans text-xs hover:bg-border active:scale-[0.98] transition-all border border-border shadow-2xs"
               >
-                {copied ? <CheckIcon size={18} strokeWidth={2.5} /> : <CopyIcon size={18} strokeWidth={2} />}
-                {copied ? 'Copied to Clipboard' : 'Copy Text'}
+                {copied ? <CheckIcon size={16} strokeWidth={2.5} className="text-secondary" /> : <CopyIcon size={16} strokeWidth={2} />}
+                <span>{copied ? 'Copied!' : 'Copy Text'}</span>
+              </button>
+              <button
+                onClick={handleShareReport}
+                className="flex-1 flex items-center justify-center gap-2 p-3.5 rounded-2xl bg-primary text-white font-semibold font-sans text-xs hover:bg-primary-hover active:scale-[0.98] transition-all shadow-md shadow-primary/25 ring-1 ring-white/20"
+              >
+                <Share2 size={16} strokeWidth={2} />
+                <span>Share</span>
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Delete Project Modal */}
-      {projectToDelete && (
+      {projectToDelete && createPortal(
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-canvas/40 backdrop-blur-md animate-fadeIn"
+          className="fixed inset-0 z-[70] flex items-center justify-center p-4 animate-fadeIn"
+          style={{
+            background: 'rgba(25, 29, 21, 0.45)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+          }}
           onClick={() => setProjectToDelete(null)}
         >
           <div
@@ -943,14 +979,14 @@ function ProfileView({
                 Delete Category?
               </span>
               <p className="text-sm text-text-sub font-sans leading-relaxed">
-                Are you sure you want to delete <span className="font-semibold text-text-main">{projectToDelete.name.replace(/^[^\w\s]+\s*/, '')}</span> and all of its associated tasks?
+                Are you sure you want to delete <span className="font-semibold text-text-main">{toTitleCase(projectToDelete.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' '))}</span> and all of its associated tasks?
               </p>
             </div>
             
             <div className="flex items-center gap-3 mt-2">
               <button
                 onClick={() => setProjectToDelete(null)}
-                className="flex-1 p-3 rounded-2xl border border-border text-text-main bg-surface-hover hover:bg-border font-sans font-semibold text-sm transition-colors shadow-2xs"
+                className="flex-1 p-3 rounded-2xl border border-border text-text-main bg-surface-hover hover:bg-border font-sans font-semibold text-sm transition-colors shadow-2xs active:scale-95"
               >
                 Cancel
               </button>
@@ -960,13 +996,14 @@ function ProfileView({
                   if (onDeleteProject) onDeleteProject(projectToDelete.id);
                   setProjectToDelete(null);
                 }}
-                className="flex-1 p-3 rounded-2xl border border-transparent text-white bg-[#BA1A1A] hover:opacity-90 font-sans font-semibold text-sm transition-opacity shadow-md shadow-[#BA1A1A]/20"
+                className="flex-1 p-3 rounded-2xl border border-transparent text-white bg-[#BA1A1A] hover:opacity-90 font-sans font-semibold text-sm transition-opacity shadow-md shadow-[#BA1A1A]/20 active:scale-95"
               >
                 Delete
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </main>
   );

@@ -145,6 +145,7 @@ function SharedActivitySection({
           targetHours,
           dateStr: curStr,
           isCurrent: curStr >= rangeStart && curStr <= rangeEnd,
+          isToday: curStr === todayStr,
           isSameMonth,
         });
       }
@@ -494,49 +495,65 @@ function SharedActivitySection({
 
       {/* Dual Metric Summary Tiles */}
       {showKPIs && (
-        <div className="grid grid-cols-2 gap-3.5 ">
+        <div className="grid grid-cols-2 gap-3.5">
           {/* Focus Time Tile */}
-          <div className="bg-surface rounded-2xl p-4 shadow-sm ring-1 ring-white/70 border border-border flex flex-col justify-between min-h-[110px]">
+          <div className="bg-surface rounded-2xl p-4 shadow-xs ring-1 ring-white/80 border border-border flex flex-col justify-between min-h-[112px] relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-primary/5 to-transparent rounded-bl-full pointer-events-none" />
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-secondary mb-1.5 flex items-center justify-between">
-                <span>FOCUS TIME</span>
-                <Clock size={16} />
-              </p>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-secondary">
+                  FOCUS TIME
+                </span>
+                <div className="w-7 h-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center shadow-2xs">
+                  <Clock size={15} strokeWidth={2.2} />
+                </div>
+              </div>
               <p className="text-2xl text-text-main font-bold tracking-tight font-sans">
                 {displayHours}
               </p>
             </div>
-            <p className="text-[11px] text-[#444841] mt-3 font-sans">{displaySubToday}</p>
+            <p className="text-[11px] text-[#635E52] mt-3 font-sans font-medium">
+              {displaySubToday}
+            </p>
           </div>
 
           {/* Sessions Tile */}
-          <div className="bg-surface rounded-2xl p-4 shadow-sm ring-1 ring-white/70 border border-border flex flex-col justify-between min-h-[110px]">
+          <div className="bg-surface rounded-2xl p-4 shadow-xs ring-1 ring-white/80 border border-border flex flex-col justify-between min-h-[112px] relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-secondary/5 to-transparent rounded-bl-full pointer-events-none" />
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-secondary mb-1.5 flex items-center justify-between">
-                <span>SESSIONS</span>
-                <CheckCircle size={16} />
-              </p>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-secondary">
+                  SESSIONS
+                </span>
+                <div className="w-7 h-7 rounded-lg bg-secondary/10 text-secondary flex items-center justify-center shadow-2xs">
+                  <CheckCircle size={15} strokeWidth={2.2} />
+                </div>
+              </div>
               <p className="text-2xl text-text-main font-bold tracking-tight font-sans">
                 {displayPomos.toLocaleString()}
               </p>
             </div>
-            <p className="text-[11px] text-[#444841] mt-3 font-sans">{displaySubDays}</p>
+            <p className="text-[11px] text-[#635E52] mt-3 font-sans font-medium">
+              {displaySubDays}
+            </p>
           </div>
         </div>
       )}
 
       {/* Activity Heatmap Grid */}
-      <div className="bg-surface rounded-2xl p-4 shadow-sm ring-1 ring-white/70 border border-border flex flex-col">
+      <div className="bg-surface rounded-2xl p-4 shadow-xs ring-1 ring-white/80 border border-border flex flex-col">
         <div className="flex items-center justify-between mb-3">
           <span className="text-[11px] uppercase tracking-wider text-secondary font-bold">
             ACTIVITY GRID
           </span>
-          <span className="text-xs text-text-sub font-normal font-sans">{heatmapTitleDate}</span>
+          <span className="text-xs text-text-sub font-medium font-sans px-2.5 py-0.5 rounded-full bg-canvas/80 border border-border/50">
+            {heatmapTitleDate}
+          </span>
         </div>
 
         <div className="grid grid-cols-7 gap-1 text-center mb-1.5">
           {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
-            <span key={i} className="text-[11px] font-semibold text-secondary">
+            <span key={i} className="text-[11px] font-semibold text-secondary/80">
               {d}
             </span>
           ))}
@@ -550,26 +567,30 @@ function SharedActivitySection({
               const isSameMo = !!cell?.isSameMonth;
               const val = cell?.val || 0;
 
-              let bgClass = 'bg-canvas text-[#444841]'; // default empty inside month
+              let bgClass = 'bg-canvas text-text-main/80 font-medium'; // default empty inside month
               if (!isSameMo) {
-                bgClass = 'bg-surface-hover/70 text-text-sub/50';
+                bgClass = 'bg-[#EDE7DA]/30 text-text-sub/40 font-normal';
               } else if (val >= 3) {
-                bgClass = 'bg-primary text-white font-semibold shadow-xs';
+                bgClass = 'bg-primary text-white font-bold shadow-xs';
               } else if (val >= 1) {
-                bgClass = 'bg-secondary text-white font-semibold shadow-2xs';
+                bgClass = 'bg-[#4F7775] text-white font-semibold shadow-2xs';
               } else if (isCur) {
-                bgClass = 'bg-[#E5D9B6]/40 text-text-main font-bold';
+                bgClass = 'bg-primary/10 text-primary font-bold';
               }
 
-              // If this date is in the currently selected period, give it a distinctive ring
-              const selectionRing = isCur
-                ? 'ring-2 ring-primary/60 ring-offset-1 ring-offset-surface'
-                : '';
+              const isToday = !!cell?.isToday;
+
+              // Daily view highlights the selected day with a ring.
+              // Weekly/Monthly views give today the distinct ring, while the range receives the soft bg-primary/10 tint.
+              const selectionRing =
+                (period === 'Daily' && isCur) || (period !== 'Daily' && isToday)
+                  ? 'ring-2 ring-primary ring-offset-1 ring-offset-surface z-10'
+                  : '';
 
               return (
                 <div
                   key={`${wi}-${di}`}
-                  className={`h-9 rounded-xl flex items-center justify-center text-[11px] font-sans ${bgClass} ${selectionRing}`}
+                  className={`h-9 rounded-xl flex items-center justify-center text-[11px] font-sans transition-all ${bgClass} ${selectionRing}`}
                 >
                   {dayNum}
                 </div>
@@ -580,46 +601,57 @@ function SharedActivitySection({
       </div>
 
       {/* Total Per Day Column Chart */}
-      <div className="bg-surface rounded-2xl p-4 shadow-sm ring-1 ring-white/70 border border-border flex flex-col">
+      <div className="bg-surface rounded-2xl p-4 shadow-xs ring-1 ring-white/80 border border-border flex flex-col">
         <div className="flex items-center justify-between mb-0.5">
           <span className="text-sm font-bold text-text-main font-sans">{chartTitle}</span>
-          <span className="text-[11px] text-secondary font-semibold px-2 py-0.5 rounded-full bg-[#E5D9B6]/40">
+          <span className="text-[11px] text-primary font-semibold px-2.5 py-0.5 rounded-full bg-primary/10 border border-primary/20">
             {chartPeakLabel}
           </span>
         </div>
-        <p className="text-[11px] text-[#444841] mb-6 font-sans">{chartSubLabel}</p>
+        <p className="text-[11px] text-text-sub mb-5 font-sans">{chartSubLabel}</p>
 
         <div
-          className="grid gap-2 items-end min-h-[88px] pb-1"
+          className="grid gap-2 items-end min-h-[96px] pb-1"
           style={{ gridTemplateColumns: `repeat(${activeChart.length}, minmax(0, 1fr))` }}
         >
           {activeChart.map((slot) => {
-            const hasVal = slot.v > 0;
-            const barH = hasVal ? Math.max(6, slot.v * maxBarH) : 6;
             const isSelected = slot.isCurrent;
+            const hasVal = slot.v > 0;
+            const barH = hasVal ? Math.max(8, Math.round(slot.v * 54)) : isSelected ? 4 : 0;
 
             return (
               <div key={slot.h} className="flex flex-col items-center gap-1.5 min-w-0">
                 <span
-                  className={`text-[10px] font-sans ${
+                  className={`text-[10px] font-sans transition-colors ${
                     isSelected
                       ? 'text-primary font-bold'
                       : hasVal
-                      ? 'text-secondary font-medium'
-                      : 'text-text-sub'
+                      ? 'text-secondary font-semibold'
+                      : 'text-text-sub/70'
                   }`}
                 >
                   {slot.val}
                 </span>
-                <div
-                  className={`w-full rounded-full transition-all duration-300 ${
-                    isSelected ? 'bg-primary' : hasVal ? 'bg-secondary' : 'bg-border'
-                  }`}
-                  style={{ height: barH }}
-                ></div>
+
+                {/* Tactile track capsule with rising bar */}
+                <div className="w-full h-16 bg-[#EDE7DA]/60 rounded-full flex flex-col justify-end p-0.5 overflow-hidden shadow-2xs">
+                  <div
+                    className={`w-full rounded-full transition-all duration-300 ${
+                      isSelected
+                        ? 'bg-primary shadow-xs'
+                        : hasVal
+                        ? 'bg-[#4F7775]'
+                        : isSelected
+                        ? 'bg-primary/20'
+                        : 'bg-transparent'
+                    }`}
+                    style={{ height: `${barH}px` }}
+                  />
+                </div>
+
                 <span
-                  className={`text-[11px] font-sans ${
-                    isSelected ? 'text-primary font-bold' : 'text-[#444841] font-medium'
+                  className={`text-[11px] font-sans transition-colors ${
+                    isSelected ? 'text-primary font-bold' : 'text-text-sub font-medium'
                   } truncate w-full text-center`}
                 >
                   {slot.h}

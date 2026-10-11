@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import RollText from '../animata/text/roll-text';
 
@@ -50,7 +51,7 @@ function TimeframeHeader({ period, setPeriod, offset, setOffset }) {
   return (
     <div className="flex flex-col gap-2.5 w-full">
       {/* Time Frame Segmented Track */}
-      <div className="w-full bg-[#EDE7DA]/80 p-1 rounded-full flex items-center justify-between border border-border shadow-inner">
+      <div className="w-full bg-[#EDE7DA]/80 p-1 rounded-full flex items-center justify-between border border-border shadow-inner relative select-none">
         {PERIODS.map((p) => {
           const active = p === period;
           return (
@@ -61,13 +62,20 @@ function TimeframeHeader({ period, setPeriod, offset, setOffset }) {
                 setPeriod(p);
                 setOffset(0);
               }}
-              className={`flex-1 py-1.5 text-center rounded-full text-xs transition-all ${
+              className={`relative flex-1 py-1.5 text-center rounded-full text-xs transition-colors duration-200 ${
                 active
-                  ? 'bg-surface text-text-main shadow-xs ring-1 ring-white/80 font-semibold'
-                  : 'text-[#444841] font-medium hover:text-text-main'
+                  ? 'text-text-main font-semibold'
+                  : 'text-[#5A574E] font-medium hover:text-text-main'
               }`}
             >
-              {p}
+              {active && (
+                <motion.div
+                  layoutId="timeframe-period-pill"
+                  className="absolute inset-0 bg-surface rounded-full shadow-xs ring-1 ring-white/90 border border-border/50"
+                  transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+                />
+              )}
+              <span className="relative z-10">{p}</span>
             </button>
           );
         })}
@@ -75,7 +83,7 @@ function TimeframeHeader({ period, setPeriod, offset, setOffset }) {
 
       {/* Date Navigation Capsule */}
       <div
-        className={`w-full bg-surface rounded-full px-4 py-2.5 flex items-center justify-between shadow-xs ring-1 ring-white/80 border border-border transition-opacity ${
+        className={`w-full bg-surface rounded-full px-3.5 py-2 flex items-center justify-between shadow-xs ring-1 ring-white/80 border border-border transition-opacity ${
           isAll ? 'opacity-50 pointer-events-none' : 'opacity-100'
         }`}
       >
@@ -84,9 +92,9 @@ function TimeframeHeader({ period, setPeriod, offset, setOffset }) {
             if (window.navigator?.vibrate) window.navigator.vibrate(10);
             setOffset((prev) => prev - 1);
           }}
-          className="flex items-center gap-1 text-[11px] font-bold tracking-wider text-[#444841] hover:text-text-main transition-colors active:scale-95"
+          className="flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-bold tracking-wider text-[#444841] hover:text-text-main hover:bg-canvas/60 active:scale-95 transition-all"
         >
-          <ChevronLeft size={15} strokeWidth={2.5} />
+          <ChevronLeft size={14} strokeWidth={2.5} />
           <span className="tracking-widest uppercase">PREV</span>
         </button>
         <RollText
@@ -99,14 +107,14 @@ function TimeframeHeader({ period, setPeriod, offset, setOffset }) {
             setOffset((prev) => Math.min(0, prev + 1));
           }}
           disabled={offset >= 0}
-          className={`flex items-center gap-1 text-[11px] font-bold tracking-wider transition-colors ${
+          className={`flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-bold tracking-wider transition-all ${
             offset >= 0
-              ? 'text-text-sub/50 cursor-not-allowed'
-              : 'text-[#444841] hover:text-text-main active:scale-95'
+              ? 'text-text-sub/40 cursor-not-allowed'
+              : 'text-[#444841] hover:text-text-main hover:bg-canvas/60 active:scale-95'
           }`}
         >
           <span className="tracking-widest uppercase">NEXT</span>
-          <ChevronRight size={15} strokeWidth={2.5} />
+          <ChevronRight size={14} strokeWidth={2.5} />
         </button>
       </div>
     </div>

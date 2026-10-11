@@ -60,6 +60,15 @@ function filterSessionsForPeriod(sessions, period, offset) {
 
 const TAILWIND_COLORS = ['#E5D9B6', 'var(--theme-secondary)', 'var(--theme-primary)', '#D9CFC7'];
 
+const toTitleCase = (str) => {
+  if (!str) return '';
+  return str
+    .toLowerCase()
+    .split(' ')
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+};
+
 function AnalyticsDashboard({
   tasks = [],
   projects = [],
@@ -114,8 +123,9 @@ function AnalyticsDashboard({
         const count = projSessions.length;
         const projMins = projSessions.reduce((acc, s) => acc + (s.duration || 25), 0);
         const pct = totalMins > 0 ? Math.round((projMins / totalMins) * 100) : 0;
+        const rawLabel = proj.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' ');
         return {
-          label: proj.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' '),
+          label: toTitleCase(rawLabel),
           pct,
           count,
           mins: projMins,
@@ -165,7 +175,7 @@ function AnalyticsDashboard({
         />
 
         {/* Focus Distribution Donut Card */}
-        <div className="bg-surface rounded-2xl p-4 shadow-sm border border-border ring-1 ring-white/70 flex flex-col">
+        <div className="bg-surface rounded-2xl p-4 shadow-xs border border-border ring-1 ring-white/80 flex flex-col">
           <span className="text-[11px] uppercase tracking-wider text-secondary font-bold mb-3 font-sans">
             FOCUS DISTRIBUTION
           </span>

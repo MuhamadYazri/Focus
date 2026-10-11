@@ -16,6 +16,24 @@ const NAV_ITEMS = [
 
 function BottomNav({ activeTab, setActiveTab, isHidden = false }) {
   const iconRefs = React.useRef({});
+  const isInitialMount = React.useRef(true);
+
+  // Trigger icon animation whenever activeTab changes (via tap OR horizontal slide gesture)
+  React.useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    if (activeTab && iconRefs.current[activeTab]) {
+      iconRefs.current[activeTab].startAnimation();
+      const timer = setTimeout(() => {
+        if (iconRefs.current[activeTab]) {
+          iconRefs.current[activeTab].stopAnimation();
+        }
+      }, 650);
+      return () => clearTimeout(timer);
+    }
+  }, [activeTab]);
 
   return (
     <nav
@@ -31,15 +49,17 @@ function BottomNav({ activeTab, setActiveTab, isHidden = false }) {
               <button
                 key={key}
                 onClick={() => {
-                  if (activeTab === key) return;
                   if (window.navigator?.vibrate) window.navigator.vibrate(10);
-                  setActiveTab(key);
-                  if (iconRefs.current[key]) {
-                    iconRefs.current[key].startAnimation();
-                    setTimeout(() => {
-                      if (iconRefs.current[key]) iconRefs.current[key].stopAnimation();
-                    }, 600);
+                  if (activeTab === key) {
+                    if (iconRefs.current[key]) {
+                      iconRefs.current[key].startAnimation();
+                      setTimeout(() => {
+                        if (iconRefs.current[key]) iconRefs.current[key].stopAnimation();
+                      }, 650);
+                    }
+                    return;
                   }
+                  setActiveTab(key);
                 }}
                 className={`relative flex-1 min-h-[44px] rounded-full flex items-center justify-center transition-colors z-0 ${
                   on ? 'text-white' : 'text-text-sub hover:text-primary active:scale-95'

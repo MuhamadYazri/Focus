@@ -686,9 +686,11 @@ export default function App() {
       const currentIndex = tabs.indexOf(activeTab);
       
       if (isLeftSwipe && currentIndex < tabs.length - 1) {
+        if (window.navigator?.vibrate) window.navigator.vibrate(10);
         handleTabSwitch(tabs[currentIndex + 1]);
       }
       if (isRightSwipe && currentIndex > 0) {
+        if (window.navigator?.vibrate) window.navigator.vibrate(10);
         handleTabSwitch(tabs[currentIndex - 1]);
       }
     }

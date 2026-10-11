@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import successLottie from '../../assets/successfulTarget.lottie';
 
@@ -41,11 +42,16 @@ export default function GoalCelebration({ celebration, onDone }) {
 
   if (!celebration) return null;
 
-  return (
+  return createPortal(
     <div
-      className={`fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm ${
+      className={`fixed inset-0 z-[100] flex items-center justify-center p-4 select-none ${
         closing ? 'animate-fadeOut' : 'animate-fadeIn'
       }`}
+      style={{
+        background: 'rgba(25, 29, 21, 0.45)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+      }}
       onClick={close}
       role="status"
       aria-live="polite"
@@ -55,6 +61,7 @@ export default function GoalCelebration({ celebration, onDone }) {
         className={`bg-surface rounded-[28px] px-6 pt-4 pb-7 w-full max-w-md flex flex-col items-center text-center shadow-2xl ring-1 ring-white/80 border border-border ${
           closing ? 'animate-zoomOutAlert' : 'animate-zoomInAlert'
         }`}
+        onClick={(e) => e.stopPropagation()}
       >
         <DotLottieReact
           src={celebration.lottie || successLottie}
@@ -70,6 +77,7 @@ export default function GoalCelebration({ celebration, onDone }) {
         </h2>
         <p className="text-[12px] text-text-sub font-sans leading-relaxed">{celebration.subtitle}</p>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

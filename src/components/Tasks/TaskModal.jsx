@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Plus, ChevronUp, ChevronDown, Check } from 'lucide-react';
+
+const toTitleCase = (str) => {
+  if (!str) return '';
+  return str
+    .toLowerCase()
+    .split(' ')
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+};
 
 export default function TaskModal({
   isOpen,
@@ -86,7 +96,7 @@ export default function TaskModal({
       completed: taskToEdit ? taskToEdit.completed : false,
       priority: taskToEdit ? taskToEdit.priority : 'NONE',
       accent: selectedProject.color || 'var(--theme-primary)',
-      tag: cleanName,
+      tag: toTitleCase(cleanName),
       index: idNum,
       subtasks: subtasks,
       scheduleType: scheduleType,
@@ -142,12 +152,12 @@ export default function TaskModal({
     }
   };
 
-  return (
+  return createPortal(
     <div
-      className={`fixed inset-0 z-50 flex flex-col items-end justify-end select-none transition-opacity duration-200 ${
+      className={`fixed inset-0 z-[70] flex flex-col items-end justify-end select-none transition-opacity duration-200 ${
         isClosing ? 'opacity-0' : 'opacity-100 animate-fadeIn'
       }`}
-      style={{ background: 'rgba(25, 29, 21, 0.4)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
+      style={{ background: 'rgba(25, 29, 21, 0.45)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
       onClick={onClose}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
@@ -220,7 +230,7 @@ export default function TaskModal({
               <div className="flex items-center gap-3">
                 <div className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: selectedProject.color || 'var(--theme-primary)' }} />
                 <span className="font-sans text-[14px] font-bold text-text-main">
-                  {selectedProject.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' ')}
+                  {toTitleCase(selectedProject.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' '))}
                 </span>
               </div>
               {showTags ? <ChevronUp size={16} className="text-[#444841]" strokeWidth={2.5} /> : <ChevronDown size={16} className="text-text-sub/50" strokeWidth={2.5} />}
@@ -228,8 +238,9 @@ export default function TaskModal({
 
             {showTags && (
               <div className="mt-2 bg-surface border border-border rounded-xl overflow-hidden shadow-lg ring-1 ring-white/60 max-h-48 overflow-y-auto">
-                {projects.map((p, i) => {
+                {projects.map((p) => {
                   const isSel = p.id === selectedProject.id;
+                  const cleanPName = toTitleCase(p.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' '));
                   return (
                     <button
                       key={p.id}
@@ -239,7 +250,7 @@ export default function TaskModal({
                     >
                       <div className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: p.color || 'var(--theme-primary)' }} />
                       <span className={`font-sans text-[14px] ${isSel ? 'font-bold text-primary' : 'font-medium text-[#444841]'}`}>
-                        {p.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' ')}
+                        {cleanPName}
                       </span>
                       {isSel && <Check size={16} className="ml-auto text-secondary font-bold" strokeWidth={3} />}
                     </button>
@@ -251,7 +262,7 @@ export default function TaskModal({
                     onClick={() => { setShowTags(false); onOpenCreateProject(); }}
                     className="w-full flex items-center justify-center gap-2 py-3.5 bg-surface-hover text-secondary font-bold text-xs font-sans hover:bg-border transition-colors"
                   >
-                    <Plus size={14} strokeWidth={3} /> NEW CATEGORY
+                    <Plus size={14} strokeWidth={3} /> New Category
                   </button>
                 )}
               </div>
@@ -364,7 +375,7 @@ export default function TaskModal({
               {Array.from({ length: 12 }).map((_, i) => (
                 <div
                   key={i}
-                  className={`flex-1 rounded-full transition-colors ${i < pomoTotal ? 'bg-secondary' : 'bg-surface-hover'}`}
+                  className={`flex-1 rounded-full transition-colors ${i < pomoTotal ? 'bg-primary' : 'bg-surface-hover'}`}
                 />
               ))}
             </div>
@@ -428,7 +439,7 @@ export default function TaskModal({
             type="button"
             onClick={handleSubmit}
             disabled={!title.trim()}
-            className={`w-full flex items-center justify-center gap-2 rounded-xl py-4 mt-2 transition-all active:scale-[0.98] ${
+            className={`w-full flex items-center justify-center gap-2 rounded-full py-3.5 mt-2 transition-all active:scale-[0.98] ${
               title.trim() 
                 ? 'bg-primary text-white shadow-md shadow-primary/25 ring-1 ring-white/20 hover:bg-primary-hover' 
                 : 'bg-surface-hover text-text-sub/50 border border-border cursor-not-allowed'
@@ -444,6 +455,7 @@ export default function TaskModal({
           <div className="h-4" />
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

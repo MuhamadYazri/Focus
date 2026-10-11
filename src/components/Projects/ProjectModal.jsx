@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Check, Briefcase, BookOpen, Heart, Rocket, Code, Star, Target, Zap, Coffee, Music } from 'lucide-react';
 
 const COLOR_PALETTE = [
@@ -52,9 +53,14 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
     onClose();
   };
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center p-4 bg-black/20 backdrop-blur-sm animate-fadeIn select-none"
+      className="fixed inset-0 z-[70] flex flex-col items-center justify-center p-4 animate-fadeIn select-none"
+      style={{
+        background: 'rgba(25, 29, 21, 0.45)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+      }}
       onClick={onClose}
     >
       <div
@@ -90,7 +96,7 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
               autoFocus
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. WORK_PROJECTS"
+              placeholder="e.g. Deep Work, Learning"
               className="w-full bg-canvas border border-border rounded-xl px-4 py-3 text-sm font-sans text-text-main outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-text-sub/50 shadow-inner"
             />
           </div>
@@ -149,19 +155,20 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl text-xs font-bold text-text-sub hover:bg-surface-hover hover:text-text-main transition-colors font-sans shadow-2xs"
+              className="px-5 py-2.5 rounded-full text-xs font-semibold text-text-sub hover:bg-surface-hover hover:text-text-main transition-colors font-sans border border-border bg-[#F4F0E8] shadow-2xs active:scale-95"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 rounded-xl text-xs font-bold bg-primary text-white hover:bg-primary-hover active:scale-95 transition-all shadow-md shadow-primary/25 ring-1 ring-white/20 font-sans"
+              className="px-6 py-2.5 rounded-full text-xs font-bold bg-primary text-white hover:bg-primary-hover active:scale-95 transition-all shadow-md shadow-primary/25 ring-1 ring-white/20 font-sans"
             >
               {projectToEdit ? 'Save Category' : 'Create Category'}
             </button>
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

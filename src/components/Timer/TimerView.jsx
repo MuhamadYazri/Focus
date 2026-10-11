@@ -490,6 +490,7 @@ function TimerView({
                   </div>
                 </div>
                 <button
+                  aria-label="Toggle strict mode"
                   onClick={() => {
                     iconRefs.current.lock?.startAnimation();
                     setTimeout(() => {
@@ -499,11 +500,15 @@ function TimerView({
                       if (onToggleStrictMode) onToggleStrictMode();
                     }, 50);
                   }}
-                  className={`w-11 h-6 rounded-full p-0.5 flex items-center shadow-inner cursor-pointer transition-all ${
-                    strictMode ? 'bg-secondary justify-end' : 'bg-border justify-start'
+                  className={`relative w-11 h-6 rounded-full p-0.5 transition-colors duration-200 ease-out cursor-pointer shadow-inner ${
+                    strictMode ? 'bg-primary ring-1 ring-primary/40' : 'bg-[#DDD6C8]/80'
                   }`}
                 >
-                  <div className="w-5 h-5 rounded-full bg-surface shadow-xs transition-transform"></div>
+                  <div
+                    className={`w-5 h-5 rounded-full bg-surface shadow-xs ring-1 ring-black/5 transform transition-transform duration-200 ease-out ${
+                      strictMode ? 'translate-x-5' : 'translate-x-0'
+                    }`}
+                  />
                 </button>
               </div>
             </div>

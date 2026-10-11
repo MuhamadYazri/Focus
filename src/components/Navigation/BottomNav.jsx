@@ -1,10 +1,15 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { LayoutGridIcon as LayoutGrid, HourglassIcon as Timer, TrendingUpIcon as BarChart2, UserIcon as User } from 'lucide-animated';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  LayoutGridIcon as LayoutGrid,
+  HourglassIcon as Timer,
+  TrendingUpIcon as BarChart2,
+  UserIcon as User,
+} from 'lucide-animated';
 
 const NAV_ITEMS = [
-  { key: 'home',    label: 'Home',    Icon: LayoutGrid },
-  { key: 'timer',   label: 'Timer',   Icon: Timer },
+  { key: 'home', label: 'Home', Icon: LayoutGrid },
+  { key: 'timer', label: 'Timer', Icon: Timer },
   { key: 'reports', label: 'Reports', Icon: BarChart2 },
   { key: 'profile', label: 'Profile', Icon: User },
 ];
@@ -37,29 +42,41 @@ function BottomNav({ activeTab, setActiveTab, isHidden = false }) {
                   }
                 }}
                 className={`relative flex-1 min-h-[44px] rounded-full flex items-center justify-center transition-colors z-0 ${
-                  on 
-                    ? 'gap-2 px-3.5 text-white' 
-                    : 'text-text-sub hover:text-primary active:scale-95'
+                  on ? 'text-white' : 'text-text-sub hover:text-primary active:scale-95'
                 }`}
               >
                 {on && (
                   <motion.div
                     layoutId="fluidNavTab"
                     className="absolute inset-0 bg-primary rounded-full shadow-md z-[-1]"
-                    transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
+                    transition={{ type: 'spring', bounce: 0.15, duration: 0.5 }}
                   />
                 )}
                 <div className="relative z-10 flex items-center justify-center gap-2">
-                  <Icon 
-                    ref={el => iconRefs.current[key] = el}
+                  <Icon
+                    ref={(el) => (iconRefs.current[key] = el)}
                     animateOnHover={false}
-                    size={on ? 18 : 20} 
-                    strokeWidth={on ? 2.5 : 2} 
+                    size={on ? 18 : 20}
+                    strokeWidth={on ? 2.5 : 2}
                   />
                   {on && (
-                    <span className="text-[13px] font-semibold tracking-tight font-sans">
-                      {label}
-                    </span>
+                    <div className="overflow-hidden relative h-[18px] flex items-center">
+                      <motion.span
+                        key={key}
+                        initial={{ y: '100%', opacity: 0 }}
+                        animate={{ y: '0%', opacity: 1 }}
+                        exit={{ y: '-100%', opacity: 0 }}
+                        transition={{
+                          type: 'spring',
+                          stiffness: 450,
+                          damping: 32,
+                          mass: 0.8,
+                        }}
+                        className="text-[13px] font-semibold tracking-tight font-sans whitespace-nowrap block"
+                      >
+                        {label}
+                      </motion.span>
+                    </div>
                   )}
                 </div>
               </button>

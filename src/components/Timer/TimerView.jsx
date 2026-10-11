@@ -207,7 +207,7 @@ function TimerView({
             {/* Wrapper to restore pointer events for children */}
             <div className="pointer-events-auto">
               <div
-                className="w-full bg-surface border border-border rounded-full p-1.5 flex items-center justify-between shadow-lg mb-4"
+                className="w-full bg-surface border border-border rounded-full p-1.5 flex items-center justify-between shadow-sm mb-4"
                 onClick={stopProp}
               >
                 {MODE_TABS.map(({ key, label }) => {

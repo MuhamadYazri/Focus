@@ -239,7 +239,7 @@ export default function App() {
             await ForegroundService.requestPermissions();
           }
 
-          const modeLabel = timerMode === 'work' ? 'Focus Session' : (timerMode === 'shortBreak' ? 'Short Break' : 'Long Break');
+          const modeLabel = timerMode === 'work' ? 'Focus' : (timerMode === 'shortBreak' ? 'Short Break' : (timerMode === 'stopwatch' ? 'Focus' : 'Long Break'));
           const mins = Math.floor(timeLeft / 60);
           const rem = timeLeft % 60;
           const formattedTime = `${mins.toString().padStart(2, '0')}:${rem.toString().padStart(2, '0')}`;
@@ -249,7 +249,7 @@ export default function App() {
             id: 1993,
             title: modeLabel,
             body: `${prefix}${formattedTime}`,
-            smallIcon: 'ic_stat_icon',
+            smallIcon: 'ic_stat_focus_text',
             serviceType: 1073741824 // FOREGROUND_SERVICE_TYPE_SPECIAL_USE
           });
         } catch (e) {
@@ -330,13 +330,13 @@ export default function App() {
               const mins = Math.floor(nextVal / 60);
               const rem = nextVal % 60;
               const formattedTime = `${mins.toString().padStart(2, '0')}:${rem.toString().padStart(2, '0')}`;
-              const modeLabel = timerMode === 'work' ? 'Focus Session' : (timerMode === 'shortBreak' ? 'Short Break' : 'Long Break');
+              const modeLabel = timerMode === 'work' ? 'Focus' : (timerMode === 'shortBreak' ? 'Short Break' : (timerMode === 'stopwatch' ? 'Focus' : 'Long Break'));
               const prefix = timerMode === 'stopwatch' ? 'CHRONO_UP:' : 'CHRONO:';
               ForegroundService.updateForegroundService({
                 id: 1993,
                 title: modeLabel,
                 body: `${prefix}${formattedTime}`,
-                smallIcon: 'ic_stat_icon',
+                smallIcon: 'ic_stat_focus_text',
                 silent: true,
                 serviceType: 1073741824 // FOREGROUND_SERVICE_TYPE_SPECIAL_USE
               }).catch(() => {});

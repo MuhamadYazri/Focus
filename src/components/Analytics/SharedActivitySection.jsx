@@ -231,11 +231,16 @@ function SharedActivitySection({
         const progressRatio = slotGoalMins > 0 ? mins / slotGoalMins : 0;
         const isGoalMet = slotGoalMins > 0 && mins >= slotGoalMins;
 
+        const nowStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const dStart = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        const diffDays = Math.round((dStart - nowStart) / (1000 * 60 * 60 * 24));
+
         return {
           h: label,
           mins,
           val: mins > 0 ? formatTimeNoDecimals(mins) : '0h',
           isCurrent: dStr === targetStr,
+          targetOffset: diffDays,
           v: Math.min(1, progressRatio),
           progressRatio,
           isGoalMet,
@@ -303,7 +308,8 @@ function SharedActivitySection({
           h: label,
           mins,
           val: mins > 0 ? formatTimeNoDecimals(mins) : '0h',
-          isCurrent: i === 0,
+          isCurrent: i === (offset >= -3 && offset <= 0 ? offset : 0),
+          targetOffset: i,
           v: Math.min(1, progressRatio),
           progressRatio,
           isGoalMet,
@@ -378,6 +384,7 @@ function SharedActivitySection({
           mins,
           val: mins > 0 ? formatTimeNoDecimals(mins) : '0h',
           isCurrent: idx === moNum,
+          targetOffset: idx - now.getMonth(),
           v: Math.min(1, progressRatio),
           progressRatio,
           isGoalMet,
@@ -606,7 +613,14 @@ function SharedActivitySection({
               const isGoalMet = !!cell?.isGoalMet;
               const fillPct = cell?.fillPct || 0;
               const isToday = !!cell?.isToday;
-              const isSelected = period === 'Daily' && isCur;
+              const isSelected =
+                period === 'Daily'
+                  ? isCur
+                  : period === 'Weekly'
+                  ? isCur
+                  : period === 'Monthly'
+                  ? isCur && isSameMo
+                  : false;
 
               // Track capsule styling identical to column chart
               let trackClass = 'bg-canvas text-text-main/80 font-medium';
@@ -627,13 +641,25 @@ function SharedActivitySection({
               const handleCellClick = () => {
                 if (!cell?.dateStr) return;
                 if (window.navigator?.vibrate) window.navigator.vibrate(10);
+                const now = new Date();
+                const [y, m, d] = cell.dateStr.split('-').map(Number);
+                const cellDate = new Date(y, m - 1, d);
+
                 if (period === 'Daily') {
-                  const now = new Date();
                   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                  const [y, m, d] = cell.dateStr.split('-').map(Number);
-                  const cellDate = new Date(y, m - 1, d);
                   const diffDays = Math.round((cellDate - todayStart) / (1000 * 60 * 60 * 24));
                   setOffset(diffDays);
+                } else if (period === 'Weekly') {
+                  const nowDayOfWeek = now.getDay() || 7;
+                  const currentMon = new Date(now.getFullYear(), now.getMonth(), now.getDate() - nowDayOfWeek + 1);
+                  const cellDayOfWeek = cellDate.getDay() || 7;
+                  const cellMon = new Date(cellDate.getFullYear(), cellDate.getMonth(), cellDate.getDate() - cellDayOfWeek + 1);
+                  const diffWeeks = Math.round((cellMon - currentMon) / (1000 * 60 * 60 * 24 * 7));
+                  setOffset(diffWeeks);
+                } else if (period === 'Monthly') {
+                  const currentYearMonth = now.getFullYear() * 12 + now.getMonth();
+                  const cellYearMonth = cellDate.getFullYear() * 12 + cellDate.getMonth();
+                  setOffset(cellYearMonth - currentYearMonth);
                 }
               };
 
@@ -705,8 +731,19 @@ function SharedActivitySection({
             const isGoalMet = !!slot.isGoalMet;
             const barH = hasVal ? Math.max(8, Math.min(64, Math.round(slot.v * 64))) : 0;
 
+            const handleSlotClick = () => {
+              if (slot.targetOffset !== undefined) {
+                if (window.navigator?.vibrate) window.navigator.vibrate(10);
+                setOffset(slot.targetOffset);
+              }
+            };
+
             return (
-              <div key={slot.h} className="flex flex-col items-center gap-1.5 min-w-0">
+              <div
+                key={slot.h}
+                onClick={handleSlotClick}
+                className="flex flex-col items-center gap-1.5 min-w-0 cursor-pointer active:scale-95 transition-transform"
+              >
                 <span
                   className={`text-[10px] font-sans transition-colors ${
                     isGoalMet
@@ -724,7 +761,7 @@ function SharedActivitySection({
                 {/* Tactile track capsule with seamless flush fill */}
                 <div
                   className={`w-full h-16 bg-[#EDE7DA]/60 rounded-full flex flex-col justify-end overflow-hidden shadow-2xs relative ${
-                    isSelected ? 'ring-1 ring-primary/40' : ''
+                    isSelected ? 'ring-2 ring-primary ring-offset-1 ring-offset-surface z-10' : ''
                   }`}
                 >
                   {hasVal && (

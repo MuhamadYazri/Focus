@@ -18,6 +18,7 @@ import clockTickingLottie from './assets/clockTicking.lottie';
 import relaxLottie from './assets/relaxAnimation.lottie';
 import catSleepLottie from './assets/catSleepAnimation.lottie';
 import { ForegroundService } from '@capawesome-team/capacitor-android-foreground-service';
+import SplitRevealPreloader from './components/animata/preloader/SplitRevealPreloader';
 
 const getLocalDateStr = (d) => {
   try {
@@ -66,6 +67,7 @@ export default function App() {
   const [sessions, setSessions] = useState([]);
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [showPreloader, setShowPreloader] = useState(true);
 
   // Timer State
   const [timerMode, setTimerMode] = useState('work');
@@ -512,11 +514,7 @@ export default function App() {
   };
 
   if (!isLoaded) {
-    return (
-      <div className="min-h-screen flex items-center justify-center font-mono font-bold text-xs animate-pulse tracking-widest" style={{ background: 'var(--canvas)', color: 'var(--text-primary)' }}>
-        INITIALIZING FOCUS LEDGER // SOLO_OS...
-      </div>
-    );
+    return <SplitRevealPreloader />;
   }
 
   const getTotalTimeForMode = () => {
@@ -669,6 +667,11 @@ export default function App() {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
+      {/* App Launch Split Reveal Animation */}
+      {showPreloader && (
+        <SplitRevealPreloader onFinish={() => setShowPreloader(false)} />
+      )}
+
       {/* Tab Screens (Pre-mounted for instant 0ms switching) */}
       <main className={`flex-1 relative ${isNavHidden ? 'overflow-hidden' : 'overflow-x-hidden'}`}>
         <div className="relative w-full min-h-full">

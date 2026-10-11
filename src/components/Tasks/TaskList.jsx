@@ -5,6 +5,135 @@ import fireWebm from '../../assets/fireAnimation.webm';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import emptyLottie from '../../assets/emptyAnimation.lottie';
 
+const TaskListItem = React.memo(function TaskListItem({
+  task,
+  project,
+  isJust,
+  isCurrentFocus,
+  onEditTask,
+  onToggleComplete,
+  onStartPomodoro,
+}) {
+  const cleanProjectName = project
+    ? project.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' ')
+    : null;
+
+  return (
+    <article
+      className={`group bg-surface border rounded-full p-2.5 pl-4 flex items-center justify-between shadow-xs transition-all hover:shadow-sm active:scale-[0.99] cursor-pointer ${
+        isCurrentFocus
+          ? 'border-secondary/60 ring-2 ring-secondary/30 shadow-sm'
+          : 'border-border ring-1 ring-white/60'
+      } ${task.completed ? 'opacity-60 bg-surface/70' : ''} ${
+        isJust ? 'animate-task-exit' : ''
+      }`}
+      onClick={() => onEditTask && onEditTask(task)}
+    >
+      <div className="flex items-center gap-3 min-w-0 pr-2">
+        <button
+          aria-label="Toggle Complete"
+          onClick={(e) => {
+            e.stopPropagation();
+            if (window.navigator?.vibrate) window.navigator.vibrate(15);
+            onToggleComplete && onToggleComplete(task.id);
+          }}
+          className="p-1.5 -m-1.5 flex items-center justify-center shrink-0"
+        >
+          <div
+            className={`w-6 h-6 rounded-full border flex items-center justify-center shrink-0 transition-colors shadow-2xs ${
+              task.completed
+                ? 'bg-secondary border-secondary text-white'
+                : 'border-border bg-[#F4F1EA] group-hover:border-secondary'
+            } ${isJust ? 'animate-check-pop' : ''}`}
+          >
+            {task.completed ? (
+              isJust ? (
+                <svg
+                  className="check-draw"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="3.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M5 12.5l4.5 4.5L19 7" />
+                </svg>
+              ) : (
+                <Check size={12} className="text-white" />
+              )
+            ) : (
+              <span className="w-3.5 h-3.5 rounded-full bg-surface shadow-inner"></span>
+            )}
+          </div>
+        </button>
+        <div className="flex flex-col min-w-0">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <h3 className="text-[15px] font-bold text-primary truncate font-sans">
+              <span
+                className={
+                  isJust ? 'strike-anim' : task.completed ? 'line-through' : ''
+                }
+              >
+                {task.title}
+              </span>
+            </h3>
+            {isCurrentFocus && (
+              <span className="shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-secondary/15 text-secondary text-[9px] font-mono font-bold tracking-wider animate-pulse">
+                <span className="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                FOCUS
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-2 mt-0.5">
+            {cleanProjectName && (
+              <>
+                <span
+                  className="w-2 h-2 rounded-full shrink-0"
+                  style={{
+                    backgroundColor: project?.color || 'var(--theme-secondary)',
+                  }}
+                ></span>
+                <span className="font-mono text-[10px] text-[#636F5A] tracking-wider font-semibold uppercase truncate max-w-[110px]">
+                  {cleanProjectName}
+                </span>
+              </>
+            )}
+            {task.estimatedPomos && (
+              <span className="font-mono text-[11px] text-[#8D9A82] shrink-0">
+                {task.completedPomos || 0}/{task.estimatedPomos} pomos
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+      {!task.completed && (
+        <button
+          aria-label={isCurrentFocus ? 'Pause Focus' : 'Start Pomodoro'}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (window.navigator?.vibrate) window.navigator.vibrate(10);
+            onStartPomodoro && onStartPomodoro(task);
+          }}
+          className={`w-11 h-11 rounded-full flex items-center justify-center shrink-0 transition-all active:scale-95 ${
+            isCurrentFocus
+              ? 'bg-secondary text-white shadow-sm ring-2 ring-secondary/30 animate-pulse'
+              : 'bg-[#F4F1EA] border border-border/60 text-primary hover:bg-secondary hover:text-white shadow-xs ring-1 ring-white/80'
+          }`}
+        >
+          {isCurrentFocus ? (
+            <Pause size={16} className="fill-current" />
+          ) : (
+            <Play size={16} className="translate-x-0.5 fill-current" />
+          )}
+        </button>
+      )}
+    </article>
+  );
+});
+
 function TaskList({
   tasks = [],
   projects = [],
@@ -359,127 +488,20 @@ function TaskList({
           ) : (
             filteredTasks.map((task) => {
               const project = projects.find((p) => p.id === task.projectId);
-              const cleanProjectName = project
-                ? project.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' ')
-                : null;
-
               const isJust = justCompletedId === task.id && task.completed;
               const isCurrentFocus = activeTaskId === task.id && isTimerRunning;
-              const subtasks = Array.isArray(task.subtasks) ? task.subtasks : [];
-              const completedSubtasksCount = subtasks.filter((s) => s.completed).length;
 
               return (
-                <article
+                <TaskListItem
                   key={task.id}
-                  className={`group bg-surface border rounded-full p-2.5 pl-4 flex items-center justify-between shadow-xs transition-all hover:shadow-sm active:scale-[0.99] cursor-pointer ${
-                    isCurrentFocus
-                      ? 'border-secondary/60 ring-2 ring-secondary/30 shadow-sm'
-                      : 'border-border ring-1 ring-white/60'
-                  } ${task.completed ? 'opacity-60 bg-surface/70' : ''} ${
-                    isJust ? 'animate-task-exit' : ''
-                  }`}
-                  onClick={() => onEditTask && onEditTask(task)}
-                >
-                  <div className="flex items-center gap-3 min-w-0 pr-2">
-                    <button
-                      aria-label="Toggle Complete"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onToggleComplete && onToggleComplete(task.id);
-                      }}
-                      className="p-1.5 -m-1.5 flex items-center justify-center shrink-0"
-                    >
-                      <div
-                        className={`w-6 h-6 rounded-full border flex items-center justify-center shrink-0 transition-colors shadow-2xs ${
-                          task.completed
-                            ? 'bg-secondary border-secondary text-white'
-                            : 'border-border bg-[#F4F1EA] group-hover:border-secondary'
-                        } ${isJust ? 'animate-check-pop' : ''}`}
-                      >
-                        {task.completed ? (
-                          isJust ? (
-                            <svg
-                              className="check-draw"
-                              width="14"
-                              height="14"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="white"
-                              strokeWidth="3.2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            >
-                              <path d="M5 12.5l4.5 4.5L19 7" />
-                            </svg>
-                          ) : (
-                            <Check size={12} className="text-white" />
-                          )
-                        ) : (
-                          <span className="w-3.5 h-3.5 rounded-full bg-surface shadow-inner"></span>
-                        )}
-                      </div>
-                    </button>
-                    <div className="flex flex-col min-w-0">
-                      <div className="flex items-center gap-1.5 min-w-0">
-                        <h3 className="text-[15px] font-bold text-primary truncate font-sans">
-                          <span
-                            className={
-                              isJust ? 'strike-anim' : task.completed ? 'line-through' : ''
-                            }
-                          >
-                            {task.title}
-                          </span>
-                        </h3>
-                        {isCurrentFocus && (
-                          <span className="shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-secondary/15 text-secondary text-[9px] font-mono font-bold tracking-wider animate-pulse">
-                            <span className="w-1.5 h-1.5 rounded-full bg-secondary"></span>
-                            FOCUS
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        {cleanProjectName && (
-                          <>
-                            <span
-                              className="w-2 h-2 rounded-full shrink-0"
-                              style={{
-                                backgroundColor: project?.color || 'var(--theme-secondary)',
-                              }}
-                            ></span>
-                            <span className="font-mono text-[10px] text-[#636F5A] tracking-wider font-semibold uppercase truncate max-w-[110px]">
-                              {cleanProjectName}
-                            </span>
-                          </>
-                        )}
-                        {task.estimatedPomos && (
-                          <span className="font-mono text-[11px] text-[#8D9A82] shrink-0">
-                            {task.completedPomos || 0}/{task.estimatedPomos} pomos
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  {!task.completed && (
-                    <button
-                      aria-label={isCurrentFocus ? 'Pause Focus' : 'Start Pomodoro'}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onStartPomodoro && onStartPomodoro(task);
-                      }}
-                      className={`w-11 h-11 rounded-full flex items-center justify-center shrink-0 transition-all active:scale-95 ${
-                        isCurrentFocus
-                          ? 'bg-secondary text-white shadow-sm ring-2 ring-secondary/30 animate-pulse'
-                          : 'bg-[#F4F1EA] border border-border/60 text-primary hover:bg-secondary hover:text-white shadow-xs ring-1 ring-white/80'
-                      }`}
-                    >
-                      {isCurrentFocus ? (
-                        <Pause size={16} className="fill-current" />
-                      ) : (
-                        <Play size={16} className="translate-x-0.5 fill-current" />
-                      )}
-                    </button>
-                  )}
-                </article>
+                  task={task}
+                  project={project}
+                  isJust={isJust}
+                  isCurrentFocus={isCurrentFocus}
+                  onEditTask={onEditTask}
+                  onToggleComplete={onToggleComplete}
+                  onStartPomodoro={onStartPomodoro}
+                />
               );
             })
           )}

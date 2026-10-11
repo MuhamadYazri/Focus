@@ -297,13 +297,15 @@ function TimerView({
               isImmersive ? 'opacity-100 max-h-[400px] mt-12' : 'opacity-0 max-h-0 mt-0'
             }`}
           >
-            <DotLottieReact
-              key={currentLottie}
-              src={currentLottie}
-              loop
-              autoplay
-              className="w-full h-auto object-contain mix-blend-multiply opacity-90"
-            />
+            {isImmersive && (
+              <DotLottieReact
+                key={currentLottie}
+                src={currentLottie}
+                loop
+                autoplay
+                className="w-full h-auto object-contain mix-blend-multiply opacity-90"
+              />
+            )}
           </div>
         </div>
 

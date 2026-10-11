@@ -13,13 +13,14 @@ import { storage, DEFAULT_PROJECTS, DEFAULT_TASKS, DEFAULT_SETTINGS } from './se
 import { soundEngine } from './services/soundEngine';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { KeepAwake } from '@capacitor-community/keep-awake';
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import clockTickingLottie from './assets/clockTicking.lottie';
 import relaxLottie from './assets/relaxAnimation.lottie';
 import catSleepLottie from './assets/catSleepAnimation.lottie';
 import { ForegroundService } from '@capawesome-team/capacitor-android-foreground-service';
 import SplitRevealPreloader from './components/animata/preloader/SplitRevealPreloader';
 import TimeframeHeader from './components/Analytics/TimeframeHeader';
+import UndoToast from './components/Feedback/UndoToast';
+import GoalCelebration from './components/Feedback/GoalCelebration';
 
 const getLocalDateStr = (d) => {
   try {
@@ -84,23 +85,10 @@ export default function App() {
   const [cycleCount, setCycleCount] = useState(0);
   const [activeTask, setActiveTask] = useState(null);
   const [currentSound, setCurrentSound] = useState('none');
-  const [sessionDoneAlert, setSessionDoneAlert] = useState(null);
-  const [alertLottieRef, setAlertLottieRef] = useState(null);
-  const [isAlertClosing, setIsAlertClosing] = useState(false);
 
-  useEffect(() => {
-    if (alertLottieRef) {
-      const handleComplete = () => {
-        setIsAlertClosing(true);
-        setTimeout(() => {
-          setSessionDoneAlert(null);
-          setIsAlertClosing(false);
-        }, 300);
-      };
-      alertLottieRef.addEventListener('complete', handleComplete);
-      return () => alertLottieRef.removeEventListener('complete', handleComplete);
-    }
-  }, [alertLottieRef]);
+  // Queue of full-width lottie modals (session done, break done, daily goal)
+  const [celebrations, setCelebrations] = useState([]);
+  const celebrationIdRef = useRef(0);
 
   const [isNavHidden, setIsNavHidden] = useState(false);
 
@@ -110,6 +98,10 @@ export default function App() {
   const [projectModalOpen, setProjectModalOpen] = useState(false);
   const [projectToEdit, setProjectToEdit] = useState(null);
   const [strictModalOpen, setStrictModalOpen] = useState(false);
+
+  // UX feedback state
+  const [toast, setToast] = useState(null);
+  const [justCompletedId, setJustCompletedId] = useState(null);
 
   const timerRef = useRef(null);
   const lastTickRef = useRef(null);
@@ -372,10 +364,10 @@ export default function App() {
       window.navigator.vibrate([100, 50, 100, 50, 200]);
     }
 
-    setSessionDoneAlert({
-      mode: timerMode,
+    enqueueCelebration({
       title: timerMode === 'work' ? `Session ${cycleCount + 1} Completed` : 'Break Completed',
       subtitle: timerMode === 'work' ? 'Great focus! Enjoy a moment of calm.' : 'Refreshed? Ready to focus again?',
+      lottie: clockTickingLottie,
     });
 
     if (timerMode === 'work') {
@@ -495,22 +487,78 @@ export default function App() {
     if (activeTask && activeTask.id === id) setActiveTask(null);
   };
 
+  const showToast = useCallback((message, onUndo) => {
+    setToast({ id: Date.now(), message, onUndo });
+  }, []);
+
+  const dismissToast = useCallback((id) => {
+    setToast((cur) => (cur && cur.id === id ? null : cur));
+  }, []);
+
+  const enqueueCelebration = useCallback((item) => {
+    celebrationIdRef.current += 1;
+    const id = celebrationIdRef.current;
+    setCelebrations((q) => [...q, { ...item, id }]);
+  }, []);
+
+  const dismissCelebration = useCallback((id) => {
+    setCelebrations((q) => q.filter((c) => c.id !== id));
+  }, []);
+
+  const triggerCelebration = useCallback(
+    (title, subtitle) => {
+      enqueueCelebration({ title, subtitle });
+      if (window.navigator?.vibrate) window.navigator.vibrate([15, 40, 15, 40, 30]);
+    },
+    [enqueueCelebration]
+  );
+
+  // Celebrate once when today's focus time crosses the daily goal.
+  const goalMetRef = useRef(null);
+  useEffect(() => {
+    if (!isLoaded) return;
+    const todayStr = getLocalDateStr();
+    const todayMins = (sessions || []).reduce((acc, s) => {
+      if (!s || typeof s !== 'object') return acc;
+      const sDt = s.dateStr || (typeof s.completedAt === 'string' ? s.completedAt.split('T')[0] : '');
+      return sDt === todayStr ? acc + (Number(s.duration) || 25) : acc;
+    }, 0);
+    const goalHours = Number(settings?.dailyGoalHours) || 4;
+    const met = todayMins >= goalHours * 60;
+    if (goalMetRef.current === false && met) {
+      triggerCelebration('Daily goal reached!', `${goalHours}h of focus completed today`);
+    }
+    goalMetRef.current = met;
+  }, [sessions, settings?.dailyGoalHours, isLoaded, triggerCelebration]);
+
   const handleToggleComplete = (id) => {
     const todayStr = getLocalDateStr();
+    const target = tasks.find((t) => t.id === id);
+    if (!target) return;
+    const nextCompleted = !target.completed;
+
     setTasks((prev) =>
-      prev.map((t) => {
-        if (t.id === id) {
-          const nextCompleted = !t.completed;
-          return {
-            ...t,
-            completed: nextCompleted,
-            completedDateStr: nextCompleted ? todayStr : null,
-            completedAt: nextCompleted ? new Date().toISOString() : null,
-          };
-        }
-        return t;
-      })
+      prev.map((t) =>
+        t.id === id
+          ? {
+              ...t,
+              completed: nextCompleted,
+              completedDateStr: nextCompleted ? todayStr : null,
+              completedAt: nextCompleted ? new Date().toISOString() : null,
+            }
+          : t
+      )
     );
+
+    if (nextCompleted) {
+      setJustCompletedId(id);
+      setTimeout(() => setJustCompletedId((cur) => (cur === id ? null : cur)), 1100);
+      if (window.navigator?.vibrate) window.navigator.vibrate([10, 30, 14]);
+      showToast('Task completed', () => {
+        setTasks((prev) => prev.map((t) => (t.id === id ? { ...target } : t)));
+        setJustCompletedId(null);
+      });
+    }
   };
 
   const handleToggleSubtask = (taskId, subId) => {
@@ -587,6 +635,7 @@ export default function App() {
           }}
           onDeleteTask={handleDeleteTask}
           onToggleComplete={handleToggleComplete}
+          justCompletedId={justCompletedId}
           onToggleSubtask={handleToggleSubtask}
           onStartPomodoro={handleStartPomodoroForTask}
           onAddProject={() => {
@@ -886,25 +935,10 @@ export default function App() {
         }}
       />
 
-      {/* Fullscreen Session Completion Modal */}
-      {sessionDoneAlert && (
-        <div className={`fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/20 backdrop-blur-sm ${isAlertClosing ? 'animate-fadeOut' : 'animate-fadeIn'}`}>
-          <div className={`bg-surface rounded-[28px] p-6 max-w-[280px] w-full flex flex-col items-center text-center shadow-2xl ring-1 ring-white/80 border border-border ${isAlertClosing ? 'animate-zoomOutAlert' : 'animate-zoomInAlert'}`}>
-            <DotLottieReact
-              src={clockTickingLottie}
-              autoplay
-              dotLottieRefCallback={setAlertLottieRef}
-              className="w-28 h-28 mb-3 opacity-90 mix-blend-multiply"
-            />
-            <h2 className="text-[17px] font-bold text-text-main mb-1.5 font-sans tracking-tight">
-              {sessionDoneAlert.title}
-            </h2>
-            <p className="text-[12px] text-text-sub font-sans leading-relaxed">
-              {sessionDoneAlert.subtitle}
-            </p>
-          </div>
-        </div>
-      )}
+      {/* UX feedback layers */}
+      <UndoToast toast={toast} onDismiss={dismissToast} />
+      {/* Shared full-width modal: session done, break done, daily goal (queued one at a time) */}
+      <GoalCelebration celebration={celebrations[0] || null} onDone={dismissCelebration} />
 
     </div>
   );

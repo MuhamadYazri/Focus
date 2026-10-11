@@ -14,6 +14,7 @@ function TaskList({
   onAddTask,
   onEditTask,
   onToggleComplete,
+  justCompletedId = null,
   onStartPomodoro,
 }) {
   const getLocalDateStr = (d) => {
@@ -89,6 +90,13 @@ function TaskList({
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {
       if (selectedProjectId && task.projectId !== selectedProjectId) return false;
+      if (
+        justCompletedId === task.id &&
+        task.completed &&
+        (filterTab === 'Today' || filterTab === 'This Week' || filterTab === 'Planned')
+      ) {
+        return true; // keep visible while the completion animation plays
+      }
       const st = task.scheduleType || 'today';
       if (filterTab === 'Archive') return task.completed && st !== 'daily' && st !== 'weekly';
 
@@ -123,7 +131,7 @@ function TaskList({
       }
       return true;
     });
-  }, [tasks, selectedProjectId, filterTab, todayStr]);
+  }, [tasks, selectedProjectId, filterTab, todayStr, justCompletedId]);
 
   const activeCount = useMemo(() => tasks.filter((t) => !t.completed).length, [tasks]);
 
@@ -306,12 +314,14 @@ function TaskList({
                 ? project.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' ')
                 : null;
 
+              const isJust = justCompletedId === task.id && task.completed;
+
               return (
                 <article
                   key={task.id}
                   className={`group bg-surface border border-border rounded-full p-2.5 pl-4 flex items-center justify-between shadow-xs ring-1 ring-white/60 transition-all hover:shadow-sm active:scale-[0.99] cursor-pointer ${
                     task.completed ? 'opacity-60 bg-surface/70' : ''
-                  }`}
+                  } ${isJust ? 'animate-task-exit' : ''}`}
                   onClick={() => onEditTask && onEditTask(task)}
                 >
                   <div className="flex items-center gap-3.5 min-w-0 pr-2">
@@ -325,21 +335,39 @@ function TaskList({
                         task.completed
                           ? 'bg-secondary border-secondary text-white'
                           : 'border-border bg-[#F4F1EA] hover:border-secondary'
-                      }`}
+                      } ${isJust ? 'animate-check-pop' : ''}`}
                     >
                       {task.completed ? (
-                        <Check size={12} className="text-white" />
+                        isJust ? (
+                          <svg
+                            className="check-draw"
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="white"
+                            strokeWidth="3.2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M5 12.5l4.5 4.5L19 7" />
+                          </svg>
+                        ) : (
+                          <Check size={12} className="text-white" />
+                        )
                       ) : (
                         <span className="w-3.5 h-3.5 rounded-full bg-surface shadow-inner"></span>
                       )}
                     </button>
                     <div className="flex flex-col min-w-0">
-                      <h3
-                        className={`text-[15px] font-bold text-primary truncate font-sans ${
-                          task.completed ? 'line-through' : ''
-                        }`}
-                      >
-                        {task.title}
+                      <h3 className="text-[15px] font-bold text-primary truncate font-sans">
+                        <span
+                          className={
+                            isJust ? 'strike-anim' : task.completed ? 'line-through' : ''
+                          }
+                        >
+                          {task.title}
+                        </span>
                       </h3>
                       <div className="flex items-center gap-2 mt-0.5">
                         {cleanProjectName && (

@@ -29,3 +29,9 @@ replace.js
 stitch_hybrid_design_system_redesign
 Trace-20261011T103045.json
 Trace-20261011T110151.json
+
+# Keystores & Signing
+*.keystore
+*.jks
+keystore.properties
+Focus*

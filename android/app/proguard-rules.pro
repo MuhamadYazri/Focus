@@ -12,10 +12,17 @@
 #   public *;
 #}
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# Hide source file attributes
+-renamesourcefileattribute SourceFile
+-keepattributes SourceFile,LineNumberTable
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# Capacitor core and plugin protections
+-keep public class * extends com.getcapacitor.Plugin
+-keep public class com.getcapacitor.** { *; }
+-keepclassmembers class * {
+    @android.webkit.JavascriptInterface <methods>;
+}
+-dontwarn com.getcapacitor.**
+
+# Foreground Service plugin
+-keep class io.capawesome.capacitorjs.plugins.foregroundservice.** { *; }

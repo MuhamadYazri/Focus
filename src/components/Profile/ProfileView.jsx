@@ -771,6 +771,27 @@ function ProfileView({
               <span className="font-sans">RESET</span>
             </button>
           </div>
+
+          {/* App Version, Copyright & Attribution Badge */}
+          <div className="flex flex-col items-center justify-center py-4 text-center select-none space-y-1">
+            <span className="text-[11px] font-semibold text-text-sub tracking-wider uppercase opacity-75">
+              Focus v1.0.1
+            </span>
+            <span className="text-[10px] text-text-sub/70">
+              © 2026 Muhamad Yazri. All rights reserved.
+            </span>
+            <span className="text-[10px] text-text-sub/60">
+              Animations credit to creators on{' '}
+              <a
+                href="https://app.lottiefiles.com"
+                target="_blank"
+                rel="noreferrer"
+                className="underline hover:text-text-main transition-colors"
+              >
+                LottieFiles
+              </a>
+            </span>
+          </div>
         </div>
       </div>
 

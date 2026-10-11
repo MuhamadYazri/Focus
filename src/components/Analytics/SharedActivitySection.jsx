@@ -31,6 +31,112 @@ const formatDisplayHours = (totalMins) => {
   return `${hrs}h ${String(mins).padStart(2, '0')}m`;
 };
 
+const HeatmapCell = React.memo(function HeatmapCell({ cell, period, setOffset }) {
+  const dayNum = cell?.dayNum;
+  const isCur = !!cell?.isCurrent;
+  const isSameMo = !!cell?.isSameMonth;
+  const hasHours = (cell?.curMins || 0) > 0;
+  const isGoalMet = !!cell?.isGoalMet;
+  const fillPct = cell?.fillPct || 0;
+  const isToday = !!cell?.isToday;
+  const isSelected =
+    period === 'Daily'
+      ? isCur
+      : period === 'Weekly'
+      ? isCur
+      : period === 'Monthly'
+      ? isCur && isSameMo
+      : false;
+
+  let trackClass = 'bg-canvas text-text-main/80 font-medium';
+  if (!isSameMo) {
+    trackClass = 'bg-[#EDE7DA]/30 text-text-sub/40 font-normal';
+  } else if (hasHours) {
+    trackClass = 'bg-[#EDE7DA]/60 shadow-2xs';
+  } else if (isCur && period === 'Daily') {
+    trackClass = 'bg-primary/10 text-primary font-bold';
+  }
+
+  const selectionRing =
+    isSelected || (period !== 'Daily' && isToday)
+      ? 'ring-2 ring-primary ring-offset-1 ring-offset-surface z-10'
+      : '';
+
+  const handleCellClick = () => {
+    if (!cell?.dateStr) return;
+    if (window.navigator?.vibrate) window.navigator.vibrate(10);
+    const now = new Date();
+    const [y, m, d] = cell.dateStr.split('-').map(Number);
+    const cellDate = new Date(y, m - 1, d);
+
+    if (period === 'Daily') {
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const diffDays = Math.round((cellDate - todayStart) / (1000 * 60 * 60 * 24));
+      setOffset(diffDays);
+    } else if (period === 'Weekly') {
+      const nowDayOfWeek = now.getDay() || 7;
+      const currentMon = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() - nowDayOfWeek + 1
+      );
+      const cellDayOfWeek = cellDate.getDay() || 7;
+      const cellMon = new Date(
+        cellDate.getFullYear(),
+        cellDate.getMonth(),
+        cellDate.getDate() - cellDayOfWeek + 1
+      );
+      const diffWeeks = Math.round((cellMon - currentMon) / (1000 * 60 * 60 * 24 * 7));
+      setOffset(diffWeeks);
+    } else if (period === 'Monthly') {
+      const currentYearMonth = now.getFullYear() * 12 + now.getMonth();
+      const cellYearMonth = cellDate.getFullYear() * 12 + cellDate.getMonth();
+      setOffset(cellYearMonth - currentYearMonth);
+    }
+  };
+
+  return (
+    <div
+      onClick={handleCellClick}
+      className={`relative h-9 rounded-xl flex flex-col items-center justify-start pt-1 text-[11px] font-sans transition-all overflow-hidden cursor-pointer active:scale-95 ${trackClass} ${selectionRing}`}
+      title={
+        hasHours
+          ? `${cell?.dateStr}: ${cell?.curHours?.toFixed(1)}h / ${cell?.targetHours}h goal`
+          : cell?.dateStr
+      }
+    >
+      {hasHours && isSameMo && (
+        <div
+          className={`w-full absolute inset-x-0 bottom-0 transition-all duration-500 ease-out ${
+            isGoalMet
+              ? 'bg-primary shadow-xs'
+              : isSelected
+              ? 'bg-primary shadow-xs'
+              : 'bg-[#4F7775]'
+          }`}
+          style={{ height: `${fillPct}%` }}
+        />
+      )}
+
+      <span
+        className={`relative z-10 transition-colors text-[10px] font-bold font-sans ${
+          !isSameMo
+            ? 'text-text-sub/40 font-normal'
+            : isGoalMet
+            ? 'text-white'
+            : isCur && period === 'Daily' && !hasHours
+            ? 'text-primary'
+            : fillPct >= 65
+            ? 'text-white'
+            : 'text-text-main/90'
+        }`}
+      >
+        {dayNum}
+      </span>
+    </div>
+  );
+});
+
 function SharedActivitySection({
   showKPIs = true,
   sessions = [],
@@ -610,118 +716,14 @@ function SharedActivitySection({
 
         <div className="grid grid-cols-7 gap-1 text-center text-xs select-none">
           {activeHeatmap.map((week, wi) =>
-            week.map((cell, di) => {
-              const dayNum = cell?.dayNum;
-              const isCur = !!cell?.isCurrent;
-              const isSameMo = !!cell?.isSameMonth;
-              const hasHours = (cell?.curMins || 0) > 0;
-              const isGoalMet = !!cell?.isGoalMet;
-              const fillPct = cell?.fillPct || 0;
-              const isToday = !!cell?.isToday;
-              const isSelected =
-                period === 'Daily'
-                  ? isCur
-                  : period === 'Weekly'
-                  ? isCur
-                  : period === 'Monthly'
-                  ? isCur && isSameMo
-                  : false;
-
-              // Track capsule styling identical to column chart
-              let trackClass = 'bg-canvas text-text-main/80 font-medium';
-              if (!isSameMo) {
-                trackClass = 'bg-[#EDE7DA]/30 text-text-sub/40 font-normal';
-              } else if (hasHours) {
-                trackClass = 'bg-[#EDE7DA]/60 shadow-2xs';
-              } else if (isCur && period === 'Daily') {
-                trackClass = 'bg-primary/10 text-primary font-bold';
-              }
-
-              // Selection ring
-              const selectionRing =
-                isSelected || (period !== 'Daily' && isToday)
-                  ? 'ring-2 ring-primary ring-offset-1 ring-offset-surface z-10'
-                  : '';
-
-              const handleCellClick = () => {
-                if (!cell?.dateStr) return;
-                if (window.navigator?.vibrate) window.navigator.vibrate(10);
-                const now = new Date();
-                const [y, m, d] = cell.dateStr.split('-').map(Number);
-                const cellDate = new Date(y, m - 1, d);
-
-                if (period === 'Daily') {
-                  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                  const diffDays = Math.round((cellDate - todayStart) / (1000 * 60 * 60 * 24));
-                  setOffset(diffDays);
-                } else if (period === 'Weekly') {
-                  const nowDayOfWeek = now.getDay() || 7;
-                  const currentMon = new Date(
-                    now.getFullYear(),
-                    now.getMonth(),
-                    now.getDate() - nowDayOfWeek + 1
-                  );
-                  const cellDayOfWeek = cellDate.getDay() || 7;
-                  const cellMon = new Date(
-                    cellDate.getFullYear(),
-                    cellDate.getMonth(),
-                    cellDate.getDate() - cellDayOfWeek + 1
-                  );
-                  const diffWeeks = Math.round((cellMon - currentMon) / (1000 * 60 * 60 * 24 * 7));
-                  setOffset(diffWeeks);
-                } else if (period === 'Monthly') {
-                  const currentYearMonth = now.getFullYear() * 12 + now.getMonth();
-                  const cellYearMonth = cellDate.getFullYear() * 12 + cellDate.getMonth();
-                  setOffset(cellYearMonth - currentYearMonth);
-                }
-              };
-
-              return (
-                <div
-                  key={`${wi}-${di}`}
-                  onClick={handleCellClick}
-                  className={`relative h-9 rounded-xl flex flex-col items-center justify-start pt-1 text-[11px] font-sans transition-all overflow-hidden cursor-pointer active:scale-95 ${trackClass} ${selectionRing}`}
-                  title={
-                    hasHours
-                      ? `${cell?.dateStr}: ${cell?.curHours?.toFixed(1)}h / ${
-                          cell?.targetHours
-                        }h goal`
-                      : cell?.dateStr
-                  }
-                >
-                  {/* Fill rising from bottom - matches the Total per day goal fullness */}
-                  {hasHours && isSameMo && (
-                    <div
-                      className={`w-full absolute inset-x-0 bottom-0 transition-all duration-500 ease-out ${
-                        isGoalMet
-                          ? 'bg-primary shadow-xs'
-                          : isSelected
-                          ? 'bg-primary shadow-xs'
-                          : 'bg-[#4F7775]'
-                      }`}
-                      style={{ height: `${fillPct}%` }}
-                    />
-                  )}
-
-                  {/* Day number */}
-                  <span
-                    className={`relative z-10 transition-colors text-[10px] font-bold font-sans ${
-                      !isSameMo
-                        ? 'text-text-sub/40 font-normal'
-                        : isGoalMet
-                        ? 'text-white'
-                        : isCur && period === 'Daily' && !hasHours
-                        ? 'text-primary'
-                        : fillPct >= 65
-                        ? 'text-white'
-                        : 'text-text-main/90'
-                    }`}
-                  >
-                    {dayNum}
-                  </span>
-                </div>
-              );
-            })
+            week.map((cell, di) => (
+              <HeatmapCell
+                key={`${wi}-${di}`}
+                cell={cell}
+                period={period}
+                setOffset={setOffset}
+              />
+            ))
           )}
         </div>
       </div>

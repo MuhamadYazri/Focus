@@ -170,6 +170,23 @@ function TimerView({
     }
   }, [isRunning, isNavHidden]);
 
+  // Keep Lottie mounted during the 500ms exit fade-out transition, then unmount canvas for 0% CPU
+  const isImmersive = isRunning && isNavHidden;
+  const [shouldRenderLottie, setShouldRenderLottie] = useState(isImmersive);
+
+  useEffect(() => {
+    let t;
+    if (isImmersive) {
+      setShouldRenderLottie(true);
+    } else {
+      // Allow the 500ms CSS fade & collapse animation to finish before destroying the canvas
+      t = setTimeout(() => {
+        setShouldRenderLottie(false);
+      }, 500);
+    }
+    return () => clearTimeout(t);
+  }, [isImmersive]);
+
   const formatTime = (secs) => {
     const m = Math.floor(secs / 60);
     const s = secs % 60;
@@ -190,7 +207,6 @@ function TimerView({
 
   // Immersive Background Check
   // In focus mode and running, we show a clean warm sand background.
-  const isImmersive = isRunning && isNavHidden;
   const bgClass = isImmersive ? 'bg-[#E5D9B6]' : 'bg-canvas';
 
   const currentLottie = (() => {
@@ -221,8 +237,8 @@ function TimerView({
       <div className="w-full max-w-md mx-auto grid grid-rows-[auto_1fr_auto] min-h-[100dvh] px-6 pt-15 pb-[110px] select-none">
         {/* TOP SECTION (Mode Pill & Status) */}
         <div
-          className={`grid transition-all duration-700 ease-in-out ${
-            isNavHidden ? 'grid-rows-[0fr] opacity-0' : 'grid-rows-[1fr] opacity-100'
+          className={`grid transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-[grid-template-rows,opacity] ${
+            isNavHidden ? 'grid-rows-[0fr] opacity-0 pointer-events-none' : 'grid-rows-[1fr] opacity-100 pointer-events-auto'
           }`}
         >
           <div className="overflow-visible flex flex-col justify-end pointer-events-none">
@@ -293,11 +309,13 @@ function TimerView({
 
           {/* Immersive Animation */}
           <div
-            className={`transition-all duration-700 ease-in-out flex justify-center items-center pointer-events-none overflow-hidden w-full ${
-              isImmersive ? 'opacity-100 max-h-[400px] mt-12' : 'opacity-0 max-h-0 mt-0'
+            className={`transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-[transform,opacity] transform-gpu flex justify-center items-center pointer-events-none overflow-hidden w-full ${
+              isImmersive
+                ? 'opacity-100 max-h-[380px] mt-8 scale-100 translate-y-0'
+                : 'opacity-0 max-h-0 mt-0 scale-90 translate-y-4'
             }`}
           >
-            {isImmersive && (
+            {shouldRenderLottie && (
               <DotLottieReact
                 key={currentLottie}
                 src={currentLottie}
@@ -311,11 +329,11 @@ function TimerView({
 
         {/* BOTTOM SECTION */}
         <div
-          className={`grid transition-all duration-700 ease-in-out ${
-            isNavHidden ? 'grid-rows-[0fr] opacity-0' : 'grid-rows-[1fr] opacity-100'
+          className={`grid transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-[grid-template-rows,opacity] ${
+            isNavHidden ? 'grid-rows-[0fr] opacity-0 pointer-events-none' : 'grid-rows-[1fr] opacity-100 pointer-events-auto'
           }`}
         >
-          <div className="transition-all duration-700 ease-in-out overflow-hidden flex flex-col justify-start pointer-events-none p-6 -m-6">
+          <div className="transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden flex flex-col justify-start pointer-events-none p-6 -m-6">
             {/* Wrapper to restore pointer events for children */}
             <div className="pointer-events-auto w-full flex flex-col gap-3">
               {/* Cycle Stepper (Below timer) */}

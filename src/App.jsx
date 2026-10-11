@@ -799,10 +799,26 @@ export default function App() {
 
             if (isPrev) {
               animClass = slideDir === 'left' ? 'animate-slide-out-left' : 'animate-slide-out-right';
-              style = { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10 };
+              style = {
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                zIndex: 10,
+                willChange: 'transform, opacity',
+                contain: 'paint layout',
+              };
             } else if (isActive && isScreenTransitioning) {
               animClass = slideDir === 'left' ? 'animate-slide-in-right' : 'animate-slide-in-left';
-              style = { position: 'relative', width: '100%', minHeight: '100%', zIndex: 20 };
+              style = {
+                position: 'relative',
+                width: '100%',
+                minHeight: '100%',
+                zIndex: 20,
+                willChange: 'transform, opacity',
+                contain: 'paint layout',
+              };
             } else {
               style = { position: 'relative', width: '100%', minHeight: '100%', zIndex: 1 };
             }

@@ -25,24 +25,32 @@ function BottomNav({ activeTab, setActiveTab, isHidden = false }) {
       return;
     }
     if (activeTab && iconRefs.current[activeTab]) {
-      iconRefs.current[activeTab].startAnimation();
+      // Decouple by 1 frame so layout measurements settle before SVG path animation ticks
+      const raf = requestAnimationFrame(() => {
+        if (iconRefs.current[activeTab]) {
+          iconRefs.current[activeTab].startAnimation();
+        }
+      });
       const timer = setTimeout(() => {
         if (iconRefs.current[activeTab]) {
           iconRefs.current[activeTab].stopAnimation();
         }
       }, 650);
-      return () => clearTimeout(timer);
+      return () => {
+        cancelAnimationFrame(raf);
+        clearTimeout(timer);
+      };
     }
   }, [activeTab]);
 
   return (
     <nav
-      className={`fixed bottom-0 w-full z-50 pointer-events-none transition-all duration-500 pb-[env(safe-area-inset-bottom,0px)] ${
+      className={`fixed bottom-0 w-full z-50 pointer-events-none transition-all duration-500 pb-[env(safe-area-inset-bottom,0px)] will-change-transform transform-gpu ${
         isHidden ? 'translate-y-24 opacity-0' : 'translate-y-0 opacity-100'
       }`}
     >
       <div className="max-w-md mx-auto px-4 pb-5 pt-1 pointer-events-auto flex justify-center">
-        <div className="w-full bg-surface/95 border border-border backdrop-blur-xl rounded-full p-1.5 shadow-xl shadow-black/5 ring-1 ring-white/60 flex items-center justify-between">
+        <div className="w-full bg-surface/95 border border-border backdrop-blur-xl rounded-full p-1.5 shadow-xl shadow-black/5 ring-1 ring-white/60 flex items-center justify-between transform-gpu">
           {NAV_ITEMS.map(({ key, label, Icon }) => {
             const on = activeTab === key;
             return (

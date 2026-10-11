@@ -102,7 +102,7 @@ function SharedActivitySection({
       const st = JSON.parse(localStorage.getItem('focus_settings_v1') || '{}');
       return st && st.dailyGoalHours ? Number(st.dailyGoalHours) : 4.0;
     } catch (e) {
-      return (settings && settings.dailyGoalHours) ? Number(settings.dailyGoalHours) : 4.0;
+      return settings && settings.dailyGoalHours ? Number(settings.dailyGoalHours) : 4.0;
     }
   };
 
@@ -141,7 +141,12 @@ function SharedActivitySection({
         const isSameMonth = curStr.startsWith(targetMonthPrefix);
         const progressRatio = targetHours > 0 ? curHours / targetHours : curHours > 0 ? 1 : 0;
         const isGoalMet = targetHours > 0 && curHours >= targetHours;
-        const fillPct = curMins > 0 ? (isGoalMet ? 100 : Math.max(16, Math.min(100, Math.round(progressRatio * 100)))) : 0;
+        const fillPct =
+          curMins > 0
+            ? isGoalMet
+              ? 100
+              : Math.max(16, Math.min(100, Math.round(progressRatio * 100)))
+            : 0;
 
         row.push({
           val,
@@ -251,7 +256,7 @@ function SharedActivitySection({
       activeChart = dailySlots;
       chartTitle = 'Total per day';
       chartPeakLabel = `Goal: ${targetDailyGoalHours}h`;
-      chartSubLabel = `Bar fullness indicates progress toward ${targetDailyGoalHours}h daily goal`;
+      chartSubLabel = `Bar focused by daily goal`;
       activeHeatmap = generateHeatmapGrid(targetDate, targetStr, targetStr);
     } else if (period === 'Weekly') {
       const dayOfWeek = now.getDay() || 7;
@@ -319,7 +324,7 @@ function SharedActivitySection({
       activeChart = weeklySlots;
       chartTitle = 'Total per week';
       chartPeakLabel = `Goal: ${weeklyTargetHours}h/wk`;
-      chartSubLabel = `Bar fullness indicates progress toward ${weeklyTargetHours}h weekly goal`;
+      chartSubLabel = `Bar focused by weekly goal`;
       activeHeatmap = generateHeatmapGrid(wkEnd, sStr, eStr);
     } else if (period === 'Monthly') {
       const targetMoDate = new Date(now.getFullYear(), now.getMonth() + offset, 1);
@@ -394,7 +399,7 @@ function SharedActivitySection({
       activeChart = monthlySlots;
       chartTitle = `Total per month (${yrStr})`;
       chartPeakLabel = `Goal: ${monthlyTargetHours}h/mo`;
-      chartSubLabel = `Bar fullness indicates progress toward ${monthlyTargetHours}h monthly goal`;
+      chartSubLabel = `Bar focused by monthly goal`;
       const endOfMo =
         offset === 0 && now.getMonth() === moNum && now.getFullYear() === Number(yrStr)
           ? now
@@ -651,9 +656,17 @@ function SharedActivitySection({
                   setOffset(diffDays);
                 } else if (period === 'Weekly') {
                   const nowDayOfWeek = now.getDay() || 7;
-                  const currentMon = new Date(now.getFullYear(), now.getMonth(), now.getDate() - nowDayOfWeek + 1);
+                  const currentMon = new Date(
+                    now.getFullYear(),
+                    now.getMonth(),
+                    now.getDate() - nowDayOfWeek + 1
+                  );
                   const cellDayOfWeek = cellDate.getDay() || 7;
-                  const cellMon = new Date(cellDate.getFullYear(), cellDate.getMonth(), cellDate.getDate() - cellDayOfWeek + 1);
+                  const cellMon = new Date(
+                    cellDate.getFullYear(),
+                    cellDate.getMonth(),
+                    cellDate.getDate() - cellDayOfWeek + 1
+                  );
                   const diffWeeks = Math.round((cellMon - currentMon) / (1000 * 60 * 60 * 24 * 7));
                   setOffset(diffWeeks);
                 } else if (period === 'Monthly') {
@@ -670,7 +683,9 @@ function SharedActivitySection({
                   className={`relative h-9 rounded-xl flex flex-col items-center justify-start pt-1 text-[11px] font-sans transition-all overflow-hidden cursor-pointer active:scale-95 ${trackClass} ${selectionRing}`}
                   title={
                     hasHours
-                      ? `${cell?.dateStr}: ${cell?.curHours?.toFixed(1)}h / ${cell?.targetHours}h goal`
+                      ? `${cell?.dateStr}: ${cell?.curHours?.toFixed(1)}h / ${
+                          cell?.targetHours
+                        }h goal`
                       : cell?.dateStr
                   }
                 >
@@ -683,7 +698,7 @@ function SharedActivitySection({
                           : isSelected
                           ? 'bg-primary shadow-xs'
                           : 'bg-[#4F7775]'
-                      } ${fillPct < 100 ? 'rounded-t-sm' : ''}`}
+                      }`}
                       style={{ height: `${fillPct}%` }}
                     />
                   )}
@@ -766,7 +781,7 @@ function SharedActivitySection({
                 >
                   {hasVal && (
                     <div
-                      className={`w-full rounded-t-full transition-all duration-500 ease-out ${
+                      className={`w-full transition-all duration-500 ease-out ${
                         isGoalMet
                           ? 'bg-primary shadow-xs'
                           : isSelected

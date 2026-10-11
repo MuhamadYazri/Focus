@@ -690,6 +690,7 @@ export default function App() {
           tasks={tasks}
           projects={projects}
           sessions={sessions}
+          settings={settings}
           period={activityPeriod}
           setPeriod={setActivityPeriod}
           offset={activityOffset}

@@ -73,6 +73,7 @@ function AnalyticsDashboard({
   tasks = [],
   projects = [],
   sessions = [],
+  settings = {},
   period: controlledPeriod,
   setPeriod: controlledSetPeriod,
   offset: controlledOffset,
@@ -163,6 +164,7 @@ function AnalyticsDashboard({
         <SharedActivitySection
           showKPIs={true}
           sessions={sessions}
+          settings={settings}
           period={currentPeriod}
           setPeriod={setCurrentPeriod}
           offset={currentOffset}

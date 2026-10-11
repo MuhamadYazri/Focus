@@ -34,6 +34,7 @@ const formatDisplayHours = (totalMins) => {
 function SharedActivitySection({
   showKPIs = true,
   sessions = [],
+  settings = {},
   onPeriodChange,
   period: controlledPeriod,
   setPeriod: controlledSetPeriod,
@@ -97,10 +98,11 @@ function SharedActivitySection({
       const hist = JSON.parse(localStorage.getItem('focus_daily_goals_history_v1') || '{}');
       const dateKey = dateStr || `2026-07-${String(dayNum).padStart(2, '0')}`;
       if (hist && hist[dateKey]) return Number(hist[dateKey]);
+      if (settings && settings.dailyGoalHours) return Number(settings.dailyGoalHours);
       const st = JSON.parse(localStorage.getItem('focus_settings_v1') || '{}');
       return st && st.dailyGoalHours ? Number(st.dailyGoalHours) : 4.0;
     } catch (e) {
-      return 4.0;
+      return (settings && settings.dailyGoalHours) ? Number(settings.dailyGoalHours) : 4.0;
     }
   };
 
@@ -200,6 +202,8 @@ function SharedActivitySection({
       const chartDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
       let maxDayMins = 0;
       let peakDayLabel = 'None';
+      const targetDailyGoalHours = getDailyGoalHours(targetDate.getDate(), targetStr);
+
       const dailySlots = chartDays.map((label, idx) => {
         const d = new Date(monDate);
         d.setDate(monDate.getDate() + idx);
@@ -213,19 +217,28 @@ function SharedActivitySection({
           maxDayMins = mins;
           peakDayLabel = label;
         }
+
+        const slotGoalHours = getDailyGoalHours(d.getDate(), dStr);
+        const slotGoalMins = slotGoalHours * 60;
+        const progressRatio = slotGoalMins > 0 ? mins / slotGoalMins : 0;
+        const isGoalMet = slotGoalMins > 0 && mins >= slotGoalMins;
+
         return {
           h: label,
           mins,
           val: mins > 0 ? formatTimeNoDecimals(mins) : '0h',
           isCurrent: dStr === targetStr,
+          v: Math.min(1, progressRatio),
+          progressRatio,
+          isGoalMet,
+          goalHours: slotGoalHours,
         };
       });
-      activeChart = dailySlots.map((s) => ({
-        ...s,
-        v: maxDayMins > 0 ? s.mins / maxDayMins : 0,
-        isPeak: maxDayMins > 0 && s.mins === maxDayMins,
-      }));
-      chartPeakLabel = maxDayMins > 0 ? formatDisplayHours(maxDayMins) : 'No activity';
+
+      activeChart = dailySlots;
+      chartTitle = 'Total per day';
+      chartPeakLabel = `Goal: ${targetDailyGoalHours}h`;
+      chartSubLabel = `Bar fullness indicates progress toward ${targetDailyGoalHours}h daily goal`;
       activeHeatmap = generateHeatmapGrid(targetDate, targetStr, targetStr);
     } else if (period === 'Weekly') {
       const dayOfWeek = now.getDay() || 7;
@@ -250,6 +263,10 @@ function SharedActivitySection({
       displaySubToday = `${formatTimeNoDecimals(totalMins / 7)} avg / day`;
       displaySubDays = `${uniqueDays} days focused`;
 
+      const targetDailyGoalHours = getDailyGoalHours(now.getDate(), getLocalDateStr(now));
+      const weeklyTargetHours = targetDailyGoalHours * 7;
+      const weeklyTargetMins = weeklyTargetHours * 60;
+
       const weeklySlots = [];
       let maxWkMins = 0;
       let peakWkLabel = 'None';
@@ -270,21 +287,25 @@ function SharedActivitySection({
           maxWkMins = mins;
           peakWkLabel = label;
         }
+
+        const progressRatio = weeklyTargetMins > 0 ? mins / weeklyTargetMins : 0;
+        const isGoalMet = weeklyTargetMins > 0 && mins >= weeklyTargetMins;
+
         weeklySlots.push({
           h: label,
           mins,
           val: mins > 0 ? formatTimeNoDecimals(mins) : '0h',
           isCurrent: i === 0,
+          v: Math.min(1, progressRatio),
+          progressRatio,
+          isGoalMet,
         });
       }
-      activeChart = weeklySlots.map((s) => ({
-        ...s,
-        v: maxWkMins > 0 ? s.mins / maxWkMins : 0,
-        isPeak: maxWkMins > 0 && s.mins === maxWkMins,
-      }));
+
+      activeChart = weeklySlots;
       chartTitle = 'Total per week';
-      chartPeakLabel = maxWkMins > 0 ? formatDisplayHours(maxWkMins) : 'No activity';
-      chartSubLabel = 'Hours focused by weekly interval';
+      chartPeakLabel = `Goal: ${weeklyTargetHours}h/wk`;
+      chartSubLabel = `Bar fullness indicates progress toward ${weeklyTargetHours}h weekly goal`;
       activeHeatmap = generateHeatmapGrid(wkEnd, sStr, eStr);
     } else if (period === 'Monthly') {
       const targetMoDate = new Date(now.getFullYear(), now.getMonth() + offset, 1);
@@ -309,6 +330,10 @@ function SharedActivitySection({
         totalMins / Math.max(1, uniqueDays)
       )} avg / active day`;
       displaySubDays = `${uniqueDays} days focused`;
+
+      const targetDailyGoalHours = getDailyGoalHours(now.getDate(), getLocalDateStr(now));
+      const monthlyTargetHours = targetDailyGoalHours * 22;
+      const monthlyTargetMins = monthlyTargetHours * 60;
 
       const monthNames = [
         'Jan',
@@ -336,21 +361,25 @@ function SharedActivitySection({
           maxMoMins = mins;
           peakMoLabel = mName;
         }
+
+        const progressRatio = monthlyTargetMins > 0 ? mins / monthlyTargetMins : 0;
+        const isGoalMet = monthlyTargetMins > 0 && mins >= monthlyTargetMins;
+
         return {
           h: mName,
           mins,
           val: mins > 0 ? formatTimeNoDecimals(mins) : '0h',
           isCurrent: idx === moNum,
+          v: Math.min(1, progressRatio),
+          progressRatio,
+          isGoalMet,
         };
       });
-      activeChart = monthlySlots.map((s) => ({
-        ...s,
-        v: maxMoMins > 0 ? s.mins / maxMoMins : 0,
-        isPeak: maxMoMins > 0 && s.mins === maxMoMins,
-      }));
+
+      activeChart = monthlySlots;
       chartTitle = `Total per month (${yrStr})`;
-      chartPeakLabel = maxMoMins > 0 ? formatDisplayHours(maxMoMins) : 'No activity';
-      chartSubLabel = `Hours focused across ${yrStr}`;
+      chartPeakLabel = `Goal: ${monthlyTargetHours}h/mo`;
+      chartSubLabel = `Bar fullness indicates progress toward ${monthlyTargetHours}h monthly goal`;
       const endOfMo =
         offset === 0 && now.getMonth() === moNum && now.getFullYear() === Number(yrStr)
           ? now
@@ -617,13 +646,16 @@ function SharedActivitySection({
           {activeChart.map((slot) => {
             const isSelected = slot.isCurrent;
             const hasVal = slot.v > 0;
-            const barH = hasVal ? Math.max(8, Math.round(slot.v * 54)) : isSelected ? 4 : 0;
+            const isGoalMet = !!slot.isGoalMet;
+            const barH = hasVal ? Math.max(8, Math.min(60, Math.round(slot.v * 60))) : isSelected ? 4 : 0;
 
             return (
               <div key={slot.h} className="flex flex-col items-center gap-1.5 min-w-0">
                 <span
                   className={`text-[10px] font-sans transition-colors ${
-                    isSelected
+                    isGoalMet
+                      ? 'text-primary font-bold'
+                      : isSelected
                       ? 'text-primary font-bold'
                       : hasVal
                       ? 'text-secondary font-semibold'
@@ -633,11 +665,13 @@ function SharedActivitySection({
                   {slot.val}
                 </span>
 
-                {/* Tactile track capsule with rising bar */}
-                <div className="w-full h-16 bg-[#EDE7DA]/60 rounded-full flex flex-col justify-end p-0.5 overflow-hidden shadow-2xs">
+                {/* Tactile track capsule with rising bar scaled to target goal */}
+                <div className="w-full h-16 bg-[#EDE7DA]/60 rounded-full flex flex-col justify-end p-0.5 overflow-hidden shadow-2xs relative">
                   <div
-                    className={`w-full rounded-full transition-all duration-300 ${
-                      isSelected
+                    className={`w-full rounded-full transition-all duration-500 ease-out ${
+                      isGoalMet
+                        ? 'bg-primary shadow-xs ring-1 ring-primary/40'
+                        : isSelected
                         ? 'bg-primary shadow-xs'
                         : hasVal
                         ? 'bg-[#4F7775]'

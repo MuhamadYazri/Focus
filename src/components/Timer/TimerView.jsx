@@ -52,6 +52,58 @@ const AnimatedDigit = ({ char, isColon }) => {
   );
 };
 
+const TimerClockRing = React.memo(function TimerClockRing({ timeLeft, totalTime, isNavHidden }) {
+  const circumference = 691.15;
+  const progress = totalTime > 0 ? (totalTime - timeLeft) / totalTime : 0;
+  const strokeDashoffset = circumference * progress;
+
+  const m = Math.floor(timeLeft / 60);
+  const s = timeLeft % 60;
+  const timeString = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+
+  return (
+    <div
+      className={`relative w-full aspect-square max-w-[270px] mx-auto flex items-center justify-center transition-transform duration-700 ${
+        isNavHidden ? 'scale-110' : 'scale-100'
+      }`}
+    >
+      <svg
+        className="w-full h-full -rotate-90 transform drop-shadow-sm"
+        viewBox="0 0 260 260"
+      >
+        <circle
+          className="text-[#E5D9B6]"
+          cx="130"
+          cy="130"
+          r="110"
+          fill="transparent"
+          stroke="currentColor"
+          strokeWidth="10"
+        />
+        <circle
+          className="text-secondary transition-all duration-1000 ease-linear"
+          cx="130"
+          cy="130"
+          r="110"
+          fill="transparent"
+          stroke="currentColor"
+          strokeWidth="10"
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+        <div className="text-[60px] leading-none font-bold tracking-normal text-primary font-sans flex items-center justify-center overflow-hidden h-[64px]">
+          {timeString.split('').map((char, i) => (
+            <AnimatedDigit key={i} char={char} isColon={char === ':'} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+});
+
 const MODE_TABS = [
   { key: 'work', label: 'Focus' },
   { key: 'shortBreak', label: 'Short Break' },
@@ -203,47 +255,11 @@ function TimerView({
 
         {/* MIDDLE SECTION (TIMER) */}
         <div className="flex flex-col items-center justify-center w-full relative">
-          <div
-            className={`relative w-full aspect-square max-w-[270px] mx-auto flex items-center justify-center transition-transform duration-700 ${
-              isNavHidden ? 'scale-110' : 'scale-100'
-            }`}
-          >
-            <svg
-              className="w-full h-full -rotate-90 transform drop-shadow-sm"
-              viewBox="0 0 260 260"
-            >
-              <circle
-                className="text-[#E5D9B6]"
-                cx="130"
-                cy="130"
-                r="110"
-                fill="transparent"
-                stroke="currentColor"
-                strokeWidth="10"
-              />
-              <circle
-                className="text-secondary transition-all duration-1000 ease-linear"
-                cx="130"
-                cy="130"
-                r="110"
-                fill="transparent"
-                stroke="currentColor"
-                strokeWidth="10"
-                strokeLinecap="round"
-                strokeDasharray={circumference}
-                strokeDashoffset={strokeDashoffset}
-              />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <div className="text-[60px] leading-none font-bold tracking-normal text-primary font-sans flex items-center justify-center overflow-hidden h-[64px]">
-                {formatTime(timeLeft)
-                  .split('')
-                  .map((char, i) => (
-                    <AnimatedDigit key={i} char={char} isColon={char === ':'} />
-                  ))}
-              </div>
-            </div>
-          </div>
+          <TimerClockRing
+            timeLeft={timeLeft}
+            totalTime={totalTime}
+            isNavHidden={isNavHidden}
+          />
 
           {/* Immersive Animation */}
           <div

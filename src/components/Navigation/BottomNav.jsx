@@ -42,7 +42,7 @@ function BottomNav({ activeTab, setActiveTab, isHidden = false }) {
       }`}
     >
       <div className="max-w-md mx-auto px-4 pb-5 pt-1 pointer-events-auto flex justify-center">
-        <div className="w-full bg-surface/95 border border-border backdrop-blur-xl rounded-full p-1.5 shadow-lg flex items-center justify-between">
+        <div className="w-full bg-surface/95 border border-border backdrop-blur-xl rounded-full p-1.5 shadow-xl shadow-black/5 ring-1 ring-white/60 flex items-center justify-between">
           {NAV_ITEMS.map(({ key, label, Icon }) => {
             const on = activeTab === key;
             return (
@@ -68,7 +68,7 @@ function BottomNav({ activeTab, setActiveTab, isHidden = false }) {
                 {on && (
                   <motion.div
                     layoutId="fluidNavTab"
-                    className="absolute inset-0 bg-primary rounded-full shadow-md z-[-1]"
+                    className="absolute inset-0 bg-primary rounded-full shadow-md shadow-primary/20 ring-1 ring-white/20 z-[-1]"
                     transition={{ type: 'spring', bounce: 0.15, duration: 0.5 }}
                   />
                 )}

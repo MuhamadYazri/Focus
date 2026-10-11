@@ -58,7 +58,7 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
       onClick={onClose}
     >
       <div
-        className="w-full max-w-sm bg-surface border border-border rounded-3xl p-6 shadow-xl relative animate-slideUp"
+        className="w-full max-w-sm bg-surface border border-border rounded-3xl p-6 shadow-2xl ring-1 ring-white/80 relative animate-slideUp"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between pb-4 mb-5 border-b border-border">
@@ -73,7 +73,7 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-surface-hover flex items-center justify-center text-text-sub hover:text-text-main transition-colors border border-border"
+            className="w-8 h-8 rounded-full bg-surface-hover flex items-center justify-center text-text-sub hover:text-text-main transition-colors border border-border shadow-2xs"
           >
             <X size={16} strokeWidth={2} />
           </button>
@@ -91,7 +91,7 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. WORK_PROJECTS"
-              className="w-full bg-canvas border border-border rounded-xl px-4 py-3 text-sm font-sans text-text-main outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-text-sub/50"
+              className="w-full bg-canvas border border-border rounded-xl px-4 py-3 text-sm font-sans text-text-main outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-text-sub/50 shadow-inner"
             />
           </div>
 
@@ -105,10 +105,10 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
                   key={c}
                   type="button"
                   onClick={() => setColor(c)}
-                  className="w-full aspect-square rounded-full flex items-center justify-center transition-transform hover:scale-110 active:scale-95"
+                  className="w-full aspect-square rounded-full flex items-center justify-center transition-transform hover:scale-110 active:scale-95 shadow-xs ring-1 ring-black/10"
                   style={{
                     backgroundColor: c,
-                    boxShadow: color === c ? `0 0 0 3px var(--theme-surface), 0 0 0 5px ${c}` : 'none',
+                    boxShadow: color === c ? `0 0 0 3px var(--theme-surface), 0 0 0 5px ${c}` : undefined,
                   }}
                 >
                   {color === c && (
@@ -134,8 +134,8 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
                     onClick={() => setIcon(item.name)}
                     className={`aspect-square rounded-xl flex items-center justify-center border transition-all ${
                       isSelected 
-                        ? 'bg-primary border-primary text-white scale-105 shadow-sm' 
-                        : 'bg-surface-hover border-border text-text-sub hover:bg-border'
+                        ? 'bg-primary border-primary text-white scale-105 shadow-sm shadow-primary/25 ring-1 ring-white/20' 
+                        : 'bg-surface-hover border-border text-text-sub hover:bg-border shadow-2xs'
                     }`}
                   >
                     <IconComp size={20} strokeWidth={isSelected ? 2.5 : 2} />
@@ -149,13 +149,13 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl text-xs font-bold text-text-sub hover:bg-surface-hover hover:text-text-main transition-colors font-sans"
+              className="px-4 py-2.5 rounded-xl text-xs font-bold text-text-sub hover:bg-surface-hover hover:text-text-main transition-colors font-sans shadow-2xs"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 rounded-xl text-xs font-bold bg-primary text-white hover:bg-primary-hover active:scale-95 transition-all shadow-sm font-sans"
+              className="px-5 py-2.5 rounded-xl text-xs font-bold bg-primary text-white hover:bg-primary-hover active:scale-95 transition-all shadow-md shadow-primary/25 ring-1 ring-white/20 font-sans"
             >
               {projectToEdit ? 'Save Category' : 'Create Category'}
             </button>

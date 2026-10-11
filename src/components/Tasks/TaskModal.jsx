@@ -156,7 +156,7 @@ export default function TaskModal({
       onTouchEnd={handlePointerUp}
     >
       <div
-        className={`w-full max-w-md mx-auto bg-surface rounded-t-3xl overflow-hidden shadow-2xl border-t border-l border-r border-border ${isClosing || isDragging || dragY > 0 ? '' : 'animate-sheet-up'}`}
+        className={`w-full max-w-md mx-auto bg-surface rounded-t-3xl overflow-hidden shadow-2xl border-t border-l border-r border-border ring-1 ring-white/60 ${isClosing || isDragging || dragY > 0 ? '' : 'animate-sheet-up'}`}
         onClick={(e) => e.stopPropagation()}
         style={{
           transform: isClosing ? 'translateY(100%)' : `translateY(${dragY}px)`,
@@ -215,7 +215,7 @@ export default function TaskModal({
             <button
               type="button"
               onClick={() => setShowTags((v) => !v)}
-              className={`w-full flex items-center justify-between bg-surface border ${showTags ? 'border-secondary shadow-sm' : 'border-border'} rounded-xl px-4 py-3.5 transition-all`}
+              className={`w-full flex items-center justify-between bg-surface border ${showTags ? 'border-secondary shadow-sm ring-1 ring-white/60' : 'border-border shadow-2xs ring-1 ring-white/40'} rounded-xl px-4 py-3.5 transition-all`}
             >
               <div className="flex items-center gap-3">
                 <div className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: selectedProject.color || 'var(--theme-primary)' }} />
@@ -227,7 +227,7 @@ export default function TaskModal({
             </button>
 
             {showTags && (
-              <div className="mt-2 bg-surface border border-border rounded-xl overflow-hidden shadow-sm max-h-48 overflow-y-auto">
+              <div className="mt-2 bg-surface border border-border rounded-xl overflow-hidden shadow-lg ring-1 ring-white/60 max-h-48 overflow-y-auto">
                 {projects.map((p, i) => {
                   const isSel = p.id === selectedProject.id;
                   return (
@@ -263,7 +263,7 @@ export default function TaskModal({
             <label className="block text-[11px] font-bold uppercase tracking-wider text-text-sub font-sans mb-1.5">
               Schedule
             </label>
-            <div className="flex gap-1.5 p-1 bg-surface-hover rounded-xl border border-border flex-wrap">
+            <div className="flex gap-1.5 p-1 bg-surface-hover rounded-xl border border-border shadow-inner flex-wrap">
               {[
                 { id: 'today', label: 'Today' },
                 { id: 'daily', label: 'Every Day' },
@@ -277,7 +277,7 @@ export default function TaskModal({
                     type="button"
                     onClick={() => setScheduleType(item.id)}
                     className={`flex-1 min-w-[70px] transition-all active:scale-95 py-2 px-1 rounded-lg text-center text-xs font-sans ${
-                      isSelected ? 'bg-surface font-bold text-primary shadow-sm' : 'font-medium text-text-sub hover:text-text-main'
+                      isSelected ? 'bg-surface font-bold text-primary shadow-xs ring-1 ring-white/80' : 'font-medium text-text-sub hover:text-text-main'
                     }`}
                   >
                     {item.label}
@@ -309,7 +309,7 @@ export default function TaskModal({
                         }
                       }}
                       className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-sans font-bold transition-all ${
-                        isSel ? 'bg-primary text-white shadow-sm' : 'bg-surface-hover text-text-sub border border-border'
+                        isSel ? 'bg-primary text-white shadow-xs ring-1 ring-white/20' : 'bg-surface-hover text-text-sub border border-border shadow-2xs'
                       }`}
                     >
                       {label}
@@ -339,7 +339,7 @@ export default function TaskModal({
               <button
                 type="button"
                 onClick={() => setPomoTotal((v) => Math.max(1, v - 1))}
-                className="w-12 h-12 shrink-0 rounded-xl border border-border bg-surface-hover flex items-center justify-center text-primary active:scale-95 transition-all hover:bg-border shadow-sm"
+                className="w-12 h-12 shrink-0 rounded-xl border border-border bg-surface-hover flex items-center justify-center text-primary active:scale-95 transition-all hover:bg-border shadow-xs ring-1 ring-white/60"
               >
                 <span className="font-sans text-3xl leading-none font-medium mb-1">−</span>
               </button>
@@ -354,7 +354,7 @@ export default function TaskModal({
               <button
                 type="button"
                 onClick={() => setPomoTotal((v) => Math.min(12, v + 1))}
-                className="w-12 h-12 shrink-0 rounded-xl border border-border bg-surface-hover flex items-center justify-center text-primary active:scale-95 transition-all hover:bg-border shadow-sm"
+                className="w-12 h-12 shrink-0 rounded-xl border border-border bg-surface-hover flex items-center justify-center text-primary active:scale-95 transition-all hover:bg-border shadow-xs ring-1 ring-white/60"
               >
                 <Plus size={20} strokeWidth={3} />
               </button>
@@ -430,7 +430,7 @@ export default function TaskModal({
             disabled={!title.trim()}
             className={`w-full flex items-center justify-center gap-2 rounded-xl py-4 mt-2 transition-all active:scale-[0.98] ${
               title.trim() 
-                ? 'bg-primary text-white shadow-md hover:bg-primary-hover' 
+                ? 'bg-primary text-white shadow-md shadow-primary/25 ring-1 ring-white/20 hover:bg-primary-hover' 
                 : 'bg-surface-hover text-text-sub/50 border border-border cursor-not-allowed'
             }`}
           >

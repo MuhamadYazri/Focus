@@ -50,7 +50,7 @@ function TimeframeHeader({ period, setPeriod, offset, setOffset }) {
   return (
     <div className="flex flex-col gap-2.5 w-full">
       {/* Time Frame Segmented Track */}
-      <div className="w-full bg-border/70 p-1 rounded-full flex items-center justify-between border border-border">
+      <div className="w-full bg-[#EDE7DA]/80 p-1 rounded-full flex items-center justify-between border border-border shadow-inner">
         {PERIODS.map((p) => {
           const active = p === period;
           return (
@@ -63,7 +63,7 @@ function TimeframeHeader({ period, setPeriod, offset, setOffset }) {
               }}
               className={`flex-1 py-1.5 text-center rounded-full text-xs transition-all ${
                 active
-                  ? 'bg-surface text-text-main shadow-sm font-semibold'
+                  ? 'bg-surface text-text-main shadow-xs ring-1 ring-white/80 font-semibold'
                   : 'text-[#444841] font-medium hover:text-text-main'
               }`}
             >
@@ -75,7 +75,7 @@ function TimeframeHeader({ period, setPeriod, offset, setOffset }) {
 
       {/* Date Navigation Capsule */}
       <div
-        className={`w-full bg-surface rounded-full px-4 py-2.5 flex items-center justify-between shadow-sm border border-border transition-opacity ${
+        className={`w-full bg-surface rounded-full px-4 py-2.5 flex items-center justify-between shadow-xs ring-1 ring-white/80 border border-border transition-opacity ${
           isAll ? 'opacity-50 pointer-events-none' : 'opacity-100'
         }`}
       >

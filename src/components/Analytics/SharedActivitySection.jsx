@@ -496,7 +496,7 @@ function SharedActivitySection({
       {showKPIs && (
         <div className="grid grid-cols-2 gap-3.5 ">
           {/* Focus Time Tile */}
-          <div className="bg-surface rounded-2xl p-4 shadow-sm border border-border flex flex-col justify-between min-h-[110px]">
+          <div className="bg-surface rounded-2xl p-4 shadow-sm ring-1 ring-white/70 border border-border flex flex-col justify-between min-h-[110px]">
             <div>
               <p className="text-[11px] font-bold uppercase tracking-wider text-secondary mb-1.5 flex items-center justify-between">
                 <span>FOCUS TIME</span>
@@ -510,7 +510,7 @@ function SharedActivitySection({
           </div>
 
           {/* Sessions Tile */}
-          <div className="bg-surface rounded-2xl p-4 shadow-sm border border-border flex flex-col justify-between min-h-[110px]">
+          <div className="bg-surface rounded-2xl p-4 shadow-sm ring-1 ring-white/70 border border-border flex flex-col justify-between min-h-[110px]">
             <div>
               <p className="text-[11px] font-bold uppercase tracking-wider text-secondary mb-1.5 flex items-center justify-between">
                 <span>SESSIONS</span>
@@ -526,7 +526,7 @@ function SharedActivitySection({
       )}
 
       {/* Activity Heatmap Grid */}
-      <div className="bg-surface rounded-2xl p-4 shadow-sm border border-border flex flex-col ">
+      <div className="bg-surface rounded-2xl p-4 shadow-sm ring-1 ring-white/70 border border-border flex flex-col">
         <div className="flex items-center justify-between mb-3">
           <span className="text-[11px] uppercase tracking-wider text-secondary font-bold">
             ACTIVITY GRID
@@ -554,9 +554,9 @@ function SharedActivitySection({
               if (!isSameMo) {
                 bgClass = 'bg-surface-hover/70 text-text-sub/50';
               } else if (val >= 3) {
-                bgClass = 'bg-primary text-white font-semibold shadow-sm';
+                bgClass = 'bg-primary text-white font-semibold shadow-xs';
               } else if (val >= 1) {
-                bgClass = 'bg-secondary text-white font-semibold';
+                bgClass = 'bg-secondary text-white font-semibold shadow-2xs';
               } else if (isCur) {
                 bgClass = 'bg-[#E5D9B6]/40 text-text-main font-bold';
               }
@@ -580,7 +580,7 @@ function SharedActivitySection({
       </div>
 
       {/* Total Per Day Column Chart */}
-      <div className="bg-surface rounded-2xl p-4 shadow-sm border border-border flex flex-col">
+      <div className="bg-surface rounded-2xl p-4 shadow-sm ring-1 ring-white/70 border border-border flex flex-col">
         <div className="flex items-center justify-between mb-0.5">
           <span className="text-sm font-bold text-text-main font-sans">{chartTitle}</span>
           <span className="text-[11px] text-secondary font-semibold px-2 py-0.5 rounded-full bg-[#E5D9B6]/40">

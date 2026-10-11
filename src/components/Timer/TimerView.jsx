@@ -207,7 +207,7 @@ function TimerView({
             {/* Wrapper to restore pointer events for children */}
             <div className="pointer-events-auto">
               <div
-                className="w-full bg-surface border border-border rounded-full p-1.5 flex items-center justify-between shadow-sm mb-4"
+                className="w-full bg-surface border border-border rounded-full p-1.5 flex items-center justify-between shadow-inner ring-1 ring-white/60 mb-4"
                 onClick={stopProp}
               >
                 {MODE_TABS.map(({ key, label }) => {
@@ -221,7 +221,7 @@ function TimerView({
                       }}
                       className={`flex-1 py-2.5 px-3 rounded-full font-semibold text-xs md:text-sm transition-all ${
                         on
-                          ? 'bg-primary text-white shadow-sm'
+                          ? 'bg-primary text-white shadow-xs ring-1 ring-white/20'
                           : 'text-[#444841] font-medium hover:text-primary'
                       }`}
                     >
@@ -308,7 +308,7 @@ function TimerView({
 
               {/* Elevated Controls Card */}
               <div
-                className="w-full bg-surface border border-border rounded-3xl p-4 shadow-sm flex flex-col gap-3"
+                className="w-full bg-surface border border-border rounded-3xl p-4 shadow-md ring-1 ring-white/80 flex flex-col gap-3"
                 onClick={stopProp}
               >
                 {/* Action Buttons */}
@@ -324,7 +324,7 @@ function TimerView({
                         if (onReset) onReset();
                       }, 50);
                     }}
-                    className="w-12 h-12 rounded-full bg-canvas border border-border text-primary flex items-center justify-center transition-transform active:scale-95 hover:bg-border"
+                    className="w-12 h-12 rounded-full bg-canvas border border-border text-primary flex items-center justify-center shadow-xs ring-1 ring-white/60 transition-transform active:scale-95 hover:bg-border"
                   >
                     <RotateCcw
                       ref={(el) => (iconRefs.current.reset = el)}
@@ -345,7 +345,7 @@ function TimerView({
                         if (onTogglePlay) onTogglePlay();
                       }, 50);
                     }}
-                    className="w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center shadow-md transition-transform active:scale-90 hover:scale-105"
+                    className="w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/30 ring-2 ring-white/25 transition-transform active:scale-90 hover:scale-105"
                   >
                     {isRunning ? (
                       <Pause
@@ -369,7 +369,7 @@ function TimerView({
                       if (window.navigator?.vibrate) window.navigator.vibrate(10);
                       if (onSkip) onSkip();
                     }}
-                    className="w-12 h-12 rounded-full bg-canvas border border-border text-primary flex items-center justify-center transition-transform active:scale-95 hover:bg-border"
+                    className="w-12 h-12 rounded-full bg-canvas border border-border text-primary flex items-center justify-center shadow-xs ring-1 ring-white/60 transition-transform active:scale-95 hover:bg-border"
                   >
                     <SkipForward size={20} strokeWidth={2.5} />
                   </button>
@@ -419,7 +419,7 @@ function TimerView({
 
               {/* Strict Focus Toggle Card */}
               <div
-                className="w-full flex items-center justify-between px-5 py-3.5 rounded-2xl bg-surface border border-border shadow-sm"
+                className="w-full flex items-center justify-between px-5 py-3.5 rounded-2xl bg-surface border border-border shadow-xs ring-1 ring-white/70"
                 onClick={stopProp}
               >
                 <div className="flex items-center gap-3">
@@ -456,7 +456,7 @@ function TimerView({
                     strictMode ? 'bg-secondary justify-end' : 'bg-border justify-start'
                   }`}
                 >
-                  <div className="w-5 h-5 rounded-full bg-surface shadow-sm transition-transform"></div>
+                  <div className="w-5 h-5 rounded-full bg-surface shadow-xs transition-transform"></div>
                 </button>
               </div>
             </div>
@@ -471,7 +471,7 @@ function TimerView({
           onClick={() => setShowSoundModal(false)}
         >
           <div
-            className="w-full max-w-sm rounded-3xl p-6 flex flex-col gap-5 border border-border bg-surface shadow-md"
+            className="w-full max-w-sm rounded-3xl p-6 flex flex-col gap-5 border border-border bg-surface shadow-2xl ring-1 ring-white/80"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between z-10 pb-2 border-b border-border">
@@ -497,8 +497,8 @@ function TimerView({
                     }}
                     className={`flex items-center justify-between p-3.5 rounded-xl border transition-all text-left ${
                       isActive
-                        ? 'border-primary bg-surface-hover'
-                        : 'border-border bg-surface hover:border-secondary'
+                        ? 'border-primary/80 bg-surface-hover shadow-xs ring-1 ring-white/50'
+                        : 'border-border bg-surface hover:border-secondary shadow-2xs'
                     }`}
                   >
                     <span

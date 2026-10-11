@@ -264,7 +264,7 @@ function ProfileView({
         {/* ── 3 Key Metric Cards ── */}
         <div className="grid grid-cols-3 gap-3">
           {/* Streak */}
-          <div className="bg-surface rounded-2xl p-4 flex flex-col items-center text-center justify-center gap-1.5 shadow-sm border border-border">
+          <div className="bg-surface rounded-2xl p-4 flex flex-col items-center text-center justify-center gap-1.5 shadow-sm ring-1 ring-white/70 border border-border">
             <FlameIcon ref={flameRef} size={24} color="#E67E22" strokeWidth={2} />
             <span className="text-2xl font-bold text-text-main font-sans">{currentStreak}</span>
             <span className="text-[10px] font-bold uppercase tracking-wider text-text-sub font-sans">
@@ -272,7 +272,7 @@ function ProfileView({
             </span>
           </div>
           {/* Focused */}
-          <div className="bg-surface rounded-2xl p-4 flex flex-col items-center text-center justify-center gap-1.5 shadow-sm border border-border">
+          <div className="bg-surface rounded-2xl p-4 flex flex-col items-center text-center justify-center gap-1.5 shadow-sm ring-1 ring-white/70 border border-border">
             <ClockIcon ref={clockRef} size={24} className="text-secondary" strokeWidth={2} />
             <span className="text-2xl font-bold text-text-main font-sans">{hours}h</span>
             <span className="text-[10px] font-bold uppercase tracking-wider text-text-sub font-sans">
@@ -280,7 +280,7 @@ function ProfileView({
             </span>
           </div>
           {/* Sessions */}
-          <div className="bg-surface rounded-2xl p-4 flex flex-col items-center text-center justify-center gap-1.5 shadow-sm border border-border">
+          <div className="bg-surface rounded-2xl p-4 flex flex-col items-center text-center justify-center gap-1.5 shadow-sm ring-1 ring-white/70 border border-border">
             <BookmarkCheckIcon ref={sessionRef} size={24} className="text-primary" strokeWidth={2} />
             <span className="text-xl font-bold text-text-main font-sans">
               {totalPomos.toLocaleString()}
@@ -297,7 +297,7 @@ function ProfileView({
             if (window.navigator?.vibrate) window.navigator.vibrate(15);
             setShowReport(true);
           }}
-          className="w-full h-12 py-3 px-5 rounded-full bg-primary text-white font-semibold text-sm flex items-center justify-center gap-2.5 shadow-sm active:scale-[0.99] hover:bg-primary-hover transition-all"
+          className="w-full h-12 py-3 px-5 rounded-full bg-primary text-white font-semibold text-sm flex items-center justify-center gap-2.5 shadow-md shadow-primary/20 ring-1 ring-white/20 active:scale-[0.99] hover:bg-primary-hover transition-all"
         >
           <svg
             fill="none"
@@ -352,7 +352,7 @@ function ProfileView({
             return (
               <div
                 key={proj.id}
-                className="bg-surface rounded-full px-5 py-3.5 flex items-center justify-between shadow-sm border border-border"
+                className="bg-surface rounded-full px-5 py-3.5 flex items-center justify-between shadow-xs border border-border ring-1 ring-white/60 hover:shadow-sm"
               >
                 <div className="flex items-center gap-3">
                   <div
@@ -429,7 +429,7 @@ function ProfileView({
 
 
           {/* Timer Durations Card */}
-          <div className="bg-surface rounded-2xl p-5 shadow-sm flex flex-col gap-4 border border-border">
+          <div className="bg-surface rounded-2xl p-5 shadow-xs flex flex-col gap-4 border border-border ring-1 ring-white/70">
             <div className="flex items-center gap-2 pb-1 border-b border-border">
               <svg
                 fill="none"
@@ -455,7 +455,7 @@ function ProfileView({
             ].map(({ key, label, presets }) => (
               <div key={key} className="flex items-center justify-between">
                 <span className="text-xs font-medium text-text-main font-sans">{label}</span>
-                <div className="bg-[#F4F0E8] p-1 rounded-full flex items-center gap-1 border border-border">
+                <div className="bg-[#F4F0E8] p-1 rounded-full flex items-center gap-1 border border-border shadow-inner">
                   {presets.map((p) => {
                     const isActive = (settings[key] ?? presets[0]) === p;
                     return (
@@ -468,7 +468,7 @@ function ProfileView({
                         }}
                         className={`px-3 py-1 rounded-full text-xs font-sans transition-colors ${
                           isActive
-                            ? 'bg-primary font-bold text-white shadow-sm'
+                            ? 'bg-primary font-bold text-white shadow-xs ring-1 ring-white/20'
                             : 'text-[#576652] hover:text-text-main'
                         }`}
                       >
@@ -482,7 +482,7 @@ function ProfileView({
           </div>
 
           {/* Daily Goal Card */}
-          <div className="bg-surface rounded-2xl p-5 shadow-sm flex flex-col gap-3.5 border border-border">
+          <div className="bg-surface rounded-2xl p-5 shadow-xs flex flex-col gap-3.5 border border-border ring-1 ring-white/70">
             <div className="flex items-center justify-between pb-1 border-b border-border">
               <div className="flex items-center gap-2">
                 <svg
@@ -521,8 +521,8 @@ function ProfileView({
                     }}
                     className={`py-1.5 rounded-full text-xs text-center font-sans transition-colors ${
                       isActive
-                        ? 'bg-primary font-bold text-white shadow-sm'
-                        : 'bg-[#F4F0E8] text-text-main border border-border hover:bg-border'
+                        ? 'bg-primary font-bold text-white shadow-xs ring-1 ring-white/20'
+                        : 'bg-[#F4F0E8] text-text-main border border-border/60 hover:bg-border shadow-2xs'
                     }`}
                   >
                     {h}h
@@ -533,7 +533,7 @@ function ProfileView({
           </div>
 
           {/* System Toggles Card */}
-          <div className="bg-surface rounded-2xl p-5 shadow-sm flex flex-col gap-4 border border-border">
+          <div className="bg-surface rounded-2xl p-5 shadow-xs flex flex-col gap-4 border border-border ring-1 ring-white/70">
             {[
               {
                 key: 'autoStartBreaks',
@@ -655,7 +655,7 @@ function ProfileView({
                       isOn ? 'bg-secondary justify-end' : 'bg-border justify-start'
                     }`}
                   >
-                    <div className="w-5 h-5 rounded-full bg-surface shadow-sm transition-transform"></div>
+                    <div className="w-5 h-5 rounded-full bg-surface shadow-xs transition-transform"></div>
                   </button>
                 </div>
               );
@@ -663,7 +663,7 @@ function ProfileView({
           </div>
 
           {/* Local Backup Card */}
-          <div className="bg-surface rounded-2xl p-5 shadow-sm flex flex-col gap-3 border border-border">
+          <div className="bg-surface rounded-2xl p-5 shadow-xs flex flex-col gap-3 border border-border ring-1 ring-white/70">
             <div className="flex items-center gap-2">
               <svg
                 fill="none"
@@ -688,7 +688,7 @@ function ProfileView({
               <button
                 onClick={handleBackup}
                 disabled={backupStatus !== 'idle'}
-                className="py-2.5 px-4 rounded-full bg-primary text-white text-xs font-semibold flex items-center justify-center gap-2 shadow-sm active:scale-[0.98] hover:bg-primary-hover transition-all disabled:opacity-50"
+                className="py-2.5 px-4 rounded-full bg-primary text-white text-xs font-semibold flex items-center justify-center gap-2 shadow-xs ring-1 ring-white/20 active:scale-[0.98] hover:bg-primary-hover transition-all disabled:opacity-50"
               >
                 {backupStatus === 'backing-up' ? (
                   <Loader2 size={16} className="animate-spin" />
@@ -715,7 +715,7 @@ function ProfileView({
               <button
                 onClick={handleRestore}
                 disabled={backupStatus !== 'idle'}
-                className="py-2.5 px-4 rounded-full bg-[#F4F0E8] text-text-main text-xs font-semibold flex items-center justify-center gap-2 hover:bg-border transition-colors border border-border active:scale-[0.98] disabled:opacity-50"
+                className="py-2.5 px-4 rounded-full bg-[#F4F0E8] text-text-main text-xs font-semibold flex items-center justify-center gap-2 hover:bg-border transition-colors border border-border shadow-2xs active:scale-[0.98] disabled:opacity-50"
               >
                 {backupStatus === 'restoring' ? (
                   <Loader2 size={16} className="animate-spin" />
@@ -752,7 +752,7 @@ function ProfileView({
           </div>
 
           {/* Reset Telemetry Data Card */}
-          <div className="bg-surface rounded-2xl p-5 shadow-sm flex items-center justify-between border border-border mb-6">
+          <div className="bg-surface rounded-2xl p-5 shadow-xs flex items-center justify-between border border-border ring-1 ring-white/70 mb-6">
             <div className="flex flex-col">
               <span className="text-xs font-bold text-text-main font-sans">Wipe All Data</span>
               <span className="text-[11px] text-[#8A7968] font-sans">
@@ -761,7 +761,7 @@ function ProfileView({
             </div>
             <button
               onClick={handleResetData}
-              className="px-3.5 py-1.5 rounded-full bg-[#E67E22]/15 text-[#E67E22] text-[11px] font-bold flex items-center gap-1.5 hover:bg-[#E67E22]/25 transition-colors border border-[#E67E22]/30"
+              className="px-3.5 py-1.5 rounded-full bg-[#E67E22]/15 text-[#E67E22] text-[11px] font-bold flex items-center gap-1.5 hover:bg-[#E67E22]/25 transition-colors border border-[#E67E22]/30 shadow-2xs"
             >
               <svg
                 fill="none"
@@ -851,12 +851,12 @@ function ProfileView({
           onClick={() => setShowReport(false)}
         >
           <div
-            className="w-full max-w-sm rounded-3xl p-5 flex flex-col gap-5 border border-border bg-surface shadow-sm"
+            className="w-full max-w-sm rounded-3xl p-5 flex flex-col gap-5 border border-border bg-surface shadow-2xl ring-1 ring-white/80"
             onClick={(e) => e.stopPropagation()}
           >
             {/* The "Share Card" */}
             <div
-              className="relative w-full rounded-2xl overflow-hidden flex flex-col p-6 border border-border"
+              className="relative w-full rounded-2xl overflow-hidden flex flex-col p-6 border border-border shadow-xs ring-1 ring-white/60"
               style={{ background: 'linear-gradient(135deg, var(--theme-canvas) 0%, var(--theme-border) 100%)' }}
             >
               <div className="flex items-center justify-between z-10 mb-8">
@@ -912,13 +912,13 @@ function ProfileView({
             <div className="flex gap-3">
               <button
                 onClick={() => setShowReport(false)}
-                className="flex items-center justify-center p-4 rounded-2xl transition-all border border-border text-primary bg-[#F4F0E8] hover:bg-border"
+                className="flex items-center justify-center p-4 rounded-2xl transition-all border border-border text-primary bg-[#F4F0E8] hover:bg-border shadow-2xs"
               >
                 <XIcon size={20} strokeWidth={2} />
               </button>
               <button
                 onClick={handleCopyReport}
-                className="flex-1 flex items-center justify-center gap-2 p-4 rounded-2xl bg-primary text-white font-semibold font-sans text-sm hover:bg-primary-hover active:scale-[0.98] transition-all"
+                className="flex-1 flex items-center justify-center gap-2 p-4 rounded-2xl bg-primary text-white font-semibold font-sans text-sm hover:bg-primary-hover active:scale-[0.98] transition-all shadow-md shadow-primary/25 ring-1 ring-white/20"
               >
                 {copied ? <CheckIcon size={18} strokeWidth={2.5} /> : <CopyIcon size={18} strokeWidth={2} />}
                 {copied ? 'Copied to Clipboard' : 'Copy Text'}
@@ -935,7 +935,7 @@ function ProfileView({
           onClick={() => setProjectToDelete(null)}
         >
           <div
-            className="w-full max-w-sm rounded-3xl p-6 flex flex-col gap-5 border border-border bg-surface shadow-md"
+            className="w-full max-w-sm rounded-3xl p-6 flex flex-col gap-5 border border-border bg-surface shadow-2xl ring-1 ring-white/80"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex flex-col gap-2">
@@ -950,7 +950,7 @@ function ProfileView({
             <div className="flex items-center gap-3 mt-2">
               <button
                 onClick={() => setProjectToDelete(null)}
-                className="flex-1 p-3 rounded-2xl border border-border text-text-main bg-surface-hover hover:bg-border font-sans font-semibold text-sm transition-colors"
+                className="flex-1 p-3 rounded-2xl border border-border text-text-main bg-surface-hover hover:bg-border font-sans font-semibold text-sm transition-colors shadow-2xs"
               >
                 Cancel
               </button>
@@ -960,7 +960,7 @@ function ProfileView({
                   if (onDeleteProject) onDeleteProject(projectToDelete.id);
                   setProjectToDelete(null);
                 }}
-                className="flex-1 p-3 rounded-2xl border border-transparent text-white bg-[#BA1A1A] hover:opacity-90 font-sans font-semibold text-sm transition-opacity shadow-sm"
+                className="flex-1 p-3 rounded-2xl border border-transparent text-white bg-[#BA1A1A] hover:opacity-90 font-sans font-semibold text-sm transition-opacity shadow-md shadow-[#BA1A1A]/20"
               >
                 Delete
               </button>

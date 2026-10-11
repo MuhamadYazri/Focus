@@ -838,7 +838,7 @@ export default function App() {
                 setTaskModalOpen(true);
               }, 50);
             }}
-            className="w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center shadow-lg active:scale-90 transition-transform hover:bg-primary-hover"
+            className="w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center shadow-xl shadow-primary/30 ring-1 ring-white/25 active:scale-90 transition-all hover:bg-primary-hover"
           >
             <Plus ref={el => { if (!window.plusRef) window.plusRef = {current: null}; window.plusRef.current = el; }} animateOnHover={false} size={24} strokeWidth={3} />
           </button>
@@ -889,7 +889,7 @@ export default function App() {
       {/* Fullscreen Session Completion Modal */}
       {sessionDoneAlert && (
         <div className={`fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/20 backdrop-blur-sm ${isAlertClosing ? 'animate-fadeOut' : 'animate-fadeIn'}`}>
-          <div className={`bg-surface rounded-[24px] p-6 max-w-[280px] w-full flex flex-col items-center text-center shadow-xl border border-border ${isAlertClosing ? 'animate-zoomOutAlert' : 'animate-zoomInAlert'}`}>
+          <div className={`bg-surface rounded-[28px] p-6 max-w-[280px] w-full flex flex-col items-center text-center shadow-2xl ring-1 ring-white/80 border border-border ${isAlertClosing ? 'animate-zoomOutAlert' : 'animate-zoomInAlert'}`}>
             <DotLottieReact
               src={clockTickingLottie}
               autoplay

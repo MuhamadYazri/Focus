@@ -165,7 +165,7 @@ function AnalyticsDashboard({
         />
 
         {/* Focus Distribution Donut Card */}
-        <div className="bg-surface rounded-2xl p-4 shadow-sm border border-border flex flex-col">
+        <div className="bg-surface rounded-2xl p-4 shadow-sm border border-border ring-1 ring-white/70 flex flex-col">
           <span className="text-[11px] uppercase tracking-wider text-secondary font-bold mb-3 font-sans">
             FOCUS DISTRIBUTION
           </span>
@@ -198,7 +198,7 @@ function AnalyticsDashboard({
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 truncate">
                       <span
-                        className="w-2.5 h-2.5 rounded-full shrink-0"
+                        className="w-2.5 h-2.5 rounded-full shrink-0 shadow-2xs"
                         style={{ backgroundColor: seg.color }}
                       ></span>
                       <span className="text-xs font-medium text-text-main truncate font-sans">
@@ -209,7 +209,7 @@ function AnalyticsDashboard({
                       {seg.pct}%
                     </span>
                   </div>
-                  <div className="w-full h-1.5 rounded-full bg-border overflow-hidden">
+                  <div className="w-full h-1.5 rounded-full bg-border/60 shadow-inner overflow-hidden">
                     <div
                       className="h-full rounded-full"
                       style={{ width: `${seg.pct}%`, backgroundColor: seg.color }}

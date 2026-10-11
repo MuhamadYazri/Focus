@@ -150,24 +150,24 @@ function TaskList({
         {/* Metric Highlights Bento Row */}
         <section className="grid grid-cols-12 gap-3">
           {/* Daily Target Progress Card */}
-          <div className="col-span-8 bg-surface border border-border rounded-[24px] p-5 shadow-md flex flex-col justify-between">
-            <div className="flex items-center justify-between">
+          <div className="col-span-8 bg-surface border border-border rounded-[24px] p-5 shadow-sm ring-1 ring-white/80 flex flex-col justify-between relative overflow-hidden">
+            <div className="flex items-center justify-between relative z-10">
               <span className="font-mono text-[11px] font-bold text-[#636F5A] tracking-wider uppercase">
                 DAILY TARGET
               </span>
-              <div className="w-8 h-8 rounded-full bg-[#E5D9B6]/30 flex items-center justify-center text-secondary">
+              <div className="w-8 h-8 rounded-full bg-[#E5D9B6]/30 border border-[#E5D9B6]/40 flex items-center justify-center text-secondary shadow-2xs">
                 <Zap size={16} className="text-secondary" />
               </div>
             </div>
-            <div className="my-3">
+            <div className="my-3 relative z-10">
               <h2 className="text-[19px] font-bold text-primary leading-tight font-sans">
                 {todayHours}h of {targetHours}h completed
               </h2>
             </div>
-            <div className="flex flex-col gap-1.5">
-              <div className="w-full h-2.5 bg-[#E5D9B6]/40 rounded-full overflow-hidden">
+            <div className="flex flex-col gap-1.5 relative z-10">
+              <div className="w-full h-2.5 bg-[#EDE7DA] rounded-full overflow-hidden p-0.5 shadow-inner">
                 <div
-                  className="h-full bg-secondary rounded-full transition-all duration-500"
+                  className="h-full bg-secondary rounded-full transition-all duration-500 shadow-xs"
                   style={{ width: `${progressPercent}%` }}
                 ></div>
               </div>
@@ -181,8 +181,8 @@ function TaskList({
           </div>
 
           {/* Streak Card */}
-          <div className="col-span-4 bg-primary text-canvas rounded-[24px] p-5 shadow-lg flex flex-col justify-between">
-            <div className="flex items-center justify-center gap-1.5 translate-x-1">
+          <div className="col-span-4 bg-primary text-canvas rounded-[24px] p-5 shadow-md shadow-primary/25 ring-1 ring-white/15 flex flex-col justify-between relative overflow-hidden">
+            <div className="flex items-center justify-center gap-1.5 translate-x-1 relative z-10">
               <span className="font-mono text-[11px] text-[#E5D9B6] tracking-wider font-bold uppercase translate-y-0.5">
                 STREAK
               </span>
@@ -192,11 +192,11 @@ function TaskList({
                 loop
                 muted
                 playsInline
-                className="w-8 h-8 object-contain"
+                className="w-8 h-8 object-contain drop-shadow-sm"
               />
             </div>
-            <div className="my-auto pt-1 flex items-center flex-col text-center">
-              <span className="text-[34px] font-bold text-white leading-none tracking-tight font-sans">
+            <div className="my-auto pt-1 flex items-center flex-col text-center relative z-10">
+              <span className="text-[34px] font-bold text-white leading-none tracking-tight font-sans drop-shadow-sm">
                 {streak}
               </span>
               <span className="text-[13px] text-[#E5D9B6] font-medium mt-1 font-sans">Days</span>
@@ -210,8 +210,8 @@ function TaskList({
             onClick={() => onSelectProject(null)}
             className={`shrink-0 h-10 px-4 rounded-full flex items-center gap-2 transition-transform active:scale-95 font-semibold text-[13px] font-sans ${
               !selectedProjectId
-                ? 'bg-primary text-white'
-                : 'bg-surface border border-border text-primary hover:bg-[#F4F1EA]'
+                ? 'bg-primary text-white shadow-sm shadow-primary/25 ring-1 ring-white/20'
+                : 'bg-surface border border-border text-primary shadow-xs ring-1 ring-white/60 hover:bg-[#F4F1EA]'
             }`}
           >
             {!selectedProjectId && <Check size={14} className="text-[#E5D9B6]" />}
@@ -225,10 +225,10 @@ function TaskList({
               <button
                 key={proj.id}
                 onClick={() => onSelectProject(isSel ? null : proj.id)}
-                className={`shrink-0 h-10 px-4 rounded-full flex items-center gap-2 shadow-xs transition-transform active:scale-95 font-semibold text-[13px] font-sans ${
+                className={`shrink-0 h-10 px-4 rounded-full flex items-center gap-2 transition-transform active:scale-95 font-semibold text-[13px] font-sans ${
                   isSel
-                    ? 'bg-primary text-white'
-                    : 'bg-surface border border-border text-primary hover:bg-[#F4F1EA]'
+                    ? 'bg-primary text-white shadow-sm shadow-primary/25 ring-1 ring-white/20'
+                    : 'bg-surface border border-border text-primary shadow-xs ring-1 ring-white/60 hover:bg-[#F4F1EA]'
                 }`}
               >
                 {!isSel && (
@@ -288,7 +288,7 @@ function TaskList({
         {/* Task List Cards */}
         <section className="flex flex-col gap-3">
           {filteredTasks.length === 0 ? (
-            <div className="bg-surface border border-border rounded-[24px] p-8 text-center flex flex-col items-center shadow-sm">
+            <div className="bg-surface border border-border rounded-[24px] p-8 text-center flex flex-col items-center shadow-xs ring-1 ring-white/70">
               <DotLottieReact
                 src={emptyLottie}
                 loop
@@ -309,8 +309,8 @@ function TaskList({
               return (
                 <article
                   key={task.id}
-                  className={`group bg-surface border border-border rounded-full p-2.5 pl-4 flex items-center justify-between shadow-sm transition-all hover:shadow-md cursor-pointer ${
-                    task.completed ? 'opacity-60' : ''
+                  className={`group bg-surface border border-border rounded-full p-2.5 pl-4 flex items-center justify-between shadow-xs ring-1 ring-white/60 transition-all hover:shadow-sm active:scale-[0.99] cursor-pointer ${
+                    task.completed ? 'opacity-60 bg-surface/70' : ''
                   }`}
                   onClick={() => onEditTask && onEditTask(task)}
                 >
@@ -321,9 +321,9 @@ function TaskList({
                         e.stopPropagation();
                         onToggleComplete && onToggleComplete(task.id);
                       }}
-                      className={`w-6 h-6 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
+                      className={`w-6 h-6 rounded-full border flex items-center justify-center shrink-0 transition-colors shadow-2xs ${
                         task.completed
-                          ? 'bg-secondary border-secondary'
+                          ? 'bg-secondary border-secondary text-white'
                           : 'border-border bg-[#F4F1EA] hover:border-secondary'
                       }`}
                     >
@@ -370,7 +370,7 @@ function TaskList({
                         e.stopPropagation();
                         onStartPomodoro && onStartPomodoro(task);
                       }}
-                      className="w-11 h-11 rounded-full bg-[#F4F1EA] text-primary flex items-center justify-center shrink-0 hover:bg-secondary hover:text-white transition-all shadow-sm active:scale-95"
+                      className="w-11 h-11 rounded-full bg-[#F4F1EA] border border-border/60 text-primary flex items-center justify-center shrink-0 hover:bg-secondary hover:text-white transition-all shadow-xs ring-1 ring-white/80 active:scale-95"
                     >
                       <Play size={16} className="translate-x-0.5 fill-current" />
                     </button>

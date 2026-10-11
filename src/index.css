@@ -35,16 +35,16 @@
     --theme-text-main: #191D15;
     --theme-text-sub: #747870;
 
-    /* Shadows - Soft, luminous, not too dark */
-    --shadow-2xs: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
-    --shadow-xs: 0 1px 3px 0 rgba(0, 0, 0, 0.03), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
-    --shadow-sm: 0 2px 6px -1px rgba(0, 0, 0, 0.04), 0 1px 3px -1px rgba(0, 0, 0, 0.02);
-    --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.04), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
-    --shadow-lg: 0 8px 20px -4px rgba(0, 0, 0, 0.05), 0 3px 8px -2px rgba(0, 0, 0, 0.02);
-    --shadow-xl: 0 12px 28px -6px rgba(0, 0, 0, 0.05), 0 4px 12px -3px rgba(0, 0, 0, 0.02);
-    --shadow-2xl: 0 18px 36px -8px rgba(0, 0, 0, 0.06), 0 6px 14px -4px rgba(0, 0, 0, 0.02);
-    --shadow-soft: 0 6px 18px -3px rgba(0, 0, 0, 0.04), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
-    --shadow-ambient: 0 0 30px -8px rgba(0, 0, 0, 0.03);
+    /* Shadows - Rich organic Japandi depth with ambient warmth */
+    --shadow-2xs: 0 1px 2px 0 rgba(40, 48, 35, 0.04);
+    --shadow-xs: 0 1px 3px 0 rgba(40, 48, 35, 0.06), 0 1px 2px -1px rgba(40, 48, 35, 0.04);
+    --shadow-sm: 0 2px 6px -1px rgba(40, 48, 35, 0.07), 0 1px 3px -1px rgba(40, 48, 35, 0.05);
+    --shadow-md: 0 6px 16px -3px rgba(40, 48, 35, 0.09), 0 2px 6px -1px rgba(40, 48, 35, 0.05);
+    --shadow-lg: 0 12px 26px -4px rgba(40, 48, 35, 0.11), 0 4px 10px -2px rgba(40, 48, 35, 0.06);
+    --shadow-xl: 0 18px 36px -6px rgba(40, 48, 35, 0.13), 0 6px 14px -3px rgba(40, 48, 35, 0.07);
+    --shadow-2xl: 0 24px 48px -8px rgba(40, 48, 35, 0.16), 0 8px 18px -4px rgba(40, 48, 35, 0.08);
+    --shadow-soft: 0 8px 22px -3px rgba(40, 48, 35, 0.08), 0 3px 8px -1px rgba(40, 48, 35, 0.04);
+    --shadow-ambient: 0 0 36px -6px rgba(40, 48, 35, 0.08);
   }
 
   [data-theme='dark'] {
@@ -58,15 +58,15 @@
     --theme-text-main: #F4F4F5;
     --theme-text-sub: #A1A1AA;
 
-    --shadow-2xs: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
-    --shadow-xs: 0 1px 3px 0 rgba(0, 0, 0, 0.25), 0 1px 2px -1px rgba(0, 0, 0, 0.15);
-    --shadow-sm: 0 2px 6px -1px rgba(0, 0, 0, 0.25), 0 1px 3px -1px rgba(0, 0, 0, 0.15);
-    --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.28), 0 2px 6px -1px rgba(0, 0, 0, 0.18);
-    --shadow-lg: 0 8px 20px -4px rgba(0, 0, 0, 0.32), 0 3px 8px -2px rgba(0, 0, 0, 0.2);
-    --shadow-xl: 0 12px 28px -6px rgba(0, 0, 0, 0.35), 0 4px 12px -3px rgba(0, 0, 0, 0.22);
-    --shadow-2xl: 0 18px 36px -8px rgba(0, 0, 0, 0.4), 0 6px 14px -4px rgba(0, 0, 0, 0.25);
-    --shadow-soft: 0 6px 18px -3px rgba(0, 0, 0, 0.28), 0 2px 6px -1px rgba(0, 0, 0, 0.18);
-    --shadow-ambient: 0 0 30px -8px rgba(0, 0, 0, 0.25);
+    --shadow-2xs: 0 1px 2px 0 rgba(0, 0, 0, 0.35);
+    --shadow-xs: 0 2px 4px 0 rgba(0, 0, 0, 0.4), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
+    --shadow-sm: 0 3px 8px -1px rgba(0, 0, 0, 0.45), 0 1px 4px -1px rgba(0, 0, 0, 0.35);
+    --shadow-md: 0 8px 20px -3px rgba(0, 0, 0, 0.52), 0 3px 8px -1px rgba(0, 0, 0, 0.38);
+    --shadow-lg: 0 14px 28px -4px rgba(0, 0, 0, 0.58), 0 5px 12px -2px rgba(0, 0, 0, 0.42);
+    --shadow-xl: 0 20px 38px -6px rgba(0, 0, 0, 0.65), 0 8px 16px -3px rgba(0, 0, 0, 0.48);
+    --shadow-2xl: 0 28px 52px -8px rgba(0, 0, 0, 0.72), 0 10px 22px -4px rgba(0, 0, 0, 0.55);
+    --shadow-soft: 0 10px 24px -3px rgba(0, 0, 0, 0.52), 0 4px 10px -1px rgba(0, 0, 0, 0.38);
+    --shadow-ambient: 0 0 40px -4px rgba(0, 0, 0, 0.55);
   }
   
   [data-theme='ocean'] {
@@ -80,15 +80,15 @@
     --theme-text-main: #1A202C;
     --theme-text-sub: #4A5568;
 
-    --shadow-2xs: 0 1px 2px 0 rgba(26, 54, 93, 0.02);
-    --shadow-xs: 0 1px 3px 0 rgba(26, 54, 93, 0.03), 0 1px 2px -1px rgba(26, 54, 93, 0.02);
-    --shadow-sm: 0 2px 6px -1px rgba(26, 54, 93, 0.04), 0 1px 3px -1px rgba(26, 54, 93, 0.02);
-    --shadow-md: 0 4px 12px -2px rgba(26, 54, 93, 0.04), 0 2px 6px -1px rgba(26, 54, 93, 0.02);
-    --shadow-lg: 0 8px 20px -4px rgba(26, 54, 93, 0.05), 0 3px 8px -2px rgba(26, 54, 93, 0.02);
-    --shadow-xl: 0 12px 28px -6px rgba(26, 54, 93, 0.05), 0 4px 12px -3px rgba(26, 54, 93, 0.02);
-    --shadow-2xl: 0 18px 36px -8px rgba(26, 54, 93, 0.06), 0 6px 14px -4px rgba(26, 54, 93, 0.02);
-    --shadow-soft: 0 6px 18px -3px rgba(26, 54, 93, 0.04), 0 2px 6px -1px rgba(26, 54, 93, 0.02);
-    --shadow-ambient: 0 0 30px -8px rgba(26, 54, 93, 0.03);
+    --shadow-2xs: 0 1px 2px 0 rgba(26, 54, 93, 0.04);
+    --shadow-xs: 0 1px 3px 0 rgba(26, 54, 93, 0.06), 0 1px 2px -1px rgba(26, 54, 93, 0.04);
+    --shadow-sm: 0 2px 6px -1px rgba(26, 54, 93, 0.07), 0 1px 3px -1px rgba(26, 54, 93, 0.05);
+    --shadow-md: 0 6px 16px -3px rgba(26, 54, 93, 0.09), 0 2px 6px -1px rgba(26, 54, 93, 0.05);
+    --shadow-lg: 0 12px 26px -4px rgba(26, 54, 93, 0.11), 0 4px 10px -2px rgba(26, 54, 93, 0.06);
+    --shadow-xl: 0 18px 36px -6px rgba(26, 54, 93, 0.13), 0 6px 14px -3px rgba(26, 54, 93, 0.07);
+    --shadow-2xl: 0 24px 48px -8px rgba(26, 54, 93, 0.16), 0 8px 18px -4px rgba(26, 54, 93, 0.08);
+    --shadow-soft: 0 8px 22px -3px rgba(26, 54, 93, 0.08), 0 3px 8px -1px rgba(26, 54, 93, 0.04);
+    --shadow-ambient: 0 0 36px -6px rgba(26, 54, 93, 0.08);
   }
 
   body {
@@ -152,19 +152,32 @@
   box-shadow: 0 -4px 6px -1px rgba(0,0,0,0.04);
 }
 
-/* ── Card Utility ──────────────────────────────────────────── */
+/* ── Card Utility with Tactile Bevel & Ambient Lighting ── */
 .card {
-  background: var(--surface-card);
-  border: 1px solid var(--surface-border);
+  background: var(--theme-surface, #FFFFFF);
+  border: 1px solid var(--theme-border, #EDE7DA);
   border-radius: 1rem;
-  box-shadow: var(--shadow-soft);
+  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.75) inset, var(--shadow-sm);
 }
 
 .card-2xl {
-  background: var(--surface-card);
-  border: 1px solid var(--surface-border);
+  background: var(--theme-surface, #FFFFFF);
+  border: 1px solid var(--theme-border, #EDE7DA);
   border-radius: 1.5rem;
-  box-shadow: var(--shadow-soft);
+  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.8) inset, var(--shadow-md);
+}
+
+.tactile-surface {
+  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.6) inset, var(--shadow-xs);
+}
+
+.tactile-btn {
+  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.25) inset, 0 2px 4px 0 rgba(40, 48, 35, 0.12);
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.tactile-btn:active {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1) inset;
+  transform: translateY(1px);
 }
 
 /* ── Squish Interactions ───────────────────────────────────── */

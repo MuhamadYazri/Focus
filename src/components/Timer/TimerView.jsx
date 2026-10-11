@@ -34,33 +34,17 @@ const AnimatedDigit = ({ char, isColon }) => {
       className="relative inline-block text-center h-[64px]"
       style={{ width: isColon ? '18px' : '40px' }}
     >
-      <style>
-        {`
-          @keyframes tickOut {
-            0% { transform: translateY(0%); opacity: 1; filter: blur(0px); }
-            100% { transform: translateY(50%); opacity: 0; filter: blur(2px); }
-          }
-          @keyframes tickIn {
-            0% { transform: translateY(-50%); opacity: 0; filter: blur(2px); }
-            100% { transform: translateY(0%); opacity: 1; filter: blur(0px); }
-          }
-        `}
-      </style>
       {animating && (
         <span
           key={`out-${prev}`}
-          className="absolute top-0 left-0 w-full h-full flex items-center justify-center"
-          style={{ animation: 'tickOut 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}
+          className="absolute top-0 left-0 w-full h-full flex items-center justify-center animate-tick-out pointer-events-none"
         >
           {prev}
         </span>
       )}
       <span
         key={`in-${curr}`}
-        className="absolute top-0 left-0 w-full h-full flex items-center justify-center"
-        style={{
-          animation: animating ? 'tickIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards' : 'none',
-        }}
+        className={`absolute top-0 left-0 w-full h-full flex items-center justify-center ${animating ? 'animate-tick-in' : ''}`}
       >
         {curr}
       </span>

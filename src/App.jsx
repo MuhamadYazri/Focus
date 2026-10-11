@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { PlusIcon as Plus } from 'lucide-animated';
 import BottomNav from './components/Navigation/BottomNav';
 import TaskList from './components/Tasks/TaskList';
@@ -68,6 +68,9 @@ export default function App() {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [isLoaded, setIsLoaded] = useState(false);
   const [showPreloader, setShowPreloader] = useState(true);
+  const handleFinishPreloader = useCallback(() => {
+    setShowPreloader(false);
+  }, []);
 
   // Timer State
   const [timerMode, setTimerMode] = useState('work');
@@ -552,10 +555,6 @@ export default function App() {
     setTimeLeft(25 * 60);
   };
 
-  if (!isLoaded) {
-    return <SplitRevealPreloader />;
-  }
-
   const getTotalTimeForMode = () => {
     if (timerMode === 'work') return settings.workDuration * 60;
     if (timerMode === 'shortBreak') return settings.shortBreakDuration * 60;
@@ -708,7 +707,7 @@ export default function App() {
     >
       {/* App Launch Split Reveal Animation */}
       {showPreloader && (
-        <SplitRevealPreloader onFinish={() => setShowPreloader(false)} />
+        <SplitRevealPreloader onFinish={handleFinishPreloader} />
       )}
 
       {/* Tab Screens (Pre-mounted for instant 0ms switching) */}

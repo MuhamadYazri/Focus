@@ -12,6 +12,7 @@
     "apk:release": "vite build && ANDROID_HOME=/home/muhamad-yazri/Android/Sdk JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 npx cap sync android && cd android && ANDROID_HOME=/home/muhamad-yazri/Android/Sdk JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew assembleRelease && cd .. && cp android/app/build/outputs/apk/release/app-release.apk Focus-v1.0.1-release.apk",
     "apk:install": "vite build && ANDROID_HOME=/home/muhamad-yazri/Android/Sdk JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 npx cap run android",
     "apk:push": "adb install -r android/app/build/outputs/apk/debug/app-debug.apk",
+    "apk:push:release": "adb install -r android/app/build/outputs/apk/release/app-release.apk",
     "lint": "oxlint",
     "preview": "vite preview"
   },

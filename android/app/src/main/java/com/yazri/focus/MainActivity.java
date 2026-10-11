@@ -1,4 +1,4 @@
-package com.focustodo.app;
+package com.yazri.focus;
 
 import com.getcapacitor.BridgeActivity;
 

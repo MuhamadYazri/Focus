@@ -17,6 +17,8 @@
 -keepattributes SourceFile,LineNumberTable
 
 # Capacitor core and plugin protections
+-keep public class * extends com.getcapacitor.BridgeActivity { *; }
+-keep public class com.yazri.focus.MainActivity { *; }
 -keep public class * extends com.getcapacitor.Plugin
 -keep public class com.getcapacitor.** { *; }
 -keepclassmembers class * {

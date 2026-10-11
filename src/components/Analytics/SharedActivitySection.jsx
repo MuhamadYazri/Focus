@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { ChevronLeft, ChevronRight, Clock, CheckCircle } from 'lucide-react';
 import RollText from '../animata/text/roll-text';
 
@@ -33,16 +33,15 @@ const formatDisplayHours = (totalMins) => {
   return `${hrs}h ${String(mins).padStart(2, '0')}m`;
 };
 
-export default function SharedActivitySection({ showKPIs = true, sessions = [], onPeriodChange }) {
+function SharedActivitySection({ showKPIs = true, sessions = [], onPeriodChange }) {
   const [period, setPeriod] = useState('Daily');
   const [offset, setOffset] = useState(0);
-  const now = new Date();
   const maxBarH = 64; // Adjusted for new design
 
   const isAll = period === 'All';
 
   const getDateRangeLabel = (p, off) => {
-    const d = new Date(now);
+    const d = new Date();
     if (p === 'Daily') {
       d.setDate(d.getDate() + off);
       const isToday = off === 0;
@@ -93,13 +92,13 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
   };
 
   const generateHeatmapGrid = (endDateRef, hlStart, hlEnd) => {
-    const ref = new Date(endDateRef || now);
+    const ref = new Date(endDateRef || new Date());
     const firstDayOfMonth = new Date(ref.getFullYear(), ref.getMonth(), 1);
     const dayOfWeek = firstDayOfMonth.getDay() || 7;
     const startMon = new Date(firstDayOfMonth);
     startMon.setDate(firstDayOfMonth.getDate() - (dayOfWeek - 1));
 
-    const todayStr = getLocalDateStr(now);
+    const todayStr = getLocalDateStr(new Date());
     const rangeStart = hlStart || todayStr;
     const rangeEnd = hlEnd || rangeStart;
     const targetMonthPrefix = `${ref.getFullYear()}-${String(ref.getMonth() + 1).padStart(2, '0')}`;
@@ -141,17 +140,30 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
     return grid;
   };
 
-  // Dynamically compute dataset based on period & offset
-  let displayHours = '0h 00m';
-  let displayPomos = 0;
-  let displaySubToday = '0h today';
-  let displaySubDays = '0 active days';
-  let activeHeatmap = [];
-  let activeChart = [];
-  let chartTitle = 'Total per day';
-  let chartPeakLabel = 'No activity';
-  let chartSubLabel = 'Hours focused by day of week';
-  let heatmapTitleDate = 'Month';
+  // Dynamically compute dataset based on period & offset using useMemo
+  const {
+    displayHours,
+    displayPomos,
+    displaySubToday,
+    displaySubDays,
+    activeHeatmap,
+    activeChart,
+    chartTitle,
+    chartPeakLabel,
+    chartSubLabel,
+    heatmapTitleDate,
+  } = useMemo(() => {
+    const now = new Date();
+    let displayHours = '0h 00m';
+    let displayPomos = 0;
+    let displaySubToday = '0h today';
+    let displaySubDays = '0 active days';
+    let activeHeatmap = [];
+    let activeChart = [];
+    let chartTitle = 'Total per day';
+    let chartPeakLabel = 'No activity';
+    let chartSubLabel = 'Hours focused by day of week';
+    let heatmapTitleDate = 'Month';
 
   if (period === 'Daily') {
     const targetDate = new Date(now);
@@ -422,6 +434,20 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
     chartSubLabel = 'All-time focus progression';
   }
 
+    return {
+      displayHours,
+      displayPomos,
+      displaySubToday,
+      displaySubDays,
+      activeHeatmap,
+      activeChart,
+      chartTitle,
+      chartPeakLabel,
+      chartSubLabel,
+      heatmapTitleDate,
+    };
+  }, [period, offset, sessions]);
+
   const dateLabel = getDateRangeLabel(period, offset);
 
   // Notify parent of period/data changes
@@ -642,3 +668,5 @@ export default function SharedActivitySection({ showKPIs = true, sessions = [], 
     </div>
   );
 }
+
+export default React.memo(SharedActivitySection);

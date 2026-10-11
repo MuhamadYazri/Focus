@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import SharedActivitySection from './SharedActivitySection';
 
 import RingChart from '../animata/graphs/ring-chart';
@@ -72,44 +72,52 @@ function AnalyticsDashboard({ tasks = [], projects = [], sessions = [] }) {
     return `${h}h ${m < 10 ? '0' : ''}${m}m`;
   };
 
-  const filteredSessions = filterSessionsForPeriod(sessions, currentPeriod, currentOffset);
-  const totalMins = (filteredSessions || []).reduce((acc, s) => acc + (s.duration || 25), 0);
-  const displayTotalTime = formatDisplayHours(totalMins);
+  const filteredSessions = useMemo(() => {
+    return filterSessionsForPeriod(sessions, currentPeriod, currentOffset);
+  }, [sessions, currentPeriod, currentOffset]);
 
-  const computedSegments = (
-    projects && projects.length
+  const totalMins = useMemo(() => {
+    return (filteredSessions || []).reduce((acc, s) => acc + (s.duration || 25), 0);
+  }, [filteredSessions]);
+
+  const displayTotalTime = useMemo(() => formatDisplayHours(totalMins), [totalMins]);
+
+  const activeSegments = useMemo(() => {
+    const projList = (projects && projects.length)
       ? projects
       : [
           { id: 'proj-1', name: '01 // STUDY', color: TAILWIND_COLORS[0] },
           { id: 'proj-2', name: '02 // PERSONAL_APP_DEV', color: TAILWIND_COLORS[1] },
           { id: 'proj-3', name: '03 // SYS_ARCHITECTURE', color: TAILWIND_COLORS[2] },
-        ]
-  )
-    .map((proj, idx) => {
-      const projSessions = (filteredSessions || []).filter((s) => {
-        return s.projectId === proj.id || (!s.projectId && idx === 0);
-      });
-      const count = projSessions.length;
-      const projMins = projSessions.reduce((acc, s) => acc + (s.duration || 25), 0);
-      const pct = totalMins > 0 ? Math.round((projMins / totalMins) * 100) : 0;
-      return {
-        label: proj.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' '),
-        pct,
-        count,
-        mins: projMins,
-        displayTime: formatDisplayHours(projMins),
-        color:
-          proj.color?.startsWith('var(') || !proj.color
-            ? TAILWIND_COLORS[idx % TAILWIND_COLORS.length]
-            : proj.color,
-      };
-    })
-    .filter((seg) => seg.pct > 0 || seg.count > 0)
-    .sort((a, b) => b.mins - a.mins);
+        ];
 
-  const activeSegments = computedSegments.length
-    ? computedSegments
-    : [{ label: 'No Data', pct: 100, count: 0, mins: 0, displayTime: '0h 00m', color: '#E5D9B6' }];
+    const computed = projList
+      .map((proj, idx) => {
+        const projSessions = (filteredSessions || []).filter((s) => {
+          return s.projectId === proj.id || (!s.projectId && idx === 0);
+        });
+        const count = projSessions.length;
+        const projMins = projSessions.reduce((acc, s) => acc + (s.duration || 25), 0);
+        const pct = totalMins > 0 ? Math.round((projMins / totalMins) * 100) : 0;
+        return {
+          label: proj.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' '),
+          pct,
+          count,
+          mins: projMins,
+          displayTime: formatDisplayHours(projMins),
+          color:
+            proj.color?.startsWith('var(') || !proj.color
+              ? TAILWIND_COLORS[idx % TAILWIND_COLORS.length]
+              : proj.color,
+        };
+      })
+      .filter((seg) => seg.pct > 0 || seg.count > 0)
+      .sort((a, b) => b.mins - a.mins);
+
+    return computed.length
+      ? computed
+      : [{ label: 'No Data', pct: 100, count: 0, mins: 0, displayTime: '0h 00m', color: '#E5D9B6' }];
+  }, [projects, filteredSessions, totalMins]);
 
   return (
     <main className="flex-1 w-full bg-canvas pt-15 pb-28 min-h-[100dvh] relative text-text-main selection:bg-primary selection:text-white">

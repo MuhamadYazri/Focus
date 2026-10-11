@@ -1,10 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import { motion } from 'framer-motion';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import studyingLottie1 from '../../assets/studyingAnimation.lottie';
 import studyingLottie2 from '../../assets/studyingAnimation2.lottie';
 import relaxLottie from '../../assets/relaxAnimation.lottie';
 import catSleepLottie from '../../assets/catSleepAnimation.lottie';
-import { SkipForward, Headphones, Volume2, Unlock } from 'lucide-react';
+import {
+  SkipForward,
+  Headphones,
+  Volume2,
+  VolumeX,
+  Unlock,
+  CloudRain,
+  Trees,
+  Waves,
+  Coffee,
+  Clock,
+} from 'lucide-react';
 import {
   PlayIcon as Play,
   PauseIcon as Pause,
@@ -54,7 +67,12 @@ const AnimatedDigit = ({ char, isColon }) => {
   );
 };
 
-const TimerClockRing = React.memo(function TimerClockRing({ timeLeft, totalTime, isNavHidden }) {
+const TimerClockRing = React.memo(function TimerClockRing({
+  timeLeft,
+  totalTime,
+  isNavHidden,
+  mode = 'work',
+}) {
   const circumference = 691.15;
   const progress = totalTime > 0 ? (totalTime - timeLeft) / totalTime : 0;
   const strokeDashoffset = circumference * progress;
@@ -62,6 +80,7 @@ const TimerClockRing = React.memo(function TimerClockRing({ timeLeft, totalTime,
   const m = Math.floor(timeLeft / 60);
   const s = timeLeft % 60;
   const timeString = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+  const isBreak = mode === 'shortBreak' || mode === 'longBreak';
 
   return (
     <div
@@ -80,7 +99,9 @@ const TimerClockRing = React.memo(function TimerClockRing({ timeLeft, totalTime,
           strokeWidth="10"
         />
         <circle
-          className="text-secondary transition-all duration-1000 ease-linear"
+          className={`${
+            isBreak ? 'text-[#4F7775]' : 'text-secondary'
+          } transition-all duration-1000 ease-linear`}
           cx="130"
           cy="130"
           r="110"
@@ -110,12 +131,12 @@ const MODE_TABS = [
 ];
 
 const soundscapes = [
-  { id: 'none', label: 'Silent' },
-  { id: 'forest', label: 'Forest' },
-  { id: 'rain', label: 'Rain' },
-  { id: 'waves', label: 'Waves' },
-  { id: 'cafe', label: 'Cafe' },
-  { id: 'clock', label: 'Ticking' },
+  { id: 'none', label: 'Silent', Icon: VolumeX },
+  { id: 'forest', label: 'Forest', Icon: Trees },
+  { id: 'rain', label: 'Rain', Icon: CloudRain },
+  { id: 'waves', label: 'Waves', Icon: Waves },
+  { id: 'cafe', label: 'Cafe', Icon: Coffee },
+  { id: 'clock', label: 'Ticking', Icon: Clock },
 ];
 
 function TimerView({
@@ -193,6 +214,7 @@ function TimerView({
     <div
       className="flex flex-col h-[100dvh] w-full overflow-y-auto overflow-x-hidden transition-colors duration-700 ease-in-out bg-transparent text-text-main selection:bg-secondary/20"
       onClick={() => {
+        if (showSoundModal) return;
         if (onToggleNav) onToggleNav();
       }}
     >
@@ -207,7 +229,7 @@ function TimerView({
             {/* Wrapper to restore pointer events for children */}
             <div className="pointer-events-auto">
               <div
-                className="w-full bg-surface border border-border rounded-full p-1.5 flex items-center justify-between shadow-inner ring-1 ring-white/60 mb-4"
+                className="w-full bg-surface border border-border rounded-full p-1.5 flex items-center justify-between shadow-inner ring-1 ring-white/60 mb-4 relative"
                 onClick={stopProp}
               >
                 {MODE_TABS.map(({ key, label }) => {
@@ -219,42 +241,55 @@ function TimerView({
                         if (window.navigator?.vibrate) window.navigator.vibrate(10);
                         if (onModeChange) onModeChange(key);
                       }}
-                      className={`flex-1 py-2.5 px-3 rounded-full font-semibold text-xs md:text-sm transition-all ${
-                        on
-                          ? 'bg-primary text-white shadow-xs ring-1 ring-white/20'
-                          : 'text-[#444841] font-medium hover:text-primary'
+                      className={`relative flex-1 py-2.5 px-3 rounded-full font-semibold text-xs md:text-sm transition-colors z-10 ${
+                        on ? 'text-white' : 'text-[#444841] font-medium hover:text-primary'
                       }`}
                     >
-                      {label}
+                      {on && (
+                        <motion.div
+                          layoutId="timerModeTabPill"
+                          className="absolute inset-0 bg-primary rounded-full shadow-xs ring-1 ring-white/20 z-[-1]"
+                          transition={{ type: 'spring', bounce: 0.15, duration: 0.45 }}
+                        />
+                      )}
+                      <span className="relative z-10">{label}</span>
                     </button>
                   );
                 })}
               </div>
 
               {/* Status Indicator */}
-              {activeTask?.title ? (
-                <div className="flex flex-col items-center justify-center gap-1.5 mb-2 h-6">
-                  <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center mb-2 h-7" onClick={stopProp}>
+                {activeTask?.title ? (
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface border border-border shadow-2xs ring-1 ring-white/70 max-w-[270px]">
                     <span
-                      className={`w-2 h-2 rounded-full ${
-                        isRunning ? 'bg-secondary shadow-sm animate-pulse' : 'bg-[#E5D9B6]'
+                      className={`w-2 h-2 rounded-full shrink-0 ${
+                        isRunning ? 'bg-secondary shadow-xs animate-pulse' : 'bg-[#E5D9B6]'
                       }`}
                     ></span>
-                    <span className="font-sans font-medium text-xs text-[#444841] tracking-wide">
-                      {activeTask.title.substring(0, 25)}
+                    <span className="font-sans font-semibold text-xs text-primary truncate">
+                      {activeTask.title}
                     </span>
                   </div>
-                </div>
-              ) : (
-                <div className="h-6 mb-2"></div>
-              )}
+                ) : (
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface/60 border border-border/60 text-text-sub text-[11px] font-sans">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#D8D2C4] shrink-0"></span>
+                    <span>Focus Session · General</span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
         {/* MIDDLE SECTION (TIMER) */}
         <div className="flex flex-col items-center justify-center w-full relative">
-          <TimerClockRing timeLeft={timeLeft} totalTime={totalTime} isNavHidden={isNavHidden} />
+          <TimerClockRing
+            timeLeft={timeLeft}
+            totalTime={totalTime}
+            isNavHidden={isNavHidden}
+            mode={mode}
+          />
 
           {/* Immersive Animation */}
           <div
@@ -292,16 +327,20 @@ function TimerView({
                         key={n}
                         className={`h-1.5 rounded-full transition-all ${
                           isCurrent
-                            ? 'w-4 bg-secondary'
+                            ? `w-4 ${mode === 'work' ? 'bg-secondary' : 'bg-[#4F7775]'}`
                             : isDone
-                            ? 'w-1.5 bg-secondary/60'
+                            ? `w-1.5 ${mode === 'work' ? 'bg-secondary/60' : 'bg-[#4F7775]/60'}`
                             : 'w-1.5 bg-[#E5D9B6]'
                         }`}
                       ></span>
                     );
                   })}
                 </div>
-                <span className="font-sans text-[11px] text-secondary font-bold tracking-wider uppercase">
+                <span
+                  className={`font-sans text-[11px] font-bold tracking-wider uppercase ${
+                    mode === 'work' ? 'text-secondary' : 'text-[#4F7775]'
+                  }`}
+                >
                   {getSubLabel()}
                 </span>
               </div>
@@ -384,7 +423,7 @@ function TimerView({
                       if (window.navigator?.vibrate) window.navigator.vibrate(10);
                       setShowSoundModal(true);
                     }}
-                    className="relative flex items-center gap-2 cursor-pointer px-2.5 py-1.5 rounded-full hover:bg-canvas transition-colors"
+                    className="relative flex items-center gap-2 cursor-pointer px-3 py-1.5 rounded-full hover:bg-canvas transition-colors border border-transparent hover:border-border"
                   >
                     <Headphones size={18} className="text-secondary" />
                     <span className="text-sm font-semibold text-primary font-sans">
@@ -392,11 +431,19 @@ function TimerView({
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <Volume2 size={16} className="text-secondary" />
-                    <div className="w-20 h-1.5 bg-[#E5D9B6] rounded-full overflow-hidden flex relative">
+                  <div
+                    className={`flex items-center gap-2.5 ${
+                      currentSound === 'none' ? 'opacity-40 pointer-events-none' : ''
+                    }`}
+                  >
+                    {currentSound === 'none' ? (
+                      <VolumeX size={16} className="text-text-sub" />
+                    ) : (
+                      <Volume2 size={16} className="text-secondary" />
+                    )}
+                    <div className="w-22 h-2 bg-[#EDE7DA] rounded-full overflow-hidden flex relative shadow-inner">
                       <div
-                        className="h-full bg-secondary rounded-full"
+                        className="h-full bg-secondary rounded-full transition-all duration-150"
                         style={{ width: `${soundVolume * 100}%` }}
                       ></div>
                       <input
@@ -465,71 +512,101 @@ function TimerView({
       </div>
 
       {/* Soundscape Modal */}
-      {showSoundModal && (
-        <div
-          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-canvas/40 backdrop-blur-md animate-fadeIn"
-          onClick={() => setShowSoundModal(false)}
-        >
+      {showSoundModal &&
+        createPortal(
           <div
-            className="w-full max-w-sm rounded-3xl p-6 flex flex-col gap-5 border border-border bg-surface shadow-2xl ring-1 ring-white/80"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-[70] flex items-center justify-center p-4 animate-fadeIn select-none"
+            style={{
+              background: 'rgba(25, 29, 21, 0.45)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowSoundModal(false);
+            }}
+            onTouchStart={(e) => e.stopPropagation()}
+            onTouchEnd={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between z-10 pb-2 border-b border-border">
-              <span className="text-sm text-text-main font-sans font-bold">Select Soundscape</span>
-              <button
-                onClick={() => setShowSoundModal(false)}
-                className="w-8 h-8 flex items-center justify-center rounded-full bg-surface-hover text-text-sub hover:bg-border transition-colors"
-              >
-                <XIcon size={18} strokeWidth={2.5} />
-              </button>
-            </div>
+            <div
+              className="w-full max-w-sm rounded-3xl p-6 flex flex-col gap-5 border border-border bg-surface shadow-2xl ring-1 ring-white/80"
+              onClick={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+              onTouchEnd={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between z-10 pb-2 border-b border-border">
+                <span className="text-sm text-text-main font-sans font-bold">Select Soundscape</span>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowSoundModal(false);
+                  }}
+                  className="w-8 h-8 flex items-center justify-center rounded-full bg-surface-hover text-text-sub hover:bg-border transition-colors active:scale-95"
+                >
+                  <XIcon size={18} strokeWidth={2.5} />
+                </button>
+              </div>
 
-            <div className="flex flex-col gap-2 max-h-72 overflow-y-auto no-scrollbar">
-              {soundscapes.map((s) => {
-                const isActive = s.id === currentSound;
-                return (
-                  <button
-                    key={s.id}
-                    onClick={() => {
-                      if (window.navigator?.vibrate) window.navigator.vibrate(10);
-                      handleSelectSound(s.id);
-                      setShowSoundModal(false);
-                    }}
-                    className={`flex items-center justify-between p-3.5 rounded-xl border transition-all text-left ${
-                      isActive
-                        ? 'border-primary/80 bg-surface-hover shadow-xs ring-1 ring-white/50'
-                        : 'border-border bg-surface hover:border-secondary shadow-2xs'
-                    }`}
-                  >
-                    <span
-                      className={`text-sm font-sans ${
-                        isActive ? 'font-bold text-primary' : 'font-medium text-text-main'
+              <div className="flex flex-col gap-2 max-h-[380px] overflow-y-auto no-scrollbar pr-0.5">
+                {soundscapes.map((s) => {
+                  const isActive = s.id === currentSound;
+                  const SoundIcon = s.Icon;
+                  return (
+                    <button
+                      key={s.id}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (window.navigator?.vibrate) window.navigator.vibrate(10);
+                        handleSelectSound(s.id);
+                        setShowSoundModal(false);
+                      }}
+                      className={`flex items-center justify-between p-2.5 px-3 rounded-2xl border transition-all text-left ${
+                        isActive
+                          ? 'border-primary/80 bg-surface-hover shadow-xs ring-1 ring-white/50'
+                          : 'border-border bg-surface hover:border-secondary shadow-2xs active:scale-[0.99]'
                       }`}
                     >
-                      {s.label}
-                    </span>
-                    {isActive && (
-                      <svg
-                        fill="none"
-                        height="18"
-                        stroke="currentColor"
-                        className="stroke-primary"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        viewBox="0 0 24 24"
-                        width="18"
-                      >
-                        <path d="M20 6L9 17l-5-5"></path>
-                      </svg>
-                    )}
-                  </button>
-                );
-              })}
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                            isActive
+                              ? 'bg-primary text-white shadow-xs'
+                              : 'bg-[#F4F1EA] text-[#636F5A]'
+                          }`}
+                        >
+                          <SoundIcon size={16} strokeWidth={2.2} />
+                        </div>
+                        <span
+                          className={`text-sm font-sans ${
+                            isActive ? 'font-bold text-primary' : 'font-medium text-text-main'
+                          }`}
+                        >
+                          {s.label}
+                        </span>
+                      </div>
+                      {isActive && (
+                        <svg
+                          fill="none"
+                          height="18"
+                          stroke="currentColor"
+                          className="stroke-primary mr-1"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2.5"
+                          viewBox="0 0 24 24"
+                          width="18"
+                        >
+                          <path d="M20 6L9 17l-5-5"></path>
+                        </svg>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
     </div>
   );
 }

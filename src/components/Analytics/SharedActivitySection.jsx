@@ -647,7 +647,7 @@ function SharedActivitySection({
             const isSelected = slot.isCurrent;
             const hasVal = slot.v > 0;
             const isGoalMet = !!slot.isGoalMet;
-            const barH = hasVal ? Math.max(8, Math.min(60, Math.round(slot.v * 60))) : isSelected ? 4 : 0;
+            const barH = hasVal ? Math.max(8, Math.min(64, Math.round(slot.v * 64))) : 0;
 
             return (
               <div key={slot.h} className="flex flex-col items-center gap-1.5 min-w-0">
@@ -665,22 +665,24 @@ function SharedActivitySection({
                   {slot.val}
                 </span>
 
-                {/* Tactile track capsule with rising bar scaled to target goal */}
-                <div className="w-full h-16 bg-[#EDE7DA]/60 rounded-full flex flex-col justify-end p-0.5 overflow-hidden shadow-2xs relative">
-                  <div
-                    className={`w-full rounded-full transition-all duration-500 ease-out ${
-                      isGoalMet
-                        ? 'bg-primary shadow-xs ring-1 ring-primary/40'
-                        : isSelected
-                        ? 'bg-primary shadow-xs'
-                        : hasVal
-                        ? 'bg-[#4F7775]'
-                        : isSelected
-                        ? 'bg-primary/20'
-                        : 'bg-transparent'
-                    }`}
-                    style={{ height: `${barH}px` }}
-                  />
+                {/* Tactile track capsule with seamless flush fill */}
+                <div
+                  className={`w-full h-16 bg-[#EDE7DA]/60 rounded-full flex flex-col justify-end overflow-hidden shadow-2xs relative ${
+                    isSelected ? 'ring-1 ring-primary/40' : ''
+                  }`}
+                >
+                  {hasVal && (
+                    <div
+                      className={`w-full rounded-t-full transition-all duration-500 ease-out ${
+                        isGoalMet
+                          ? 'bg-primary shadow-xs'
+                          : isSelected
+                          ? 'bg-primary shadow-xs'
+                          : 'bg-[#4F7775]'
+                      }`}
+                      style={{ height: `${barH}px` }}
+                    />
+                  )}
                 </div>
 
                 <span

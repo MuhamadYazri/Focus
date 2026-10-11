@@ -669,17 +669,41 @@ export default function App() {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Active Tab Screen */}
+      {/* Tab Screens (Pre-mounted for instant 0ms switching) */}
       <main className={`flex-1 relative ${isNavHidden ? 'overflow-hidden' : 'overflow-x-hidden'}`}>
         <div className="relative w-full min-h-full">
-          {isTransitioning && prevTab && (
-            <div className={`absolute inset-0 w-full ${slideDir === 'left' ? 'animate-slide-out-left' : 'animate-slide-out-right'}`}>
-              {renderTabContent(prevTab)}
-            </div>
-          )}
-          <div className={`w-full min-h-full ${isTransitioning ? (slideDir === 'left' ? 'animate-slide-in-right' : 'animate-slide-in-left') : ''}`}>
-            {renderTabContent(activeTab)}
-          </div>
+          {['home', 'timer', 'reports', 'profile'].map((tabKey) => {
+            const isActive = activeTab === tabKey;
+            const isPrev = isTransitioning && prevTab === tabKey;
+            
+            // Only mount into DOM if tab is active, previous transitioning tab, or already visited
+            if (!isActive && !isPrev) {
+              return null;
+            }
+
+            let animClass = '';
+            let style = {};
+
+            if (isPrev) {
+              animClass = slideDir === 'left' ? 'animate-slide-out-left' : 'animate-slide-out-right';
+              style = { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10 };
+            } else if (isActive && isTransitioning) {
+              animClass = slideDir === 'left' ? 'animate-slide-in-right' : 'animate-slide-in-left';
+              style = { position: 'relative', width: '100%', minHeight: '100%', zIndex: 20 };
+            } else {
+              style = { position: 'relative', width: '100%', minHeight: '100%', zIndex: 1 };
+            }
+
+            return (
+              <div
+                key={tabKey}
+                className={`w-full min-h-full ${animClass}`}
+                style={style}
+              >
+                {renderTabContent(tabKey)}
+              </div>
+            );
+          })}
         </div>
       </main>
 

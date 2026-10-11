@@ -40,7 +40,7 @@ index 0000000..0d259dd
 +o/classes
 diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/7d84e832a52676740540bc6db8f9907a/transformed/classes/classes_dex/classes.dex b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/7d84e832a52676740540bc6db8f9907a/transformed/classes/classes_dex/classes.dex
 new file mode 100644
-index 0000000..ba4c53b
+index 0000000..680f39f
 Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/7d84e832a52676740540bc6db8f9907a/transformed/classes/classes_dex/classes.dex differ
 diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml
 new file mode 100644
@@ -85,7 +85,7 @@ index 0000000..9ea9257
 \ No newline at end of file
 diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/aar_main_jar/debug/syncDebugLibJars/classes.jar b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/aar_main_jar/debug/syncDebugLibJars/classes.jar
 new file mode 100644
-index 0000000..17f817b
+index 0000000..0f3eb56
 Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/aar_main_jar/debug/syncDebugLibJars/classes.jar differ
 diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties
 new file mode 100644
@@ -112,7 +112,7 @@ new file mode 100644
 index 0000000..e69de29
 diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar
 new file mode 100644
-index 0000000..6c96ff0
+index 0000000..9d1b200
 Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar differ
 diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar
 new file mode 100644
@@ -170,11 +170,11 @@ index 0000000..5c2d4bf
 \ No newline at end of file
 diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/capawesome/capacitorjs/plugins/foregroundservice/AndroidForegroundService$1.class b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/capawesome/capacitorjs/plugins/foregroundservice/AndroidForegroundService$1.class
 new file mode 100644
-index 0000000..536436f
+index 0000000..6bb88c1
 Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/capawesome/capacitorjs/plugins/foregroundservice/AndroidForegroundService$1.class differ
 diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/capawesome/capacitorjs/plugins/foregroundservice/AndroidForegroundService.class b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/capawesome/capacitorjs/plugins/foregroundservice/AndroidForegroundService.class
 new file mode 100644
-index 0000000..3cda630
+index 0000000..6d72578
 Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/capawesome/capacitorjs/plugins/foregroundservice/AndroidForegroundService.class differ
 diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/capawesome/capacitorjs/plugins/foregroundservice/ForegroundService.class b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/capawesome/capacitorjs/plugins/foregroundservice/ForegroundService.class
 new file mode 100644
@@ -255,7 +255,7 @@ index 0000000..08f4ebe
 \ No newline at end of file
 diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar
 new file mode 100644
-index 0000000..cdc0ce2
+index 0000000..4332286
 Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar differ
 diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt
 new file mode 100644
@@ -266,7 +266,7 @@ index 0000000..023f096
 +io.capawesome.capacitorjs.plugins.foregroundservice
 diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/outputs/aar/capawesome-team-capacitor-android-foreground-service-debug.aar b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/outputs/aar/capawesome-team-capacitor-android-foreground-service-debug.aar
 new file mode 100644
-index 0000000..99e6a3b
+index 0000000..1abbde1
 Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/outputs/aar/capawesome-team-capacitor-android-foreground-service-debug.aar differ
 diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/outputs/logs/manifest-merger-debug-report.txt b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/outputs/logs/manifest-merger-debug-report.txt
 new file mode 100644
@@ -294,23 +294,27 @@ index 0000000..e266c73
 +		INJECTED from /home/muhamad-yazri/Project/Focus/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/main/AndroidManifest.xml
 +	android:minSdkVersion
 +		INJECTED from /home/muhamad-yazri/Project/Focus/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/main/AndroidManifest.xml
-diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/AndroidForegroundService.class.uniqueId1 b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/AndroidForegroundService.class.uniqueId1
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/AndroidForegroundService$1.class.uniqueId0 b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/AndroidForegroundService$1.class.uniqueId0
 new file mode 100644
-index 0000000..0b624d2
-Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/AndroidForegroundService.class.uniqueId1 differ
-diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/ForegroundService.class.uniqueId0 b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/ForegroundService.class.uniqueId0
+index 0000000..536436f
+Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/AndroidForegroundService$1.class.uniqueId0 differ
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/AndroidForegroundService.class.uniqueId2 b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/AndroidForegroundService.class.uniqueId2
+new file mode 100644
+index 0000000..3cda630
+Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/AndroidForegroundService.class.uniqueId2 differ
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/ForegroundService.class.uniqueId1 b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/ForegroundService.class.uniqueId1
 new file mode 100644
 index 0000000..28a6851
-Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/ForegroundService.class.uniqueId0 differ
+Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/ForegroundService.class.uniqueId1 differ
 diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin
 new file mode 100644
-index 0000000..980ee6c
+index 0000000..bf82cc0
 Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin differ
 diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/main/java/io/capawesome/capacitorjs/plugins/foregroundservice/AndroidForegroundService.java b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/main/java/io/capawesome/capacitorjs/plugins/foregroundservice/AndroidForegroundService.java
-index 3df5ad5..8be4836 100644
+index 3df5ad5..58d329a 100644
 --- a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/main/java/io/capawesome/capacitorjs/plugins/foregroundservice/AndroidForegroundService.java
 +++ b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/main/java/io/capawesome/capacitorjs/plugins/foregroundservice/AndroidForegroundService.java
-@@ -9,73 +9,330 @@ import android.content.Intent;
+@@ -9,73 +9,325 @@ import android.content.Intent;
  import android.os.Build;
  import android.os.Bundle;
  import android.os.IBinder;
@@ -525,8 +529,7 @@ index 3df5ad5..8be4836 100644
 +            }
 +        }
 +
-+        String displayText = isChrono ? timeStr : (body != null ? body : "");
-+        String subText = isChrono ? (currentTitle + " • " + timeStr) : null;
++        String displayText = isChrono ? "Tap to return to focus" : (body != null ? body : "");
 +
 +        int iconToUse = currentIcon;
 +        try {
@@ -544,10 +547,6 @@ index 3df5ad5..8be4836 100644
 +            .setSmallIcon(iconToUse)
 +            .setPriority(Notification.PRIORITY_HIGH)
 +            .setOnlyAlertOnce(true);
-+
-+        if (subText != null) {
-+            builder.setSubText(subText);
-+        }
 +
 +        if (isChrono) {
 +            builder.setUsesChronometer(true);

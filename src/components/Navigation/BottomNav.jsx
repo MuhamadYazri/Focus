@@ -9,7 +9,7 @@ const NAV_ITEMS = [
   { key: 'profile', label: 'Profile', Icon: User },
 ];
 
-export default function BottomNav({ activeTab, setActiveTab, isHidden = false }) {
+function BottomNav({ activeTab, setActiveTab, isHidden = false }) {
   const iconRefs = React.useRef({});
 
   return (
@@ -26,14 +26,15 @@ export default function BottomNav({ activeTab, setActiveTab, isHidden = false })
               <button
                 key={key}
                 onClick={() => {
+                  if (activeTab === key) return;
                   if (window.navigator?.vibrate) window.navigator.vibrate(10);
+                  setActiveTab(key);
                   if (iconRefs.current[key]) {
                     iconRefs.current[key].startAnimation();
                     setTimeout(() => {
                       if (iconRefs.current[key]) iconRefs.current[key].stopAnimation();
                     }, 600);
                   }
-                  setTimeout(() => setActiveTab(key), 50);
                 }}
                 className={`relative flex-1 min-h-[44px] rounded-full flex items-center justify-center transition-colors z-0 ${
                   on 
@@ -69,3 +70,5 @@ export default function BottomNav({ activeTab, setActiveTab, isHidden = false })
     </nav>
   );
 }
+
+export default React.memo(BottomNav);

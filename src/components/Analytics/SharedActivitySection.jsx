@@ -139,10 +139,18 @@ function SharedActivitySection({
         else if (curHours > 0) val = 1;
 
         const isSameMonth = curStr.startsWith(targetMonthPrefix);
+        const progressRatio = targetHours > 0 ? curHours / targetHours : curHours > 0 ? 1 : 0;
+        const isGoalMet = targetHours > 0 && curHours >= targetHours;
+        const fillPct = curMins > 0 ? (isGoalMet ? 100 : Math.max(16, Math.min(100, Math.round(progressRatio * 100)))) : 0;
 
         row.push({
           val,
           dayNum: cur.getDate(),
+          curMins,
+          curHours,
+          progressRatio,
+          isGoalMet,
+          fillPct,
           achievedHours: Math.round(curHours),
           targetHours,
           dateStr: curStr,
@@ -594,34 +602,82 @@ function SharedActivitySection({
               const dayNum = cell?.dayNum;
               const isCur = !!cell?.isCurrent;
               const isSameMo = !!cell?.isSameMonth;
-              const val = cell?.val || 0;
+              const hasHours = (cell?.curMins || 0) > 0;
+              const isGoalMet = !!cell?.isGoalMet;
+              const fillPct = cell?.fillPct || 0;
+              const isToday = !!cell?.isToday;
+              const isSelected = period === 'Daily' && isCur;
 
-              let bgClass = 'bg-canvas text-text-main/80 font-medium'; // default empty inside month
+              // Track capsule styling identical to column chart
+              let trackClass = 'bg-canvas text-text-main/80 font-medium';
               if (!isSameMo) {
-                bgClass = 'bg-[#EDE7DA]/30 text-text-sub/40 font-normal';
-              } else if (val >= 3) {
-                bgClass = 'bg-primary text-white font-bold shadow-xs';
-              } else if (val >= 1) {
-                bgClass = 'bg-[#4F7775] text-white font-semibold shadow-2xs';
-              } else if (isCur) {
-                bgClass = 'bg-primary/10 text-primary font-bold';
+                trackClass = 'bg-[#EDE7DA]/30 text-text-sub/40 font-normal';
+              } else if (hasHours) {
+                trackClass = 'bg-[#EDE7DA]/60 shadow-2xs';
+              } else if (isCur && period === 'Daily') {
+                trackClass = 'bg-primary/10 text-primary font-bold';
               }
 
-              const isToday = !!cell?.isToday;
-
-              // Daily view highlights the selected day with a ring.
-              // Weekly/Monthly views give today the distinct ring, while the range receives the soft bg-primary/10 tint.
+              // Selection ring
               const selectionRing =
-                (period === 'Daily' && isCur) || (period !== 'Daily' && isToday)
+                isSelected || (period !== 'Daily' && isToday)
                   ? 'ring-2 ring-primary ring-offset-1 ring-offset-surface z-10'
                   : '';
+
+              const handleCellClick = () => {
+                if (!cell?.dateStr) return;
+                if (window.navigator?.vibrate) window.navigator.vibrate(10);
+                if (period === 'Daily') {
+                  const now = new Date();
+                  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                  const [y, m, d] = cell.dateStr.split('-').map(Number);
+                  const cellDate = new Date(y, m - 1, d);
+                  const diffDays = Math.round((cellDate - todayStart) / (1000 * 60 * 60 * 24));
+                  setOffset(diffDays);
+                }
+              };
 
               return (
                 <div
                   key={`${wi}-${di}`}
-                  className={`h-9 rounded-xl flex items-center justify-center text-[11px] font-sans transition-all ${bgClass} ${selectionRing}`}
+                  onClick={handleCellClick}
+                  className={`relative h-9 rounded-xl flex flex-col items-center justify-start pt-1 text-[11px] font-sans transition-all overflow-hidden cursor-pointer active:scale-95 ${trackClass} ${selectionRing}`}
+                  title={
+                    hasHours
+                      ? `${cell?.dateStr}: ${cell?.curHours?.toFixed(1)}h / ${cell?.targetHours}h goal`
+                      : cell?.dateStr
+                  }
                 >
-                  {dayNum}
+                  {/* Fill rising from bottom - matches the Total per day goal fullness */}
+                  {hasHours && isSameMo && (
+                    <div
+                      className={`w-full absolute inset-x-0 bottom-0 transition-all duration-500 ease-out ${
+                        isGoalMet
+                          ? 'bg-primary shadow-xs'
+                          : isSelected
+                          ? 'bg-primary shadow-xs'
+                          : 'bg-[#4F7775]'
+                      } ${fillPct < 100 ? 'rounded-t-sm' : ''}`}
+                      style={{ height: `${fillPct}%` }}
+                    />
+                  )}
+
+                  {/* Day number */}
+                  <span
+                    className={`relative z-10 transition-colors text-[10px] font-bold font-sans ${
+                      !isSameMo
+                        ? 'text-text-sub/40 font-normal'
+                        : isGoalMet
+                        ? 'text-white'
+                        : isCur && period === 'Daily' && !hasHours
+                        ? 'text-primary'
+                        : fillPct >= 65
+                        ? 'text-white'
+                        : 'text-text-main/90'
+                    }`}
+                  >
+                    {dayNum}
+                  </span>
                 </div>
               );
             })

@@ -17,8 +17,6 @@ import {
   Waves,
   Coffee,
   Clock,
-  Maximize2,
-  Minimize2,
 } from 'lucide-react';
 import {
   PlayIcon as Play,
@@ -246,45 +244,34 @@ function TimerView({
           <div className="overflow-visible flex flex-col justify-end pointer-events-none">
             {/* Wrapper to restore pointer events for children */}
             <div className="pointer-events-auto">
-              <div className="flex items-center gap-2 mb-4" onClick={stopProp}>
-                <div className="flex-1 bg-surface border border-border rounded-full p-1.5 flex items-center justify-between shadow-inner ring-1 ring-white/60 relative">
-                  {MODE_TABS.map(({ key, label }) => {
-                    const on = mode === key;
-                    return (
-                      <button
-                        key={key}
-                        onClick={() => {
-                          if (window.navigator?.vibrate) window.navigator.vibrate(10);
-                          if (onModeChange) onModeChange(key);
-                        }}
-                        className={`relative flex-1 py-2 px-2.5 rounded-full font-semibold text-xs md:text-sm transition-colors z-10 ${
-                          on ? 'text-white' : 'text-[#444841] font-medium hover:text-primary'
-                        }`}
-                      >
-                        {on && (
-                          <motion.div
-                            layoutId="timerModeTabPill"
-                            className="absolute inset-0 bg-primary rounded-full shadow-xs ring-1 ring-white/20 z-[-1]"
-                            transition={{ type: 'spring', bounce: 0.1, duration: 0.55 }}
-                          />
-                        )}
-                        <span className="relative z-10">{label}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (window.navigator?.vibrate) window.navigator.vibrate(10);
-                    if (onToggleNav) onToggleNav();
-                  }}
-                  aria-label="Enter Zen Mode"
-                  title="Zen Mode (Fullscreen)"
-                  className="w-10 h-10 shrink-0 rounded-full bg-surface border border-border flex items-center justify-center text-[#444841] hover:text-primary shadow-xs ring-1 ring-white/60 transition-transform active:scale-95"
-                >
-                  <Maximize2 size={16} strokeWidth={2.2} />
-                </button>
+              <div
+                className="w-full bg-surface border border-border rounded-full p-1.5 flex items-center justify-between shadow-inner ring-1 ring-white/60 mb-4 relative"
+                onClick={stopProp}
+              >
+                {MODE_TABS.map(({ key, label }) => {
+                  const on = mode === key;
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => {
+                        if (window.navigator?.vibrate) window.navigator.vibrate(10);
+                        if (onModeChange) onModeChange(key);
+                      }}
+                      className={`relative flex-1 py-2.5 px-3 rounded-full font-semibold text-xs md:text-sm transition-colors z-10 ${
+                        on ? 'text-white' : 'text-[#444841] font-medium hover:text-primary'
+                      }`}
+                    >
+                      {on && (
+                        <motion.div
+                          layoutId="timerModeTabPill"
+                          className="absolute inset-0 bg-primary rounded-full shadow-xs ring-1 ring-white/20 z-[-1]"
+                          transition={{ type: 'spring', bounce: 0.1, duration: 0.55 }}
+                        />
+                      )}
+                      <span className="relative z-10">{label}</span>
+                    </button>
+                  );
+                })}
               </div>
 
               {/* Status Indicator */}
@@ -550,23 +537,6 @@ function TimerView({
           </div>
         </div>
       </div>
-
-      {/* Floating Exit Zen Pill */}
-      {isNavHidden && (
-        <div className="fixed top-5 right-5 z-50 animate-fadeIn pointer-events-auto">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              if (window.navigator?.vibrate) window.navigator.vibrate(10);
-              if (onToggleNav) onToggleNav();
-            }}
-            className="px-3.5 py-1.5 rounded-full bg-surface/90 backdrop-blur-md border border-border text-xs font-sans font-semibold text-primary flex items-center gap-1.5 shadow-md ring-1 ring-white/60 active:scale-95 transition-all"
-          >
-            <Minimize2 size={13} strokeWidth={2.2} />
-            <span>Exit Zen</span>
-          </button>
-        </div>
-      )}
 
       {/* Soundscape Modal */}
       {showSoundModal &&

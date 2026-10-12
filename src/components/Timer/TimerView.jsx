@@ -17,6 +17,8 @@ import {
   Waves,
   Coffee,
   Clock,
+  Maximize2,
+  Minimize2,
 } from 'lucide-react';
 import {
   PlayIcon as Play,
@@ -244,34 +246,45 @@ function TimerView({
           <div className="overflow-visible flex flex-col justify-end pointer-events-none">
             {/* Wrapper to restore pointer events for children */}
             <div className="pointer-events-auto">
-              <div
-                className="w-full bg-surface border border-border rounded-full p-1.5 flex items-center justify-between shadow-inner ring-1 ring-white/60 mb-4 relative"
-                onClick={stopProp}
-              >
-                {MODE_TABS.map(({ key, label }) => {
-                  const on = mode === key;
-                  return (
-                    <button
-                      key={key}
-                      onClick={() => {
-                        if (window.navigator?.vibrate) window.navigator.vibrate(10);
-                        if (onModeChange) onModeChange(key);
-                      }}
-                      className={`relative flex-1 py-2.5 px-3 rounded-full font-semibold text-xs md:text-sm transition-colors z-10 ${
-                        on ? 'text-white' : 'text-[#444841] font-medium hover:text-primary'
-                      }`}
-                    >
-                      {on && (
-                        <motion.div
-                          layoutId="timerModeTabPill"
-                          className="absolute inset-0 bg-primary rounded-full shadow-xs ring-1 ring-white/20 z-[-1]"
-                          transition={{ type: 'spring', bounce: 0.1, duration: 0.55 }}
-                        />
-                      )}
-                      <span className="relative z-10">{label}</span>
-                    </button>
-                  );
-                })}
+              <div className="flex items-center gap-2 mb-4" onClick={stopProp}>
+                <div className="flex-1 bg-surface border border-border rounded-full p-1.5 flex items-center justify-between shadow-inner ring-1 ring-white/60 relative">
+                  {MODE_TABS.map(({ key, label }) => {
+                    const on = mode === key;
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => {
+                          if (window.navigator?.vibrate) window.navigator.vibrate(10);
+                          if (onModeChange) onModeChange(key);
+                        }}
+                        className={`relative flex-1 py-2 px-2.5 rounded-full font-semibold text-xs md:text-sm transition-colors z-10 ${
+                          on ? 'text-white' : 'text-[#444841] font-medium hover:text-primary'
+                        }`}
+                      >
+                        {on && (
+                          <motion.div
+                            layoutId="timerModeTabPill"
+                            className="absolute inset-0 bg-primary rounded-full shadow-xs ring-1 ring-white/20 z-[-1]"
+                            transition={{ type: 'spring', bounce: 0.1, duration: 0.55 }}
+                          />
+                        )}
+                        <span className="relative z-10">{label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (window.navigator?.vibrate) window.navigator.vibrate(10);
+                    if (onToggleNav) onToggleNav();
+                  }}
+                  aria-label="Enter Zen Mode"
+                  title="Zen Mode (Fullscreen)"
+                  className="w-10 h-10 shrink-0 rounded-full bg-surface border border-border flex items-center justify-center text-[#444841] hover:text-primary shadow-xs ring-1 ring-white/60 transition-transform active:scale-95"
+                >
+                  <Maximize2 size={16} strokeWidth={2.2} />
+                </button>
               </div>
 
               {/* Status Indicator */}
@@ -371,7 +384,7 @@ function TimerView({
                 onClick={stopProp}
               >
                 {/* Action Buttons */}
-                <div className="flex items-center justify-center gap-5 pt-1">
+                <div className="flex items-center justify-center gap-5 pt-0.5">
                   <button
                     onClick={() => {
                       if (window.navigator?.vibrate) window.navigator.vibrate(10);
@@ -383,6 +396,7 @@ function TimerView({
                         if (onReset) onReset();
                       }, 50);
                     }}
+                    aria-label="Reset timer"
                     className="w-12 h-12 rounded-full bg-canvas border border-border text-primary flex items-center justify-center shadow-xs ring-1 ring-white/60 transition-transform active:scale-95 hover:bg-border"
                   >
                     <RotateCcw
@@ -404,6 +418,7 @@ function TimerView({
                         if (onTogglePlay) onTogglePlay();
                       }, 50);
                     }}
+                    aria-label={isRunning ? 'Pause timer' : 'Start timer'}
                     className="w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/30 ring-2 ring-white/25 transition-transform active:scale-90 hover:scale-105"
                   >
                     {isRunning ? (
@@ -428,6 +443,7 @@ function TimerView({
                       if (window.navigator?.vibrate) window.navigator.vibrate(10);
                       if (onSkip) onSkip();
                     }}
+                    aria-label="Skip session"
                     className="w-12 h-12 rounded-full bg-canvas border border-border text-primary flex items-center justify-center shadow-xs ring-1 ring-white/60 transition-transform active:scale-95 hover:bg-border"
                   >
                     <SkipForward size={20} strokeWidth={2.5} />
@@ -443,25 +459,25 @@ function TimerView({
                       if (window.navigator?.vibrate) window.navigator.vibrate(10);
                       setShowSoundModal(true);
                     }}
-                    className="relative flex items-center gap-2 cursor-pointer px-3 py-1.5 rounded-full hover:bg-canvas transition-colors border border-transparent hover:border-border"
+                    className="relative flex items-center gap-2 cursor-pointer px-2.5 py-1.5 rounded-full hover:bg-canvas transition-colors border border-transparent hover:border-border"
                   >
-                    <Headphones size={18} className="text-secondary" />
-                    <span className="text-sm font-semibold text-primary font-sans">
+                    <Headphones size={17} className="text-secondary" />
+                    <span className="text-xs font-semibold text-primary font-sans">
                       {soundscapes.find((s) => s.id === currentSound)?.label || 'Silent'}
                     </span>
                   </div>
 
                   <div
-                    className={`flex items-center gap-2.5 ${
+                    className={`flex items-center gap-2 ${
                       currentSound === 'none' ? 'opacity-40 pointer-events-none' : ''
                     }`}
                   >
                     {currentSound === 'none' ? (
-                      <VolumeX size={16} className="text-text-sub" />
+                      <VolumeX size={15} className="text-text-sub" />
                     ) : (
-                      <Volume2 size={16} className="text-secondary" />
+                      <Volume2 size={15} className="text-secondary" />
                     )}
-                    <div className="w-22 h-2 bg-[#EDE7DA] rounded-full overflow-hidden flex relative shadow-inner">
+                    <div className="w-20 h-2 bg-[#EDE7DA] rounded-full overflow-hidden flex relative shadow-inner">
                       <div
                         className="h-full bg-secondary rounded-full transition-all duration-150"
                         style={{ width: `${soundVolume * 100}%` }}
@@ -482,59 +498,75 @@ function TimerView({
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Strict Focus Toggle Card */}
-              <div
-                className="w-full flex items-center justify-between px-5 py-3.5 rounded-2xl bg-surface border border-border shadow-xs ring-1 ring-white/70"
-                onClick={stopProp}
-              >
-                <div className="flex items-center gap-3">
-                  {strictMode ? (
-                    <Lock
-                      ref={(el) => (iconRefs.current.lock = el)}
-                      animateOnHover={false}
-                      size={20}
-                      className="text-secondary"
-                    />
-                  ) : (
-                    <Unlock size={20} className="text-[#8D9A82]" />
-                  )}
-                  <div className="flex flex-col">
-                    <span className="text-xs font-semibold text-primary leading-tight font-sans">
-                      Strict Focus
-                    </span>
-                    <span className="text-[11px] text-text-sub leading-tight mt-0.5 font-sans">
-                      Block app interruptions
-                    </span>
+                <div className="w-full h-px bg-border"></div>
+
+                {/* Strict Focus Row */}
+                <div className="flex items-center justify-between px-1">
+                  <div className="flex items-center gap-2.5">
+                    {strictMode ? (
+                      <Lock
+                        ref={(el) => (iconRefs.current.lock = el)}
+                        animateOnHover={false}
+                        size={17}
+                        className="text-secondary"
+                      />
+                    ) : (
+                      <Unlock size={17} className="text-[#8D9A82]" />
+                    )}
+                    <div className="flex flex-col">
+                      <span className="text-xs font-semibold text-primary leading-tight font-sans">
+                        Strict Focus
+                      </span>
+                      <span className="text-[10px] text-text-sub leading-tight mt-0.5 font-sans">
+                        Block interruptions
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <button
-                  aria-label="Toggle strict mode"
-                  onClick={() => {
-                    iconRefs.current.lock?.startAnimation();
-                    setTimeout(() => {
-                      iconRefs.current.lock?.stopAnimation();
-                    }, 600);
-                    setTimeout(() => {
-                      if (onToggleStrictMode) onToggleStrictMode();
-                    }, 50);
-                  }}
-                  className={`relative w-11 h-6 rounded-full p-0.5 transition-colors duration-200 ease-out cursor-pointer shadow-inner ${
-                    strictMode ? 'bg-primary ring-1 ring-primary/40' : 'bg-[#DDD6C8]/80'
-                  }`}
-                >
-                  <div
-                    className={`w-5 h-5 rounded-full bg-surface shadow-xs ring-1 ring-black/5 transform transition-transform duration-200 ease-out ${
-                      strictMode ? 'translate-x-5' : 'translate-x-0'
+                  <button
+                    aria-label="Toggle strict mode"
+                    onClick={() => {
+                      iconRefs.current.lock?.startAnimation();
+                      setTimeout(() => {
+                        iconRefs.current.lock?.stopAnimation();
+                      }, 600);
+                      setTimeout(() => {
+                        if (onToggleStrictMode) onToggleStrictMode();
+                      }, 50);
+                    }}
+                    className={`relative w-10 h-5 rounded-full p-0.5 transition-colors duration-200 ease-out cursor-pointer shadow-inner ${
+                      strictMode ? 'bg-primary ring-1 ring-primary/40' : 'bg-[#DDD6C8]/80'
                     }`}
-                  />
-                </button>
+                  >
+                    <div
+                      className={`w-4 h-4 rounded-full bg-surface shadow-xs ring-1 ring-black/5 transform transition-transform duration-200 ease-out ${
+                        strictMode ? 'translate-x-5' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Floating Exit Zen Pill */}
+      {isNavHidden && (
+        <div className="fixed top-5 right-5 z-50 animate-fadeIn pointer-events-auto">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              if (window.navigator?.vibrate) window.navigator.vibrate(10);
+              if (onToggleNav) onToggleNav();
+            }}
+            className="px-3.5 py-1.5 rounded-full bg-surface/90 backdrop-blur-md border border-border text-xs font-sans font-semibold text-primary flex items-center gap-1.5 shadow-md ring-1 ring-white/60 active:scale-95 transition-all"
+          >
+            <Minimize2 size={13} strokeWidth={2.2} />
+            <span>Exit Zen</span>
+          </button>
+        </div>
+      )}
 
       {/* Soundscape Modal */}
       {showSoundModal &&

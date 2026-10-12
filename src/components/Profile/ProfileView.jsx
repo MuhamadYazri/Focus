@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { FlameIcon, ClockIcon, BookmarkCheckIcon, CopyIcon, CheckIcon, XIcon } from 'lucide-animated';
+import { FlameIcon, ClockIcon, BookmarkCheckIcon, CopyIcon, CheckIcon, XIcon, UserIcon, CalendarDaysIcon } from 'lucide-animated';
 import { Loader2, Share2 } from 'lucide-react';
-import SharedActivitySection from '../Analytics/SharedActivitySection';
 import { storage } from '../../services/storage';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
@@ -34,24 +33,10 @@ function ProfileView({
   onAddProject,
   onEditProject,
   onDeleteProject,
-  period: controlledPeriod,
-  setPeriod: controlledSetPeriod,
-  offset: controlledOffset,
-  setOffset: controlledSetOffset,
-  hideHeader = false,
 }) {
   const [showReport, setShowReport] = useState(false);
   const [copied, setCopied] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState(null);
-  const [reportData, setReportData] = useState({
-    period: 'Daily',
-    offset: 0,
-    dateLabel: 'Today',
-    displayHours: '4h 10m',
-    displayPomos: 10,
-    displaySubToday: '4h 10m today',
-    displaySubDays: '1 day focused',
-  });
   const [backupStatus, setBackupStatus] = useState('idle');
   const [backupMsg, setBackupMsg] = useState('');
   const maxBarH = 48;
@@ -226,30 +211,14 @@ function ProfileView({
     }
   };
 
-  const getReportTitle = () => {
-    const p = reportData.period;
-    if (p === 'Daily') return 'DAILY REPORT';
-    if (p === 'Weekly') return 'WEEKLY REPORT';
-    if (p === 'Monthly') return 'MONTHLY REPORT';
-    if (p === 'Yearly') return 'YEARLY REPORT';
-    return 'ALL TIME REPORT';
-  };
-
-  const getReportHeading = () => {
-    const p = reportData.period;
-    if (p === 'All') return 'All Time Summary';
-    return reportData.dateLabel || 'Summary';
-  };
-
   const handleCopyReport = () => {
     if (navigator.clipboard) {
-      const p = reportData.period;
-      let text = `Focus // ${getReportTitle()}\n`;
-      text += `📅 ${getReportHeading()}\n\n`;
-      text += `⏱ Total Focus: ${reportData.displayHours}\n`;
-      text += `🍅 Sessions: ${reportData.displayPomos.toLocaleString()} pomodoros\n`;
-      text += `📊 ${reportData.displaySubToday}\n`;
-      text += `📆 ${reportData.displaySubDays}`;
+      let text = `Focus // LIFETIME FOCUS SUMMARY\n`;
+      text += `📅 All-Time Progress\n\n`;
+      text += `⏱ Total Focus: ${totalHoursDisplay}\n`;
+      text += `🍅 Sessions: ${totalPomos.toLocaleString()} pomodoros\n`;
+      text += `🔥 Streak: ${currentStreak} days\n`;
+      text += `📆 Consistency: ${totalDays} days focused`;
       navigator.clipboard.writeText(text);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -257,17 +226,17 @@ function ProfileView({
   };
 
   const handleShareReport = async () => {
-    const text = `Focus // ${getReportTitle()}\n📅 ${getReportHeading()}\n\n⏱ Total Focus: ${reportData.displayHours}\n🍅 Sessions: ${reportData.displayPomos.toLocaleString()} pomodoros\n📊 ${reportData.displaySubToday}\n📆 ${reportData.displaySubDays}`;
+    const text = `Focus // LIFETIME FOCUS SUMMARY\n📅 All-Time Progress\n\n⏱ Total Focus: ${totalHoursDisplay}\n🍅 Sessions: ${totalPomos.toLocaleString()} pomodoros\n🔥 Streak: ${currentStreak} days\n📆 Consistency: ${totalDays} days focused`;
     try {
       if (Share?.share) {
         await Share.share({
-          title: `Focus - ${getReportTitle()}`,
+          title: 'Focus - Lifetime Summary',
           text: text,
-          dialogTitle: 'Share Focus Report',
+          dialogTitle: 'Share Focus Progress',
         });
       } else if (navigator.share) {
         await navigator.share({
-          title: `Focus - ${getReportTitle()}`,
+          title: 'Focus - Lifetime Summary',
           text: text,
         });
       } else {
@@ -281,47 +250,71 @@ function ProfileView({
   };
 
   return (
-    <main className={`flex-1 w-full bg-transparent ${hideHeader ? 'pt-2.5' : 'pt-15'} pb-36 selection:bg-[#E5D9B6] selection:text-primary`}>
-      <div className="flex flex-col w-full max-w-md mx-auto px-5  gap-4">
-        {/* ── Activity ── */}
-        <SharedActivitySection
-          showKPIs={false}
-          sessions={sessions}
-          period={controlledPeriod}
-          setPeriod={controlledSetPeriod}
-          offset={controlledOffset}
-          setOffset={controlledSetOffset}
-          hideHeader={hideHeader}
-          onPeriodChange={setReportData}
-        />
+    <main className="flex-1 w-full bg-transparent pt-14 pb-36 selection:bg-[#E5D9B6] selection:text-primary">
+      <div className="flex flex-col w-full max-w-md mx-auto px-5 gap-4">
+        {/* ── Profile Header ── */}
+        <div className="flex items-center justify-between pb-1">
+          <div>
+            <h1 className="text-xl font-bold text-text-main font-sans tracking-tight">Profile & Preferences</h1>
+            <p className="text-xs text-text-sub font-sans">Lifetime statistics, categories & timer setup</p>
+          </div>
+          <div className="w-10 h-10 rounded-full bg-surface border border-border shadow-xs flex items-center justify-center text-primary ring-1 ring-white/80">
+            <UserIcon size={20} className="text-secondary" />
+          </div>
+        </div>
 
-        {/* ── 3 Key Metric Cards ── */}
-        <div className="grid grid-cols-3 gap-3">
+        {/* ── 4 Lifetime Metric Cards ── */}
+        <div className="grid grid-cols-2 gap-3">
           {/* Streak */}
-          <div className="bg-surface rounded-2xl p-4 flex flex-col items-center text-center justify-center gap-1.5 shadow-sm ring-1 ring-white/70 border border-border">
-            <FlameIcon ref={flameRef} size={24} color="#E67E22" strokeWidth={2} />
-            <span className="text-2xl font-bold text-text-main font-sans">{currentStreak}</span>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-text-sub font-sans">
-              DAY STREAK
-            </span>
+          <div className="bg-surface rounded-2xl p-4 flex items-center gap-3.5 shadow-xs ring-1 ring-white/70 border border-border">
+            <div className="w-10 h-10 rounded-xl bg-[#E67E22]/10 flex items-center justify-center shrink-0">
+              <FlameIcon ref={flameRef} size={22} color="#E67E22" strokeWidth={2} />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-2xl font-bold text-text-main font-sans leading-none">{currentStreak}</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-text-sub font-sans mt-1">
+                DAY STREAK
+              </span>
+            </div>
           </div>
+
           {/* Focused */}
-          <div className="bg-surface rounded-2xl p-4 flex flex-col items-center text-center justify-center gap-1.5 shadow-sm ring-1 ring-white/70 border border-border">
-            <ClockIcon ref={clockRef} size={24} className="text-secondary" strokeWidth={2} />
-            <span className="text-2xl font-bold text-text-main font-sans">{hours}h</span>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-text-sub font-sans">
-              FOCUSED
-            </span>
+          <div className="bg-surface rounded-2xl p-4 flex items-center gap-3.5 shadow-xs ring-1 ring-white/70 border border-border">
+            <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
+              <ClockIcon ref={clockRef} size={22} className="text-secondary" strokeWidth={2} />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-2xl font-bold text-text-main font-sans leading-none">{hours}h {mins > 0 ? `${mins}m` : ''}</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-text-sub font-sans mt-1">
+                TOTAL FOCUSED
+              </span>
+            </div>
           </div>
+
           {/* Sessions */}
-          <div className="bg-surface rounded-2xl p-4 flex flex-col items-center text-center justify-center gap-1.5 shadow-sm ring-1 ring-white/70 border border-border">
-            <BookmarkCheckIcon ref={sessionRef} size={24} className="text-primary" strokeWidth={2} />
-            <span className="text-xl font-bold text-text-main font-sans">
-              {totalPomos.toLocaleString()}
-            </span>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-text-sub font-sans">
-              SESSIONS
-            </span>
+          <div className="bg-surface rounded-2xl p-4 flex items-center gap-3.5 shadow-xs ring-1 ring-white/70 border border-border">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+              <BookmarkCheckIcon ref={sessionRef} size={22} className="text-primary" strokeWidth={2} />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-2xl font-bold text-text-main font-sans leading-none">{totalPomos.toLocaleString()}</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-text-sub font-sans mt-1">
+                SESSIONS
+              </span>
+            </div>
+          </div>
+
+          {/* Active Days */}
+          <div className="bg-surface rounded-2xl p-4 flex items-center gap-3.5 shadow-xs ring-1 ring-white/70 border border-border">
+            <div className="w-10 h-10 rounded-xl bg-[#576652]/10 flex items-center justify-center shrink-0 text-[#576652]">
+              <CalendarDaysIcon size={22} strokeWidth={2} />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-2xl font-bold text-text-main font-sans leading-none">{totalDays}</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-text-sub font-sans mt-1">
+                DAYS FOCUSED
+              </span>
+            </div>
           </div>
         </div>
 
@@ -898,17 +891,17 @@ function ProfileView({
             >
               <div className="flex items-center justify-between z-10 mb-8">
                 <span className="text-[10px] text-text-sub tracking-widest font-sans font-bold">
-                  FOCUS // {getReportTitle()}
+                  FOCUS // LIFETIME SUMMARY
                 </span>
                 <Share2 size={18} className="text-primary" strokeWidth={2} />
               </div>
 
               <div className="z-10 flex flex-col gap-1 mb-8">
                 <h3 className="text-3xl font-bold text-text-main tracking-tight leading-tight font-sans">
-                  {getReportHeading()}
+                  All-Time Progress
                 </h3>
                 <p className="text-xs text-secondary font-bold mt-1 font-sans">
-                  {reportData.displaySubDays}
+                  {currentStreak} day streak · {totalDays} days focused
                 </p>
               </div>
 
@@ -918,13 +911,13 @@ function ProfileView({
                     TOTAL FOCUS
                   </span>
                   <span className="text-2xl font-bold text-text-main font-sans">
-                    {reportData.displayHours}
+                    {totalHoursDisplay}
                   </span>
                 </div>
                 <div className="flex flex-col gap-1">
                   <span className="text-[10px] text-text-sub font-bold font-sans">SESSIONS</span>
                   <span className="text-2xl font-bold text-text-main font-sans">
-                    {reportData.displayPomos}
+                    {totalPomos}
                   </span>
                 </div>
               </div>

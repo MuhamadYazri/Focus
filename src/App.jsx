@@ -18,7 +18,6 @@ import relaxLottie from './assets/relaxAnimation.lottie';
 import catSleepLottie from './assets/catSleepAnimation.lottie';
 import { ForegroundService } from '@capawesome-team/capacitor-android-foreground-service';
 import SplitRevealPreloader from './components/animata/preloader/SplitRevealPreloader';
-import TimeframeHeader from './components/Analytics/TimeframeHeader';
 import UndoToast from './components/Feedback/UndoToast';
 import GoalCelebration from './components/Feedback/GoalCelebration';
 
@@ -695,7 +694,7 @@ export default function App() {
           setPeriod={setActivityPeriod}
           offset={activityOffset}
           setOffset={setActivityOffset}
-          hideHeader={true}
+          hideHeader={false}
         />
       );
     }
@@ -716,11 +715,6 @@ export default function App() {
             setProjectModalOpen(true);
           }}
           onDeleteProject={handleDeleteProject}
-          period={activityPeriod}
-          setPeriod={setActivityPeriod}
-          offset={activityOffset}
-          setOffset={setActivityOffset}
-          hideHeader={true}
         />
       );
     }
@@ -766,11 +760,6 @@ export default function App() {
     touchEnd.current = { x: null, y: null };
   };
 
-  const getScreenKey = (t) => (t === 'reports' || t === 'profile' ? 'analytics_group' : t);
-  const activeScreen = getScreenKey(activeTab);
-  const prevScreen = prevTab ? getScreenKey(prevTab) : null;
-  const isScreenTransitioning = isTransitioning && prevScreen !== activeScreen;
-
   return (
     <div 
       className={`min-h-[100dvh] flex flex-col font-sans bg-canvas text-text-main ${isNavHidden ? 'overflow-hidden h-[100dvh]' : ''}`} 
@@ -786,9 +775,9 @@ export default function App() {
       {/* Tab Screens (Pre-mounted for instant 0ms switching) */}
       <main className={`flex-1 relative ${isNavHidden ? 'overflow-hidden' : 'overflow-x-hidden'}`}>
         <div className="relative w-full min-h-full">
-          {['home', 'timer', 'analytics_group'].map((screenKey) => {
-            const isActive = activeScreen === screenKey;
-            const isPrev = isScreenTransitioning && prevScreen === screenKey;
+          {['home', 'timer', 'reports', 'profile'].map((screenKey) => {
+            const isActive = activeTab === screenKey;
+            const isPrev = isTransitioning && prevTab === screenKey;
 
             if (!isActive && !isPrev) {
               return null;
@@ -809,7 +798,7 @@ export default function App() {
                 willChange: 'transform, opacity',
                 contain: 'paint layout',
               };
-            } else if (isActive && isScreenTransitioning) {
+            } else if (isActive && isTransitioning) {
               animClass = slideDir === 'left' ? 'animate-slide-in-right' : 'animate-slide-in-left';
               style = {
                 position: 'relative',
@@ -823,58 +812,9 @@ export default function App() {
               style = { position: 'relative', width: '100%', minHeight: '100%', zIndex: 1 };
             }
 
-            if (screenKey === 'home') {
-              return (
-                <div key={screenKey} className={`w-full min-h-full ${animClass}`} style={style}>
-                  {renderTabContent('home')}
-                </div>
-              );
-            }
-
-            if (screenKey === 'timer') {
-              return (
-                <div key={screenKey} className={`w-full min-h-full ${animClass}`} style={style}>
-                  {renderTabContent('timer')}
-                </div>
-              );
-            }
-
-            // analytics_group: Stationary TimeframeHeader for Reports & Profile
-            const isSubTransitioning =
-              isTransitioning &&
-              (prevTab === 'reports' || prevTab === 'profile') &&
-              (activeTab === 'reports' || activeTab === 'profile');
-
-            const subAnimClass = isSubTransitioning
-              ? slideDir === 'left'
-                ? 'animate-slide-in-right'
-                : 'animate-slide-in-left'
-              : '';
-
             return (
-              <div
-                key="analytics_group"
-                className={`w-full min-h-full flex flex-col ${animClass}`}
-                style={style}
-              >
-                {/* Stationary Header (Never slides when swiping between Reports and Profile) */}
-                <div className="w-full bg-transparent z-30 select-none">
-                  <div className="w-full max-w-md mx-auto px-5 pt-14 pb-1">
-                    <TimeframeHeader
-                      period={activityPeriod}
-                      setPeriod={setActivityPeriod}
-                      offset={activityOffset}
-                      setOffset={setActivityOffset}
-                    />
-                  </div>
-                </div>
-
-                {/* Sub-content: Only this slides between Reports and Profile */}
-                <div className="flex-1 w-full relative overflow-x-hidden">
-                  <div key={activeTab} className={`w-full ${subAnimClass}`}>
-                    {renderTabContent(activeTab === 'profile' ? 'profile' : 'reports')}
-                  </div>
-                </div>
+              <div key={screenKey} className={`w-full min-h-full ${animClass}`} style={style}>
+                {renderTabContent(screenKey)}
               </div>
             );
           })}

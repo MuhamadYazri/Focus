@@ -265,7 +265,7 @@ function TimerView({
                         <motion.div
                           layoutId="timerModeTabPill"
                           className="absolute inset-0 bg-primary rounded-full shadow-xs ring-1 ring-white/20 z-[-1]"
-                          transition={{ type: 'spring', bounce: 0.15, duration: 0.45 }}
+                          transition={{ type: 'spring', bounce: 0.1, duration: 0.55 }}
                         />
                       )}
                       <span className="relative z-10">{label}</span>

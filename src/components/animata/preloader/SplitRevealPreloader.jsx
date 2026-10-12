@@ -5,10 +5,10 @@ export default function SplitRevealPreloader({ onFinish }) {
   onFinishRef.current = onFinish;
 
   useEffect(() => {
-    // 1.1s total continuous animation on GPU compositor
+    // 1.4s total continuous choreographed animation on GPU compositor
     const timer = setTimeout(() => {
       if (onFinishRef.current) onFinishRef.current();
-    }, 1150);
+    }, 1420);
 
     return () => clearTimeout(timer);
   }, []); // Run strictly once on mount

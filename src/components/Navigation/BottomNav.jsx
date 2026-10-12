@@ -77,7 +77,7 @@ function BottomNav({ activeTab, setActiveTab, isHidden = false }) {
                   <motion.div
                     layoutId="fluidNavTab"
                     className="absolute inset-0 bg-primary rounded-full shadow-md shadow-primary/20 ring-1 ring-white/20 z-[-1]"
-                    transition={{ type: 'spring', bounce: 0.15, duration: 0.5 }}
+                    transition={{ type: 'spring', bounce: 0.1, duration: 0.55 }}
                   />
                 )}
                 <div className="relative z-10 flex items-center justify-center gap-2">
@@ -95,9 +95,9 @@ function BottomNav({ activeTab, setActiveTab, isHidden = false }) {
                         animate={{ y: '0%', opacity: 1 }}
                         transition={{
                           type: 'spring',
-                          stiffness: 450,
-                          damping: 32,
-                          mass: 0.8,
+                          stiffness: 320,
+                          damping: 28,
+                          mass: 0.9,
                         }}
                         className="text-[13px] font-semibold tracking-tight font-sans whitespace-nowrap block"
                       >

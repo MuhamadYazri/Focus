@@ -123,7 +123,7 @@ export default function App() {
     setTimeout(() => {
       setIsTransitioning(false);
       setPrevTab(null);
-    }, 280);
+    }, 400);
   };
 
   // Load initial data from IDB/localStorage

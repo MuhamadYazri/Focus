@@ -69,7 +69,7 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
       >
         <div className="flex items-center justify-between pb-4 mb-5 border-b border-border">
           <div className="flex flex-col">
-            <span className="text-[10px] font-bold text-text-sub tracking-widest font-sans uppercase">
+            <span className="text-[10px] font-bold text-text-sub tracking-widest font-mono uppercase">
               FOCUS // CATEGORY
             </span>
             <h3 className="text-lg font-bold text-text-main mt-0.5 font-display tracking-tight">
@@ -87,7 +87,7 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block mb-2 text-[11px] font-bold text-text-sub uppercase tracking-widest font-sans">
+            <label className="block mb-2 text-[10px] font-bold text-text-sub uppercase tracking-widest font-mono">
               Category Name
             </label>
             <input
@@ -102,7 +102,7 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
           </div>
 
           <div>
-            <label className="block mb-2 text-[11px] font-bold text-text-sub uppercase tracking-widest font-sans">
+            <label className="block mb-2 text-[10px] font-bold text-text-sub uppercase tracking-widest font-mono">
               Accent Color
             </label>
             <div className="grid grid-cols-6 gap-3">
@@ -126,7 +126,7 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
           </div>
 
           <div>
-            <label className="block mb-2 text-[11px] font-bold text-text-sub uppercase tracking-widest font-sans">
+            <label className="block mb-2 text-[10px] font-bold text-text-sub uppercase tracking-widest font-mono">
               Category Icon
             </label>
             <div className="grid grid-cols-5 gap-2">

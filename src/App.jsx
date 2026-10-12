@@ -3,7 +3,6 @@ import { PlusIcon as Plus } from 'lucide-animated';
 import BottomNav from './components/Navigation/BottomNav';
 import TaskList from './components/Tasks/TaskList';
 import TaskModal from './components/Tasks/TaskModal';
-import ProjectList from './components/Projects/ProjectList';
 import ProjectModal from './components/Projects/ProjectModal';
 import TimerView from './components/Timer/TimerView';
 import StrictModeModal from './components/Timer/StrictModeModal';

@@ -177,7 +177,7 @@ function AnalyticsDashboard({
 
         {/* Focus Distribution Donut Card */}
         <div className="bg-surface rounded-2xl p-4 shadow-xs border border-border ring-1 ring-white/80 flex flex-col">
-          <span className="text-[11px] uppercase tracking-wider text-secondary font-bold mb-3 font-sans">
+          <span className="text-[10px] uppercase tracking-widest text-secondary font-bold mb-3 font-mono">
             FOCUS DISTRIBUTION
           </span>
           <div className="flex items-center justify-between gap-4 py-1">
@@ -193,10 +193,10 @@ function AnalyticsDashboard({
                   trackColor: 'rgba(0,0,0,0.05)',
                 }))}
               >
-                <span className="text-sm text-text-main font-bold font-display">
+                <span className="text-sm text-text-main font-bold font-display tracking-tight">
                   {displayTotalTime}
                 </span>
-                <span className="text-[9px] uppercase font-bold text-text-sub tracking-wider font-sans mt-0.5">
+                <span className="text-[9px] uppercase font-bold text-text-sub tracking-widest font-mono mt-0.5">
                   TOTAL
                 </span>
               </RingChart>

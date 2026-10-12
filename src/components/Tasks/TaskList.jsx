@@ -318,7 +318,7 @@ function TaskList({
           {/* Daily Target Progress Card */}
           <div className="col-span-8 bg-surface border border-border rounded-[24px] p-5 shadow-sm ring-1 ring-white/80 flex flex-col justify-between relative overflow-hidden">
             <div className="flex items-center justify-between relative z-10">
-              <span className="font-mono text-[11px] font-bold text-[#636F5A] tracking-wider uppercase">
+              <span className="font-mono text-[10px] font-bold text-[#636F5A] tracking-widest uppercase">
                 DAILY TARGET
               </span>
               <div className="w-8 h-8 rounded-full bg-[#E5D9B6]/30 border border-[#E5D9B6]/40 flex items-center justify-center text-secondary shadow-2xs">
@@ -326,7 +326,7 @@ function TaskList({
               </div>
             </div>
             <div className="my-3 relative z-10">
-              <h2 className="text-[19px] font-bold text-primary leading-tight font-display">
+              <h2 className="text-[19px] font-bold text-primary leading-tight tracking-tight font-display">
                 {todayHours}h of {targetHours}h completed
               </h2>
             </div>
@@ -352,7 +352,7 @@ function TaskList({
             <div className="absolute -top-6 -right-6 w-20 h-20 bg-[#E5D9B6]/10 rounded-full blur-xl pointer-events-none" />
 
             <div className="flex items-center justify-center gap-1.5 relative z-10">
-              <span className="font-mono text-[11px] text-[#E5D9B6] tracking-wider font-bold uppercase">
+              <span className="font-mono text-[10px] text-[#E5D9B6] tracking-widest font-bold uppercase">
                 STREAK
               </span>
               <video
@@ -447,7 +447,7 @@ function TaskList({
 
         {/* Tasks Subheader with Sort Toggle */}
         <div className="flex items-center justify-between mb-3 px-1">
-          <span className="font-mono text-[11px] text-[#636F5A] tracking-wider font-bold uppercase">
+          <span className="font-mono text-[10px] text-[#636F5A] tracking-widest font-bold uppercase">
             {filterTab === 'Done'
               ? `COMPLETED · ${filteredTasks.length}`
               : `TASKS · ${filteredTasks.length} ACTIVE`}

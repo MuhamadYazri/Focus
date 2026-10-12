@@ -33,14 +33,13 @@ export default function WhiteNoisePlayer({ currentSound, onSelectSound, volume, 
       style={{ background: 'var(--surface-card)', borderColor: 'var(--surface-border)' }}
     >
       <div className="flex items-center justify-between">
-        <span
-          className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5"
-          style={{ color: 'var(--text-muted)' }}
-        >
-          <Volume2 className="w-4 h-4" style={{ color: 'var(--accent)' }} />
-          White Noise & Soundscape
-        </span>
-        <span className="text-[11px] font-medium" style={{ color: 'var(--text-secondary)' }}>
+        <div className="flex items-center gap-1.5">
+          <Volume2 className="w-4 h-4 text-primary" />
+          <span className="text-xs font-bold text-text-main font-sans">
+            White Noise & Soundscape
+          </span>
+        </div>
+        <span className="text-[11px] font-medium text-text-sub font-sans">
           {sounds.find((s) => s.id === currentSound)?.label || 'Hening'}
         </span>
       </div>
@@ -88,7 +87,7 @@ export default function WhiteNoisePlayer({ currentSound, onSelectSound, volume, 
             style={{ background: 'var(--surface-border)', accentColor: 'var(--accent)' }}
           />
           <span
-            className="text-xs font-bold w-8 text-right"
+            className="text-xs font-bold font-mono tracking-tight w-8 text-right"
             style={{ color: 'var(--text-primary)' }}
           >
             {Math.round(volume * 100)}%

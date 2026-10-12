@@ -92,10 +92,10 @@ function TimeframeHeader({ period, setPeriod, offset, setOffset }) {
             if (window.navigator?.vibrate) window.navigator.vibrate(10);
             setOffset((prev) => prev - 1);
           }}
-          className="flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-bold tracking-wider text-[#444841] hover:text-text-main hover:bg-canvas/60 active:scale-95 transition-all"
+          className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-widest text-[#444841] font-mono hover:text-text-main hover:bg-canvas/60 active:scale-95 transition-all"
         >
-          <ChevronLeft size={14} strokeWidth={2.5} />
-          <span className="tracking-widest uppercase">PREV</span>
+          <ChevronLeft size={13} strokeWidth={2.5} />
+          <span>PREV</span>
         </button>
         <RollText
           text={dateLabel}
@@ -107,14 +107,14 @@ function TimeframeHeader({ period, setPeriod, offset, setOffset }) {
             setOffset((prev) => Math.min(0, prev + 1));
           }}
           disabled={offset >= 0}
-          className={`flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-bold tracking-wider transition-all ${
+          className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-widest font-mono transition-all ${
             offset >= 0
               ? 'text-text-sub/40 cursor-not-allowed'
               : 'text-[#444841] hover:text-text-main hover:bg-canvas/60 active:scale-95'
           }`}
         >
-          <span className="tracking-widest uppercase">NEXT</span>
-          <ChevronRight size={14} strokeWidth={2.5} />
+          <span>NEXT</span>
+          <ChevronRight size={13} strokeWidth={2.5} />
         </button>
       </div>
     </div>

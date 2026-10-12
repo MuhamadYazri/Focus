@@ -243,9 +243,9 @@ function ProfileView({
       <div className="flex flex-col w-full max-w-md mx-auto px-5 gap-4">
         {/* ── Profile Header ── */}
         <div className="flex items-center justify-between pb-1">
-          <div>
+          <div className="flex flex-col gap-0.5">
             <h1 className="text-xl font-bold text-text-main font-display tracking-tight">Profile & Preferences</h1>
-            <p className="text-xs text-text-sub font-sans">Lifetime statistics, categories & timer setup</p>
+            <p className="text-xs text-text-sub font-sans leading-relaxed">Lifetime statistics, categories & timer setup</p>
           </div>
           <div className="w-10 h-10 rounded-full bg-surface border border-border shadow-xs flex items-center justify-center text-primary ring-1 ring-white/80">
             <UserIcon size={20} className="text-secondary" />
@@ -260,8 +260,8 @@ function ProfileView({
               <FlameIcon ref={flameRef} size={22} color="#E67E22" strokeWidth={2} />
             </div>
             <div className="flex flex-col">
-              <span className="text-2xl font-bold text-text-main font-display leading-none">{currentStreak}</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-text-sub font-sans mt-1">
+              <span className="text-2xl font-bold text-text-main font-display leading-none tracking-tight">{currentStreak}</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-text-sub font-mono mt-1">
                 DAY STREAK
               </span>
             </div>
@@ -273,8 +273,8 @@ function ProfileView({
               <ClockIcon ref={clockRef} size={22} className="text-secondary" strokeWidth={2} />
             </div>
             <div className="flex flex-col">
-              <span className="text-2xl font-bold text-text-main font-display leading-none">{hours}h {mins > 0 ? `${mins}m` : ''}</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-text-sub font-sans mt-1">
+              <span className="text-2xl font-bold text-text-main font-display leading-none tracking-tight">{hours}h {mins > 0 ? `${mins}m` : ''}</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-text-sub font-mono mt-1">
                 TOTAL FOCUSED
               </span>
             </div>
@@ -286,8 +286,8 @@ function ProfileView({
               <BookmarkCheckIcon ref={sessionRef} size={22} className="text-primary" strokeWidth={2} />
             </div>
             <div className="flex flex-col">
-              <span className="text-2xl font-bold text-text-main font-display leading-none">{totalPomos.toLocaleString()}</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-text-sub font-sans mt-1">
+              <span className="text-2xl font-bold text-text-main font-display leading-none tracking-tight">{totalPomos.toLocaleString()}</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-text-sub font-mono mt-1">
                 SESSIONS
               </span>
             </div>
@@ -299,8 +299,8 @@ function ProfileView({
               <CalendarDaysIcon size={22} strokeWidth={2} />
             </div>
             <div className="flex flex-col">
-              <span className="text-2xl font-bold text-text-main font-display leading-none">{totalDays}</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-text-sub font-sans mt-1">
+              <span className="text-2xl font-bold text-text-main font-display leading-none tracking-tight">{totalDays}</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-text-sub font-mono mt-1">
                 DAYS FOCUSED
               </span>
             </div>
@@ -337,7 +337,7 @@ function ProfileView({
         {/* ── Section: Focus Categories ── */}
         <div className="flex flex-col gap-2.5 pt-2">
           <div className="flex items-center justify-between px-1 pb-1">
-            <h2 className="text-[11px] font-bold uppercase tracking-wider text-text-sub font-sans">
+            <h2 className="text-[10px] font-bold uppercase tracking-widest text-text-sub font-mono">
               FOCUS CATEGORIES
             </h2>
             <button
@@ -360,7 +360,7 @@ function ProfileView({
                 <path d="M12 5V19"></path>
                 <path d="M5 12H19"></path>
               </svg>
-              <span className="font-sans">NEW</span>
+              <span className="font-mono text-[10px] font-bold tracking-wider">NEW</span>
             </button>
           </div>
           {projects.map((proj) => {
@@ -376,7 +376,7 @@ function ProfileView({
                     className="w-3 h-3 rounded-full shadow-sm shrink-0"
                     style={{ backgroundColor: proj.color || 'var(--theme-primary)' }}
                   />
-                  <span className="text-xs font-bold text-text-main tracking-wide font-sans truncate">
+                  <span className="text-xs font-bold text-text-main font-sans truncate">
                     {displayName}
                   </span>
                 </div>
@@ -438,7 +438,7 @@ function ProfileView({
         {/* ── Section: Preferences ── */}
         <div className="flex flex-col gap-3 pt-2">
           <div className="px-1 pb-1">
-            <h2 className="text-[11px] font-bold uppercase tracking-wider text-text-sub font-sans">
+            <h2 className="text-[10px] font-bold uppercase tracking-widest text-text-sub font-mono">
               PREFERENCES
             </h2>
           </div>
@@ -463,7 +463,7 @@ function ProfileView({
                 <path d="M17 22V16.6C17 15.6 16.5 14.6 15.6 14L12 11.5L8.4 14C7.5 14.6 7 15.6 7 16.6V22"></path>
                 <path d="M7 2V7.4C7 8.4 7.5 9.4 8.4 10L12 12.5L15.6 10C16.5 9.4 17 8.4 17 7.4V2"></path>
               </svg>
-              <span className="text-sm font-bold text-text-main font-sans">Timer Durations</span>
+              <span className="text-sm font-bold text-text-main font-display tracking-tight">Timer Durations</span>
             </div>
             {[
               { key: 'workDuration', label: 'Focus Session', presets: [25, 45, 60], min: 1, max: 180 },
@@ -536,7 +536,7 @@ function ProfileView({
                   <circle cx="12" cy="12" r="6"></circle>
                   <circle cx="12" cy="12" r="2"></circle>
                 </svg>
-                <span className="text-sm font-bold text-text-main font-sans">Daily Goal</span>
+                <span className="text-sm font-bold text-text-main font-display tracking-tight">Daily Goal</span>
               </div>
             </div>
             <div className="flex items-center justify-between">
@@ -746,9 +746,9 @@ function ProfileView({
                 <path d="M19 21H5C4.44772 21 4 20.5523 4 20V4C4 3.44772 4.44772 3 5 3H14L20 9V20C20 20.5523 19.5523 21 19 21Z"></path>
                 <path d="M14 3V9H20"></path>
               </svg>
-              <span className="text-sm font-bold text-text-main font-sans">Local Backup</span>
+              <span className="text-sm font-bold text-text-main font-display tracking-tight">Local Backup</span>
             </div>
-            <p className="text-xs text-[#8A7968] font-sans">
+            <p className="text-xs text-[#8A7968] font-sans leading-relaxed">
               Save your data as a local file for safe keeping
             </p>
 
@@ -821,9 +821,9 @@ function ProfileView({
 
           {/* Reset Telemetry Data Card */}
           <div className="bg-surface rounded-2xl p-5 shadow-xs flex items-center justify-between border border-border ring-1 ring-white/70 mb-6">
-            <div className="flex flex-col">
+            <div className="flex flex-col gap-0.5">
               <span className="text-xs font-bold text-text-main font-sans">Wipe All Data</span>
-              <span className="text-[11px] text-[#8A7968] font-sans">
+              <span className="text-[11px] text-[#8A7968] font-sans leading-relaxed">
                 Permanently delete all tasks and focus history
               </span>
             </div>
@@ -846,13 +846,13 @@ function ProfileView({
                 <path d="M19.94 15.5C18.66 18.73 15.5 21 12 21C7.03 21 3 16.97 3 12C3 9.4 4.1 7.06 5.86 5.43L2.5 2"></path>
                 <path d="M4.06 8.5C5.34 5.27 8.5 3 12 3C16.97 3 21 7.03 21 12C21 14.6 19.9 16.94 18.14 18.57L21.5 22"></path>
               </svg>
-              <span className="font-sans">RESET</span>
+              <span className="font-mono text-[10px] font-bold tracking-wider">RESET</span>
             </button>
           </div>
 
           {/* App Version, Copyright & Attribution Badge */}
           <div className="flex flex-col items-center justify-center py-4 text-center select-none space-y-1">
-            <span className="text-[11px] font-semibold text-text-sub tracking-wider uppercase opacity-75">
+            <span className="text-[10px] font-bold text-text-sub tracking-widest uppercase opacity-75 font-mono">
               Focus v1.0.1
             </span>
             <span className="text-[10px] text-text-sub/70">
@@ -928,33 +928,35 @@ function ProfileView({
               style={{ background: 'linear-gradient(135deg, var(--theme-canvas) 0%, var(--theme-border) 100%)' }}
             >
               <div className="flex items-center justify-between z-10 mb-8">
-                <span className="text-[10px] text-text-sub tracking-widest font-sans font-bold">
+                <span className="text-[10px] text-text-sub tracking-widest font-mono font-bold uppercase">
                   FOCUS // LIFETIME SUMMARY
                 </span>
                 <Share2 size={18} className="text-primary" strokeWidth={2} />
               </div>
 
               <div className="z-10 flex flex-col gap-1 mb-8">
-                <h3 className="text-3xl font-bold text-text-main tracking-tight leading-tight font-sans">
+                <h3 className="text-3xl font-bold text-text-main tracking-tight leading-tight font-display">
                   All-Time Progress
                 </h3>
-                <p className="text-xs text-secondary font-bold mt-1 font-sans">
+                <p className="text-xs text-secondary font-semibold mt-0.5 font-sans">
                   {currentStreak} day streak · {totalDays} days focused
                 </p>
               </div>
 
               <div className="z-10 grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1">
-                  <span className="text-[10px] text-text-sub font-bold font-sans">
+                  <span className="text-[10px] text-text-sub font-bold font-mono tracking-widest uppercase">
                     TOTAL FOCUS
                   </span>
-                  <span className="text-2xl font-bold text-text-main font-sans">
+                  <span className="text-2xl font-bold text-text-main font-display tracking-tight">
                     {totalHoursDisplay}
                   </span>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <span className="text-[10px] text-text-sub font-bold font-sans">SESSIONS</span>
-                  <span className="text-2xl font-bold text-text-main font-sans">
+                  <span className="text-[10px] text-text-sub font-bold font-mono tracking-widest uppercase">
+                    SESSIONS
+                  </span>
+                  <span className="text-2xl font-bold text-text-main font-display tracking-tight">
                     {totalPomos}
                   </span>
                 </div>
@@ -1005,8 +1007,8 @@ function ProfileView({
             className="w-full max-w-sm rounded-3xl p-6 flex flex-col gap-5 border border-border bg-surface shadow-2xl ring-1 ring-white/80"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex flex-col gap-2">
-              <span className="text-lg font-bold text-text-main font-sans">
+            <div className="flex flex-col gap-1.5">
+              <span className="text-lg font-bold text-text-main font-display tracking-tight">
                 Delete Category?
               </span>
               <p className="text-sm text-text-sub font-sans leading-relaxed">
@@ -1054,11 +1056,11 @@ function ProfileView({
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between pb-2 border-b border-border">
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-bold text-text-sub tracking-widest font-sans uppercase">
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-[10px] font-bold text-text-sub tracking-widest font-mono uppercase">
                     CUSTOM PREFERENCE
                   </span>
-                  <h3 className="text-base font-bold text-text-main font-display">
+                  <h3 className="text-base font-bold text-text-main font-display tracking-tight">
                     {customModal.label}
                   </h3>
                 </div>
@@ -1098,7 +1100,7 @@ function ProfileView({
                         setCustomVal(Math.min(customModal.max, Math.max(customModal.min, num)));
                       }
                     }}
-                    className="w-16 text-center text-3xl font-bold font-display text-primary bg-transparent outline-none border-b-2 border-primary"
+                    className="w-16 text-center text-3xl font-bold font-display tracking-tight text-primary bg-transparent outline-none border-b-2 border-primary"
                   />
                   <span className="text-sm font-bold text-text-sub font-sans">{customModal.unit}</span>
                 </div>

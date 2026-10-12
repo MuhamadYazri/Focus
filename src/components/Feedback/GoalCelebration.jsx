@@ -72,7 +72,7 @@ export default function GoalCelebration({ celebration, onDone }) {
           dotLottieRefCallback={setLottieRef}
           className="w-full h-auto mb-2 opacity-90 mix-blend-multiply"
         />
-        <h2 className="text-[17px] font-bold text-text-main mb-1.5 font-sans tracking-tight">
+        <h2 className="text-[17px] font-bold text-text-main mb-1 font-display tracking-tight">
           {celebration.title}
         </h2>
         <p className="text-[12px] text-text-sub font-sans leading-relaxed">{celebration.subtitle}</p>

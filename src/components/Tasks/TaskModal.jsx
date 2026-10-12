@@ -204,7 +204,7 @@ export default function TaskModal({
         <div className="px-6 py-5 flex flex-col gap-6 max-h-[75vh] overflow-y-auto bg-surface">
           {/* Title input */}
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider text-text-sub font-sans mb-1.5">
+            <label className="block text-[10px] font-bold uppercase tracking-widest text-text-sub font-mono mb-1.5">
               Task title
             </label>
             <input
@@ -219,7 +219,7 @@ export default function TaskModal({
 
           {/* Category/Project selector */}
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider text-text-sub font-sans mb-1.5">
+            <label className="block text-[10px] font-bold uppercase tracking-widest text-text-sub font-mono mb-1.5">
               Category
             </label>
             <button
@@ -271,7 +271,7 @@ export default function TaskModal({
 
           {/* Schedule selection */}
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider text-text-sub font-sans mb-1.5">
+            <label className="block text-[10px] font-bold uppercase tracking-widest text-text-sub font-mono mb-1.5">
               Schedule
             </label>
             <div className="flex gap-1.5 p-1 bg-surface-hover rounded-xl border border-border shadow-inner flex-wrap">
@@ -343,7 +343,7 @@ export default function TaskModal({
 
           {/* Pomodoros Planned */}
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider text-text-sub font-sans mb-1.5">
+            <label className="block text-[10px] font-bold uppercase tracking-widest text-text-sub font-mono mb-1.5">
               Pomodoros planned
             </label>
             <div className="flex items-center gap-4">
@@ -355,7 +355,7 @@ export default function TaskModal({
                 <span className="font-sans text-3xl leading-none font-medium mb-1">−</span>
               </button>
               <div className="flex-1 text-center flex flex-col justify-center h-12">
-                <span className="font-sans text-3xl text-text-main font-bold tracking-tight leading-none">
+                <span className="font-display text-3xl text-text-main font-bold tracking-tight leading-none">
                   {pomoTotal}
                 </span>
                 <span className="font-sans text-[10px] uppercase font-bold tracking-widest text-text-sub mt-1 leading-none">
@@ -388,7 +388,7 @@ export default function TaskModal({
               onClick={() => setShowSubtasks(!showSubtasks)}
               className="flex items-center justify-between w-full py-2 group active:opacity-70 transition-opacity"
             >
-              <span className="text-[11px] font-bold uppercase tracking-wider text-text-sub font-sans group-hover:text-primary transition-colors">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-text-sub font-mono group-hover:text-primary transition-colors">
                 SUBTASKS ({subtasks.length})
               </span>
               <div className="p-1 rounded-full bg-surface-hover group-hover:bg-border text-text-sub transition-colors">

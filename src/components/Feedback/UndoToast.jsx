@@ -40,14 +40,14 @@ export default function UndoToast({ toast, onDismiss }) {
         }`}
       >
         <div className="flex items-center justify-between gap-3 pl-4 pr-2 py-2.5">
-          <span className="font-sans text-[13px] font-semibold tracking-wide truncate">
+          <span className="font-sans text-[13px] font-semibold truncate">
             {toast.message}
           </span>
           {toast.onUndo && (
             <button
               type="button"
               onClick={handleUndo}
-              className="shrink-0 flex items-center gap-1.5 h-9 px-3.5 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 transition-all text-[#E5D9B6] font-sans text-[12px] font-bold uppercase tracking-wider ring-1 ring-white/10"
+              className="shrink-0 flex items-center gap-1.5 h-9 px-3.5 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 transition-all text-[#E5D9B6] font-mono text-[11px] font-bold uppercase tracking-wider ring-1 ring-white/10"
             >
               <Undo2 size={14} strokeWidth={2.5} />
               Undo

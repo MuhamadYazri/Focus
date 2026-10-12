@@ -719,7 +719,7 @@ function SharedActivitySection({
             <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-primary/5 to-transparent rounded-bl-full pointer-events-none" />
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-secondary">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-secondary font-mono">
                   FOCUS TIME
                 </span>
                 <div className="w-7 h-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center shadow-2xs">
@@ -740,7 +740,7 @@ function SharedActivitySection({
             <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-secondary/5 to-transparent rounded-bl-full pointer-events-none" />
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-secondary">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-secondary font-mono">
                   SESSIONS
                 </span>
                 <div className="w-7 h-7 rounded-lg bg-secondary/10 text-secondary flex items-center justify-center shadow-2xs">
@@ -761,7 +761,7 @@ function SharedActivitySection({
       {/* Activity Heatmap Grid */}
       <div className="bg-surface rounded-2xl p-4 shadow-xs ring-1 ring-white/80 border border-border flex flex-col">
         <div className="flex items-center justify-between mb-3">
-          <span className="text-[11px] uppercase tracking-wider text-secondary font-bold">
+          <span className="text-[10px] uppercase tracking-widest text-secondary font-bold font-mono">
             ACTIVITY GRID
           </span>
           <span className="text-xs text-text-sub font-medium font-sans px-2.5 py-0.5 rounded-full bg-canvas/80 border border-border/50">
@@ -794,12 +794,12 @@ function SharedActivitySection({
       {/* Total Per Day Column Chart */}
       <div className="bg-surface rounded-2xl p-4 shadow-xs ring-1 ring-white/80 border border-border flex flex-col">
         <div className="flex items-center justify-between mb-0.5">
-          <span className="text-sm font-bold text-text-main font-sans">{chartTitle}</span>
+          <span className="text-[14px] font-bold text-text-main font-display tracking-tight">{chartTitle}</span>
           <span className="text-[11px] text-primary font-semibold px-2.5 py-0.5 rounded-full bg-primary/10 border border-primary/20">
             {chartPeakLabel}
           </span>
         </div>
-        <p className="text-[11px] text-text-sub mb-5 font-sans">{chartSubLabel}</p>
+        <p className="text-[11px] text-text-sub mt-0.5 mb-4 font-sans leading-relaxed">{chartSubLabel}</p>
 
         <div
           className="grid gap-2 items-end min-h-[96px] pb-1"

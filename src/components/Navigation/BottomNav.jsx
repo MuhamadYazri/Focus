@@ -1,14 +1,14 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
-  LayoutGridIcon as LayoutGrid,
   HourglassIcon as Timer,
   TrendingUpIcon as BarChart2,
   UserIcon as User,
 } from 'lucide-animated';
+import HomeLottieIcon from './HomeLottieIcon';
 
 const NAV_ITEMS = [
-  { key: 'home', label: 'Home', Icon: LayoutGrid },
+  { key: 'home', label: 'Home', Icon: HomeLottieIcon },
   { key: 'timer', label: 'Timer', Icon: Timer },
   { key: 'reports', label: 'Reports', Icon: BarChart2 },
   { key: 'profile', label: 'Profile', Icon: User },
@@ -84,6 +84,7 @@ function BottomNav({ activeTab, setActiveTab, isHidden = false }) {
                   <Icon
                     ref={(el) => (iconRefs.current[key] = el)}
                     animateOnHover={false}
+                    on={on}
                     size={on ? 18 : 20}
                     strokeWidth={on ? 2.5 : 2}
                   />

@@ -72,7 +72,7 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
             <span className="text-[10px] font-bold text-text-sub tracking-widest font-sans uppercase">
               FOCUS // CATEGORY
             </span>
-            <h3 className="text-lg font-bold text-text-main mt-0.5 font-sans tracking-tight">
+            <h3 className="text-lg font-bold text-text-main mt-0.5 font-display tracking-tight">
               {projectToEdit ? 'Edit Category' : 'New Category'}
             </h3>
           </div>

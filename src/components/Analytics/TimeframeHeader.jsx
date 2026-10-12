@@ -99,7 +99,7 @@ function TimeframeHeader({ period, setPeriod, offset, setOffset }) {
         </button>
         <RollText
           text={dateLabel}
-          className="text-xs text-text-main font-semibold tracking-tight font-sans"
+          className="text-xs text-text-main font-bold tracking-tight font-display"
         />
         <button
           onClick={() => {

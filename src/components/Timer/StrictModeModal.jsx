@@ -34,7 +34,7 @@ export default function StrictModeModal({ isOpen, onClose, onResetTimer }) {
         <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-primary/70 bg-primary/10 px-2.5 py-0.5 rounded-full mb-1.5 shadow-2xs">
           STRICT MODE
         </span>
-        <h3 className="text-[16px] font-bold text-text-main font-sans tracking-tight">
+        <h3 className="text-[17px] font-bold text-text-main font-display tracking-tight">
           Focus Interrupted
         </h3>
         <p className="text-[12px] text-text-sub font-sans leading-relaxed mt-1 mb-4 px-1">

@@ -12,6 +12,9 @@
   --color-text-main: var(--theme-text-main);
   --color-text-sub: var(--theme-text-sub);
 
+  --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+
   --shadow-2xs: var(--shadow-2xs);
   --shadow-xs: var(--shadow-xs);
   --shadow-sm: var(--shadow-sm);
@@ -94,7 +97,7 @@
   body {
     background-color: var(--theme-canvas);
     color: var(--theme-text-main);
-    font-family: 'Poppins', sans-serif !important;
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif !important;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
@@ -379,12 +382,14 @@
 .animate-tick-out { animation: tickSlideOutDown 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 .animate-tick-in { animation: tickSlideInDown 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-@layer base {
-  *:not(.font-styro):not(.font-styro *),
-  *:not(.font-styro):not(.font-styro *)::before,
-  *:not(.font-styro):not(.font-styro *)::after {
-    font-family: 'Poppins', sans-serif !important;
-  }
+.font-display,
+.font-display * {
+  font-family: 'Outfit', sans-serif !important;
+}
+
+.font-sans,
+.font-sans * {
+  font-family: 'Manrope', sans-serif !important;
 }
 
 .font-styro,

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { soundEngine } from '../../services/soundEngine';
 
-const G = "'Poppins', sans-serif";
-const M = "'Poppins', sans-serif";
+const G = "'Outfit', sans-serif";
+const M = "'Manrope', sans-serif";
 
 export default function TimerControls({
   isRunning,

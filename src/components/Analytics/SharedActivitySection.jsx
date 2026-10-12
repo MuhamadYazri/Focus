@@ -726,7 +726,7 @@ function SharedActivitySection({
                   <Clock size={15} strokeWidth={2.2} />
                 </div>
               </div>
-              <p className="text-2xl text-text-main font-bold tracking-tight font-sans">
+              <p className="text-2xl text-text-main font-bold tracking-tight font-display">
                 {displayHours}
               </p>
             </div>
@@ -747,7 +747,7 @@ function SharedActivitySection({
                   <CheckCircle size={15} strokeWidth={2.2} />
                 </div>
               </div>
-              <p className="text-2xl text-text-main font-bold tracking-tight font-sans">
+              <p className="text-2xl text-text-main font-bold tracking-tight font-display">
                 {displayPomos.toLocaleString()}
               </p>
             </div>

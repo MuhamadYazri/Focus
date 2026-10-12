@@ -242,7 +242,7 @@ function ProfileView({
         {/* ── Profile Header ── */}
         <div className="flex items-center justify-between pb-1">
           <div>
-            <h1 className="text-xl font-bold text-text-main font-sans tracking-tight">Profile & Preferences</h1>
+            <h1 className="text-xl font-bold text-text-main font-display tracking-tight">Profile & Preferences</h1>
             <p className="text-xs text-text-sub font-sans">Lifetime statistics, categories & timer setup</p>
           </div>
           <div className="w-10 h-10 rounded-full bg-surface border border-border shadow-xs flex items-center justify-center text-primary ring-1 ring-white/80">
@@ -258,7 +258,7 @@ function ProfileView({
               <FlameIcon ref={flameRef} size={22} color="#E67E22" strokeWidth={2} />
             </div>
             <div className="flex flex-col">
-              <span className="text-2xl font-bold text-text-main font-sans leading-none">{currentStreak}</span>
+              <span className="text-2xl font-bold text-text-main font-display leading-none">{currentStreak}</span>
               <span className="text-[10px] font-bold uppercase tracking-wider text-text-sub font-sans mt-1">
                 DAY STREAK
               </span>
@@ -271,7 +271,7 @@ function ProfileView({
               <ClockIcon ref={clockRef} size={22} className="text-secondary" strokeWidth={2} />
             </div>
             <div className="flex flex-col">
-              <span className="text-2xl font-bold text-text-main font-sans leading-none">{hours}h {mins > 0 ? `${mins}m` : ''}</span>
+              <span className="text-2xl font-bold text-text-main font-display leading-none">{hours}h {mins > 0 ? `${mins}m` : ''}</span>
               <span className="text-[10px] font-bold uppercase tracking-wider text-text-sub font-sans mt-1">
                 TOTAL FOCUSED
               </span>
@@ -284,7 +284,7 @@ function ProfileView({
               <BookmarkCheckIcon ref={sessionRef} size={22} className="text-primary" strokeWidth={2} />
             </div>
             <div className="flex flex-col">
-              <span className="text-2xl font-bold text-text-main font-sans leading-none">{totalPomos.toLocaleString()}</span>
+              <span className="text-2xl font-bold text-text-main font-display leading-none">{totalPomos.toLocaleString()}</span>
               <span className="text-[10px] font-bold uppercase tracking-wider text-text-sub font-sans mt-1">
                 SESSIONS
               </span>
@@ -297,7 +297,7 @@ function ProfileView({
               <CalendarDaysIcon size={22} strokeWidth={2} />
             </div>
             <div className="flex flex-col">
-              <span className="text-2xl font-bold text-text-main font-sans leading-none">{totalDays}</span>
+              <span className="text-2xl font-bold text-text-main font-display leading-none">{totalDays}</span>
               <span className="text-[10px] font-bold uppercase tracking-wider text-text-sub font-sans mt-1">
                 DAYS FOCUSED
               </span>

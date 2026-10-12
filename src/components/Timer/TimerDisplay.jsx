@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
-const G = "'Poppins', sans-serif";
-const M = "'Poppins', sans-serif";
+const G = "'Outfit', sans-serif";
+const M = "'Manrope', sans-serif";
 
 const RADIUS = 46;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
@@ -125,15 +125,15 @@ export default function TimerDisplay({
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center">
           {/* Countdown (Always dead center) */}
           <div
-            className="flex items-center justify-center"
+            className="flex items-center justify-center font-display"
             style={{
               fontFamily: G,
-              fontSize: 72,
-              fontWeight: 300,
+              fontSize: 74,
+              fontWeight: 700,
               color: isFullScreen ? '#fff' : 'var(--text-primary)',
-              letterSpacing: '-2px',
+              letterSpacing: '-1.5px',
               lineHeight: 1,
-              opacity: isRunning ? 1 : 0.55,
+              opacity: isRunning ? 1 : 0.65,
               transition: 'color 0.7s ease, opacity 0.4s ease',
               fontFeatureSettings: "'tnum'",
               marginTop: -6, // Optical centering adjustment
@@ -154,11 +154,11 @@ export default function TimerDisplay({
               pointerEvents: isFullScreen ? 'none' : 'auto' 
             }}
           >
-            <span style={{ fontFamily: M, fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.08em' }}>
+            <span style={{ fontFamily: M, fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', letterSpacing: '0.08em' }}>
               SESSION {currentSessionNumber}/4
             </span>
             {taskTitle && (
-              <span style={{ fontFamily: G, fontSize: 12, color: 'var(--text-secondary)', marginTop: 2, maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textAlign: 'center' }}>
+              <span style={{ fontFamily: M, fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginTop: 2, maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textAlign: 'center' }}>
                 {taskTitle}
               </span>
             )}

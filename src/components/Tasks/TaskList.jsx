@@ -305,7 +305,7 @@ function TaskList({
       <div className="flex flex-col w-full px-5 pt-15 pb-24 max-w-md mx-auto">
         {/* Greeting Header */}
         <header className="pt-2 pb-5 flex flex-col gap-1">
-          <h1 className="text-[32px] leading-[38px] text-primary font-bold tracking-tight font-sans">
+          <h1 className="text-[32px] leading-[38px] text-primary font-bold tracking-tight font-display">
             {getGreeting()}
           </h1>
           <p className="text-[15px] leading-5 text-[#636F5A] font-normal font-sans">
@@ -326,7 +326,7 @@ function TaskList({
               </div>
             </div>
             <div className="my-3 relative z-10">
-              <h2 className="text-[19px] font-bold text-primary leading-tight font-sans">
+              <h2 className="text-[19px] font-bold text-primary leading-tight font-display">
                 {todayHours}h of {targetHours}h completed
               </h2>
             </div>
@@ -365,7 +365,7 @@ function TaskList({
               />
             </div>
             <div className="my-auto pt-1 flex items-center flex-col text-center relative z-10">
-              <span className="text-[34px] font-bold text-white leading-none tracking-tight font-sans drop-shadow-sm">
+              <span className="text-[34px] font-bold text-white leading-none tracking-tight font-display drop-shadow-sm">
                 {streak}
               </span>
               <span className="text-[12px] text-[#E5D9B6]/90 font-medium mt-1 font-sans">Days</span>

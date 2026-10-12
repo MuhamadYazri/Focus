@@ -1,8 +1,8 @@
 import React from 'react';
 import { ChevronDown, ChevronUp, Check } from 'lucide-react';
 
-const G = "'Poppins', sans-serif";
-const M = "'Poppins', sans-serif";
+const G = "'Outfit', sans-serif";
+const M = "'Manrope', sans-serif";
 
 const ACCENTS = ['var(--accent)', 'var(--text-secondary)', '#4A7090', '#6A7090'];
 

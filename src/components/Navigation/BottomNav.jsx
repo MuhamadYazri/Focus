@@ -100,7 +100,7 @@ function BottomNav({ activeTab, setActiveTab, isHidden = false }) {
                           damping: 28,
                           mass: 0.9,
                         }}
-                        className="text-[13px] font-semibold tracking-tight font-sans whitespace-nowrap block"
+                        className="text-[13px] font-bold tracking-tight font-display whitespace-nowrap block"
                       >
                         {label}
                       </motion.span>

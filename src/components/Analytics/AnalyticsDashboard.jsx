@@ -193,7 +193,7 @@ function AnalyticsDashboard({
                   trackColor: 'rgba(0,0,0,0.05)',
                 }))}
               >
-                <span className="text-sm text-text-main font-bold font-sans">
+                <span className="text-sm text-text-main font-bold font-display">
                   {displayTotalTime}
                 </span>
                 <span className="text-[9px] uppercase font-bold text-text-sub tracking-wider font-sans mt-0.5">

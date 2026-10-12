@@ -190,7 +190,7 @@ export default function TaskModal({
 
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-1 pb-4 border-b border-surface-hover">
-          <h3 className="font-sans text-xl font-bold text-text-main tracking-tight">
+          <h3 className="font-display text-xl font-bold text-text-main tracking-tight">
             {taskToEdit ? 'Edit task' : 'New task'}
           </h3>
           <button

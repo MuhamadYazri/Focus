@@ -15,9 +15,6 @@ const toTitleCase = (str) => {
     .join(' ');
 };
 
-const G = "'Poppins', sans-serif";
-const M = "'Poppins', sans-serif";
-
 function ProfileView({
   sessions = [],
   settings = {
@@ -39,7 +36,6 @@ function ProfileView({
   const [projectToDelete, setProjectToDelete] = useState(null);
   const [backupStatus, setBackupStatus] = useState('idle');
   const [backupMsg, setBackupMsg] = useState('');
-  const maxBarH = 48;
 
   const flameRef = useRef(null);
   const clockRef = useRef(null);
@@ -76,7 +72,7 @@ function ProfileView({
   const uniqueDays = new Set(realSessions.map(s => {
     if (s.dateStr) return s.dateStr;
     try { return new Date(s.completedAt).toISOString().split('T')[0]; }
-    catch(e) { return ''; }
+    catch { return ''; }
   }).filter(Boolean));
   const totalDays = uniqueDays.size;
 
@@ -110,15 +106,6 @@ function ProfileView({
 
   const handleChange = (key, value) => {
     if (onUpdateSettings) onUpdateSettings({ ...settings, [key]: value });
-  };
-
-  const handleNumberChange = (key, valStr) => {
-    if (valStr === '' || valStr === '-' || valStr === '-0' || valStr.endsWith('.')) {
-      handleChange(key, valStr);
-    } else {
-      const num = Number(valStr);
-      handleChange(key, isNaN(num) ? '' : num);
-    }
   };
 
   const handleResetData = () => {

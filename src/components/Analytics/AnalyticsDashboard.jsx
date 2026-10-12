@@ -1,7 +1,5 @@
 import React, { useState, useMemo } from 'react';
 import SharedActivitySection from './SharedActivitySection';
-import PeriodComparisonCard from './PeriodComparisonCard';
-import PeakFocusCard from './PeakFocusCard';
 import RingChart from '../animata/graphs/ring-chart';
 
 const getLocalDateStr = (d) => {
@@ -175,21 +173,6 @@ function AnalyticsDashboard({
             setCurrentPeriod(data.period);
             setCurrentOffset(data.offset);
           }}
-        />
-
-        {/* Period Trend & Consistency Analysis */}
-        <PeriodComparisonCard
-          sessions={sessions}
-          filteredSessions={filteredSessions}
-          period={currentPeriod}
-          offset={currentOffset}
-          filterSessionsForPeriod={filterSessionsForPeriod}
-        />
-
-        {/* Peak Focus Window Analysis */}
-        <PeakFocusCard
-          filteredSessions={filteredSessions}
-          allSessions={sessions}
         />
 
         {/* Focus Distribution Donut Card */}

@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import SharedActivitySection from './SharedActivitySection';
-
+import PeriodComparisonCard from './PeriodComparisonCard';
+import PeakFocusCard from './PeakFocusCard';
 import RingChart from '../animata/graphs/ring-chart';
 
 const getLocalDateStr = (d) => {
@@ -9,7 +10,7 @@ const getLocalDateStr = (d) => {
     if (isNaN(dt.getTime())) return new Date().toISOString().split('T')[0];
     const z = new Date(dt.getTime() - dt.getTimezoneOffset() * 60000);
     return z.toISOString().split('T')[0];
-  } catch (e) {
+  } catch {
     return new Date().toISOString().split('T')[0];
   }
 };
@@ -70,7 +71,7 @@ const toTitleCase = (str) => {
 };
 
 function AnalyticsDashboard({
-  tasks = [],
+  _tasks = [],
   projects = [],
   sessions = [],
   settings = {},
@@ -174,6 +175,21 @@ function AnalyticsDashboard({
             setCurrentPeriod(data.period);
             setCurrentOffset(data.offset);
           }}
+        />
+
+        {/* Period Trend & Consistency Analysis */}
+        <PeriodComparisonCard
+          sessions={sessions}
+          filteredSessions={filteredSessions}
+          period={currentPeriod}
+          offset={currentOffset}
+          filterSessionsForPeriod={filterSessionsForPeriod}
+        />
+
+        {/* Peak Focus Window Analysis */}
+        <PeakFocusCard
+          filteredSessions={filteredSessions}
+          allSessions={sessions}
         />
 
         {/* Focus Distribution Donut Card */}

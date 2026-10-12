@@ -36,6 +36,8 @@ function ProfileView({
   const [projectToDelete, setProjectToDelete] = useState(null);
   const [backupStatus, setBackupStatus] = useState('idle');
   const [backupMsg, setBackupMsg] = useState('');
+  const [customModal, setCustomModal] = useState(null);
+  const [customVal, setCustomVal] = useState(25);
 
   const flameRef = useRef(null);
   const clockRef = useRef(null);
@@ -464,36 +466,56 @@ function ProfileView({
               <span className="text-sm font-bold text-text-main font-sans">Timer Durations</span>
             </div>
             {[
-              { key: 'workDuration', label: 'Focus Session', presets: [25, 45, 60] },
-              { key: 'shortBreakDuration', label: 'Short Break', presets: [5, 10, 15] },
-              { key: 'longBreakDuration', label: 'Long Break', presets: [15, 20, 30] },
-            ].map(({ key, label, presets }) => (
-              <div key={key} className="flex items-center justify-between">
-                <span className="text-xs font-medium text-text-main font-sans">{label}</span>
-                <div className="bg-[#F4F0E8] p-1 rounded-full flex items-center gap-1 border border-border shadow-inner">
-                  {presets.map((p) => {
-                    const isActive = (settings[key] ?? presets[0]) === p;
-                    return (
-                      <button
-                        key={p}
-                        type="button"
-                        onClick={() => {
-                          if (window.navigator?.vibrate) window.navigator.vibrate(10);
-                          handleChange(key, p);
-                        }}
-                        className={`px-3 py-1 rounded-full text-xs font-sans transition-colors ${
-                          isActive
-                            ? 'bg-primary font-bold text-white shadow-xs ring-1 ring-white/20'
-                            : 'text-[#576652] hover:text-text-main'
-                        }`}
-                      >
-                        {p}m
-                      </button>
-                    );
-                  })}
+              { key: 'workDuration', label: 'Focus Session', presets: [25, 45, 60], min: 1, max: 180 },
+              { key: 'shortBreakDuration', label: 'Short Break', presets: [5, 10, 15], min: 1, max: 60 },
+              { key: 'longBreakDuration', label: 'Long Break', presets: [15, 20, 30], min: 1, max: 90 },
+            ].map(({ key, label, presets, min, max }) => {
+              const currentVal = settings[key] ?? presets[0];
+              const isCustom = !presets.includes(currentVal);
+              return (
+                <div key={key} className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-text-main font-sans">{label}</span>
+                  <div className="bg-[#F4F0E8] p-1 rounded-full flex items-center gap-1 border border-border shadow-inner">
+                    {presets.map((p) => {
+                      const isActive = currentVal === p;
+                      return (
+                        <button
+                          key={p}
+                          type="button"
+                          onClick={() => {
+                            if (window.navigator?.vibrate) window.navigator.vibrate(10);
+                            handleChange(key, p);
+                          }}
+                          className={`px-2.5 py-1 rounded-full text-xs font-sans transition-colors ${
+                            isActive
+                              ? 'bg-primary font-bold text-white shadow-xs ring-1 ring-white/20'
+                              : 'text-[#576652] hover:text-text-main'
+                          }`}
+                        >
+                          {p}m
+                        </button>
+                      );
+                    })}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (window.navigator?.vibrate) window.navigator.vibrate(10);
+                        setCustomModal({ key, label, min, max, unit: 'm', step: 5 });
+                        setCustomVal(currentVal);
+                      }}
+                      className={`px-2.5 py-1 rounded-full text-xs font-sans transition-colors ${
+                        isCustom
+                          ? 'bg-primary font-bold text-white shadow-xs ring-1 ring-white/20'
+                          : 'text-[#576652] hover:text-text-main'
+                      }`}
+                      title="Custom duration"
+                    >
+                      {isCustom ? `${currentVal}m` : 'Custom'}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Daily Goal Card */}
@@ -530,7 +552,7 @@ function ProfileView({
                         if (window.navigator?.vibrate) window.navigator.vibrate(10);
                         handleChange('dailyGoalHours', h);
                       }}
-                      className={`px-3 py-1 rounded-full text-xs font-sans transition-all ${
+                      className={`px-2.5 py-1 rounded-full text-xs font-sans transition-all ${
                         isActive
                           ? 'bg-primary font-bold text-white shadow-xs ring-1 ring-white/20'
                           : 'text-[#576652] hover:text-text-main'
@@ -540,6 +562,35 @@ function ProfileView({
                     </button>
                   );
                 })}
+                {(() => {
+                  const currentGoal = settings.dailyGoalHours || 4.0;
+                  const isCustomGoal = ![2.0, 4.0, 6.0, 8.0].includes(currentGoal);
+                  return (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (window.navigator?.vibrate) window.navigator.vibrate(10);
+                        setCustomModal({
+                          key: 'dailyGoalHours',
+                          label: 'Daily Target Goal',
+                          min: 0.5,
+                          max: 16,
+                          unit: 'h',
+                          step: 0.5,
+                        });
+                        setCustomVal(currentGoal);
+                      }}
+                      className={`px-2.5 py-1 rounded-full text-xs font-sans transition-colors ${
+                        isCustomGoal
+                          ? 'bg-primary font-bold text-white shadow-xs ring-1 ring-white/20'
+                          : 'text-[#576652] hover:text-text-main'
+                      }`}
+                      title="Custom daily target hours"
+                    >
+                      {isCustomGoal ? `${currentGoal}h` : 'Custom'}
+                    </button>
+                  );
+                })()}
               </div>
             </div>
           </div>
@@ -985,6 +1036,102 @@ function ProfileView({
         </div>,
         document.body
       )}
+
+      {/* Custom Duration / Goal Modal */}
+      {customModal &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[70] flex items-center justify-center p-4 animate-fadeIn select-none"
+            style={{
+              background: 'rgba(25, 29, 21, 0.45)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+            }}
+            onClick={() => setCustomModal(null)}
+          >
+            <div
+              className="w-full max-w-xs bg-surface border border-border rounded-3xl p-5 shadow-2xl ring-1 ring-white/80 animate-slideUp flex flex-col gap-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between pb-2 border-b border-border">
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-bold text-text-sub tracking-widest font-sans uppercase">
+                    CUSTOM PREFERENCE
+                  </span>
+                  <h3 className="text-base font-bold text-text-main font-display">
+                    {customModal.label}
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setCustomModal(null)}
+                  className="w-8 h-8 rounded-full bg-surface-hover flex items-center justify-center text-text-sub hover:text-text-main border border-border transition-colors"
+                >
+                  <XIcon size={16} />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-center gap-4 py-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const step = customModal.step || 5;
+                    setCustomVal((v) => {
+                      const next = Math.max(customModal.min, Number((v - step).toFixed(1)));
+                      return next;
+                    });
+                  }}
+                  className="w-10 h-10 rounded-full bg-[#F4F0E8] border border-border flex items-center justify-center text-xl font-bold text-primary active:scale-95 transition-transform shadow-2xs hover:bg-border"
+                >
+                  -
+                </button>
+                <div className="flex items-baseline gap-1">
+                  <input
+                    type="number"
+                    step={customModal.step || 1}
+                    min={customModal.min}
+                    max={customModal.max}
+                    value={customVal}
+                    onChange={(e) => {
+                      const num = parseFloat(e.target.value);
+                      if (!isNaN(num)) {
+                        setCustomVal(Math.min(customModal.max, Math.max(customModal.min, num)));
+                      }
+                    }}
+                    className="w-16 text-center text-3xl font-bold font-display text-primary bg-transparent outline-none border-b-2 border-primary"
+                  />
+                  <span className="text-sm font-bold text-text-sub font-sans">{customModal.unit}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const step = customModal.step || 5;
+                    setCustomVal((v) => {
+                      const next = Math.min(customModal.max, Number((v + step).toFixed(1)));
+                      return next;
+                    });
+                  }}
+                  className="w-10 h-10 rounded-full bg-[#F4F0E8] border border-border flex items-center justify-center text-xl font-bold text-primary active:scale-95 transition-transform shadow-2xs hover:bg-border"
+                >
+                  +
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  if (window.navigator?.vibrate) window.navigator.vibrate(10);
+                  handleChange(customModal.key, customVal);
+                  setCustomModal(null);
+                }}
+                className="w-full py-2.5 rounded-full bg-primary text-white font-semibold text-xs font-sans shadow-md shadow-primary/20 hover:bg-primary-hover active:scale-95 transition-all"
+              >
+                Save
+              </button>
+            </div>
+          </div>,
+          document.body
+        )}
     </main>
   );
 }

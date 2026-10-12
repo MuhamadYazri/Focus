@@ -114,7 +114,7 @@ const TimerClockRing = React.memo(function TimerClockRing({
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-        <div className="text-[60px] leading-none font-bold tracking-normal text-primary font-sans flex items-center justify-center overflow-hidden h-[64px]">
+        <div className="text-[60px] leading-none font-bold tracking-normal text-primary font-display flex items-center justify-center overflow-hidden h-[64px]">
           {timeString.split('').map((char, i) => (
             <AnimatedDigit key={i} char={char} isColon={char === ':'} />
           ))}

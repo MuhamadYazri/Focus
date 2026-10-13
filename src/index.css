@@ -445,3 +445,21 @@
   .check-draw path { animation: none; stroke-dashoffset: 0; }
   .animate-check-pop, .strike-anim { animation-duration: 0.01s; animation-delay: 0s; }
 }
+
+/* ── Tap effect & Status pulse ────────────────────────────── */
+.tap-effect {
+  transition: transform 0.16s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.16s ease;
+}
+.tap-effect:active {
+  transform: scale(0.96);
+  opacity: 0.85;
+}
+
+@keyframes subtlePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.85); }
+}
+.status-pulse {
+  animation: subtlePulse 2.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+

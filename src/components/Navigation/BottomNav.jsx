@@ -1,148 +1,78 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import {
-  HomeIcon as Home,
-  HourglassIcon as Timer,
-  TrendingUpIcon as BarChart2,
-  UserIcon as User,
-  PlusIcon as Plus,
-} from 'lucide-animated';
 
-const LEFT_ITEMS = [
-  { key: 'home', label: 'Home', Icon: Home },
-  { key: 'timer', label: 'Timer', Icon: Timer },
+const NAV_ITEMS = [
+  {
+    key: 'home',
+    label: 'Today',
+    icon: (
+      <svg className="w-4 h-4 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <rect height="18" rx="2" ry="2" width="18" x="3" y="4" />
+        <line x1="16" x2="16" y1="2" y2="6" />
+        <line x1="8" x2="8" y1="2" y2="6" />
+        <line x1="3" x2="21" y1="10" y2="10" />
+      </svg>
+    ),
+  },
+  {
+    key: 'timer',
+    label: 'Timer',
+    icon: (
+      <svg className="w-4 h-4 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 6 12 12 16 14" />
+      </svg>
+    ),
+  },
+  {
+    key: 'reports',
+    label: 'Report',
+    icon: (
+      <svg className="w-4 h-4 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <line x1="18" x2="18" y1="20" y2="10" />
+        <line x1="12" x2="12" y1="20" y2="4" />
+        <line x1="6" x2="6" y1="20" y2="14" />
+      </svg>
+    ),
+  },
 ];
 
-const RIGHT_ITEMS = [
-  { key: 'reports', label: 'Reports', Icon: BarChart2 },
-  { key: 'profile', label: 'Profile', Icon: User },
-];
-
-function BottomNav({ activeTab, setActiveTab, onOpenNewTask, isHidden = false }) {
-  const iconRefs = React.useRef({});
-  const plusRef = React.useRef(null);
-  const isInitialMount = React.useRef(true);
-
-  // Trigger icon animation whenever activeTab changes
-  React.useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
-    }
-    if (activeTab && iconRefs.current[activeTab]) {
-      const raf = requestAnimationFrame(() => {
-        if (iconRefs.current[activeTab]) {
-          iconRefs.current[activeTab].startAnimation();
-        }
-      });
-      const timer = setTimeout(() => {
-        if (iconRefs.current[activeTab]) {
-          iconRefs.current[activeTab].stopAnimation();
-        }
-      }, 650);
-      return () => {
-        cancelAnimationFrame(raf);
-        clearTimeout(timer);
-      };
-    }
-  }, [activeTab]);
-
-  const renderNavButton = ({ key, label, Icon }) => {
-    const on = activeTab === key;
-    return (
-      <button
-        key={key}
-        aria-label={label}
-        onClick={() => {
-          if (window.navigator?.vibrate) window.navigator.vibrate(10);
-          if (activeTab === key) {
-            if (iconRefs.current[key]) {
-              iconRefs.current[key].startAnimation();
-              setTimeout(() => {
-                if (iconRefs.current[key]) iconRefs.current[key].stopAnimation();
-              }, 650);
-            }
-            return;
-          }
-          setActiveTab(key);
-        }}
-        className={`relative flex-1 min-h-[44px] rounded-full flex items-center justify-center transition-colors z-0 ${
-          on ? 'text-[#D6F3D0]' : 'text-[#B1C9AC] hover:text-white active:scale-95'
-        }`}
-      >
-        {on && (
-          <motion.div
-            layoutId="fluidNavTab"
-            className="absolute inset-0 bg-white/15 rounded-full shadow-inner ring-1 ring-white/10 z-[-1]"
-            transition={{ type: 'spring', bounce: 0.15, duration: 0.5 }}
-          />
-        )}
-        <div className="relative z-10 flex items-center justify-center gap-1.5 px-3">
-          <Icon
-            ref={(el) => (iconRefs.current[key] = el)}
-            animateOnHover={false}
-            on={on}
-            size={on ? 18 : 20}
-            strokeWidth={on ? 2.5 : 2}
-          />
-          {on && (
-            <motion.span
-              initial={{ opacity: 0, x: -4 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.2 }}
-              className="text-[11px] font-bold tracking-tight whitespace-nowrap block text-[#D6F3D0]"
-            >
-              {label}
-            </motion.span>
-          )}
-        </div>
-      </button>
-    );
-  };
-
+function BottomNav({ activeTab, setActiveTab, isHidden = false }) {
   return (
-    <nav
-      className={`fixed bottom-0 w-full z-50 pointer-events-none transition-all duration-500 pb-[env(safe-area-inset-bottom,0px)] will-change-transform transform-gpu ${
-        isHidden ? 'translate-y-28 opacity-0' : 'translate-y-0 opacity-100'
+    <aside
+      className={`fixed bottom-6 inset-x-0 mx-auto w-[calc(100%-3rem)] max-w-[382px] z-50 transition-all duration-300 ${
+        isHidden ? 'translate-y-28 opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
       }`}
+      data-purpose="floating-dock-container"
     >
-      <div className="max-w-md mx-auto px-4 pb-4 pt-1 pointer-events-auto flex justify-center">
-        <div className="w-full bg-[#41493F]/98 border border-[#2E342C]/80 backdrop-blur-2xl rounded-full p-1.5 shadow-[0_20px_40px_-10px_rgba(27,31,26,0.35)] ring-1 ring-white/10 flex items-center justify-between relative transform-gpu">
-          {/* Left Tabs */}
-          <div className="flex-1 flex items-center justify-around">
-            {LEFT_ITEMS.map(renderNavButton)}
-          </div>
-
-          {/* Elevated Center (+) Action Button */}
-          <div className="px-1.5 shrink-0 relative flex items-center justify-center">
+      <nav
+        aria-label="Primary Navigation"
+        className="bg-white/95 backdrop-blur-xl border border-[#E7ECE5] shadow-[0_8px_30px_rgb(0,0,0,0.06)] rounded-full px-2.5 py-1.5 flex items-center justify-between"
+      >
+        {NAV_ITEMS.map(({ key, label, icon }) => {
+          const on = activeTab === key;
+          return (
             <button
-              aria-label="Add Task"
+              key={key}
+              type="button"
               onClick={() => {
-                if (window.navigator?.vibrate) window.navigator.vibrate(15);
-                if (plusRef.current) {
-                  plusRef.current.startAnimation();
-                  setTimeout(() => plusRef.current?.stopAnimation(), 600);
-                }
-                if (onOpenNewTask) onOpenNewTask();
+                if (window.navigator?.vibrate) window.navigator.vibrate(10);
+                setActiveTab(key);
               }}
-              className="w-12 h-12 rounded-full bg-[#D6F3D0] hover:bg-[#C5EBBB] text-[#1B1F1A] font-extrabold flex items-center justify-center -mt-6 shadow-xl shadow-black/25 border-[3.5px] border-[#41493F] active:scale-90 transition-transform cursor-pointer"
+              className={`tap-effect flex-1 flex items-center justify-center py-2 px-3 rounded-full transition-all relative ${
+                on ? 'bg-[#161916] text-white shadow-xs' : 'text-[#485046] hover:text-[#161916]'
+              }`}
             >
-              <Plus
-                ref={plusRef}
-                animateOnHover={false}
-                size={22}
-                strokeWidth={3}
-              />
+              <div className="flex items-center space-x-1.5 z-10">
+                {icon}
+                <span className={`text-xs tracking-tight ${on ? 'font-medium' : 'font-normal'}`}>
+                  {label}
+                </span>
+              </div>
             </button>
-          </div>
-
-          {/* Right Tabs */}
-          <div className="flex-1 flex items-center justify-around">
-            {RIGHT_ITEMS.map(renderNavButton)}
-          </div>
-        </div>
-      </div>
-    </nav>
+          );
+        })}
+      </nav>
+    </aside>
   );
 }
 

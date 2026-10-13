@@ -239,7 +239,7 @@ function ProfileView({
   };
 
   return (
-    <main className="flex-1 w-full bg-transparent pt-14 pb-36 selection:bg-[#E5D9B6] selection:text-primary">
+    <main className="flex-1 w-full bg-transparent pt-14 pb-36 selection:bg-secondary/20 selection:text-text-main">
       <div className="flex flex-col w-full max-w-md mx-auto px-5 gap-4">
         {/* ── Profile Header ── */}
         <div className="flex items-center justify-between pb-1">
@@ -252,57 +252,59 @@ function ProfileView({
           </div>
         </div>
 
-        {/* ── 4 Lifetime Metric Cards ── */}
-        <div className="grid grid-cols-2 gap-3">
-          {/* Streak */}
-          <div className="bg-surface rounded-2xl p-4 flex items-center gap-3.5 shadow-xs ring-1 ring-white/70 border border-border">
-            <div className="w-10 h-10 rounded-xl bg-[#E67E22]/10 flex items-center justify-center shrink-0">
-              <FlameIcon ref={flameRef} size={22} color="#E67E22" strokeWidth={2} />
+        {/* ── Lifetime Telemetry Horizon Card ── */}
+        <div className="bg-surface rounded-[28px] p-5 shadow-xs ring-1 ring-white/80 border border-border">
+          <div className="grid grid-cols-2 gap-y-5 gap-x-4">
+            {/* Streak */}
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
+                <FlameIcon ref={flameRef} size={20} color="var(--theme-secondary, #667463)" strokeWidth={2} />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-2xl font-bold text-text-main font-display leading-none tracking-tight">{currentStreak}</span>
+                <span className="text-[9px] font-bold uppercase tracking-widest text-text-sub font-mono mt-1">
+                  DAY STREAK
+                </span>
+              </div>
             </div>
-            <div className="flex flex-col">
-              <span className="text-2xl font-bold text-text-main font-display leading-none tracking-tight">{currentStreak}</span>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-text-sub font-mono mt-1">
-                DAY STREAK
-              </span>
-            </div>
-          </div>
 
-          {/* Focused */}
-          <div className="bg-surface rounded-2xl p-4 flex items-center gap-3.5 shadow-xs ring-1 ring-white/70 border border-border">
-            <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
-              <ClockIcon ref={clockRef} size={22} className="text-secondary" strokeWidth={2} />
+            {/* Focused */}
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
+                <ClockIcon ref={clockRef} size={20} className="text-secondary" strokeWidth={2} />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-2xl font-bold text-text-main font-display leading-none tracking-tight">{hours}h {mins > 0 ? `${mins}m` : ''}</span>
+                <span className="text-[9px] font-bold uppercase tracking-widest text-text-sub font-mono mt-1">
+                  TOTAL TIME
+                </span>
+              </div>
             </div>
-            <div className="flex flex-col">
-              <span className="text-2xl font-bold text-text-main font-display leading-none tracking-tight">{hours}h {mins > 0 ? `${mins}m` : ''}</span>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-text-sub font-mono mt-1">
-                TOTAL FOCUSED
-              </span>
-            </div>
-          </div>
 
-          {/* Sessions */}
-          <div className="bg-surface rounded-2xl p-4 flex items-center gap-3.5 shadow-xs ring-1 ring-white/70 border border-border">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-              <BookmarkCheckIcon ref={sessionRef} size={22} className="text-primary" strokeWidth={2} />
+            {/* Sessions */}
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <BookmarkCheckIcon ref={sessionRef} size={20} className="text-primary" strokeWidth={2} />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-2xl font-bold text-text-main font-display leading-none tracking-tight">{totalPomos.toLocaleString()}</span>
+                <span className="text-[9px] font-bold uppercase tracking-widest text-text-sub font-mono mt-1">
+                  SESSIONS
+                </span>
+              </div>
             </div>
-            <div className="flex flex-col">
-              <span className="text-2xl font-bold text-text-main font-display leading-none tracking-tight">{totalPomos.toLocaleString()}</span>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-text-sub font-mono mt-1">
-                SESSIONS
-              </span>
-            </div>
-          </div>
 
-          {/* Active Days */}
-          <div className="bg-surface rounded-2xl p-4 flex items-center gap-3.5 shadow-xs ring-1 ring-white/70 border border-border">
-            <div className="w-10 h-10 rounded-xl bg-[#576652]/10 flex items-center justify-center shrink-0 text-[#576652]">
-              <CalendarDaysIcon size={22} strokeWidth={2} />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-2xl font-bold text-text-main font-display leading-none tracking-tight">{totalDays}</span>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-text-sub font-mono mt-1">
-                DAYS FOCUSED
-              </span>
+            {/* Active Days */}
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-secondary/15 flex items-center justify-center shrink-0 text-secondary">
+                <CalendarDaysIcon size={20} strokeWidth={2} />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-2xl font-bold text-text-main font-display leading-none tracking-tight">{totalDays}</span>
+                <span className="text-[9px] font-bold uppercase tracking-widest text-text-sub font-mono mt-1">
+                  DAYS FOCUSED
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -489,7 +491,7 @@ function ProfileView({
                           className={`px-2.5 py-1 rounded-full text-xs font-sans transition-colors ${
                             isActive
                               ? 'bg-primary font-bold text-white shadow-xs ring-1 ring-white/20'
-                              : 'text-[#576652] hover:text-text-main'
+                              : 'text-text-sub hover:text-text-main'
                           }`}
                         >
                           {p}m
@@ -506,7 +508,7 @@ function ProfileView({
                       className={`px-2.5 py-1 rounded-full text-xs font-sans transition-colors ${
                         isCustom
                           ? 'bg-primary font-bold text-white shadow-xs ring-1 ring-white/20'
-                          : 'text-[#576652] hover:text-text-main'
+                          : 'text-text-sub hover:text-text-main'
                       }`}
                       title="Custom duration"
                     >
@@ -555,7 +557,7 @@ function ProfileView({
                       className={`px-2.5 py-1 rounded-full text-xs font-sans transition-all ${
                         isActive
                           ? 'bg-primary font-bold text-white shadow-xs ring-1 ring-white/20'
-                          : 'text-[#576652] hover:text-text-main'
+                          : 'text-text-sub hover:text-text-main'
                       }`}
                     >
                       {h}h
@@ -583,7 +585,7 @@ function ProfileView({
                       className={`px-2.5 py-1 rounded-full text-xs font-sans transition-colors ${
                         isCustomGoal
                           ? 'bg-primary font-bold text-white shadow-xs ring-1 ring-white/20'
-                          : 'text-[#576652] hover:text-text-main'
+                          : 'text-text-sub hover:text-text-main'
                       }`}
                       title="Custom daily target hours"
                     >
@@ -606,7 +608,8 @@ function ProfileView({
                   <svg
                     fill="none"
                     height="20"
-                    stroke="#576652"
+                    stroke="currentColor"
+                    className="text-secondary"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth="2"
@@ -626,7 +629,8 @@ function ProfileView({
                   <svg
                     fill="none"
                     height="20"
-                    stroke="#576652"
+                    stroke="currentColor"
+                    className="text-secondary"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth="2"
@@ -646,7 +650,8 @@ function ProfileView({
                   <svg
                     fill="none"
                     height="20"
-                    stroke="#576652"
+                    stroke="currentColor"
+                    className="text-secondary"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth="2"
@@ -666,7 +671,8 @@ function ProfileView({
                   <svg
                     fill="none"
                     height="20"
-                    stroke="#576652"
+                    stroke="currentColor"
+                    className="text-secondary"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth="2"
@@ -686,7 +692,8 @@ function ProfileView({
                   <svg
                     fill="none"
                     height="20"
-                    stroke="#576652"
+                    stroke="currentColor"
+                    className="text-secondary"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth="2"
@@ -706,7 +713,7 @@ function ProfileView({
                     {svg}
                     <div className="flex flex-col">
                       <span className="text-xs font-bold text-text-main font-sans">{label}</span>
-                      <span className="text-[11px] text-[#8A7968] font-sans">{desc}</span>
+                      <span className="text-[11px] text-text-sub font-sans">{desc}</span>
                     </div>
                   </div>
                   <button
@@ -716,7 +723,7 @@ function ProfileView({
                     }}
                     aria-label={`Toggle ${label}`}
                     className={`relative w-11 h-6 rounded-full p-0.5 transition-colors duration-200 ease-out cursor-pointer shadow-inner ${
-                      isOn ? 'bg-primary ring-1 ring-primary/40' : 'bg-[#DDD6C8]/80'
+                      isOn ? 'bg-primary ring-1 ring-primary/40' : 'bg-track'
                     }`}
                   >
                     <div
@@ -748,7 +755,7 @@ function ProfileView({
               </svg>
               <span className="text-sm font-bold text-text-main font-display tracking-tight">Local Backup</span>
             </div>
-            <p className="text-xs text-[#8A7968] font-sans leading-relaxed">
+            <p className="text-xs text-text-sub font-sans leading-relaxed">
               Save your data as a local file for safe keeping
             </p>
 
@@ -823,7 +830,7 @@ function ProfileView({
           <div className="bg-surface rounded-2xl p-5 shadow-xs flex items-center justify-between border border-border ring-1 ring-white/70 mb-6">
             <div className="flex flex-col gap-0.5">
               <span className="text-xs font-bold text-text-main font-sans">Wipe All Data</span>
-              <span className="text-[11px] text-[#8A7968] font-sans leading-relaxed">
+              <span className="text-[11px] text-text-sub font-sans leading-relaxed">
                 Permanently delete all tasks and focus history
               </span>
             </div>
@@ -881,18 +888,18 @@ function ProfileView({
             >
               <defs>
                 <linearGradient id="yazriSculptedGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="var(--theme-text-main, #191D15)" />
-                  <stop offset="100%" stopColor="var(--theme-primary, #384834)" />
+                  <stop offset="0%" stopColor="var(--theme-text-main, #1B1F1A)" />
+                  <stop offset="100%" stopColor="var(--theme-primary, #41493F)" />
                 </linearGradient>
                 <filter id="yazriTactileDrop" x="-6%" y="-6%" width="112%" height="128%">
-                  <feDropShadow dx="0" dy="10" stdDeviation="7" floodColor="#384834" floodOpacity="0.12" />
-                  <feDropShadow dx="0" dy="3" stdDeviation="2" floodColor="#191D15" floodOpacity="0.08" />
+                  <feDropShadow dx="0" dy="10" stdDeviation="7" floodColor="#41493F" floodOpacity="0.12" />
+                  <feDropShadow dx="0" dy="3" stdDeviation="2" floodColor="#1B1F1A" floodOpacity="0.08" />
                 </filter>
               </defs>
               {/* Tactile deboss / rim highlight */}
               <path
                 d="M201 0H110Q85 0 85 -25V-182Q85 -226 71 -254L42 -312Q10 -373 10 -459V-710Q10 -735 35 -735H126Q151 -735 151 -710V-463Q151 -419 178 -363L197 -323Q226 -265 226 -209V-25Q226 0 201 0ZM246 -297H244Q233 -297 224 -314L195 -372Q171 -423 171 -463V-710Q171 -735 196 -735H287Q312 -735 312 -710V-471Q312 -392 285 -339L272 -316Q262 -297 246 -297ZM609 0H518Q493 0 493 -25V-341Q493 -366 518 -366H557Q561 -366 561 -370V-381Q561 -386 557 -386H518Q493 -386 493 -411V-710Q493 -735 518 -735H532Q559 -735 571 -704L606 -615Q623 -567 628.5 -535.5Q634 -504 634 -448V-25Q634 0 609 0ZM448 0H357Q332 0 332 -25V-448Q332 -504 337.5 -535.5Q343 -567 361 -615L395 -704Q407 -735 435 -735H448Q473 -735 473 -710V-411Q473 -386 448 -386H409Q405 -386 405 -381V-370Q405 -366 409 -366H448Q473 -366 473 -341V-25Q473 0 448 0ZM770 0H679Q654 0 654 -25V-219Q654 -285 669.0 -319.0Q684 -353 726 -392L753 -417Q786 -447 795.0 -462.5Q804 -478 804 -509V-710Q804 -735 829 -735H920Q945 -735 945 -710V-509Q945 -443 930.0 -408.5Q915 -374 873 -336L846 -311Q813 -281 804.0 -265.5Q795 -250 795 -219V-25Q795 0 770 0ZM741 -468H679Q654 -468 654 -493V-710Q654 -735 679 -735H759Q784 -735 784 -710V-509Q784 -468 741 -468ZM920 0H840Q815 0 815 -25V-219Q815 -261 858 -261H920Q945 -261 945 -236V-25Q945 0 920 0ZM1081 0H990Q965 0 965 -25V-710Q965 -735 990 -735H1081Q1106 -735 1106 -710V-25Q1106 0 1081 0ZM1152 -380H1151Q1126 -380 1126 -405V-710Q1126 -735 1151 -735H1152Q1202 -735 1234.5 -702.0Q1267 -669 1267 -609V-506Q1267 -447 1234.5 -413.5Q1202 -380 1152 -380ZM1242 0H1151Q1126 0 1126 -25V-337Q1126 -362 1151 -362H1160Q1205 -362 1236.0 -328.5Q1267 -295 1267 -236V-25Q1267 0 1242 0ZM1403 0H1312Q1287 0 1287 -25V-710Q1287 -735 1312 -735H1403Q1428 -735 1428 -710V-25Q1428 0 1403 0Z"
-                fill="var(--theme-border, #EDE7DA)"
+                fill="var(--theme-border, #D6E0D4)"
                 transform="translate(0, 5)"
                 opacity="0.85"
               />
@@ -912,7 +919,7 @@ function ProfileView({
         <div
           className="fixed inset-0 z-[70] flex items-center justify-center p-4 animate-fadeIn"
           style={{
-            background: 'rgba(25, 29, 21, 0.45)',
+            background: 'rgba(26, 31, 24, 0.45)',
             backdropFilter: 'blur(8px)',
             WebkitBackdropFilter: 'blur(8px)',
           }}
@@ -997,7 +1004,7 @@ function ProfileView({
         <div
           className="fixed inset-0 z-[70] flex items-center justify-center p-4 animate-fadeIn"
           style={{
-            background: 'rgba(25, 29, 21, 0.45)',
+            background: 'rgba(26, 31, 24, 0.45)',
             backdropFilter: 'blur(8px)',
             WebkitBackdropFilter: 'blur(8px)',
           }}
@@ -1045,7 +1052,7 @@ function ProfileView({
           <div
             className="fixed inset-0 z-[70] flex items-center justify-center p-4 animate-fadeIn select-none"
             style={{
-              background: 'rgba(25, 29, 21, 0.45)',
+              background: 'rgba(26, 31, 24, 0.45)',
               backdropFilter: 'blur(8px)',
               WebkitBackdropFilter: 'blur(8px)',
             }}

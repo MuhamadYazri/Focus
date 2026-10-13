@@ -10,7 +10,7 @@ export default function StrictModeModal({ isOpen, onClose, onResetTimer }) {
     <div
       className="fixed inset-0 z-[70] flex items-center justify-center p-4 select-none animate-fadeIn"
       style={{
-        background: 'rgba(25, 29, 21, 0.45)',
+        background: 'rgba(26, 31, 24, 0.45)',
         backdropFilter: 'blur(8px)',
         WebkitBackdropFilter: 'blur(8px)',
       }}

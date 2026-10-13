@@ -50,9 +50,9 @@ const HeatmapCell = React.memo(function HeatmapCell({ cell, period, setOffset })
 
   let trackClass = 'bg-canvas text-text-main/80 font-medium';
   if (!isSameMo) {
-    trackClass = 'bg-[#EDE7DA]/30 text-text-sub/40 font-normal';
+    trackClass = 'bg-track/30 text-text-sub/40 font-normal';
   } else if (hasHours) {
-    trackClass = 'bg-[#EDE7DA]/60 shadow-2xs';
+    trackClass = 'bg-track/60 shadow-2xs';
   } else if (isCur && period === 'Daily') {
     trackClass = 'bg-primary/10 text-primary font-bold';
   }
@@ -111,11 +111,16 @@ const HeatmapCell = React.memo(function HeatmapCell({ cell, period, setOffset })
             isGoalMet
               ? 'bg-primary shadow-xs'
               : isSelected
-              ? 'bg-primary shadow-xs'
-              : 'bg-[#4F7775]'
+              ? 'bg-secondary/90 shadow-xs'
+              : 'bg-secondary'
           }`}
           style={{ height: `${fillPct}%` }}
         />
+      )}
+
+      {/* Goal-met radiant mint jewel indicator */}
+      {isGoalMet && isSameMo && (
+        <span className="w-1.5 h-1.5 rounded-full bg-mint absolute top-1 right-1 shadow-2xs z-20" />
       )}
 
       <span
@@ -171,7 +176,7 @@ const ChartBarColumn = React.memo(function ChartBarColumn({ slot, setOffset }) {
 
       {/* Tactile track capsule with seamless flush fill */}
       <div
-        className={`w-full h-16 bg-[#EDE7DA]/60 rounded-full flex flex-col justify-end overflow-hidden shadow-2xs relative ${
+        className={`w-full h-16 bg-track/50 rounded-full flex flex-col justify-end overflow-hidden shadow-2xs relative ${
           isSelected ? 'ring-2 ring-primary ring-offset-1 ring-offset-surface z-10' : ''
         }`}
       >
@@ -181,8 +186,8 @@ const ChartBarColumn = React.memo(function ChartBarColumn({ slot, setOffset }) {
               isGoalMet
                 ? 'bg-primary shadow-xs'
                 : isSelected
-                ? 'bg-primary shadow-xs'
-                : 'bg-[#4F7775]'
+                ? 'bg-secondary/90 shadow-xs'
+                : 'bg-secondary'
             }`}
             style={{ height: `${barH}px` }}
           />
@@ -730,7 +735,7 @@ function SharedActivitySection({
                 {displayHours}
               </p>
             </div>
-            <p className="text-[11px] text-[#635E52] mt-3 font-sans font-medium">
+            <p className="text-[11px] text-text-sub mt-3 font-sans font-medium">
               {displaySubToday}
             </p>
           </div>
@@ -751,7 +756,7 @@ function SharedActivitySection({
                 {displayPomos.toLocaleString()}
               </p>
             </div>
-            <p className="text-[11px] text-[#635E52] mt-3 font-sans font-medium">
+            <p className="text-[11px] text-text-sub mt-3 font-sans font-medium">
               {displaySubDays}
             </p>
           </div>

@@ -57,7 +57,12 @@ function filterSessionsForPeriod(sessions, period, offset) {
   return [];
 }
 
-const TAILWIND_COLORS = ['#E5D9B6', 'var(--theme-secondary)', 'var(--theme-primary)', '#D9CFC7'];
+const TAILWIND_COLORS = [
+  'var(--theme-primary)',
+  'var(--theme-secondary)',
+  'var(--theme-sage)',
+  'var(--theme-celadon)',
+];
 
 const toTitleCase = (str) => {
   if (!str) return '';
@@ -148,7 +153,7 @@ function AnalyticsDashboard({
             count: 0,
             mins: 0,
             displayTime: '0h 00m',
-            color: '#E5D9B6',
+            color: 'var(--theme-track, #C8D8CC)',
           },
         ];
   }, [projects, filteredSessions, totalMins]);
@@ -190,7 +195,7 @@ function AnalyticsDashboard({
                 rings={activeSegments.map((seg) => ({
                   progress: seg.pct,
                   color: seg.color,
-                  trackColor: 'rgba(0,0,0,0.05)',
+                  trackColor: 'var(--theme-track, #CBD7C9)',
                 }))}
               >
                 <span className="text-sm text-text-main font-bold font-display tracking-tight">
@@ -220,7 +225,7 @@ function AnalyticsDashboard({
                       {seg.pct}%
                     </span>
                   </div>
-                  <div className="w-full h-1.5 rounded-full bg-border/60 shadow-inner overflow-hidden">
+                  <div className="w-full h-1.5 rounded-full bg-track/60 shadow-inner overflow-hidden">
                     <div
                       className="h-full rounded-full"
                       style={{ width: `${seg.pct}%`, backgroundColor: seg.color }}

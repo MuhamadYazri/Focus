@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Zap, Flame, Check, ListFilter, Play, Pause, Plus, ArrowUpDown } from 'lucide-react';
+import { Check, ListFilter, Play, Pause } from 'lucide-react';
 import fireWebm from '../../assets/fireAnimation.webm';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import emptyLottie from '../../assets/emptyAnimation.lottie';
@@ -20,9 +20,9 @@ const TaskListItem = React.memo(function TaskListItem({
 
   return (
     <article
-      className={`group bg-surface border rounded-full p-2.5 pl-4 flex items-center justify-between shadow-xs transition-all hover:shadow-sm active:scale-[0.99] cursor-pointer ${
+      className={`group bg-surface border rounded-2xl p-3 pl-3.5 flex items-center justify-between shadow-2xs transition-all hover:shadow-xs active:scale-[0.99] cursor-pointer ${
         isCurrentFocus
-          ? 'border-secondary/60 ring-2 ring-secondary/30 shadow-sm'
+          ? 'border-secondary/70 ring-2 ring-secondary/20 shadow-sm'
           : 'border-border ring-1 ring-white/60'
       } ${task.completed ? 'opacity-60 bg-surface/70' : ''} ${
         isJust ? 'animate-task-exit' : ''
@@ -37,21 +37,21 @@ const TaskListItem = React.memo(function TaskListItem({
             if (window.navigator?.vibrate) window.navigator.vibrate(15);
             onToggleComplete && onToggleComplete(task.id);
           }}
-          className="p-1.5 -m-1.5 flex items-center justify-center shrink-0"
+          className="p-1 -m-1 flex items-center justify-center shrink-0"
         >
           <div
             className={`w-6 h-6 rounded-full border flex items-center justify-center shrink-0 transition-colors shadow-2xs ${
               task.completed
                 ? 'bg-secondary border-secondary text-white'
-                : 'border-border bg-[#F4F1EA] group-hover:border-secondary'
+                : 'border-border bg-canvas group-hover:border-secondary'
             } ${isJust ? 'animate-check-pop' : ''}`}
           >
             {task.completed ? (
               isJust ? (
                 <svg
                   className="check-draw"
-                  width="14"
-                  height="14"
+                  width="13"
+                  height="13"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="white"
@@ -65,16 +65,16 @@ const TaskListItem = React.memo(function TaskListItem({
                 <Check size={12} className="text-white" />
               )
             ) : (
-              <span className="w-3.5 h-3.5 rounded-full bg-surface shadow-inner"></span>
+              <span className="w-2 rounded-full bg-border/60" />
             )}
           </div>
         </button>
         <div className="flex flex-col min-w-0">
           <div className="flex items-center gap-1.5 min-w-0">
-            <h3 className="text-[15px] font-bold text-primary truncate font-sans">
+            <h3 className="text-[14px] font-bold text-text-main truncate font-sans">
               <span
                 className={
-                  isJust ? 'strike-anim' : task.completed ? 'line-through' : ''
+                  isJust ? 'strike-anim' : task.completed ? 'line-through text-text-sub' : ''
                 }
               >
                 {task.title}
@@ -82,7 +82,7 @@ const TaskListItem = React.memo(function TaskListItem({
             </h3>
             {isCurrentFocus && (
               <span className="shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-secondary/15 text-secondary text-[9px] font-mono font-bold tracking-wider animate-pulse">
-                <span className="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                <span className="w-1.5 h-1.5 rounded-full bg-secondary" />
                 FOCUS
               </span>
             )}
@@ -91,18 +91,18 @@ const TaskListItem = React.memo(function TaskListItem({
             {cleanProjectName && (
               <>
                 <span
-                  className="w-2 h-2 rounded-full shrink-0"
+                  className="w-1.5 h-1.5 rounded-full shrink-0"
                   style={{
                     backgroundColor: project?.color || 'var(--theme-secondary)',
                   }}
-                ></span>
-                <span className="font-mono text-[10px] text-[#636F5A] tracking-wider font-semibold uppercase truncate max-w-[110px]">
+                />
+                <span className="font-mono text-[9px] text-text-sub tracking-wider font-semibold uppercase truncate max-w-[120px]">
                   {cleanProjectName}
                 </span>
               </>
             )}
             {task.estimatedPomos && (
-              <span className="font-mono text-[11px] text-[#8D9A82] shrink-0">
+              <span className="font-mono text-[10px] text-text-sub font-semibold shrink-0">
                 {task.completedPomos || 0}/{task.estimatedPomos} pomos
               </span>
             )}
@@ -117,16 +117,16 @@ const TaskListItem = React.memo(function TaskListItem({
             if (window.navigator?.vibrate) window.navigator.vibrate(10);
             onStartPomodoro && onStartPomodoro(task);
           }}
-          className={`w-11 h-11 rounded-full flex items-center justify-center shrink-0 transition-all active:scale-95 ${
+          className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all active:scale-95 ${
             isCurrentFocus
               ? 'bg-secondary text-white shadow-sm ring-2 ring-secondary/30 animate-pulse'
-              : 'bg-[#F4F1EA] border border-border/60 text-primary hover:bg-secondary hover:text-white shadow-xs ring-1 ring-white/80'
+              : 'bg-canvas border border-border/80 text-primary hover:bg-primary hover:text-white shadow-2xs ring-1 ring-white/80'
           }`}
         >
           {isCurrentFocus ? (
-            <Pause size={16} className="fill-current" />
+            <Pause size={14} className="fill-current" />
           ) : (
-            <Play size={16} className="translate-x-0.5 fill-current" />
+            <Play size={14} className="translate-x-0.5 fill-current" />
           )}
         </button>
       )}
@@ -293,6 +293,35 @@ function TaskList({
 
   const activeCount = useMemo(() => tasks.filter((t) => !t.completed).length, [tasks]);
 
+  const tabCounts = useMemo(() => {
+    const counts = { Today: 0, 'This Week': 0, Planned: 0, Done: 0 };
+    (tasks || []).forEach((t) => {
+      if (selectedProjectId && t.projectId !== selectedProjectId) return;
+      if (t.completed) {
+        counts.Done++;
+        return;
+      }
+      const st = t.scheduleType || 'today';
+      if (st === 'daily' || st === 'today') {
+        counts.Today++;
+      } else if (st === 'date' && t.scheduledDate && t.scheduledDate <= todayStr) {
+        counts.Today++;
+      }
+
+      if (st === 'daily' || st === 'weekly' || st === 'today') {
+        counts['This Week']++;
+      } else if (st === 'date') {
+        const endOfWeek = new Date();
+        endOfWeek.setDate(new Date().getDate() + 7);
+        const endStr = getLocalDateStr(endOfWeek);
+        if (!t.scheduledDate || t.scheduledDate <= endStr) counts['This Week']++;
+      }
+
+      if (st === 'date') counts.Planned++;
+    });
+    return counts;
+  }, [tasks, selectedProjectId, todayStr]);
+
   const getGreeting = () => {
     const h = new Date().getHours();
     if (h < 12) return 'Good morning.';
@@ -301,60 +330,60 @@ function TaskList({
   };
 
   return (
-    <div className="flex-1 w-full bg-transparent pb-28 min-h-[100dvh] relative text-[#2A3A26]">
-      <div className="flex flex-col w-full px-5 pt-15 pb-24 max-w-md mx-auto">
-        {/* Greeting Header */}
-        <header className="pt-2 pb-5 flex flex-col gap-1">
-          <h1 className="text-[32px] leading-[38px] text-primary font-bold tracking-tight font-display">
+    <div className="flex-1 w-full bg-transparent pb-28 min-h-[100dvh] relative text-text-main">
+      <div className="flex flex-col w-full px-5 pt-14 pb-24 max-w-md mx-auto">
+        {/* Editorial Masthead */}
+        <header className="pt-2 pb-3.5 flex flex-col gap-0.5">
+          <div className="flex items-center justify-between">
+            <span className="font-mono text-[10px] font-bold text-text-sub tracking-[0.22em] uppercase">
+              {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} · SOLO_OS
+            </span>
+            <span className="font-mono text-[10px] text-secondary font-bold tracking-wider">
+              {activeCount} ACTIVE {activeCount === 1 ? 'TASK' : 'TASKS'}
+            </span>
+          </div>
+          <h1 className="text-[32px] leading-tight text-text-main font-extrabold tracking-tight font-display mt-0.5">
             {getGreeting()}
           </h1>
-          <p className="text-[15px] leading-5 text-[#636F5A] font-normal font-sans">
-            {activeCount} task{activeCount !== 1 ? 's' : ''} scheduled for today.
-          </p>
         </header>
 
-        {/* Metric Highlights Bento Row */}
-        <section className="grid grid-cols-12 gap-3">
-          {/* Daily Target Progress Card */}
-          <div className="col-span-8 bg-surface border border-border rounded-[24px] p-5 shadow-sm ring-1 ring-white/80 flex flex-col justify-between relative overflow-hidden">
-            <div className="flex items-center justify-between relative z-10">
-              <span className="font-mono text-[10px] font-bold text-[#636F5A] tracking-widest uppercase">
-                DAILY TARGET
-              </span>
-              <div className="w-8 h-8 rounded-full bg-[#E5D9B6]/30 border border-[#E5D9B6]/40 flex items-center justify-center text-secondary shadow-2xs">
-                <Zap size={16} className="text-secondary" />
-              </div>
-            </div>
-            <div className="my-3 relative z-10">
-              <h2 className="text-[19px] font-bold text-primary leading-tight tracking-tight font-display">
-                {todayHours}h of {targetHours}h completed
-              </h2>
-            </div>
-            <div className="flex flex-col gap-1.5 relative z-10">
-              <div className="w-full h-2.5 bg-[#EDE7DA] rounded-full overflow-hidden p-0.5 shadow-inner">
-                <div
-                  className="h-full bg-secondary rounded-full transition-all duration-500 shadow-xs"
-                  style={{ width: `${progressPercent}%` }}
-                ></div>
-              </div>
-              <div className="flex items-center justify-between pt-0.5">
-                <span className="font-mono text-[11px] text-[#636F5A]">{statusText}</span>
+        {/* Compact Daily Target & Streak Card */}
+        <section className="bg-surface border border-border rounded-2xl p-4 shadow-xs ring-1 ring-white/80 relative overflow-hidden mb-3">
+          <div className="flex items-center justify-between gap-4">
+            {/* Left: Daily Target Progress */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="font-mono text-[9px] font-bold text-text-sub tracking-[0.2em] uppercase">
+                  DAILY TARGET
+                </span>
                 <span className="font-mono text-[11px] font-bold text-primary">
                   {progressPercent}%
                 </span>
               </div>
+              <div className="flex items-baseline gap-1.5 mb-2">
+                <span className="text-[24px] leading-none font-extrabold text-primary font-display tracking-tight">
+                  {todayHours}h
+                </span>
+                <span className="font-mono text-xs text-text-sub font-semibold">
+                  / {targetHours}h
+                </span>
+                <span className="text-[11px] text-text-sub font-medium ml-auto truncate">
+                  {statusText}
+                </span>
+              </div>
+              <div className="w-full h-1.5 bg-track/60 rounded-full overflow-hidden p-0.5">
+                <div
+                  className="h-full bg-secondary rounded-full transition-all duration-500 shadow-2xs"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
             </div>
-          </div>
 
-          {/* Streak Card */}
-          <div className="col-span-4 bg-gradient-to-br from-[#475742] via-primary to-[#334230] text-canvas rounded-[24px] p-5 shadow-md shadow-primary/25 ring-1 ring-white/15 border border-white/10 flex flex-col justify-between relative overflow-hidden">
-            {/* Ambient subtle warm glow */}
-            <div className="absolute -top-6 -right-6 w-20 h-20 bg-[#E5D9B6]/10 rounded-full blur-xl pointer-events-none" />
+            {/* Hairline Divider */}
+            <div className="w-px h-12 bg-border/80 self-center" />
 
-            <div className="flex items-center justify-center gap-1.5 relative z-10">
-              <span className="font-mono text-[10px] text-[#E5D9B6] tracking-widest font-bold uppercase">
-                STREAK
-              </span>
+            {/* Right: Streak Pillar */}
+            <div className="shrink-0 flex items-center gap-2.5 pl-1">
               <video
                 src={fireWebm}
                 autoPlay
@@ -363,73 +392,43 @@ function TaskList({
                 playsInline
                 className="w-7 h-7 object-contain drop-shadow-sm shrink-0"
               />
-            </div>
-            <div className="my-auto pt-1 flex items-center flex-col text-center relative z-10">
-              <span className="text-[34px] font-bold text-white leading-none tracking-tight font-display drop-shadow-sm">
-                {streak}
-              </span>
-              <span className="text-[12px] text-[#E5D9B6]/90 font-medium mt-1 font-sans">Days</span>
+              <div className="flex flex-col">
+                <span className="text-[22px] leading-none font-extrabold text-primary font-display tracking-tight">
+                  {streak}
+                </span>
+                <span className="font-mono text-[9px] text-text-sub font-bold tracking-wider mt-0.5 uppercase">
+                  {streak === 1 ? 'DAY' : 'DAYS'}
+                </span>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Category Filter Pills */}
-        <section className="no-swipe -mx-5 px-5 flex items-center gap-2 overflow-x-auto py-4 mb-2 no-scrollbar after:content-[''] after:w-1 after:shrink-0">
-          <button
-            onClick={() => onSelectProject(null)}
-            className={`shrink-0 h-10 px-4 rounded-full flex items-center gap-2 transition-transform active:scale-95 font-semibold text-[13px] font-sans ${
-              !selectedProjectId
-                ? 'bg-primary text-white shadow-sm shadow-primary/25 ring-1 ring-white/20'
-                : 'bg-surface border border-border text-primary shadow-xs ring-1 ring-white/60 hover:bg-[#F4F1EA]'
-            }`}
-          >
-            {!selectedProjectId && <Check size={14} className="text-[#E5D9B6]" />}
-            <span className="tracking-wide">All Tasks</span>
-          </button>
-
-          {projects.map((proj) => {
-            const isSel = selectedProjectId === proj.id;
-            const cleanName = proj.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' ');
-            return (
-              <button
-                key={proj.id}
-                onClick={() => onSelectProject(isSel ? null : proj.id)}
-                className={`shrink-0 h-10 px-4 rounded-full flex items-center gap-2 transition-transform active:scale-95 font-semibold text-[13px] font-sans ${
-                  isSel
-                    ? 'bg-primary text-white shadow-sm shadow-primary/25 ring-1 ring-white/20'
-                    : 'bg-surface border border-border text-primary shadow-xs ring-1 ring-white/60 hover:bg-[#F4F1EA]'
-                }`}
-              >
-                {!isSel && (
-                  <span
-                    className="w-2.5 h-2.5 rounded-full"
-                    style={{ backgroundColor: proj.color || 'var(--theme-secondary)' }}
-                  ></span>
-                )}
-                {isSel && <Check size={14} className="text-[#E5D9B6]" />}
-                <span className="tracking-wide font-medium">{formatLabel(cleanName)}</span>
-              </button>
-            );
-          })}
-        </section>
-
-        {/* Timeline Tab Switcher */}
-        <section className="mb-5">
-          <div className="flex items-center justify-between relative overflow-x-auto no-scrollbar">
-            <div className="flex items-center gap-6">
+        {/* Timeline Tab Switcher with Sort Toggle */}
+        <section className="mb-2.5">
+          <div className="flex items-center justify-between border-b border-border pb-1">
+            <div className="flex items-center gap-3.5 overflow-x-auto no-scrollbar">
               {['Today', 'This Week', 'Planned', 'Done'].map((tab) => {
                 const on = filterTab === tab;
+                const count = tabCounts[tab] || 0;
                 return (
                   <button
                     key={tab}
                     onClick={() => setFilterTab(tab)}
-                    className={`relative pb-2.5 text-[15px] font-sans transition-colors shrink-0 ${
+                    className={`relative pb-2 text-[13px] font-sans transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
                       on
                         ? 'font-bold text-primary'
-                        : 'font-medium text-[#636F5A] hover:text-primary'
+                        : 'font-medium text-text-sub hover:text-primary'
                     }`}
                   >
-                    {tab}
+                    <span>{tab}</span>
+                    <span
+                      className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full leading-none shrink-0 ${
+                        on ? 'bg-primary/10 text-primary font-bold' : 'text-text-sub/70'
+                      }`}
+                    >
+                      {count}
+                    </span>
                     {on && (
                       <motion.span
                         layoutId="timeline-tab-indicator"
@@ -441,35 +440,65 @@ function TaskList({
                 );
               })}
             </div>
+            <button
+              aria-label="Sort tasks"
+              onClick={() => {
+                const modes = ['default', 'priority', 'pomo', 'name'];
+                const next = modes[(modes.indexOf(sortBy) + 1) % modes.length];
+                setSortBy(next);
+              }}
+              className={`p-1.5 rounded-lg transition-colors flex items-center gap-1 text-[11px] font-mono ${
+                sortBy !== 'default'
+                  ? 'text-secondary font-bold bg-secondary/10'
+                  : 'text-text-sub hover:text-primary'
+              }`}
+              title={`Current sort: ${sortBy}. Click to change.`}
+            >
+              <ListFilter size={15} />
+              {sortBy !== 'default' && <span className="uppercase text-[9px]">{sortBy}</span>}
+            </button>
           </div>
-          <div className="w-full h-px bg-border mt-[-1px]"></div>
         </section>
 
-        {/* Tasks Subheader with Sort Toggle */}
-        <div className="flex items-center justify-between mb-3 px-1">
-          <span className="font-mono text-[10px] text-[#636F5A] tracking-widest font-bold uppercase">
-            {filterTab === 'Done'
-              ? `COMPLETED · ${filteredTasks.length}`
-              : `TASKS · ${filteredTasks.length} ACTIVE`}
-            {sortBy !== 'default' ? ` (BY ${sortBy.toUpperCase()})` : ''}
-          </span>
+        {/* Category Filter Pills */}
+        <section className="no-swipe -mx-5 px-5 flex items-center gap-1.5 overflow-x-auto py-1 mb-3 no-scrollbar after:content-[''] after:w-1 after:shrink-0">
           <button
-            aria-label="Sort tasks"
-            onClick={() => {
-              const modes = ['default', 'priority', 'pomo', 'name'];
-              const next = modes[(modes.indexOf(sortBy) + 1) % modes.length];
-              setSortBy(next);
-            }}
-            className={`p-1 rounded-md transition-colors flex items-center gap-1 text-[11px] font-mono ${
-              sortBy !== 'default'
-                ? 'text-secondary font-bold bg-secondary/10'
-                : 'text-[#636F5A] hover:text-primary'
+            onClick={() => onSelectProject(null)}
+            className={`shrink-0 h-8 px-3 rounded-full flex items-center gap-1.5 transition-transform active:scale-95 font-semibold text-[12px] font-sans ${
+              !selectedProjectId
+                ? 'bg-primary text-white shadow-xs shadow-primary/25 ring-1 ring-white/20'
+                : 'bg-surface border border-border text-text-main shadow-2xs ring-1 ring-white/60 hover:bg-surface-hover'
             }`}
-            title={`Current sort: ${sortBy}. Click to change.`}
           >
-            <ListFilter size={17} />
+            {!selectedProjectId && <Check size={12} className="text-white" />}
+            <span className="tracking-wide">All Tasks</span>
           </button>
-        </div>
+
+          {projects.map((proj) => {
+            const isSel = selectedProjectId === proj.id;
+            const cleanName = proj.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' ');
+            return (
+              <button
+                key={proj.id}
+                onClick={() => onSelectProject(isSel ? null : proj.id)}
+                className={`shrink-0 h-8 px-3 rounded-full flex items-center gap-1.5 transition-transform active:scale-95 font-semibold text-[12px] font-sans ${
+                  isSel
+                    ? 'bg-primary text-white shadow-xs shadow-primary/25 ring-1 ring-white/20'
+                    : 'bg-surface border border-border text-text-main shadow-2xs ring-1 ring-white/60 hover:bg-surface-hover'
+                }`}
+              >
+                {!isSel && (
+                  <span
+                    className="w-2 h-2 rounded-full"
+                    style={{ backgroundColor: proj.color || 'var(--theme-secondary)' }}
+                  />
+                )}
+                {isSel && <Check size={12} className="text-white" />}
+                <span className="tracking-wide font-medium">{formatLabel(cleanName)}</span>
+              </button>
+            );
+          })}
+        </section>
 
         {/* Task List Cards */}
         <section className="flex flex-col gap-3">

@@ -48,7 +48,7 @@ export default function GoalCelebration({ celebration, onDone }) {
         closing ? 'animate-fadeOut' : 'animate-fadeIn'
       }`}
       style={{
-        background: 'rgba(25, 29, 21, 0.45)',
+        background: 'rgba(26, 31, 24, 0.45)',
         backdropFilter: 'blur(8px)',
         WebkitBackdropFilter: 'blur(8px)',
       }}

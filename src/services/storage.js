@@ -20,9 +20,9 @@ const getLocalDateStr = (d) => {
 };
 
 export const DEFAULT_PROJECTS = [
-  { id: 'proj-1', name: '01 // STUDY', color: '#B9DAFF', icon: 'BookOpen', pomodoros: 1010 },
-  { id: 'proj-2', name: '02 // PERSONAL_APP_DEV', color: '#8BA0B0', icon: 'Code', pomodoros: 18 },
-  { id: 'proj-3', name: '03 // SYS_ARCHITECTURE', color: '#A1A1AA', icon: 'Database', pomodoros: 32 },
+  { id: 'proj-1', name: '01 // STUDY', color: '#41493F', icon: 'BookOpen', pomodoros: 1010 },
+  { id: 'proj-2', name: '02 // PERSONAL_APP_DEV', color: '#667463', icon: 'Code', pomodoros: 18 },
+  { id: 'proj-3', name: '03 // SYS_ARCHITECTURE', color: '#8B9E87', icon: 'Database', pomodoros: 32 },
 ];
 
 export const DEFAULT_TASKS = [

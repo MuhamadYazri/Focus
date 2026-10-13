@@ -47,7 +47,7 @@ export default function UndoToast({ toast, onDismiss }) {
             <button
               type="button"
               onClick={handleUndo}
-              className="shrink-0 flex items-center gap-1.5 h-9 px-3.5 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 transition-all text-[#E5D9B6] font-mono text-[11px] font-bold uppercase tracking-wider ring-1 ring-white/10"
+              className="shrink-0 flex items-center gap-1.5 h-8 px-3.5 rounded-full bg-white hover:bg-white/90 active:scale-95 transition-all text-primary font-mono text-[11px] font-bold uppercase tracking-wider shadow-sm"
             >
               <Undo2 size={14} strokeWidth={2.5} />
               Undo
@@ -55,7 +55,7 @@ export default function UndoToast({ toast, onDismiss }) {
           )}
         </div>
         <div
-          className="absolute left-0 bottom-0 h-[3px] w-full bg-[#E5D9B6]/70 origin-left"
+          className="absolute left-0 bottom-0 h-[3px] w-full bg-secondary origin-left"
           style={{ animation: `toastCountdown ${DURATION_MS}ms linear forwards` }}
         />
       </div>

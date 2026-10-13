@@ -9,8 +9,17 @@
   --color-primary: var(--theme-primary);
   --color-primary-hover: var(--theme-primary-hover);
   --color-secondary: var(--theme-secondary);
+  --color-mint: var(--theme-mint);
+  --color-mint-light: var(--theme-mint-light);
+  --color-sage: var(--theme-sage);
+  --color-celadon: var(--theme-celadon);
+  --color-terracotta: var(--theme-secondary);
+  --color-terracotta-hover: var(--theme-secondary-hover);
+  --color-oatmeal: var(--theme-border);
+  --color-ink-dark: var(--theme-ink-dark);
   --color-text-main: var(--theme-text-main);
   --color-text-sub: var(--theme-text-sub);
+  --color-track: var(--theme-track);
 
   --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -27,71 +36,37 @@
 /* ── Design Tokens ─────────────────────────────────────────── */
 @layer base {
   :root {
-    /* Theme: Japandi (Default) */
-    --theme-canvas: #F9FBEE;
+    /* ColorKit Palette: https://colorkit.co/palette/667463-8b9e87-b1c9ac-d6f3d0-1b1f1a-41493f/ */
+    --theme-canvas: #F6F8F5;
     --theme-surface: #FFFFFF;
-    --theme-surface-hover: #F5F1E8;
-    --theme-border: #EDE7DA;
-    --theme-primary: #40513B;
-    --theme-primary-hover: #344230;
-    --theme-secondary: #628141;
-    --theme-text-main: #191D15;
-    --theme-text-sub: #747870;
+    --theme-surface-hover: #EEF3EC;
+    --theme-border: #D6E0D4;
+    --theme-track: #CBD7C9;
+    --theme-primary: #41493F;
+    --theme-primary-hover: #333A31;
+    --theme-secondary: #667463;
+    --theme-secondary-hover: #556252;
+    --theme-mint: #D6F3D0;
+    --theme-mint-light: #EAF7E6;
+    --theme-sage: #8B9E87;
+    --theme-celadon: #B1C9AC;
+    --theme-terracotta: #667463;
+    --theme-terracotta-hover: #556252;
+    --theme-oatmeal: #D6E0D4;
+    --theme-ink-dark: #1B1F1A;
+    --theme-text-main: #1B1F1A;
+    --theme-text-sub: #5F6C5C;
 
-    /* Shadows - Rich organic Japandi depth with ambient warmth */
-    --shadow-2xs: 0 1px 2px 0 rgba(40, 48, 35, 0.04);
-    --shadow-xs: 0 1px 3px 0 rgba(40, 48, 35, 0.06), 0 1px 2px -1px rgba(40, 48, 35, 0.04);
-    --shadow-sm: 0 2px 6px -1px rgba(40, 48, 35, 0.07), 0 1px 3px -1px rgba(40, 48, 35, 0.05);
-    --shadow-md: 0 6px 16px -3px rgba(40, 48, 35, 0.09), 0 2px 6px -1px rgba(40, 48, 35, 0.05);
-    --shadow-lg: 0 12px 26px -4px rgba(40, 48, 35, 0.11), 0 4px 10px -2px rgba(40, 48, 35, 0.06);
-    --shadow-xl: 0 18px 36px -6px rgba(40, 48, 35, 0.13), 0 6px 14px -3px rgba(40, 48, 35, 0.07);
-    --shadow-2xl: 0 24px 48px -8px rgba(40, 48, 35, 0.16), 0 8px 18px -4px rgba(40, 48, 35, 0.08);
-    --shadow-soft: 0 8px 22px -3px rgba(40, 48, 35, 0.08), 0 3px 8px -1px rgba(40, 48, 35, 0.04);
-    --shadow-ambient: 0 0 36px -6px rgba(40, 48, 35, 0.08);
-  }
-
-  [data-theme='dark'] {
-    --theme-canvas: #1C1C1E;
-    --theme-surface: #2C2C2E;
-    --theme-surface-hover: #3A3A3C;
-    --theme-border: #3A3A3C;
-    --theme-primary: #6B8B5B;
-    --theme-primary-hover: #5A7A4A;
-    --theme-secondary: #8CA87C;
-    --theme-text-main: #F4F4F5;
-    --theme-text-sub: #A1A1AA;
-
-    --shadow-2xs: 0 1px 2px 0 rgba(0, 0, 0, 0.35);
-    --shadow-xs: 0 2px 4px 0 rgba(0, 0, 0, 0.4), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
-    --shadow-sm: 0 3px 8px -1px rgba(0, 0, 0, 0.45), 0 1px 4px -1px rgba(0, 0, 0, 0.35);
-    --shadow-md: 0 8px 20px -3px rgba(0, 0, 0, 0.52), 0 3px 8px -1px rgba(0, 0, 0, 0.38);
-    --shadow-lg: 0 14px 28px -4px rgba(0, 0, 0, 0.58), 0 5px 12px -2px rgba(0, 0, 0, 0.42);
-    --shadow-xl: 0 20px 38px -6px rgba(0, 0, 0, 0.65), 0 8px 16px -3px rgba(0, 0, 0, 0.48);
-    --shadow-2xl: 0 28px 52px -8px rgba(0, 0, 0, 0.72), 0 10px 22px -4px rgba(0, 0, 0, 0.55);
-    --shadow-soft: 0 10px 24px -3px rgba(0, 0, 0, 0.52), 0 4px 10px -1px rgba(0, 0, 0, 0.38);
-    --shadow-ambient: 0 0 40px -4px rgba(0, 0, 0, 0.55);
-  }
-  
-  [data-theme='ocean'] {
-    --theme-canvas: #F0F8FF;
-    --theme-surface: #FFFFFF;
-    --theme-surface-hover: #E6F3FF;
-    --theme-border: #D1E8FF;
-    --theme-primary: #2C5282;
-    --theme-primary-hover: #1A365D;
-    --theme-secondary: #4299E1;
-    --theme-text-main: #1A202C;
-    --theme-text-sub: #4A5568;
-
-    --shadow-2xs: 0 1px 2px 0 rgba(26, 54, 93, 0.04);
-    --shadow-xs: 0 1px 3px 0 rgba(26, 54, 93, 0.06), 0 1px 2px -1px rgba(26, 54, 93, 0.04);
-    --shadow-sm: 0 2px 6px -1px rgba(26, 54, 93, 0.07), 0 1px 3px -1px rgba(26, 54, 93, 0.05);
-    --shadow-md: 0 6px 16px -3px rgba(26, 54, 93, 0.09), 0 2px 6px -1px rgba(26, 54, 93, 0.05);
-    --shadow-lg: 0 12px 26px -4px rgba(26, 54, 93, 0.11), 0 4px 10px -2px rgba(26, 54, 93, 0.06);
-    --shadow-xl: 0 18px 36px -6px rgba(26, 54, 93, 0.13), 0 6px 14px -3px rgba(26, 54, 93, 0.07);
-    --shadow-2xl: 0 24px 48px -8px rgba(26, 54, 93, 0.16), 0 8px 18px -4px rgba(26, 54, 93, 0.08);
-    --shadow-soft: 0 8px 22px -3px rgba(26, 54, 93, 0.08), 0 3px 8px -1px rgba(26, 54, 93, 0.04);
-    --shadow-ambient: 0 0 36px -6px rgba(26, 54, 93, 0.08);
+    /* Shadows - Anchored in Charcoal Forest #1B1F1A for organic depth */
+    --shadow-2xs: 0 1px 2px 0 rgba(27, 31, 26, 0.04);
+    --shadow-xs: 0 1px 3px 0 rgba(27, 31, 26, 0.06), 0 1px 2px -1px rgba(27, 31, 26, 0.04);
+    --shadow-sm: 0 2px 6px -1px rgba(27, 31, 26, 0.07), 0 1px 3px -1px rgba(27, 31, 26, 0.05);
+    --shadow-md: 0 6px 16px -3px rgba(27, 31, 26, 0.09), 0 2px 6px -1px rgba(27, 31, 26, 0.05);
+    --shadow-lg: 0 12px 26px -4px rgba(27, 31, 26, 0.11), 0 4px 10px -2px rgba(27, 31, 26, 0.06);
+    --shadow-xl: 0 18px 36px -6px rgba(27, 31, 26, 0.13), 0 6px 14px -3px rgba(27, 31, 26, 0.07);
+    --shadow-2xl: 0 24px 48px -8px rgba(27, 31, 26, 0.16), 0 8px 18px -4px rgba(27, 31, 26, 0.08);
+    --shadow-soft: 0 8px 22px -3px rgba(27, 31, 26, 0.08), 0 3px 8px -1px rgba(27, 31, 26, 0.04);
+    --shadow-ambient: 0 0 36px -6px rgba(27, 31, 26, 0.08);
   }
 
   body {
@@ -158,14 +133,14 @@
 /* ── Card Utility with Tactile Bevel & Ambient Lighting ── */
 .card {
   background: var(--theme-surface, #FFFFFF);
-  border: 1px solid var(--theme-border, #EDE7DA);
+  border: 1px solid var(--theme-border, #D6E0D4);
   border-radius: 1rem;
   box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.75) inset, var(--shadow-sm);
 }
 
 .card-2xl {
   background: var(--theme-surface, #FFFFFF);
-  border: 1px solid var(--theme-border, #EDE7DA);
+  border: 1px solid var(--theme-border, #D6E0D4);
   border-radius: 1.5rem;
   box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.8) inset, var(--shadow-md);
 }
@@ -175,7 +150,7 @@
 }
 
 .tactile-btn {
-  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.25) inset, 0 2px 4px 0 rgba(40, 48, 35, 0.12);
+  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.25) inset, 0 2px 4px 0 rgba(27, 31, 26, 0.12);
   transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .tactile-btn:active {

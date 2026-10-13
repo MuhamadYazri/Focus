@@ -51,7 +51,7 @@ function TimeframeHeader({ period, setPeriod, offset, setOffset }) {
   return (
     <div className="flex flex-col gap-2.5 w-full">
       {/* Time Frame Segmented Track */}
-      <div className="w-full bg-[#EDE7DA]/80 p-1 rounded-full flex items-center justify-between border border-border shadow-inner relative select-none">
+      <div className="w-full bg-surface/90 p-1 rounded-full flex items-center justify-between border border-border shadow-2xs relative select-none">
         {PERIODS.map((p) => {
           const active = p === period;
           return (
@@ -64,14 +64,14 @@ function TimeframeHeader({ period, setPeriod, offset, setOffset }) {
               }}
               className={`relative flex-1 py-1.5 text-center rounded-full text-xs transition-colors duration-200 ${
                 active
-                  ? 'text-text-main font-semibold'
-                  : 'text-[#5A574E] font-medium hover:text-text-main'
+                  ? 'text-white font-bold'
+                  : 'text-text-sub font-medium hover:text-text-main'
               }`}
             >
               {active && (
                 <motion.div
                   layoutId="timeframe-period-pill"
-                  className="absolute inset-0 bg-surface rounded-full shadow-xs ring-1 ring-white/90 border border-border/50"
+                  className="absolute inset-0 bg-primary rounded-full shadow-xs ring-1 ring-white/20"
                   transition={{ type: 'spring', stiffness: 450, damping: 35 }}
                 />
               )}
@@ -83,7 +83,7 @@ function TimeframeHeader({ period, setPeriod, offset, setOffset }) {
 
       {/* Date Navigation Capsule */}
       <div
-        className={`w-full bg-surface rounded-full px-3.5 py-2 flex items-center justify-between shadow-xs ring-1 ring-white/80 border border-border transition-opacity ${
+        className={`w-full bg-surface rounded-full px-3.5 py-1.5 flex items-center justify-between shadow-2xs ring-1 ring-white/80 border border-border transition-opacity ${
           isAll ? 'opacity-50 pointer-events-none' : 'opacity-100'
         }`}
       >
@@ -92,7 +92,7 @@ function TimeframeHeader({ period, setPeriod, offset, setOffset }) {
             if (window.navigator?.vibrate) window.navigator.vibrate(10);
             setOffset((prev) => prev - 1);
           }}
-          className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-widest text-[#444841] font-mono hover:text-text-main hover:bg-canvas/60 active:scale-95 transition-all"
+          className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-widest text-text-sub font-mono hover:text-text-main hover:bg-canvas/60 active:scale-95 transition-all"
         >
           <ChevronLeft size={13} strokeWidth={2.5} />
           <span>PREV</span>
@@ -110,7 +110,7 @@ function TimeframeHeader({ period, setPeriod, offset, setOffset }) {
           className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-widest font-mono transition-all ${
             offset >= 0
               ? 'text-text-sub/40 cursor-not-allowed'
-              : 'text-[#444841] hover:text-text-main hover:bg-canvas/60 active:scale-95'
+              : 'text-text-sub hover:text-text-main hover:bg-canvas/60 active:scale-95'
           }`}
         >
           <span>NEXT</span>

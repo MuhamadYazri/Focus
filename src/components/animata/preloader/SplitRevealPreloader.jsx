@@ -19,19 +19,19 @@ export default function SplitRevealPreloader({ onFinish }) {
       aria-hidden="true"
     >
       {/* Top Shutter */}
-      <div className="absolute inset-x-0 top-0 h-1/2 bg-[#F4F1EA] animate-shutter-top-split" />
+      <div className="absolute inset-x-0 top-0 h-1/2 bg-canvas animate-shutter-top-split" />
 
       {/* Bottom Shutter */}
-      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-[#F4F1EA] animate-shutter-bottom-split" />
+      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-canvas animate-shutter-bottom-split" />
 
       {/* Center "FOCUS" Branding (Runs continuous fluid animation once) */}
       <div className="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none animate-split-text-flow">
         <div className="overflow-hidden relative flex items-center justify-center">
-          <span className="text-3xl font-extrabold tracking-[0.35em] text-[#40513B] font-display uppercase block">
+          <span className="text-3xl font-extrabold tracking-[0.35em] text-primary font-display uppercase block">
             FOCUS
           </span>
         </div>
-        <span className="text-[10px] tracking-[0.25em] text-[#747870] font-mono font-bold uppercase mt-1 opacity-70">
+        <span className="text-[10px] tracking-[0.25em] text-text-sub font-mono font-bold uppercase mt-1">
           by Yazzzz
         </span>
       </div>

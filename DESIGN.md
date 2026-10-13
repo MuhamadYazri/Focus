@@ -1,6 +1,6 @@
 # Design System: Focus Dashboard
-**Skill:** stitch-design-taste
-**Design Type:** Organic Minimalism & Typographic Bento — Japandi / Zen / Warm & Calm
+**Skill:** frontend-design / organic-minimalism
+**Design Type:** Organic Minimalism & Typographic Bento — Botanical Sage, Celadon & Forest Light Mode
 
 ---
 
@@ -8,68 +8,94 @@
 
 | Dial | Level | Description |
 |------|-------|-------------|
-| **Creativity** | `6` | Elegant typography mixed with playful, soft bento-box layouts. |
-| **Density** | `3` | Breathable whitespace, using bento grids to organize data without feeling cramped. |
-| **Variance** | `5` | Mix of massive display numbers and structured, symmetric stat cards. |
-| **Motion Intent** | `3` | Gentle, fluid transitions. Smooth scaling when pressing cards. |
+| **Creativity** | `7` | Sculptural typography with organic botanical depth and tactile clarity. |
+| **Density** | `2` | Ultra-streamlined, ruthlessly simplified layouts with zero redundant data. |
+| **Variance** | `5` | Monumental display numerals balanced against clean, structured stat cards. |
+| **Motion Intent** | `3` | Fluid, spring-physics micro-interactions anchored to 120Hz GPU compositor. |
 
 ---
 
 ## 1. Visual Theme & Atmosphere
-An organic, Japandi-inspired minimalist interface that relies heavily on **massive, elegant typography** and **soft bento-box grids**. The atmosphere is warm, calm, tactile, and Zen-like. Surfaces use soft, unbleached paper textures and warm sand tones. 
+An organic, botanical-inspired minimalist interface that relies on **monumental typography**, **tactile bento cards**, and **pure Light Mode simplicity**. The atmosphere is crisp, serene, and deeply focused. Surfaces use unbleached botanical paper canvas (`#F6F8F5`) with floating crisp white surfaces (`#FFFFFF`).
 
-During normal use (dashboards, stats), it feels like a beautifully typeset modern planner. During the "Focus Mode", the app transforms into a bold, distraction-free, full-screen typographic poster.
+The app avoids visual clutter and generic "AI slop" aesthetics:
+- Every screen is simplified to essential controls and metrics only.
+- Duplicate counts and redundant cards have been completely removed.
+- Visual hierarchy is anchored in Charcoal Forest (`#1B1F1A`) with Deep Olive Slate, Muted Moss, and Pale Mint accents.
 
-## 2. Color Palette & Roles
-- **Warm Canvas** (`#F9F8F6`) — Primary background surface. Feels like unbleached paper.
-- **Soft Beige Surface** (`#EFE9E3`) — Card and container fill. Used for the bento-box cards.
-- **Muted Taupe** (`#D9CFC7`) — Borders, dividers, inactive states, and secondary text/icons.
-- **Warm Sand Accent** (`#C9B59C`) — Primary interactive elements, active buttons, progress bars, and solid backgrounds for the active Pomodoro timer.
-- **Espresso Ink** (`#2C2825`) — Primary text. A very dark, warm brown/charcoal. Never pure black.
-- **Tomato/Coral Accent (Optional)** (`#E07A5F` or similar warm rust) — Used sparingly for the "Focus" state or crucial notifications to contrast with the beige.
+---
 
-## 3. Typography Rules (Crucial for this style)
-- **Massive Display Numbers:** The timer (e.g., "25:00") and dates (e.g., "7") must be absolutely massive and dominate the screen. Use a bold, clean sans-serif like `Outfit`, `Satoshi`, or `SF Pro Display`.
-- **Headlines:** Clean sans-serif or an elegant modern serif for greetings (e.g., "Good morning").
-- **Body:** `Geist` or `Outfit` at weight 400. Relaxed leading (`1.65`). Color: Espresso Ink or Muted Taupe.
-- **Scale:** Display numbers at `clamp(5rem, 15vw, 8rem)` for the active timer.
+## 2. Color Palette & Roles (ColorKit: 667463-8b9e87-b1c9ac-d6f3d0-1b1f1a-41493f)
 
-## 4. Component Stylings & UI Patterns
-* **Bento-Box Grid:** The dashboard and statistics should use a bento-box layout. Cards of varying sizes (squares and rectangles) fitted neatly together with `1rem` gaps.
-* **Cards/Containers:** Generous border radius (`1.5rem` to `2rem`). Fill: Soft Beige Surface (`#EFE9E3`). No borders, or very soft whisper borders. No drop shadows—rely on the slight color contrast against the `#F9F8F6` canvas.
-* **Pill Buttons:** Soft, pill-shaped tags and buttons. 
-* **The "Poster" Timer:** When the timer is active, the background should shift to a solid color (like Warm Sand), and the timer numbers should be massive, taking up the center of the screen, with tiny minimalist controls (Play/Pause) at the bottom.
+*Palette Source: [ColorKit Palette](https://colorkit.co/palette/667463-8b9e87-b1c9ac-d6f3d0-1b1f1a-41493f/)*
 
-## 5. App Flow & Feature Description (Behavior Context for Stitch)
+| Token | Hex | Role | Contrast Ratio & WCAG Rating |
+|---|---|---|---|
+| `--theme-canvas` | `#F6F8F5` | Whispering Sage Alabaster (Paper background) | — (Base) |
+| `--theme-surface` | `#FFFFFF` | Floating card surfaces | — (Surface) |
+| `--theme-border` | `#D6E0D4` | Hairline card boundaries & dividers | Clean 1px boundary |
+| `--theme-track` | `#CBD7C9` | Mechanical dial track & slider grooves | Soft organic track |
+| `--theme-ink-dark` | `#1B1F1A` | Charcoal Forest — Headings, monumental numerals | **16.70:1 on White (AAA)** / **15.64:1 on Canvas (AAA)** |
+| `--theme-primary` | `#41493F` | Deep Olive Slate — FAB, hero play, active navigation pill | **9.34:1 on White (AAA)** |
+| `--theme-secondary` | `#667463` | Muted Moss — Running arcs, focus badges, streaks | **4.95:1 on White (AA)** |
+| `--theme-text-sub` | `#5F6C5C` | Moss Charcoal — Subtitles, dates, pips, captions | **5.55:1 on White (AA)** / **5.19:1 on Canvas (AA)** |
+| `--theme-sage` | `#8B9E87` | Soft Sage — Break mode indicators, pill borders | **5.84:1 with #1B1F1A (AA)** |
+| `--theme-celadon` | `#B1C9AC` | Light Sage Celadon — Progress fills, tag chips | **5.25:1 with #41493F (AA)** / **9.40:1 with #1B1F1A (AAA)** |
+| `--theme-mint` | `#D6F3D0` | Pale Mint — Focus rings, halos, highlight jewels | **7.82:1 with #41493F (AAA)** / **13.99:1 with #1B1F1A (AAA)** |
 
-### Screen 1: The Home Dashboard (Bento Layout)
-- **Header:** A gentle greeting with a subtle date display.
-- **Grid Layout:** A bento-box grid containing:
-  - A large card showing the current "Mood" or "Energy".
-  - A medium card showing "Hours Focused Today".
-  - Small quick-action pill buttons (e.g., "Quick Start").
-- **Task List:** Below the grid, a clean list of tasks.
+---
 
-### Screen 2: The Focus Environment (Immersive Poster Mode)
-- **State:** Full-screen minimal view. 
-- **Visuals:** The background becomes a solid Warm Sand (`#C9B59C`) or rust color.
-- **The Timer:** A massive, thick countdown timer ("25:00") dead center.
-- **Controls:** Tiny, elegant text or simple minimalist icons below it: "WORK", "SHORT", "LONG".
+## 3. Contrast Checker Verification (Matrix Validation)
 
-### Screen 3: Deep Analytics (Reports & Charts)
-- **Visuals:** A "GitHub-style" contribution heatmap using shades of Warm Sand and Rust to show days with high focus hours.
-- **Weekly Bar Charts:** Soft, rounded vertical bars sitting inside a neat bento card.
+Based on the Color Contrast Checker matrix (verified for 4.5:1 WCAG AA and 7:1 AAA):
 
-## 6. External References & Inspiration (For Stitch's AI Context)
-To achieve this specific look, reference the following design movements and styles:
-1. **Dieter Rams / Braun Design:** For the minimalist, functional layout of the timer screen. High contrast between massive typography and tiny control labels.
-2. **Apple's "Bento" Keynote Slides:** For the layout of the dashboard and statistics cards—soft rounded rectangles tightly packed with consistent gaps.
-3. **Muji / Japandi Aesthetic:** For the color theory. Unbleached paper, warm woods, and soft taupes.
-4. **Swiss Typographic Posters:** For the bold use of negative space and oversized numbers in the active timer state.
-5. **Headspace / Calm App:** For the soft, rounded UI elements, pill shapes, and friendly, stress-free vibe.
+1. **Text & Number Legibility:**
+   - `#1B1F1A` on `#FFFFFF` / `#F6F8F5`: **16.70:1 / 15.64:1** (Passes WCAG AAA)
+   - `#41493F` on `#FFFFFF`: **9.34:1** (Passes WCAG AAA)
+   - `#5F6C5C` on `#F6F8F5`: **5.19:1** (Passes WCAG AA)
+2. **Buttons & Action Controls:**
+   - Pure White text on Deep Olive Slate (`#41493F`): **9.34:1** (Passes WCAG AAA)
+   - Pure White text on Muted Moss (`#667463`): **4.95:1** (Passes WCAG AA)
+3. **Badges & Highlight Pills:**
+   - Charcoal text (`#1B1F1A`) on Pale Mint (`#D6F3D0`): **13.99:1** (Passes WCAG AAA)
+   - Deep Olive text (`#41493F`) on Pale Mint (`#D6F3D0`): **7.82:1** (Passes WCAG AAA)
+   - Deep Olive text (`#41493F`) on Celadon (`#B1C9AC`): **5.25:1** (Passes WCAG AA)
 
-## 7. Anti-Patterns (Banned)
-- Sharp corners on cards.
-- Drop shadows (keep it flat and soft).
-- Cluttered navigation bars.
-- Outlined/wireframe icons (use solid, soft, chunky icons instead).
+---
+
+## 4. Screen Simplification & Architecture
+
+### Screen 1: Home Dashboard (`TaskList.jsx`)
+- **Editorial Masthead:** Single clean date stamp (`TUE, OCT 13 · SOLO_OS`) and greeting (`Good afternoon.`). Redundant duplicate task counts removed.
+- **Compact Daily Target & Streak Card:** Sleek 60px architectural bento card pairing Daily Target progress (`0h / 4h · 0%`) with Streak counter (`0 DAYS`). Brings tasks above the fold immediately.
+- **Unified Timeline & Sort Horizon:** Timeline segment tabs (`Today`, `This Week`, `Planned`, `Done`) include live badges (`Today 3`), with the sort toggle neatly docked on the far right. Redundant `TASKS · 3 ACTIVE` subheader row eliminated.
+- **Category Chips:** Compact horizontal scroll chips (`All Tasks`, `Study`, `Personal App Dev`, etc.).
+- **Bottom Navigation:** Custom animated `HomeIcon` SVG replaces unreliable Lottie canvas for 100% reliable icon rendering across all viewports.
+
+### Screen 2: Focus Environment (`TimerView.jsx`)
+- **Balanced Top Header:** Left-aligned active task or `SOLO_OS` status paired with the `NORMAL / STRICT` lock toggle on the right.
+- **Clock Dial Ring:** Mechanical track (`#CBD7C9`) with Muted Moss progress arc (`#667463`) and 4 session pips.
+- **Hero Controls:** Circular hero play/pause in Deep Olive Slate (`#41493F`) with Pale Mint glow halo (`#D6F3D0`), flanked by reset and skip buttons.
+- **Soundscape Capsule:** Clean floating pill with headphones icon, current soundscape label, and volume percentage badge. Tapping opens the sound & volume modal with dedicated slider.
+- **Live Focus Fullscreen Mode:** Alabaster Mint canvas with atmospheric moss glow, monumental Charcoal Forest numerals, and tactile pause button.
+
+### Screen 3: Reports & Deep Analytics (`AnalyticsDashboard.jsx` & `SharedActivitySection.jsx`)
+- **Zero Redundancy KPIs:** The redundant dark `YOUR FOCUS LOG` card has been removed. Metric clarity is provided directly by the dual tiles:
+  - `FOCUS TIME: 0h 00m`
+  - `SESSIONS: 0`
+- **Timeframe Horizon:** Cohesive segmented period switcher (`All`, `Daily`, `Weekly`, `Monthly`, `Yearly`) and floating date navigation capsule.
+- **Heatmap & Bar Charts:** Deep Olive Slate (`#41493F`), Muted Moss (`#667463`), and Celadon fills representing daily and weekly progress.
+
+### Screen 4: Profile & Preferences (`ProfileView.jsx`)
+- **Telemetry Card:** Lifetime streak, hours, sessions, and active days.
+- **Share Profile Action:** Deep Olive Slate CTA pill.
+- **Project Categories:** Color-coded with ColorKit palette swatches.
+- **Timer Durations:** Tactile duration capsules (`25m`, `45m`, `60m`, `Custom`).
+
+---
+
+## 5. Anti-Patterns (Banned)
+- Duplicate metric cards repeating the same numbers in adjacent blocks.
+- Dark mode elements or dark cards in Light Mode.
+- Unreliable third-party canvas or Lottie loaders for core navigation icons.
+- Awkward inline range sliders inside compact mobile capsules.

@@ -157,7 +157,7 @@ export default function TaskModal({
       className={`fixed inset-0 z-[70] flex flex-col items-end justify-end select-none transition-opacity duration-200 ${
         isClosing ? 'opacity-0' : 'opacity-100 animate-fadeIn'
       }`}
-      style={{ background: 'rgba(25, 29, 21, 0.45)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
+      style={{ background: 'rgba(26, 31, 24, 0.45)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
       onClick={onClose}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
@@ -233,7 +233,7 @@ export default function TaskModal({
                   {toTitleCase(selectedProject.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' '))}
                 </span>
               </div>
-              {showTags ? <ChevronUp size={16} className="text-[#444841]" strokeWidth={2.5} /> : <ChevronDown size={16} className="text-text-sub/50" strokeWidth={2.5} />}
+              {showTags ? <ChevronUp size={16} className="text-text-main" strokeWidth={2.5} /> : <ChevronDown size={16} className="text-text-sub/50" strokeWidth={2.5} />}
             </button>
 
             {showTags && (
@@ -249,7 +249,7 @@ export default function TaskModal({
                       className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors border-b border-surface-hover last:border-none ${isSel ? 'bg-canvas' : 'hover:bg-surface-hover'}`}
                     >
                       <div className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: p.color || 'var(--theme-primary)' }} />
-                      <span className={`font-sans text-[14px] ${isSel ? 'font-bold text-primary' : 'font-medium text-[#444841]'}`}>
+                      <span className={`font-sans text-[14px] ${isSel ? 'font-bold text-primary' : 'font-medium text-text-main'}`}>
                         {cleanPName}
                       </span>
                       {isSel && <Check size={16} className="ml-auto text-secondary font-bold" strokeWidth={3} />}
@@ -418,7 +418,7 @@ export default function TaskModal({
                   <div className="flex flex-col mt-1 bg-surface rounded-lg border border-border shadow-sm overflow-hidden">
                     {subtasks.map((sub) => (
                       <div key={sub.id} className="flex items-center justify-between py-2.5 px-3 border-b border-surface-hover last:border-none">
-                        <span className="font-sans text-xs font-semibold text-[#444841]">{sub.title}</span>
+                        <span className="font-sans text-xs font-semibold text-text-main">{sub.title}</span>
                         <button
                           type="button"
                           onClick={() => setSubtasks(subtasks.filter((s) => s.id !== sub.id))}

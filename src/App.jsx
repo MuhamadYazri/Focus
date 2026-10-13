@@ -54,8 +54,12 @@ function processDailyRollover(tasksList) {
 }
 
 export default function App() {
+  const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const initialTab = urlParams?.get('tab') || 'home';
+  const skipPreloader = urlParams?.has('no_preloader') || false;
+
   // Navigation State: 4 monochrome tabs: 'home', 'timer', 'reports', 'profile'
-  const [activeTab, setActiveTab] = useState('home');
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [selectedProjectId, setSelectedProjectId] = useState(null);
   const [prevTab, setPrevTab] = useState(null);
   const [slideDir, setSlideDir] = useState('left');
@@ -67,7 +71,7 @@ export default function App() {
   const [sessions, setSessions] = useState([]);
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [showPreloader, setShowPreloader] = useState(true);
+  const [showPreloader, setShowPreloader] = useState(!skipPreloader);
   const handleFinishPreloader = useCallback(() => {
     setShowPreloader(false);
   }, []);

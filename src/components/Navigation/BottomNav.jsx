@@ -1,14 +1,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import {
+  HomeIcon as Home,
   HourglassIcon as Timer,
   TrendingUpIcon as BarChart2,
   UserIcon as User,
 } from 'lucide-animated';
-import HomeLottieIcon from './HomeLottieIcon';
 
 const NAV_ITEMS = [
-  { key: 'home', label: 'Home', Icon: HomeLottieIcon },
+  { key: 'home', label: 'Home', Icon: Home },
   { key: 'timer', label: 'Timer', Icon: Timer },
   { key: 'reports', label: 'Reports', Icon: BarChart2 },
   { key: 'profile', label: 'Profile', Icon: User },

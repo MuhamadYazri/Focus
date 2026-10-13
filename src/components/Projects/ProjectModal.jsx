@@ -3,9 +3,9 @@ import { createPortal } from 'react-dom';
 import { X, Check, Briefcase, BookOpen, Heart, Rocket, Code, Star, Target, Zap, Coffee, Music } from 'lucide-react';
 
 const COLOR_PALETTE = [
-  '#40513B', '#628141', '#E67E22', '#8A7968',
-  '#D3A29D', '#A3B18A', '#344E41', '#CB997E',
-  '#6B705C', '#B5838D', '#E5989B', '#6D6875'
+  '#1B1F1A', '#41493F', '#667463', '#8B9E87',
+  '#B1C9AC', '#D6F3D0', '#344E41', '#588157',
+  '#A3B18A', '#6D6875', '#B5838D', '#8A7968'
 ];
 
 const ICONS_LIST = [
@@ -57,7 +57,7 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
     <div
       className="fixed inset-0 z-[70] flex flex-col items-center justify-center p-4 animate-fadeIn select-none"
       style={{
-        background: 'rgba(25, 29, 21, 0.45)',
+        background: 'rgba(26, 31, 24, 0.45)',
         backdropFilter: 'blur(8px)',
         WebkitBackdropFilter: 'blur(8px)',
       }}
@@ -118,7 +118,13 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
                   }}
                 >
                   {color === c && (
-                    <Check className="w-4 h-4 text-white stroke-[3px]" />
+                    <Check
+                      className={`w-4 h-4 stroke-[3px] ${
+                        c === '#D6F3D0' || c === '#B1C9AC' || c === '#8B9E87' || c === '#A3B18A'
+                          ? 'text-ink-dark'
+                          : 'text-white'
+                      }`}
+                    />
                   )}
                 </button>
               ))}

@@ -334,14 +334,9 @@ function TaskList({
       <div className="flex flex-col w-full px-5 pt-14 pb-24 max-w-md mx-auto">
         {/* Editorial Masthead */}
         <header className="pt-2 pb-3.5 flex flex-col gap-0.5">
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-[10px] font-bold text-text-sub tracking-[0.22em] uppercase">
-              {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} · SOLO_OS
-            </span>
-            <span className="font-mono text-[10px] text-secondary font-bold tracking-wider">
-              {activeCount} ACTIVE {activeCount === 1 ? 'TASK' : 'TASKS'}
-            </span>
-          </div>
+          <span className="font-mono text-[10px] font-bold text-text-sub tracking-[0.22em] uppercase">
+            {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+          </span>
           <h1 className="text-[32px] leading-tight text-text-main font-extrabold tracking-tight font-display mt-0.5">
             {getGreeting()}
           </h1>

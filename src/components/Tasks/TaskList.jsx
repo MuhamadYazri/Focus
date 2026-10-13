@@ -24,9 +24,7 @@ const TaskListItem = React.memo(function TaskListItem({
         isCurrentFocus
           ? 'border-secondary/70 ring-2 ring-secondary/20 shadow-sm'
           : 'border-border ring-1 ring-white/60'
-      } ${task.completed ? 'opacity-60 bg-surface/70' : ''} ${
-        isJust ? 'animate-task-exit' : ''
-      }`}
+      } ${task.completed ? 'opacity-60 bg-surface/70' : ''} ${isJust ? 'animate-task-exit' : ''}`}
       onClick={() => onEditTask && onEditTask(task)}
     >
       <div className="flex items-center gap-3 min-w-0 pr-2">
@@ -80,12 +78,6 @@ const TaskListItem = React.memo(function TaskListItem({
                 {task.title}
               </span>
             </h3>
-            {isCurrentFocus && (
-              <span className="shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-secondary/15 text-secondary text-[9px] font-mono font-bold tracking-wider animate-pulse">
-                <span className="w-1.5 h-1.5 rounded-full bg-secondary" />
-                FOCUS
-              </span>
-            )}
           </div>
           <div className="flex items-center gap-2 mt-0.5">
             {cleanProjectName && (
@@ -119,7 +111,7 @@ const TaskListItem = React.memo(function TaskListItem({
           }}
           className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all active:scale-95 ${
             isCurrentFocus
-              ? 'bg-secondary text-white shadow-sm ring-2 ring-secondary/30 animate-pulse'
+              ? 'bg-secondary text-white shadow-sm ring-2 ring-secondary/30'
               : 'bg-canvas border border-border/80 text-primary hover:bg-primary hover:text-white shadow-2xs ring-1 ring-white/80'
           }`}
         >
@@ -291,36 +283,6 @@ function TaskList({
     return list;
   }, [tasks, selectedProjectId, filterTab, todayStr, justCompletedId, sortBy]);
 
-  const activeCount = useMemo(() => tasks.filter((t) => !t.completed).length, [tasks]);
-
-  const tabCounts = useMemo(() => {
-    const counts = { Today: 0, 'This Week': 0, Planned: 0, Done: 0 };
-    (tasks || []).forEach((t) => {
-      if (selectedProjectId && t.projectId !== selectedProjectId) return;
-      if (t.completed) {
-        counts.Done++;
-        return;
-      }
-      const st = t.scheduleType || 'today';
-      if (st === 'daily' || st === 'today') {
-        counts.Today++;
-      } else if (st === 'date' && t.scheduledDate && t.scheduledDate <= todayStr) {
-        counts.Today++;
-      }
-
-      if (st === 'daily' || st === 'weekly' || st === 'today') {
-        counts['This Week']++;
-      } else if (st === 'date') {
-        const endOfWeek = new Date();
-        endOfWeek.setDate(new Date().getDate() + 7);
-        const endStr = getLocalDateStr(endOfWeek);
-        if (!t.scheduledDate || t.scheduledDate <= endStr) counts['This Week']++;
-      }
-
-      if (st === 'date') counts.Planned++;
-    });
-    return counts;
-  }, [tasks, selectedProjectId, todayStr]);
 
   const getGreeting = () => {
     const h = new Date().getHours();
@@ -335,7 +297,11 @@ function TaskList({
         {/* Editorial Masthead */}
         <header className="pt-2 pb-3.5 flex flex-col gap-0.5">
           <span className="font-mono text-[10px] font-bold text-text-sub tracking-[0.22em] uppercase">
-            {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+            {new Date().toLocaleDateString('en-US', {
+              weekday: 'short',
+              month: 'short',
+              day: 'numeric',
+            })}
           </span>
           <h1 className="text-[32px] leading-tight text-text-main font-extrabold tracking-tight font-display mt-0.5">
             {getGreeting()}
@@ -405,25 +371,15 @@ function TaskList({
             <div className="flex items-center gap-3.5 overflow-x-auto no-scrollbar">
               {['Today', 'This Week', 'Planned', 'Done'].map((tab) => {
                 const on = filterTab === tab;
-                const count = tabCounts[tab] || 0;
                 return (
                   <button
                     key={tab}
                     onClick={() => setFilterTab(tab)}
-                    className={`relative pb-2 text-[13px] font-sans transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
-                      on
-                        ? 'font-bold text-primary'
-                        : 'font-medium text-text-sub hover:text-primary'
+                    className={`relative pb-2 text-[13px] font-sans transition-colors flex items-center whitespace-nowrap shrink-0 ${
+                      on ? 'font-bold text-primary' : 'font-medium text-text-sub hover:text-primary'
                     }`}
                   >
                     <span>{tab}</span>
-                    <span
-                      className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full leading-none shrink-0 ${
-                        on ? 'bg-primary/10 text-primary font-bold' : 'text-text-sub/70'
-                      }`}
-                    >
-                      {count}
-                    </span>
                     {on && (
                       <motion.span
                         layoutId="timeline-tab-indicator"

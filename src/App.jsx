@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { PlusIcon as Plus } from 'lucide-animated';
 import BottomNav from './components/Navigation/BottomNav';
 import TaskList from './components/Tasks/TaskList';
 import TaskModal from './components/Tasks/TaskModal';
@@ -833,30 +832,6 @@ export default function App() {
         }}
       />
 
-      {/* Floating Action Button (FAB) for Home Tab */}
-      {activeTab === 'home' && (
-        <aside className="fixed bottom-24 left-0 right-0 z-50 pointer-events-none">
-          <div className="max-w-md mx-auto px-5 flex justify-end">
-            <button
-              aria-label="Add Task"
-              onClick={() => {
-                if (window.navigator?.vibrate) window.navigator.vibrate(15);
-                if (window.plusRef?.current) {
-                  window.plusRef.current.startAnimation();
-                  setTimeout(() => window.plusRef.current?.stopAnimation(), 600);
-                }
-                setTimeout(() => {
-                  setTaskToEdit(null);
-                  setTaskModalOpen(true);
-                }, 50);
-              }}
-              className="pointer-events-auto w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center shadow-xl shadow-primary/30 ring-1 ring-white/25 active:scale-90 transition-all hover:bg-primary-hover animate-fab-in"
-            >
-              <Plus ref={el => { if (!window.plusRef) window.plusRef = {current: null}; window.plusRef.current = el; }} animateOnHover={false} size={24} strokeWidth={3} />
-            </button>
-          </div>
-        </aside>
-      )}
 
       {/* Bottom Navigation */}
       <BottomNav

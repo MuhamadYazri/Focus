@@ -308,60 +308,51 @@ function TaskList({
           </h1>
         </header>
 
-        {/* Compact Daily Target & Streak Card */}
-        <section className="bg-surface border border-border rounded-2xl p-4 shadow-xs ring-1 ring-white/80 relative overflow-hidden mb-3">
-          <div className="flex items-center justify-between gap-4">
-            {/* Left: Daily Target Progress */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="font-mono text-[9px] font-bold text-text-sub tracking-[0.2em] uppercase">
-                  DAILY TARGET
-                </span>
-                <span className="font-mono text-[11px] font-bold text-primary">
-                  {progressPercent}%
-                </span>
-              </div>
-              <div className="flex items-baseline gap-1.5 mb-2">
-                <span className="text-[24px] leading-none font-extrabold text-primary font-display tracking-tight">
-                  {todayHours}h
-                </span>
-                <span className="font-mono text-xs text-text-sub font-semibold">
-                  / {targetHours}h
-                </span>
-                <span className="text-[11px] text-text-sub font-medium ml-auto truncate">
-                  {statusText}
-                </span>
-              </div>
-              <div className="w-full h-1.5 bg-track/60 rounded-full overflow-hidden p-0.5">
-                <div
-                  className="h-full bg-secondary rounded-full transition-all duration-500 shadow-2xs"
-                  style={{ width: `${progressPercent}%` }}
-                />
-              </div>
-            </div>
-
-            {/* Hairline Divider */}
-            <div className="w-px h-12 bg-border/80 self-center" />
-
-            {/* Right: Streak Pillar */}
-            <div className="shrink-0 flex items-center gap-2.5 pl-1">
+        {/* Redesigned Daily Target & Streak Card */}
+        <section className="bg-surface border border-border rounded-2xl p-4 shadow-xs relative overflow-hidden mb-3">
+          <div className="flex items-center justify-between mb-3">
+            <span className="font-mono text-[10px] font-bold text-text-sub tracking-[0.2em] uppercase">
+              Daily Target
+            </span>
+            <div className="flex items-center gap-1.5 bg-canvas border border-border/80 px-2.5 py-1 rounded-full">
               <video
                 src={fireWebm}
                 autoPlay
                 loop
                 muted
                 playsInline
-                className="w-7 h-7 object-contain drop-shadow-sm shrink-0"
+                className="w-4 h-4 object-contain shrink-0"
               />
-              <div className="flex flex-col">
-                <span className="text-[22px] leading-none font-extrabold text-primary font-display tracking-tight">
-                  {streak}
-                </span>
-                <span className="font-mono text-[9px] text-text-sub font-bold tracking-wider mt-0.5 uppercase">
-                  {streak === 1 ? 'DAY' : 'DAYS'}
-                </span>
-              </div>
+              <span className="font-mono text-[11px] font-bold text-primary tracking-tight">
+                {streak} {streak === 1 ? 'Day' : 'Days'}
+              </span>
             </div>
+          </div>
+
+          <div className="flex items-baseline justify-between mb-2.5">
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-[26px] leading-none font-extrabold text-primary font-display tracking-tight">
+                {todayHours}h
+              </span>
+              <span className="font-mono text-xs text-text-sub font-semibold">
+                / {targetHours}h
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] text-text-sub font-medium">
+                {statusText}
+              </span>
+              <span className="font-mono text-xs font-bold text-primary">
+                {progressPercent}%
+              </span>
+            </div>
+          </div>
+
+          <div className="w-full h-2 bg-track/60 rounded-full overflow-hidden p-0.5">
+            <div
+              className="h-full bg-secondary rounded-full transition-all duration-500"
+              style={{ width: `${Math.min(progressPercent, 100)}%` }}
+            />
           </div>
         </section>
 

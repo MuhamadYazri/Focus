@@ -19,7 +19,7 @@ function TaskList({
       if (isNaN(dt.getTime())) return new Date().toISOString().split('T')[0];
       const z = new Date(dt.getTime() - dt.getTimezoneOffset() * 60000);
       return z.toISOString().split('T')[0];
-    } catch (e) {
+    } catch {
       return new Date().toISOString().split('T')[0];
     }
   };
@@ -42,7 +42,7 @@ function TaskList({
       const progressPercent = Math.min(100, Math.round((todayHours / targetHours) * 100));
 
       return { todayHours, targetHours, progressPercent };
-    } catch (err) {
+    } catch {
       return {
         todayHours: 0.0,
         targetHours: 4.0,
@@ -86,57 +86,61 @@ function TaskList({
   }, [tasks, filterTab, todayStr, justCompletedId]);
 
   return (
-    <div className="w-full max-w-[430px] min-h-screen bg-canvas flex flex-col justify-between relative px-6 pt-12 pb-28 mx-auto">
+    <div className="w-full max-w-[440px] min-h-screen bg-[#F0F2EF] flex flex-col justify-between relative px-7 pt-[52px] pb-36 mx-auto select-none">
       <div className="w-full flex flex-col flex-1">
-        {/* BEGIN: TopBarAndHeader */}
-        <header className="w-full flex flex-col pt-2" data-purpose="header-section">
-          <div className="flex items-center justify-between pt-1 pb-1">
-            <div className="flex items-baseline space-x-2">
-              <span className="text-xs font-semibold uppercase tracking-[0.14em] text-[#667463]">
-                {new Date().toLocaleDateString('en-US', {
-                  weekday: 'short',
-                  month: 'short',
-                  day: 'numeric',
-                })}
+        {/* BEGIN: Header */}
+        <header className="w-full flex items-center justify-between" data-purpose="header-section">
+          <span className="text-[10px] font-bold leading-[14px] uppercase tracking-[2px] text-[#667463]">
+            {new Date().toLocaleDateString('en-US', {
+              weekday: 'short',
+              month: 'short',
+              day: 'numeric',
+            })}
+          </span>
+          <span className="text-[13px] font-bold leading-[14px] tracking-[-0.2px] text-[#1B1F1A]">
+            {filterTab}
+          </span>
+        </header>
+        {/* END: Header */}
+
+        {/* BEGIN: DailyGoalProgress (Section-hours) */}
+        <section className="pt-14" data-purpose="hero-progress-metric">
+          <div className="flex flex-col">
+            <div className="flex items-baseline gap-1">
+              <span className="text-[96px] font-extrabold leading-[88px] tracking-[-4px] text-[#1B1F1A] font-sans">
+                {todayHours.toFixed(1)}
               </span>
-              <span className="text-[#667463]/40 text-xs">·</span>
-              <span className="text-sm font-semibold tracking-tight text-[#1B1F1A]">
-                {filterTab}
+              <span className="text-[40px] font-extrabold leading-[44px] tracking-[-2px] text-[#1B1F1A] font-sans">
+                h
               </span>
             </div>
-          </div>
-        </header>
-        {/* END: TopBarAndHeader */}
 
-        {/* BEGIN: DailyGoalProgress */}
-        <section className="mt-8 mb-6" data-purpose="hero-progress-metric">
-          <div className="flex flex-col pt-5 pb-2">
-            <div className="flex items-baseline space-x-2.5">
-              <span className="text-[64px] font-black leading-none tracking-tight text-[#1B1F1A] font-display">
-                {todayHours.toFixed(1)}
-                <span className="text-3xl font-bold ml-0.5 text-[#1B1F1A]">h</span>
-              </span>
-              <span className="text-xl font-normal tracking-tight text-[#8B9E87]">
+            <div className="pt-1.5">
+              <span className="text-[14px] font-normal leading-[20px] tracking-[-0.2px] text-[#8B9E87]">
                 / {targetHours.toFixed(1)}h goal
               </span>
             </div>
-            <div className="mt-5">
-              <div className="w-full h-[3px] bg-[#E2E6E0] rounded-full overflow-hidden">
+
+            {/* Progress Bar (2px height, #D6F3D0 track, #1B1F1A fill) */}
+            <div className="pt-7">
+              <div className="w-full h-[2px] bg-[#D6F3D0] rounded-[1px] overflow-hidden">
                 <div
                   aria-valuemax="100"
                   aria-valuemin="0"
                   aria-valuenow={progressPercent}
-                  className="h-full bg-[#1B1F1A] rounded-full transition-all duration-700 ease-out"
+                  className="h-full bg-[#1B1F1A] rounded-[1px] transition-all duration-700 ease-out"
                   role="progressbar"
-                  style={{ width: `${progressPercent}%` }}
+                  style={{ width: `${Math.max(1, progressPercent)}%` }}
                 />
               </div>
             </div>
-            <div className="flex items-center justify-between mt-2">
-              <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#5F6C5C]">
+
+            {/* Stats Row */}
+            <div className="flex items-center justify-between pt-2.5">
+              <span className="text-[9px] font-bold uppercase tracking-[2.2px] text-[#667463]">
                 FOCUS HOURS COMPLETED
               </span>
-              <span className="text-[11px] font-mono font-medium text-[#1B1F1A]">
+              <span className="text-[11px] font-semibold leading-[16px] tracking-[-0.1px] text-[#1B1F1A]">
                 {progressPercent}% complete
               </span>
             </div>
@@ -144,9 +148,9 @@ function TaskList({
         </section>
         {/* END: DailyGoalProgress */}
 
-        {/* BEGIN: TimelineTabs */}
-        <nav aria-label="Task Status Filter" className="my-3" data-purpose="segmented-tabs">
-          <div className="flex items-center space-x-5 py-2 border-b border-[#1B1F1A]/10">
+        {/* BEGIN: Navigation - Task Status Filter */}
+        <nav aria-label="Task Status Filter" className="pt-11" data-purpose="segmented-tabs">
+          <div className="flex items-center gap-6 border-b border-[#1B1F1A]/10">
             {['Today', 'Planned', 'Done'].map((tab) => {
               const on = filterTab === tab;
               return (
@@ -154,10 +158,10 @@ function TaskList({
                   key={tab}
                   type="button"
                   onClick={() => setFilterTab(tab)}
-                  className={`tap-effect pb-1 text-xs tracking-wider uppercase transition-colors border-b-2 ${
+                  className={`tap-effect pb-2.5 text-[10px] leading-[14px] tracking-[1.2px] uppercase transition-all relative ${
                     on
-                      ? 'font-semibold text-[#1B1F1A] border-[#1B1F1A]'
-                      : 'font-medium text-[#667463] hover:text-[#1B1F1A] border-transparent'
+                      ? 'font-extrabold text-[#1B1F1A] border-b-2 border-[#1B1F1A] -mb-[1px]'
+                      : 'font-medium text-[#8B9E87] hover:text-[#1B1F1A]'
                   }`}
                 >
                   {tab}
@@ -166,13 +170,13 @@ function TaskList({
             })}
           </div>
         </nav>
-        {/* END: TimelineTabs */}
+        {/* END: Navigation - Task Status Filter */}
 
-        {/* BEGIN: TaskList */}
-        <section className="flex-1 mt-2" data-purpose="task-list">
-          <div className="divide-y divide-[#1B1F1A]/8">
+        {/* BEGIN: Section-tasks */}
+        <section className="flex-1 pt-1" data-purpose="task-list">
+          <div>
             {filteredTasks.length === 0 ? (
-              <div className="py-12 text-center text-xs font-mono text-[#667463]">
+              <div className="py-12 text-center text-xs font-mono text-[#8B9E87]">
                 No tasks in {filterTab.toLowerCase()}
               </div>
             ) : (
@@ -185,42 +189,41 @@ function TaskList({
                 return (
                   <article
                     key={task.id}
-                    className={`group py-4 flex items-center justify-between transition-colors ${
+                    className={`group py-5 flex items-center justify-between border-b border-[#1B1F1A]/5 transition-colors ${
                       isJust ? 'animate-task-exit' : ''
                     } ${task.completed ? 'opacity-60' : ''}`}
                     onClick={() => onEditTask && onEditTask(task)}
                   >
-                    <div className="flex items-center space-x-3.5 flex-1 min-w-0 pr-3 cursor-pointer">
+                    <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-3 cursor-pointer">
                       <button
                         aria-label="Mark task as complete"
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           if (window.navigator?.vibrate) window.navigator.vibrate(15);
-                          onToggleComplete && onToggleComplete(task.id);
+                          onToggleComplete?.(task.id);
                         }}
-                        className={`tap-effect w-5 h-5 rounded-full border flex items-center justify-center flex-shrink-0 transition-colors ${
+                        className={`tap-effect w-[18px] h-[18px] rounded-full border flex items-center justify-center flex-shrink-0 transition-colors ${
                           task.completed
-                            ? 'border-[#41493F] bg-[#41493F] text-white shadow-2xs'
-                            : isCurrentFocus
-                            ? 'border-[#41493F] hover:bg-[#D6F3D0]/30'
-                            : 'border-[#7B8479]/70 hover:border-[#1B1F1A]'
+                            ? 'border-[#41493F] bg-[#41493F] text-white'
+                            : 'border-[#8B9E87] hover:border-[#1B1F1A]'
                         }`}
                       >
                         {task.completed ? (
-                          <Check size={12} strokeWidth={3} className="text-white" />
+                          <Check size={11} strokeWidth={3} className="text-white" />
                         ) : isCurrentFocus ? (
-                          <span className="w-2 h-2 rounded-full bg-[#41493F]" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#41493F]" />
                         ) : null}
                       </button>
-                      <div className="flex items-center space-x-2 truncate">
+
+                      <div className="flex items-center gap-2 truncate">
                         <span
-                          className={`text-sm tracking-tight text-[#1B1F1A] truncate ${
+                          className={`text-[14px] leading-[20px] tracking-[-0.3px] truncate ${
                             task.completed
                               ? 'line-through text-[#667463]'
                               : isCurrentFocus
-                              ? 'font-semibold'
-                              : 'font-normal'
+                              ? 'font-semibold text-[#1B1F1A]'
+                              : 'font-medium text-[#1B1F1A]'
                           }`}
                         >
                           {task.title}
@@ -234,8 +237,8 @@ function TaskList({
                       </div>
                     </div>
 
-                    <div className="flex items-center space-x-3 flex-shrink-0">
-                      <span className="text-xs font-mono text-[#667463]">
+                    <div className="flex items-center gap-2.5 flex-shrink-0">
+                      <span className="text-[11px] leading-[16px] font-semibold text-[#8B9E87]">
                         {completedPomos}/{estimatedPomos}
                       </span>
                       {!task.completed && (
@@ -245,18 +248,18 @@ function TaskList({
                           onClick={(e) => {
                             e.stopPropagation();
                             if (window.navigator?.vibrate) window.navigator.vibrate(10);
-                            onStartPomodoro && onStartPomodoro(task);
+                            onStartPomodoro?.(task);
                           }}
-                          className={`tap-effect w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                          className={`tap-effect w-[30px] h-[30px] rounded-full border border-[#D5DAD3] flex items-center justify-center transition-colors ${
                             isCurrentFocus
-                              ? 'bg-[#41493F] text-white hover:bg-[#1B1F1A] shadow-xs'
-                              : 'border border-[#D5DAD3] text-[#1B1F1A] hover:bg-white'
+                              ? 'bg-[#1B1F1A] text-white hover:bg-[#41493F]'
+                              : 'text-[#1B1F1A] hover:bg-white'
                           }`}
                         >
                           {isCurrentFocus ? (
-                            <Pause size={12} className="fill-current" />
+                            <Pause size={11} className="fill-current" />
                           ) : (
-                            <svg className="w-3 h-3 ml-0.5 fill-current" viewBox="0 0 24 24">
+                            <svg className="w-3 h-3 ml-0.5 fill-[#1B1F1A]" viewBox="0 0 24 24">
                               <polygon points="6 4 20 12 6 20 6 4" />
                             </svg>
                           )}
@@ -269,25 +272,27 @@ function TaskList({
             )}
           </div>
         </section>
-        {/* END: TaskList */}
+        {/* END: Section-tasks */}
       </div>
 
       {/* BEGIN: Floating Add Button */}
-      <div className="fixed bottom-24 inset-x-0 mx-auto w-full max-w-[430px] px-6 pointer-events-none z-30 flex justify-end">
-        <button
-          type="button"
-          aria-label="Add new focus task"
-          onClick={() => {
-            if (window.navigator?.vibrate) window.navigator.vibrate(15);
-            if (onAddTask) onAddTask();
-          }}
-          className="tap-effect pointer-events-auto w-12 h-12 rounded-full bg-[#1B1F1A] text-white flex items-center justify-center shadow-lg hover:bg-[#41493F] transition-all cursor-pointer"
-        >
-          <svg className="w-5 h-5 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <line x1="12" x2="12" y1="5" y2="19" />
-            <line x1="5" x2="19" y1="12" y2="12" />
-          </svg>
-        </button>
+      <div className="fixed bottom-0 inset-x-0 mx-auto w-full max-w-[440px] pointer-events-none z-30">
+        <div className="absolute bottom-[92px] right-7 pointer-events-auto">
+          <button
+            type="button"
+            aria-label="Add new focus task"
+            onClick={() => {
+              if (window.navigator?.vibrate) window.navigator.vibrate(15);
+              if (onAddTask) onAddTask();
+            }}
+            className="tap-effect w-[44px] h-[44px] rounded-full bg-[#1B1F1A] text-white flex items-center justify-center shadow-[0px_8px_20px_-2px_rgba(27,31,26,0.11)] hover:bg-[#41493F] transition-all cursor-pointer"
+          >
+            <svg className="w-5 h-5 stroke-[1.67]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <line x1="12" x2="12" y1="5" y2="19" />
+              <line x1="5" x2="19" y1="12" y2="12" />
+            </svg>
+          </button>
+        </div>
       </div>
       {/* END: Floating Add Button */}
     </div>

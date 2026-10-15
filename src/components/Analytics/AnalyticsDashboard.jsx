@@ -160,11 +160,11 @@ function AnalyticsDashboard({
 
   return (
     <main
-      className={`flex-1 w-full bg-transparent ${
-        hideHeader ? 'pt-2.5' : 'pt-15'
-      } pb-28 min-h-[100dvh] relative text-text-main selection:bg-primary selection:text-white`}
+      className={`flex-1 w-full bg-[#F0F2EF] ${
+        hideHeader ? 'pt-4' : 'pt-14'
+      } pb-36 min-h-[100dvh] relative text-[#1B1F1A] select-none`}
     >
-      <div className="flex flex-col w-full px-5  pb-12 gap-3.5 max-w-md mx-auto">
+      <div className="flex flex-col w-full px-5 pb-12 gap-3.5 max-w-[440px] mx-auto">
         <SharedActivitySection
           showKPIs={true}
           sessions={sessions}
@@ -180,56 +180,61 @@ function AnalyticsDashboard({
           }}
         />
 
-        {/* Focus Distribution Donut Card */}
-        <div className="bg-surface rounded-2xl p-4 shadow-xs border border-border ring-1 ring-white/80 flex flex-col">
-          <span className="text-[10px] uppercase tracking-widest text-secondary font-bold mb-3 font-mono">
+        {/* Focus Distribution Donut Card from Figma: 400px x 156px rounded-[18px] */}
+        <div className="bg-white rounded-[18px] p-4 border border-[#D6E0D4] shadow-[0px_2px_8px_rgba(27,31,26,0.031)] flex flex-col gap-4">
+          <span className="text-[9px] uppercase tracking-[1.2px] text-[#8B9E87] font-extrabold font-sans">
             FOCUS DISTRIBUTION
           </span>
-          <div className="flex items-center justify-between gap-4 py-1">
-            {/* Animata Ring Chart */}
-            <div className="relative shrink-0 flex items-center justify-center -ml-2 -mt-2">
+
+          <div className="flex items-center gap-5">
+            {/* Donut Chart: 96px x 96px */}
+            <div className="relative shrink-0 w-[96px] h-[96px] flex items-center justify-center">
               <RingChart
-                size={60}
+                size={55}
                 gap={6}
-                width={8}
+                width={10}
                 rings={activeSegments.map((seg) => ({
                   progress: seg.pct,
                   color: seg.color,
-                  trackColor: 'var(--theme-track, #CBD7C9)',
+                  trackColor: '#E8EDE6',
                 }))}
               >
-                <span className="text-sm text-text-main font-bold font-display tracking-tight">
-                  {displayTotalTime}
-                </span>
-                <span className="text-[9px] uppercase font-bold text-text-sub tracking-widest font-mono mt-0.5">
-                  TOTAL
-                </span>
+                <div className="flex flex-col items-center justify-center">
+                  <span className="text-[13px] leading-[18px] text-[#1B1F1A] font-extrabold font-sans tracking-[-0.3px]">
+                    {displayTotalTime}
+                  </span>
+                  <span className="text-[8px] leading-[11px] uppercase font-bold text-[#8B9E87] tracking-[1px] font-sans">
+                    TOTAL
+                  </span>
+                </div>
               </RingChart>
             </div>
 
-            {/* Legend & Baseline */}
+            {/* Legend & Progress Tracks from Figma */}
             <div className="flex-1 flex flex-col gap-2.5 min-w-0 justify-center">
               {activeSegments.slice(0, 3).map((seg) => (
-                <div key={seg.label} className="flex flex-col gap-1">
+                <div key={seg.label} className="flex flex-col gap-1.5">
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 truncate">
                       <span
-                        className="w-2.5 h-2.5 rounded-full shrink-0 shadow-2xs"
+                        className="w-2 h-2 rounded-full shrink-0"
                         style={{ backgroundColor: seg.color }}
-                      ></span>
-                      <span className="text-xs font-medium text-text-main truncate font-sans">
+                      />
+                      <span className="text-[11px] leading-[15px] font-medium text-[#41493F] truncate font-sans">
                         {seg.label}
                       </span>
                     </div>
-                    <span className="text-xs text-secondary shrink-0 font-medium font-sans">
+                    <span className="text-[11px] leading-[15px] text-[#667463] shrink-0 font-bold font-sans">
                       {seg.pct}%
                     </span>
                   </div>
-                  <div className="w-full h-1.5 rounded-full bg-track/60 shadow-inner overflow-hidden">
+
+                  {/* 5px Progress Track from Figma */}
+                  <div className="w-full h-[5px] rounded-full bg-[#E8EDE6] overflow-hidden">
                     <div
-                      className="h-full rounded-full"
-                      style={{ width: `${seg.pct}%`, backgroundColor: seg.color }}
-                    ></div>
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{ width: `${Math.max(2, seg.pct)}%`, backgroundColor: seg.color }}
+                    />
                   </div>
                 </div>
               ))}

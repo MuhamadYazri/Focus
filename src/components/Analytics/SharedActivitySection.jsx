@@ -37,7 +37,6 @@ const HeatmapCell = React.memo(function HeatmapCell({ cell, period, setOffset })
   const isSameMo = !!cell?.isSameMonth;
   const hasHours = (cell?.curMins || 0) > 0;
   const isGoalMet = !!cell?.isGoalMet;
-  const fillPct = cell?.fillPct || 0;
   const isToday = !!cell?.isToday;
   const isSelected =
     period === 'Daily'
@@ -48,19 +47,18 @@ const HeatmapCell = React.memo(function HeatmapCell({ cell, period, setOffset })
       ? isCur && isSameMo
       : false;
 
-  let trackClass = 'bg-canvas text-text-main/80 font-medium';
+  let bgClass = 'bg-[#F0F2EF] text-[#1B1F1A]/90 font-bold';
+  let borderClass = '';
+
   if (!isSameMo) {
-    trackClass = 'bg-track/30 text-text-sub/40 font-normal';
+    bgClass = 'bg-[#E8EDE6]/50 text-[#8B9E87]/40 font-normal';
   } else if (hasHours) {
-    trackClass = 'bg-track/60 shadow-2xs';
-  } else if (isCur && period === 'Daily') {
-    trackClass = 'bg-primary/10 text-primary font-bold';
+    bgClass = 'bg-[#B1C9AC] text-[#1B1F1A]/90 font-bold';
   }
 
-  const selectionRing =
-    isSelected || (period !== 'Daily' && isToday)
-      ? 'ring-2 ring-primary ring-offset-1 ring-offset-surface z-10'
-      : '';
+  if (isSelected || (period !== 'Daily' && isToday) || (period === 'Daily' && isToday)) {
+    borderClass = 'border border-[#1B1F1A] !bg-[#1B1F1A]/5 !text-[#1B1F1A] !font-extrabold z-10';
+  }
 
   const handleCellClick = () => {
     if (!cell?.dateStr) return;
@@ -98,46 +96,19 @@ const HeatmapCell = React.memo(function HeatmapCell({ cell, period, setOffset })
   return (
     <div
       onClick={handleCellClick}
-      className={`relative h-9 rounded-xl flex flex-col items-center justify-start pt-1 text-[11px] font-sans transition-all overflow-hidden cursor-pointer active:scale-95 ${trackClass} ${selectionRing}`}
+      className={`relative h-[34px] rounded-[10px] flex flex-col items-center justify-center text-[10px] font-sans transition-all overflow-hidden cursor-pointer active:scale-95 ${bgClass} ${borderClass}`}
       title={
         hasHours
           ? `${cell?.dateStr}: ${cell?.curHours?.toFixed(1)}h / ${cell?.targetHours}h goal`
           : cell?.dateStr
       }
     >
+      <span className="relative z-10">{dayNum}</span>
+
+      {/* Day with focus activity: bottom green bar from Figma (#588157, 7px height) */}
       {hasHours && isSameMo && (
-        <div
-          className={`w-full absolute inset-x-0 bottom-0 transition-all duration-500 ease-out ${
-            isGoalMet
-              ? 'bg-primary shadow-xs'
-              : isSelected
-              ? 'bg-secondary/90 shadow-xs'
-              : 'bg-secondary'
-          }`}
-          style={{ height: `${fillPct}%` }}
-        />
+        <div className="absolute inset-x-0 bottom-0 h-[7px] bg-[#588157] z-0" />
       )}
-
-      {/* Goal-met radiant mint jewel indicator */}
-      {isGoalMet && isSameMo && (
-        <span className="w-1.5 h-1.5 rounded-full bg-mint absolute top-1 right-1 shadow-2xs z-20" />
-      )}
-
-      <span
-        className={`relative z-10 transition-colors text-[10px] font-bold font-sans ${
-          !isSameMo
-            ? 'text-text-sub/40 font-normal'
-            : isGoalMet
-            ? 'text-white'
-            : isCur && period === 'Daily' && !hasHours
-            ? 'text-primary'
-            : fillPct >= 65
-            ? 'text-white'
-            : 'text-text-main/90'
-        }`}
-      >
-        {dayNum}
-      </span>
     </div>
   );
 });
@@ -145,8 +116,7 @@ const HeatmapCell = React.memo(function HeatmapCell({ cell, period, setOffset })
 const ChartBarColumn = React.memo(function ChartBarColumn({ slot, setOffset }) {
   const isSelected = slot.isCurrent;
   const hasVal = slot.v > 0;
-  const isGoalMet = !!slot.isGoalMet;
-  const barH = hasVal ? Math.max(8, Math.min(64, Math.round(slot.v * 64))) : 0;
+  const barH = hasVal ? Math.max(6, Math.min(58, Math.round(slot.v * 58))) : 0;
 
   const handleSlotClick = () => {
     if (slot.targetOffset !== undefined) {
@@ -158,45 +128,39 @@ const ChartBarColumn = React.memo(function ChartBarColumn({ slot, setOffset }) {
   return (
     <div
       onClick={handleSlotClick}
-      className="flex flex-col items-center gap-1.5 min-w-0 cursor-pointer active:scale-95 transition-transform"
+      className="flex flex-col items-center gap-1.5 min-w-0 flex-1 cursor-pointer active:scale-95 transition-transform"
     >
+      {/* Top Value: e.g. 50m green or 0h */}
       <span
-        className={`text-[10px] font-sans transition-colors ${
-          isGoalMet
-            ? 'text-primary font-bold'
-            : isSelected
-            ? 'text-primary font-bold'
+        className={`text-[9px] leading-[12px] font-sans transition-colors ${
+          isSelected
+            ? 'text-[#1B1F1A] font-extrabold'
             : hasVal
-            ? 'text-secondary font-semibold'
-            : 'text-text-sub/70'
+            ? 'text-[#588157] font-bold'
+            : 'text-[#8B9E87]/60 font-medium'
         }`}
       >
         {slot.val}
       </span>
 
-      {/* Tactile track capsule with seamless flush fill */}
+      {/* Bar Outer from Figma: 45px max-w, 58px height, bg #E8EDE6 rounded-full */}
       <div
-        className={`w-full h-16 bg-track/50 rounded-full flex flex-col justify-end overflow-hidden shadow-2xs relative ${
-          isSelected ? 'ring-2 ring-primary ring-offset-1 ring-offset-surface z-10' : ''
+        className={`w-full max-w-[45px] h-[58px] bg-[#E8EDE6] rounded-full flex flex-col justify-end overflow-hidden relative ${
+          isSelected ? 'border border-[#1B1F1A]' : ''
         }`}
       >
         {hasVal && (
           <div
-            className={`w-full transition-all duration-500 ease-out ${
-              isGoalMet
-                ? 'bg-primary shadow-xs'
-                : isSelected
-                ? 'bg-secondary/90 shadow-xs'
-                : 'bg-secondary'
-            }`}
+            className="w-full bg-[#588157] transition-all duration-500 ease-out"
             style={{ height: `${barH}px` }}
           />
         )}
       </div>
 
+      {/* Day Label: Mon, Tue... */}
       <span
-        className={`text-[11px] font-sans transition-colors ${
-          isSelected ? 'text-primary font-bold' : 'text-text-sub font-medium'
+        className={`text-[10px] leading-[14px] font-sans transition-colors ${
+          isSelected ? 'text-[#1B1F1A] font-extrabold' : 'text-[#667463] font-medium'
         } truncate w-full text-center`}
       >
         {slot.h}
@@ -716,73 +680,71 @@ function SharedActivitySection({
         />
       )}
 
-      {/* Dual Metric Summary Tiles */}
+      {/* Dual Metric Summary Tiles from Figma: 195px x 120px rounded-[18px] */}
       {showKPIs && (
-        <div className="grid grid-cols-2 gap-3.5">
-          {/* Focus Time Tile */}
-          <div className="bg-surface rounded-2xl p-4 shadow-xs ring-1 ring-white/80 border border-border flex flex-col justify-between min-h-[112px] relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-primary/5 to-transparent rounded-bl-full pointer-events-none" />
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-secondary font-mono">
-                  FOCUS TIME
-                </span>
-                <div className="w-7 h-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center shadow-2xs">
-                  <Clock size={15} strokeWidth={2.2} />
-                </div>
+        <div className="grid grid-cols-2 gap-2.5">
+          {/* Focus Time Card */}
+          <div className="bg-white rounded-[18px] p-4 border border-[#D6E0D4] shadow-[0px_2px_8px_rgba(27,31,26,0.031)] flex flex-col justify-between h-[120px]">
+            <div className="flex items-center justify-between">
+              <span className="text-[9px] font-extrabold uppercase tracking-[1.2px] text-[#8B9E87] font-sans">
+                FOCUS TIME
+              </span>
+              <div className="w-[26px] h-[26px] rounded-[7px] bg-[#1B1F1A]/5 text-[#41493F] flex items-center justify-center">
+                <Clock size={13} strokeWidth={2} />
               </div>
-              <p className="text-2xl text-text-main font-bold tracking-tight font-display">
+            </div>
+            <div>
+              <p className="text-[28px] leading-[38px] font-extrabold tracking-[-1px] text-[#1B1F1A] font-sans">
                 {displayHours}
               </p>
-            </div>
-            <p className="text-[11px] text-text-sub mt-3 font-sans font-medium">
-              {displaySubToday}
-            </p>
-          </div>
-
-          {/* Sessions Tile */}
-          <div className="bg-surface rounded-2xl p-4 shadow-xs ring-1 ring-white/80 border border-border flex flex-col justify-between min-h-[112px] relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-secondary/5 to-transparent rounded-bl-full pointer-events-none" />
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-secondary font-mono">
-                  SESSIONS
-                </span>
-                <div className="w-7 h-7 rounded-lg bg-secondary/10 text-secondary flex items-center justify-center shadow-2xs">
-                  <CheckCircle size={15} strokeWidth={2.2} />
-                </div>
-              </div>
-              <p className="text-2xl text-text-main font-bold tracking-tight font-display">
-                {displayPomos.toLocaleString()}
+              <p className="text-[10px] leading-[14px] text-[#8B9E87] font-normal font-sans">
+                {displaySubToday}
               </p>
             </div>
-            <p className="text-[11px] text-text-sub mt-3 font-sans font-medium">
-              {displaySubDays}
-            </p>
+          </div>
+
+          {/* Sessions Card */}
+          <div className="bg-white rounded-[18px] p-4 border border-[#D6E0D4] shadow-[0px_2px_8px_rgba(27,31,26,0.031)] flex flex-col justify-between h-[120px]">
+            <div className="flex items-center justify-between">
+              <span className="text-[9px] font-extrabold uppercase tracking-[1.2px] text-[#8B9E87] font-sans">
+                SESSIONS
+              </span>
+              <div className="w-[26px] h-[26px] rounded-[7px] bg-[#1B1F1A]/5 text-[#667463] flex items-center justify-center">
+                <CheckCircle size={13} strokeWidth={2} />
+              </div>
+            </div>
+            <div>
+              <p className="text-[28px] leading-[38px] font-extrabold tracking-[-1px] text-[#1B1F1A] font-sans">
+                {displayPomos.toLocaleString()}
+              </p>
+              <p className="text-[10px] leading-[14px] text-[#8B9E87] font-normal font-sans">
+                {displaySubDays}
+              </p>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Activity Heatmap Grid */}
-      <div className="bg-surface rounded-2xl p-4 shadow-xs ring-1 ring-white/80 border border-border flex flex-col">
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-[10px] uppercase tracking-widest text-secondary font-bold font-mono">
+      {/* Activity Heatmap Grid Card from Figma */}
+      <div className="bg-white rounded-[18px] p-4 border border-[#D6E0D4] shadow-[0px_2px_8px_rgba(27,31,26,0.031)] flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <span className="text-[9px] uppercase tracking-[1.2px] text-[#8B9E87] font-extrabold font-sans">
             ACTIVITY GRID
           </span>
-          <span className="text-xs text-text-sub font-medium font-sans px-2.5 py-0.5 rounded-full bg-canvas/80 border border-border/50">
+          <span className="text-[10px] leading-[14px] text-[#667463] font-semibold font-sans px-2.5 py-[3px] rounded-full bg-[#F0F2EF] border border-[#D6E0D4]/50">
             {heatmapTitleDate}
           </span>
         </div>
 
-        <div className="grid grid-cols-7 gap-1 text-center mb-1.5">
+        <div className="grid grid-cols-7 gap-1 text-center">
           {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
-            <span key={i} className="text-[11px] font-semibold text-secondary/80">
+            <span key={i} className="text-[9px] font-bold text-[#8B9E87] tracking-[0.5px]">
               {d}
             </span>
           ))}
         </div>
 
-        <div className="grid grid-cols-7 gap-1 text-center text-xs select-none">
+        <div className="grid grid-cols-7 gap-1 text-center select-none">
           {activeHeatmap.map((week, wi) =>
             week.map((cell, di) => (
               <HeatmapCell
@@ -796,18 +758,24 @@ function SharedActivitySection({
         </div>
       </div>
 
-      {/* Total Per Day Column Chart */}
-      <div className="bg-surface rounded-2xl p-4 shadow-xs ring-1 ring-white/80 border border-border flex flex-col">
-        <div className="flex items-center justify-between mb-0.5">
-          <span className="text-[14px] font-bold text-text-main font-display tracking-tight">{chartTitle}</span>
-          <span className="text-[11px] text-primary font-semibold px-2.5 py-0.5 rounded-full bg-primary/10 border border-primary/20">
+      {/* Total Per Day Column Chart Card from Figma: 400px x 176px */}
+      <div className="bg-white rounded-[18px] p-4 border border-[#D6E0D4] shadow-[0px_2px_8px_rgba(27,31,26,0.031)] flex flex-col gap-3.5">
+        <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-0.5">
+            <span className="text-[13px] leading-[18px] font-extrabold text-[#1B1F1A] font-sans tracking-[-0.3px]">
+              {chartTitle}
+            </span>
+            <p className="text-[10px] leading-[14px] text-[#8B9E87] font-normal font-sans">
+              {chartSubLabel}
+            </p>
+          </div>
+          <span className="text-[10px] font-bold text-[#41493F] px-2.5 py-[3px] rounded-full bg-[#1B1F1A]/5 border border-[#1B1F1A]/10">
             {chartPeakLabel}
           </span>
         </div>
-        <p className="text-[11px] text-text-sub mt-0.5 mb-4 font-sans leading-relaxed">{chartSubLabel}</p>
 
         <div
-          className="grid gap-2 items-end min-h-[96px] pb-1"
+          className="grid gap-2.5 items-end min-h-[96px] pt-1"
           style={{ gridTemplateColumns: `repeat(${activeChart.length}, minmax(0, 1fr))` }}
         >
           {activeChart.map((slot) => (

@@ -36,8 +36,8 @@
 /* ── Design Tokens ─────────────────────────────────────────── */
 @layer base {
   :root {
-    /* ColorKit Palette: https://colorkit.co/palette/667463-8b9e87-b1c9ac-d6f3d0-1b1f1a-41493f/ */
-    --theme-canvas: #F6F8F5;
+    /* ColorKit / Figma Palette */
+    --theme-canvas: #F0F2EF;
     --theme-surface: #FFFFFF;
     --theme-surface-hover: #EEF3EC;
     --theme-border: #D6E0D4;

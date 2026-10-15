@@ -1,7 +1,5 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import RollText from '../animata/text/roll-text';
 
 export const PERIODS = ['All', 'Daily', 'Weekly', 'Monthly', 'Yearly'];
 
@@ -49,9 +47,9 @@ function TimeframeHeader({ period, setPeriod, offset, setOffset }) {
   const dateLabel = getDateRangeLabel(period, offset);
 
   return (
-    <div className="flex flex-col gap-2.5 w-full">
-      {/* Time Frame Segmented Track */}
-      <div className="w-full bg-surface/90 p-1 rounded-full flex items-center justify-between border border-border shadow-2xs relative select-none">
+    <div className="flex flex-col gap-3.5 w-full max-w-[400px] mx-auto select-none">
+      {/* Time Frame Segmented Track from Figma: 400px x 33px #E8EDE6 */}
+      <div className="w-full h-[33px] bg-[#E8EDE6] p-[4px] rounded-full flex items-center justify-between relative">
         {PERIODS.map((p) => {
           const active = p === period;
           return (
@@ -62,16 +60,14 @@ function TimeframeHeader({ period, setPeriod, offset, setOffset }) {
                 setPeriod(p);
                 setOffset(0);
               }}
-              className={`relative flex-1 py-1.5 text-center rounded-full text-xs transition-colors duration-200 ${
-                active
-                  ? 'text-white font-bold'
-                  : 'text-text-sub font-medium hover:text-text-main'
+              className={`tap-effect relative flex-1 h-[25px] px-2 text-center rounded-full text-[11px] leading-[15px] flex items-center justify-center transition-colors duration-200 z-10 ${
+                active ? 'font-bold text-white' : 'font-medium text-[#667463] hover:text-[#1B1F1A]'
               }`}
             >
               {active && (
                 <motion.div
                   layoutId="timeframe-period-pill"
-                  className="absolute inset-0 bg-primary rounded-full shadow-xs ring-1 ring-white/20"
+                  className="absolute inset-0 bg-[#1B1F1A] rounded-full shadow-[0px_2px_6px_rgba(27,31,26,0.15)] z-[-1]"
                   transition={{ type: 'spring', stiffness: 450, damping: 35 }}
                 />
               )}
@@ -81,10 +77,10 @@ function TimeframeHeader({ period, setPeriod, offset, setOffset }) {
         })}
       </div>
 
-      {/* Date Navigation Capsule */}
+      {/* Date Navigation from Figma: ‹ PREV | Date Label | NEXT › */}
       <div
-        className={`w-full bg-surface rounded-full px-3.5 py-1.5 flex items-center justify-between shadow-2xs ring-1 ring-white/80 border border-border transition-opacity ${
-          isAll ? 'opacity-50 pointer-events-none' : 'opacity-100'
+        className={`w-full h-[30px] px-0.5 flex items-center justify-between transition-opacity ${
+          isAll ? 'opacity-40 pointer-events-none' : 'opacity-100'
         }`}
       >
         <button
@@ -92,29 +88,28 @@ function TimeframeHeader({ period, setPeriod, offset, setOffset }) {
             if (window.navigator?.vibrate) window.navigator.vibrate(10);
             setOffset((prev) => prev - 1);
           }}
-          className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-widest text-text-sub font-mono hover:text-text-main hover:bg-canvas/60 active:scale-95 transition-all"
+          className="tap-effect h-[26px] px-2 bg-[#E8EDE6] rounded-full text-[10px] font-bold tracking-[0.8px] text-[#667463] hover:text-[#1B1F1A] flex items-center gap-1 transition-all"
         >
-          <ChevronLeft size={13} strokeWidth={2.5} />
-          <span>PREV</span>
+          <span>‹ PREV</span>
         </button>
-        <RollText
-          text={dateLabel}
-          className="text-xs text-text-main font-bold tracking-tight font-display"
-        />
+
+        <span className="text-[13px] font-extrabold leading-[18px] tracking-[-0.4px] text-[#1B1F1A] font-sans">
+          {dateLabel}
+        </span>
+
         <button
           onClick={() => {
             if (window.navigator?.vibrate) window.navigator.vibrate(10);
             setOffset((prev) => Math.min(0, prev + 1));
           }}
           disabled={offset >= 0}
-          className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-widest font-mono transition-all ${
+          className={`tap-effect h-[22px] px-2 bg-[#E8EDE6] rounded-full text-[10px] font-bold tracking-[0.8px] flex items-center gap-1 transition-all ${
             offset >= 0
-              ? 'text-text-sub/40 cursor-not-allowed'
-              : 'text-text-sub hover:text-text-main hover:bg-canvas/60 active:scale-95'
+              ? 'text-[#5F6C5C]/40 cursor-not-allowed'
+              : 'text-[#667463] hover:text-[#1B1F1A]'
           }`}
         >
-          <span>NEXT</span>
-          <ChevronRight size={13} strokeWidth={2.5} />
+          <span>NEXT ›</span>
         </button>
       </div>
     </div>

@@ -1,11 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
-import studyingLottie1 from '../../assets/studyingAnimation.lottie';
-import studyingLottie2 from '../../assets/studyingAnimation2.lottie';
-import relaxLottie from '../../assets/relaxAnimation.lottie';
-import catSleepLottie from '../../assets/catSleepAnimation.lottie';
 import {
   SkipForward,
   Headphones,
@@ -17,8 +12,6 @@ import {
   Waves,
   Coffee,
   Clock,
-  ChevronDown,
-  X as CloseIcon,
 } from 'lucide-react';
 import {
   PlayIcon as Play,
@@ -77,8 +70,8 @@ const TimerClockRing = React.memo(function TimerClockRing({
   mode = 'work',
   cycleCount = 0,
 }) {
-  const radius = 126;
-  const circumference = 2 * Math.PI * radius; // ~791.68
+  const radius = 135;
+  const circumference = 2 * Math.PI * radius; // ~848.23
   const progress = totalTime > 0 ? (totalTime - timeLeft) / totalTime : 0;
   const strokeDashoffset = circumference * (1 - progress);
 
@@ -88,7 +81,6 @@ const TimerClockRing = React.memo(function TimerClockRing({
   const isBreak = mode === 'shortBreak' || mode === 'longBreak';
   const currentSessionNumber = (cycleCount % 4) + 1;
 
-  // Subtitle with deliberate Bold vs Thin font interplay (Ref 4)
   const getSubLabel = () => {
     if (mode === 'work') {
       return `session ${currentSessionNumber} of 4 today`;
@@ -100,29 +92,26 @@ const TimerClockRing = React.memo(function TimerClockRing({
   };
 
   return (
-    <div className="relative w-full aspect-square max-w-[310px] mx-auto flex items-center justify-center select-none">
-      <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 290 290">
-        {/* Subtle architectural track */}
+    <div className="relative w-[310px] h-[310px] mx-auto flex items-center justify-center select-none">
+      <svg className="w-[310px] h-[310px] -rotate-90 transform" viewBox="0 0 310 310">
+        {/* Subtle architectural track from Figma: 2.5px solid #CBD7C9 */}
         <circle
-          className="text-track"
-          cx="145"
-          cy="145"
+          cx="155"
+          cy="155"
           r={radius}
           fill="transparent"
-          stroke="currentColor"
-          strokeWidth="3"
+          stroke="#CBD7C9"
+          strokeWidth="2.5"
         />
-        {/* Active progress stroke (Jade for focus, Mint for break) */}
+        {/* Active progress stroke from Figma: 2.8px solid #41493F */}
         <circle
-          className={`${
-            isBreak ? 'text-mint' : 'text-secondary'
-          } transition-all duration-1000 ease-linear`}
-          cx="145"
-          cy="145"
+          className="transition-all duration-1000 ease-linear"
+          cx="155"
+          cy="155"
           r={radius}
           fill="transparent"
-          stroke="currentColor"
-          strokeWidth="3.5"
+          stroke={isBreak ? '#8B9E87' : '#41493F'}
+          strokeWidth="2.8"
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
@@ -131,32 +120,32 @@ const TimerClockRing = React.memo(function TimerClockRing({
 
       {/* Centerpiece typography and pips */}
       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none select-none">
-        {/* Large Sculptural Numerals (Bold display numbers with tight, even spacing) */}
-        <div className="text-[74px] sm:text-[88px] leading-none font-black tracking-tighter text-text-main font-display flex items-center justify-center overflow-hidden h-[80px] sm:h-[92px] tabular-nums">
+        {/* Large Numerals: 80px font-black Manrope, line-height 88px, letter-spacing -4px */}
+        <div className="text-[80px] leading-[88px] font-black tracking-[-4px] text-[#1B1F1A] font-sans flex items-center justify-center overflow-hidden h-[88px] tabular-nums">
           {timeString.split('').map((char, i) => (
             <AnimatedDigit key={i} char={char} isColon={char === ':'} />
           ))}
         </div>
 
-        {/* Thin, quiet subtitle directly below (Bold vs Thin interplay from Ref 4) */}
-        <p className="font-sans text-[13px] text-text-sub font-normal mt-2 tracking-wide text-center">
+        {/* Subtitle from Figma: 12px 400 line-height 18px letter-spacing 0.1px #8B9E87 */}
+        <p className="font-sans text-[12px] leading-[18px] tracking-[0.1px] text-[#8B9E87] font-normal mt-2.5 text-center">
           {getSubLabel()}
         </p>
 
-        {/* 4 Minimalist Horizon Pips */}
-        <div className="flex items-center gap-1.5 mt-3">
+        {/* 4 Horizon Dots from Figma: Active dot 18x5px #41493F, Inactive 5x5px #CBD7C9 */}
+        <div className="flex items-center gap-[5px] mt-2.5">
           {[1, 2, 3, 4].map((n) => {
             const isCurrent = n === currentSessionNumber;
             const isDone = n < currentSessionNumber;
             return (
               <span
                 key={n}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
+                className={`h-[5px] rounded-full transition-all duration-300 ${
                   isCurrent
-                    ? `w-4 ${isBreak ? 'bg-mint' : 'bg-secondary'}`
+                    ? `w-[18px] ${isBreak ? 'bg-[#667463]' : 'bg-[#41493F]'}`
                     : isDone
-                    ? `w-1.5 ${isBreak ? 'bg-mint/50' : 'bg-secondary/50'}`
-                    : 'w-1.5 bg-track'
+                    ? `w-[5px] ${isBreak ? 'bg-[#667463]' : 'bg-[#41493F]'}`
+                    : 'w-[5px] bg-[#CBD7C9]'
                 }`}
               />
             );
@@ -188,7 +177,7 @@ function TimerView({
   totalTime,
   isRunning,
   cycleCount,
-  activeTask,
+  activeTask: _activeTask,
   currentSound = 'none',
   soundVolume = 0.8,
   onTogglePlay,
@@ -203,31 +192,9 @@ function TimerView({
   onToggleNav,
 }) {
   const iconRefs = useRef({});
-  const [lottieIndex, setLottieIndex] = useState(0);
   const [showSoundModal, setShowSoundModal] = useState(false);
 
-  // Toggle Lottie every time user enters immersive fullscreen mode
-  useEffect(() => {
-    if (isRunning && isNavHidden) {
-      setLottieIndex((prev) => (prev === 0 ? 1 : 0));
-    }
-  }, [isRunning, isNavHidden]);
-
-  // Keep Lottie mounted during transition
   const isImmersive = isRunning && isNavHidden;
-  const [shouldRenderLottie, setShouldRenderLottie] = useState(isImmersive);
-
-  useEffect(() => {
-    let t;
-    if (isImmersive) {
-      setShouldRenderLottie(true);
-    } else {
-      t = setTimeout(() => {
-        setShouldRenderLottie(false);
-      }, 500);
-    }
-    return () => clearTimeout(t);
-  }, [isImmersive]);
 
   const handleSelectSound = (soundId) => {
     if (onSelectSound) onSelectSound(soundId);
@@ -237,17 +204,8 @@ function TimerView({
 
   const stopProp = (e) => e.stopPropagation();
 
-  const currentLottie = (() => {
-    if (mode === 'work') {
-      return lottieIndex === 0 ? studyingLottie1 : studyingLottie2;
-    } else {
-      return lottieIndex === 0 ? relaxLottie : catSleepLottie;
-    }
-  })();
-
   const m = Math.floor(timeLeft / 60);
   const s = timeLeft % 60;
-  const timeString = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
 
   return (
     <div
@@ -257,75 +215,18 @@ function TimerView({
         if (onToggleNav) onToggleNav();
       }}
     >
-      <div className="w-full max-w-md mx-auto flex flex-col justify-between min-h-[100dvh] px-6 pt-12 pb-[100px] select-none">
-        {/* ── TOP SECTION: Balanced Header & Mode Tabs ── */}
+      <div className="w-full max-w-[440px] mx-auto flex flex-col justify-between min-h-[100dvh] px-7 pt-[52px] pb-[100px] select-none">
+        {/* ── TOP SECTION: Mode Tabs & Strict Mode ── */}
         <header
-          className={`flex flex-col gap-3 transition-all duration-500 will-change-transform ${
+          className={`flex flex-col gap-4 transition-all duration-500 will-change-transform ${
             isNavHidden
               ? 'opacity-0 -translate-y-4 pointer-events-none'
               : 'opacity-100 translate-y-0 pointer-events-auto'
           }`}
           onClick={stopProp}
         >
-          {/* Symmetrical Balanced Header Bar */}
-          <div className="flex items-center justify-between w-full pt-2">
-            {/* Left: Active Task or Focus Session Badge */}
-            {activeTask?.title ? (
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface border border-border shadow-2xs max-w-[210px]">
-                <span
-                  className={`w-1.5 h-1.5 rounded-full shrink-0 ${
-                    isRunning ? 'bg-secondary animate-pulse' : 'bg-track'
-                  }`}
-                />
-                <span className="font-sans font-bold text-xs text-text-main truncate">
-                  {activeTask.title}
-                </span>
-              </div>
-            ) : (
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface border border-border shadow-2xs">
-                <span
-                  className={`w-1.5 h-1.5 rounded-full ${
-                    isRunning ? 'bg-secondary animate-pulse' : 'bg-track'
-                  }`}
-                />
-                <span className="font-mono text-[10px] font-bold text-text-sub tracking-wider uppercase">
-                  {isRunning ? 'FOCUSING' : 'SOLO_OS'}
-                </span>
-              </div>
-            )}
-
-            {/* Right: Strict Mode Quick Toggle */}
-            <button
-              aria-label="Toggle strict mode"
-              onClick={() => {
-                iconRefs.current.lock?.startAnimation();
-                setTimeout(() => iconRefs.current.lock?.stopAnimation(), 600);
-                setTimeout(() => onToggleStrictMode && onToggleStrictMode(), 50);
-              }}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs transition-colors border ${
-                strictMode
-                  ? 'bg-primary/10 border-primary/20 text-primary font-semibold'
-                  : 'bg-surface border-border text-text-sub hover:text-text-main'
-              }`}
-            >
-              {strictMode ? (
-                <Lock
-                  ref={(el) => (iconRefs.current.lock = el)}
-                  animateOnHover={false}
-                  size={12}
-                  className="text-primary"
-                />
-              ) : (
-                <Unlock size={12} className="text-text-sub" />
-              )}
-              <span className="font-mono text-[10px] tracking-wider uppercase">
-                {strictMode ? 'STRICT' : 'NORMAL'}
-              </span>
-            </button>
-          </div>
-
-          {/* Segmented Mode Switcher */}
-          <div className="w-full bg-surface/90 border border-border rounded-full p-1 flex items-center justify-between shadow-2xs ring-1 ring-white/70">
+          {/* Segmented Mode Switcher from Figma: 384px x 36px #E4EAE2 border #CBD7C9 */}
+          <div className="w-full max-w-[384px] mx-auto h-[36px] bg-[#E4EAE2] border border-[#CBD7C9] rounded-full p-[3px] flex items-center justify-between shadow-[0px_1px_2px_rgba(27,31,26,0.03)]">
             {MODE_TABS.map(({ key, label }) => {
               const on = mode === key;
               return (
@@ -335,14 +236,16 @@ function TimerView({
                     if (window.navigator?.vibrate) window.navigator.vibrate(10);
                     if (onModeChange) onModeChange(key);
                   }}
-                  className={`relative flex-1 py-1.5 px-3 rounded-full font-semibold text-xs transition-colors z-10 ${
-                    on ? 'text-white' : 'text-text-sub font-medium hover:text-primary'
+                  className={`relative flex-1 h-[30px] rounded-full text-[12px] leading-[16px] transition-all flex items-center justify-center z-10 ${
+                    on
+                      ? 'font-bold text-white shadow-[0px_0px_0px_1px_rgba(255,255,255,0.13),0px_1px_4px_-1px_rgba(27,31,26,0.09)]'
+                      : 'font-medium text-[#667463] hover:text-[#1B1F1A]'
                   }`}
                 >
                   {on && (
                     <motion.div
                       layoutId="timerModeTabPill"
-                      className="absolute inset-0 bg-primary rounded-full shadow-xs ring-1 ring-white/20 z-[-1]"
+                      className="absolute inset-0 bg-[#41493F] rounded-full z-[-1]"
                       transition={{ type: 'spring', bounce: 0.1, duration: 0.55 }}
                     />
                   )}
@@ -351,10 +254,37 @@ function TimerView({
               );
             })}
           </div>
+
+          {/* Strict Mode Toggle (Right aligned under tabs from Figma) */}
+          <div className="w-full max-w-[384px] mx-auto flex items-center justify-end">
+            <button
+              aria-label="Toggle strict mode"
+              onClick={() => {
+                iconRefs.current.lock?.startAnimation();
+                setTimeout(() => iconRefs.current.lock?.stopAnimation(), 600);
+                setTimeout(() => onToggleStrictMode && onToggleStrictMode(), 50);
+              }}
+              className="h-[20px] px-2.5 bg-white border border-[#CBD7C9] rounded-full flex items-center gap-[5px] transition-colors"
+            >
+              {strictMode ? (
+                <Lock
+                  ref={(el) => (iconRefs.current.lock = el)}
+                  animateOnHover={false}
+                  size={11}
+                  className="text-[#41493F]"
+                />
+              ) : (
+                <Unlock size={11} className="text-[#5F6C5C]" />
+              )}
+              <span className="text-[9px] font-bold leading-[12px] tracking-[0.8px] text-[#5F6C5C] uppercase font-sans">
+                {strictMode ? 'STRICT' : 'NORMAL'}
+              </span>
+            </button>
+          </div>
         </header>
 
-        {/* ── MIDDLE SECTION (Sculptural Hero Timer + Clock Dial) ── */}
-        <main className="flex flex-col items-center justify-center my-auto w-full py-4 relative">
+        {/* ── MIDDLE SECTION: Circular Hero Timer ── */}
+        <main className="flex flex-col items-center justify-center my-auto w-full py-4 relative cursor-pointer" onClick={() => onToggleNav && onToggleNav()}>
           <TimerClockRing
             timeLeft={timeLeft}
             totalTime={totalTime}
@@ -363,17 +293,17 @@ function TimerView({
           />
         </main>
 
-        {/* ── BOTTOM SECTION: Controls & Soundscape Pill ── */}
+        {/* ── BOTTOM SECTION: Controls & Soundscape Capsule ── */}
         <footer
-          className={`flex flex-col items-center gap-4 transition-all duration-500 will-change-transform ${
+          className={`flex flex-col items-center gap-5 transition-all duration-500 will-change-transform ${
             isNavHidden
               ? 'opacity-0 translate-y-4 pointer-events-none'
               : 'opacity-100 translate-y-0 pointer-events-auto'
           }`}
           onClick={stopProp}
         >
-          {/* Primary Action Horizon (Circular Hero Play + Flanking Controls) */}
-          <div className="flex items-center justify-center gap-6">
+          {/* Controls from Figma: Reset 44px, Start 72px, Skip 44px */}
+          <div className="flex items-center justify-center gap-5">
             {/* Reset Button */}
             <button
               onClick={() => {
@@ -383,17 +313,17 @@ function TimerView({
                 setTimeout(() => onReset && onReset(), 50);
               }}
               aria-label="Reset timer"
-              className="w-12 h-12 rounded-full bg-surface border border-border text-text-sub hover:text-text-main flex items-center justify-center shadow-2xs ring-1 ring-white/60 transition-transform active:scale-95"
+              className="tap-effect w-[44px] h-[44px] rounded-full bg-white border border-[#D6E0D4] text-[#667463] hover:text-[#1B1F1A] flex items-center justify-center shadow-[0px_1px_2px_rgba(27,31,26,0.04)]"
             >
               <RotateCcw
                 ref={(el) => (iconRefs.current.reset = el)}
                 animateOnHover={false}
-                size={18}
-                strokeWidth={2.2}
+                size={17}
+                strokeWidth={2}
               />
             </button>
 
-            {/* Hero Circular Play/Pause (Deep Spruce in Focus, Vibrant Jade in Break) */}
+            {/* Play/Pause Button from Figma: 72x72 bg #1B1F1A with subtle mint ring */}
             <button
               onClick={() => {
                 if (window.navigator?.vibrate) window.navigator.vibrate(20);
@@ -402,25 +332,21 @@ function TimerView({
                 setTimeout(() => onTogglePlay && onTogglePlay(), 50);
               }}
               aria-label={isRunning ? 'Pause timer' : 'Start timer'}
-              className={`w-20 h-20 rounded-full flex items-center justify-center shadow-xl ring-4 transition-all active:scale-90 hover:scale-105 text-white ${
-                mode === 'work'
-                  ? 'bg-primary hover:bg-primary-hover shadow-primary/25 ring-mint/40'
-                  : 'bg-secondary hover:bg-secondary-hover shadow-secondary/25 ring-mint/30'
-              }`}
+              className="tap-effect w-[72px] h-[72px] rounded-full bg-[#1B1F1A] text-white flex items-center justify-center shadow-[0px_0px_0px_3px_rgba(214,243,208,0.2),0px_8px_20px_-4px_rgba(27,31,26,0.125)] transition-all active:scale-90 hover:scale-105"
             >
               {isRunning ? (
                 <Pause
                   ref={(el) => (iconRefs.current.playPause = el)}
                   animateOnHover={false}
-                  size={32}
-                  className="fill-current"
+                  size={28}
+                  className="fill-current text-white"
                 />
               ) : (
                 <Play
                   ref={(el) => (iconRefs.current.playPause = el)}
                   animateOnHover={false}
-                  size={32}
-                  className="translate-x-0.5 fill-current"
+                  size={28}
+                  className="translate-x-0.5 fill-current text-white"
                 />
               )}
             </button>
@@ -432,36 +358,36 @@ function TimerView({
                 if (onSkip) onSkip();
               }}
               aria-label="Skip session"
-              className="w-12 h-12 rounded-full bg-surface border border-border text-text-sub hover:text-text-main flex items-center justify-center shadow-2xs ring-1 ring-white/60 transition-transform active:scale-95"
+              className="tap-effect w-[44px] h-[44px] rounded-full bg-white border border-[#D6E0D4] text-[#667463] hover:text-[#1B1F1A] flex items-center justify-center shadow-[0px_1px_2px_rgba(27,31,26,0.04)]"
             >
-              <SkipForward size={18} strokeWidth={2.2} />
+              <SkipForward size={17} strokeWidth={2} />
             </button>
           </div>
 
-          {/* Floating Soundscape Capsule */}
+          {/* Floating Soundscape Capsule from Figma: 264px x 32px */}
           <div
             onClick={() => {
               if (window.navigator?.vibrate) window.navigator.vibrate(10);
               setShowSoundModal(true);
             }}
-            className="w-full max-w-[280px] bg-surface/90 border border-border backdrop-blur-md rounded-full px-4 py-2 flex items-center justify-between shadow-2xs ring-1 ring-white/80 cursor-pointer hover:bg-surface transition-all active:scale-[0.98]"
+            className="w-full max-w-[264px] h-[32px] bg-white border border-[#D6E0D4] backdrop-blur-md rounded-full px-3.5 flex items-center justify-between shadow-[0px_1px_2px_rgba(27,31,26,0.03)] cursor-pointer hover:bg-white/95 transition-all active:scale-[0.98]"
           >
-            <div className="flex items-center gap-2.5 truncate">
-              <Headphones size={15} className="text-secondary shrink-0" />
-              <span className="text-xs font-semibold text-text-main truncate font-sans">
+            <div className="flex items-center gap-2 truncate">
+              <Headphones size={14} className="text-[#667463] shrink-0" />
+              <span className="text-[12px] leading-[16px] font-semibold text-[#1B1F1A] truncate font-sans">
                 {soundscapes.find((s) => s.id === currentSound)?.label || 'Silent'}
               </span>
             </div>
 
-            <div className="flex items-center gap-1.5 shrink-0 text-text-sub font-mono text-[10px] font-bold">
+            <div className="flex items-center gap-1 shrink-0 text-[#8B9E87] font-sans text-[10px] leading-[14px] font-bold">
               {currentSound !== 'none' ? (
-                <span className="flex items-center gap-1 text-secondary">
-                  <Volume2 size={13} />
+                <span className="flex items-center gap-1 text-[#667463]">
+                  <Volume2 size={12} />
                   <span>{Math.round(soundVolume * 100)}%</span>
                 </span>
               ) : (
-                <span className="flex items-center gap-1 text-text-sub/60">
-                  <VolumeX size={13} />
+                <span className="flex items-center gap-1 text-[#8B9E87]">
+                  <VolumeX size={12} />
                   <span>OFF</span>
                 </span>
               )}
@@ -470,83 +396,84 @@ function TimerView({
         </footer>
       </div>
 
-      {/* ── FULL-BLEED LIVE FOCUS POSTER MODE ── */}
+      {/* ── FULLSCREEN MINIMALIST TIMER (Image 1 & Figma CSS) ── */}
       <AnimatePresence>
         {isImmersive && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-            className="fixed inset-0 z-50 flex flex-col justify-between p-8 bg-canvas text-text-main select-none"
+            transition={{ duration: 0.4 }}
+            className="fixed inset-0 z-50 flex flex-col justify-between px-7 pt-14 pb-12 bg-[#F0F2EF] text-[#1B1F1A] select-none"
             onClick={stopProp}
-            style={{
-              backgroundImage: 'radial-gradient(circle at 50% 45%, rgba(42, 131, 95, 0.08) 0%, transparent 65%)',
-            }}
           >
-            {/* Top Bar: • LIVE Focus Pill & Exit Button */}
-            <div className="flex items-center justify-between w-full max-w-md mx-auto pt-6">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface border border-border shadow-2xs font-mono text-[10px] font-bold text-text-main tracking-widest">
-                <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
-                <span>LIVE FOCUS</span>
-              </div>
-              <button
-                onClick={() => {
-                  if (onToggleNav) onToggleNav();
-                }}
-                aria-label="Exit fullscreen"
-                className="w-9 h-9 rounded-full bg-surface border border-border text-text-sub hover:text-text-main flex items-center justify-center transition-colors shadow-2xs active:scale-95"
-              >
-                <CloseIcon size={16} strokeWidth={2.5} />
-              </button>
-            </div>
-
-            {/* Center: Monumental Swiss Display Numerals + Thin Subtitle */}
-            <div className="flex flex-col items-center justify-center my-auto w-full max-w-md mx-auto">
-              <div className="text-[100px] sm:text-[124px] font-black font-display leading-none tracking-tighter text-text-main tabular-nums flex items-center justify-center overflow-hidden h-[110px] sm:h-[132px]">
-                {timeString.split('').map((char, i) => (
-                  <AnimatedDigit key={i} char={char} isColon={char === ':'} isLight={false} />
-                ))}
-              </div>
-              <p className="font-sans text-xs sm:text-sm text-text-sub font-normal mt-3 tracking-wide text-center">
-                Focus mode on · Deep flow state
-              </p>
-
-              {/* Radiant Jade Horizon Progress Capsule */}
-              <div className="w-40 h-1.5 bg-track/60 rounded-full overflow-hidden mt-6 shadow-inner">
-                <div
-                  className="h-full bg-secondary rounded-full transition-all duration-1000 ease-linear shadow-xs"
-                  style={{
-                    width: `${totalTime > 0 ? ((totalTime - timeLeft) / totalTime) * 100 : 0}%`,
-                  }}
-                />
+            {/* Minimalist Hero Section with Stacked 168px Numerals from Figma */}
+            <div className="w-full max-w-[384px] mx-auto flex flex-col justify-start pt-10">
+              {/* Row 1: Minutes (168px font-weight 800 Manrope, line-height 148px, letter-spacing -8px, color #1B1F1A) */}
+              <div className="w-full flex items-baseline">
+                <span className="text-[168px] leading-[148px] font-extrabold tracking-[-8px] text-[#1B1F1A] font-sans">
+                  {m < 10 ? `0${m}` : m}
+                </span>
               </div>
 
-              {/* Optional Subtle Lottie Animation in Immersive Mode */}
-              {shouldRenderLottie && (
-                <div className="w-48 h-36 mt-4 flex items-center justify-center overflow-hidden opacity-80 pointer-events-none">
-                  <DotLottieReact
-                    key={currentLottie}
-                    src={currentLottie}
-                    loop
-                    autoplay
-                    className="w-full h-full object-contain"
-                  />
+              {/* Divider: 1px height #CBD7C9 */}
+              <div className="w-full h-[1px] bg-[#CBD7C9] my-2" />
+
+              {/* Row 2: Seconds (168px font-weight 800 Manrope, line-height 148px, letter-spacing -8px, color #41493F) */}
+              <div className="w-full flex items-baseline">
+                <span className="text-[168px] leading-[148px] font-extrabold tracking-[-8px] text-[#41493F] font-sans">
+                  {s < 10 ? `0${s}` : s}
+                </span>
+              </div>
+
+              {/* MIN · SEC Subtitle */}
+              <div className="pt-2">
+                <span className="text-[10px] font-bold uppercase tracking-[2px] text-[#8B9E87]">
+                  MIN · SEC
+                </span>
+              </div>
+
+              {/* Session Status & Indicator Dots */}
+              <div className="pt-14">
+                <p className="text-[12px] font-normal leading-[18px] text-[#667463]">
+                  session {(cycleCount % 4) + 1} of 4 today
+                </p>
+                <div className="flex items-center gap-1.5 mt-2">
+                  <span className="w-4 h-[3px] bg-[#41493F] rounded-full" />
+                  <span className="w-1 h-1 bg-[#CBD7C9] rounded-full" />
+                  <span className="w-1 h-1 bg-[#CBD7C9] rounded-full" />
+                  <span className="w-1 h-1 bg-[#CBD7C9] rounded-full" />
                 </div>
-              )}
+              </div>
             </div>
 
-            {/* Bottom: Solid Tactile Pause Button with Mint Ring */}
-            <div className="flex justify-center pb-8 w-full max-w-md mx-auto">
+            {/* Bottom Actions Bar from Image 1: PAUSE · · · END */}
+            <div className="w-full max-w-[384px] mx-auto flex items-center justify-between pb-6">
               <button
                 onClick={() => {
                   if (window.navigator?.vibrate) window.navigator.vibrate(20);
                   if (onTogglePlay) onTogglePlay();
                 }}
-                aria-label="Pause focus"
-                className="w-16 h-16 rounded-full bg-primary hover:bg-primary-hover text-white flex items-center justify-center active:scale-95 transition-all shadow-xl shadow-primary/25 ring-4 ring-mint/40"
+                className="text-[11px] font-bold uppercase tracking-[2px] text-[#1B1F1A] hover:opacity-70 transition-opacity"
               >
-                <Pause size={28} className="fill-current" />
+                {isRunning ? 'PAUSE' : 'RESUME'}
+              </button>
+
+              <button
+                onClick={() => setShowSoundModal(true)}
+                className="text-[#8B9E87] hover:text-[#1B1F1A] transition-colors tracking-widest text-[14px]"
+                aria-label="Sound options"
+              >
+                · · ·
+              </button>
+
+              <button
+                onClick={() => {
+                  if (onToggleNav) onToggleNav();
+                }}
+                className="text-[11px] font-bold uppercase tracking-[2px] text-[#1B1F1A] hover:opacity-70 transition-opacity"
+              >
+                END
               </button>
             </div>
           </motion.div>

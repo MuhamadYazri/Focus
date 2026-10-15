@@ -9,11 +9,10 @@ import AnalyticsDashboard from './components/Analytics/AnalyticsDashboard';
 import ProfileView from './components/Profile/ProfileView';
 import { storage, DEFAULT_PROJECTS, DEFAULT_TASKS, DEFAULT_SETTINGS } from './services/storage';
 import { soundEngine } from './services/soundEngine';
-import { StatusBar, Style } from '@capacitor/status-bar';
+import { StatusBar } from '@capacitor/status-bar';
 import { KeepAwake } from '@capacitor-community/keep-awake';
 import clockTickingLottie from './assets/clockTicking.lottie';
 import relaxLottie from './assets/relaxAnimation.lottie';
-import catSleepLottie from './assets/catSleepAnimation.lottie';
 import { ForegroundService } from '@capawesome-team/capacitor-android-foreground-service';
 import SplitRevealPreloader from './components/animata/preloader/SplitRevealPreloader';
 import UndoToast from './components/Feedback/UndoToast';
@@ -170,11 +169,17 @@ export default function App() {
     if (isLoaded) {
       storage.saveSettings(settings);
       document.documentElement.setAttribute('data-theme', 'japandi');
-      if (!isRunning && timerMode === 'work') {
-        setTimeLeft(settings.workDuration * 60);
+      if (!isRunning) {
+        if (timerMode === 'work') {
+          setTimeLeft(settings.workDuration * 60);
+        } else if (timerMode === 'shortBreak') {
+          setTimeLeft(settings.shortBreakDuration * 60);
+        } else if (timerMode === 'longBreak') {
+          setTimeLeft(settings.longBreakDuration * 60);
+        }
       }
     }
-  }, [settings, isLoaded]);
+  }, [settings, isLoaded, isRunning, timerMode]);
 
   // Strict Mode Distraction Shield
   useEffect(() => {

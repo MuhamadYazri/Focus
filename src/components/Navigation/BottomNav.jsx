@@ -5,11 +5,11 @@ const NAV_ITEMS = [
     key: 'home',
     label: 'Today',
     icon: (
-      <svg className="w-4 h-4 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <rect height="18" rx="2" ry="2" width="18" x="3" y="4" />
-        <line x1="16" x2="16" y1="2" y2="6" />
-        <line x1="8" x2="8" y1="2" y2="6" />
-        <line x1="3" x2="21" y1="10" y2="10" />
+      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <rect height="18" rx="2" ry="2" width="18" x="3" y="4" strokeWidth="2" />
+        <line x1="16" x2="16" y1="2" y2="6" strokeWidth="2" />
+        <line x1="8" x2="8" y1="2" y2="6" strokeWidth="2" />
+        <line x1="3" x2="21" y1="10" y2="10" strokeWidth="2" />
       </svg>
     ),
   },
@@ -17,9 +17,9 @@ const NAV_ITEMS = [
     key: 'timer',
     label: 'Timer',
     icon: (
-      <svg className="w-4 h-4 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="10" />
-        <polyline points="12 6 12 12 16 14" />
+      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9" strokeWidth="1.8" />
+        <polyline points="12 7 12 12 15 14" strokeWidth="1.8" />
       </svg>
     ),
   },
@@ -27,10 +27,20 @@ const NAV_ITEMS = [
     key: 'reports',
     label: 'Report',
     icon: (
-      <svg className="w-4 h-4 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <line x1="18" x2="18" y1="20" y2="10" />
-        <line x1="12" x2="12" y1="20" y2="4" />
-        <line x1="6" x2="6" y1="20" y2="14" />
+      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <line x1="18" x2="18" y1="20" y2="10" strokeWidth="1.8" />
+        <line x1="12" x2="12" y1="20" y2="5" strokeWidth="1.8" />
+        <line x1="6" x2="6" y1="20" y2="14" strokeWidth="1.8" />
+      </svg>
+    ),
+  },
+  {
+    key: 'profile',
+    label: 'Profile',
+    icon: (
+      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" strokeWidth="1.8" />
+        <circle cx="12" cy="7" r="4" strokeWidth="1.8" />
       </svg>
     ),
   },
@@ -39,14 +49,14 @@ const NAV_ITEMS = [
 function BottomNav({ activeTab, setActiveTab, isHidden = false }) {
   return (
     <aside
-      className={`fixed bottom-6 inset-x-0 mx-auto w-[calc(100%-3rem)] max-w-[382px] z-50 transition-all duration-300 ${
+      className={`fixed bottom-6 inset-x-0 mx-auto w-[calc(100%-2.5rem)] max-w-[382px] z-50 transition-all duration-300 ${
         isHidden ? 'translate-y-28 opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
       }`}
       data-purpose="floating-dock-container"
     >
       <nav
         aria-label="Primary Navigation"
-        className="bg-white/95 backdrop-blur-xl border border-[#E7ECE5] shadow-[0_8px_30px_rgb(0,0,0,0.06)] rounded-full px-2.5 py-1.5 flex items-center justify-between"
+        className="h-[44px] bg-white/90 backdrop-blur-[24px] border border-[#E2E6E0] shadow-[0px_6px_24px_rgba(0,0,0,0.04)] rounded-full p-[4px_6px] flex items-center justify-between gap-1"
       >
         {NAV_ITEMS.map(({ key, label, icon }) => {
           const on = activeTab === key;
@@ -58,13 +68,19 @@ function BottomNav({ activeTab, setActiveTab, isHidden = false }) {
                 if (window.navigator?.vibrate) window.navigator.vibrate(10);
                 setActiveTab(key);
               }}
-              className={`tap-effect flex-1 flex items-center justify-center py-2 px-3 rounded-full transition-all relative ${
-                on ? 'bg-[#161916] text-white shadow-xs' : 'text-[#485046] hover:text-[#161916]'
+              className={`tap-effect flex-1 h-[32px] min-w-0 px-1.5 flex items-center justify-center rounded-full transition-all relative ${
+                on
+                  ? 'bg-[#1B1F1A] text-white shadow-[0px_1px_2px_-1px_rgba(27,31,26,0.04)]'
+                  : 'text-[#667463] hover:text-[#1B1F1A]'
               }`}
             >
-              <div className="flex items-center space-x-1.5 z-10">
+              <div className="flex items-center gap-[5px] z-10 truncate">
                 {icon}
-                <span className={`text-xs tracking-tight ${on ? 'font-medium' : 'font-normal'}`}>
+                <span
+                  className={`text-[12px] leading-[14px] tracking-[-0.2px] whitespace-nowrap ${
+                    on ? 'font-semibold text-white' : 'font-medium text-[#667463]'
+                  }`}
+                >
                   {label}
                 </span>
               </div>

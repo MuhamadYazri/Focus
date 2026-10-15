@@ -425,10 +425,14 @@ function SharedActivitySection({
 
       const weeklySlots = [];
       let maxWkMins = 0;
-      let peakWkLabel = 'None';
-      for (let i = -3; i <= 0; i++) {
-        const curStart = new Date(wkStart);
-        curStart.setDate(wkStart.getDate() + i * 7);
+
+      // Keep a sliding 4-week window containing the active week offset (clamped to max 0 for future)
+      const maxW = Math.min(0, offset + 3);
+      const thisWeekMon = new Date(now.getFullYear(), now.getMonth(), now.getDate() - dayOfWeek + 1);
+
+      for (let w = maxW - 3; w <= maxW; w++) {
+        const curStart = new Date(thisWeekMon);
+        curStart.setDate(thisWeekMon.getDate() + w * 7);
         const curEnd = new Date(curStart);
         curEnd.setDate(curStart.getDate() + 6);
         const csStr = getLocalDateStr(curStart);
@@ -438,10 +442,9 @@ function SharedActivitySection({
           return dt >= csStr && dt <= ceStr;
         });
         const mins = wSess.reduce((acc, s) => acc + (s.duration || 25), 0);
-        const label = i === 0 ? 'This Wk' : `${Math.abs(i)}Wk Ago`;
+        const label = w === 0 ? 'This Wk' : `${Math.abs(w)}Wk Ago`;
         if (mins > maxWkMins) {
           maxWkMins = mins;
-          peakWkLabel = label;
         }
 
         const progressRatio = weeklyTargetMins > 0 ? mins / weeklyTargetMins : 0;
@@ -451,8 +454,8 @@ function SharedActivitySection({
           h: label,
           mins,
           val: mins > 0 ? formatTimeNoDecimals(mins) : '0h',
-          isCurrent: i === (offset >= -3 && offset <= 0 ? offset : 0),
-          targetOffset: i,
+          isCurrent: w === offset,
+          targetOffset: w,
           v: Math.min(1, progressRatio),
           progressRatio,
           isGoalMet,
@@ -779,7 +782,11 @@ function SharedActivitySection({
           style={{ gridTemplateColumns: `repeat(${activeChart.length}, minmax(0, 1fr))` }}
         >
           {activeChart.map((slot) => (
-            <ChartBarColumn key={slot.h} slot={slot} setOffset={setOffset} />
+            <ChartBarColumn
+              key={`${slot.targetOffset !== undefined ? slot.targetOffset : slot.h}-${slot.h}`}
+              slot={slot}
+              setOffset={setOffset}
+            />
           ))}
         </div>
       </div>

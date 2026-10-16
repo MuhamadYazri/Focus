@@ -12,6 +12,7 @@ import {
   Waves,
   Coffee,
   Clock,
+  Minimize2,
 } from 'lucide-react';
 import {
   PlayIcon as Play,
@@ -204,21 +205,20 @@ function TimerView({
   };
 
   const stopProp = (e) => e.stopPropagation();
+  const lastNavToggleRef = useRef(0);
+
+  const safeToggleNav = () => {
+    const now = Date.now();
+    if (now - lastNavToggleRef.current < 450) return;
+    lastNavToggleRef.current = now;
+    if (onToggleNav) onToggleNav();
+  };
 
   const m = Math.floor(timeLeft / 60);
   const s = timeLeft % 60;
 
   return (
-    <div
-      className="flex flex-col h-[100dvh] w-full overflow-y-auto overflow-x-hidden transition-colors duration-700 ease-in-out bg-transparent text-text-main selection:bg-secondary/20"
-      onClick={() => {
-        if (showSoundModal) return;
-        // Only enter fullscreen when actively running in focus/work mode
-        if (isRunning && mode === 'work' && onToggleNav) {
-          onToggleNav();
-        }
-      }}
-    >
+    <div className="flex flex-col h-[100dvh] w-full overflow-y-auto overflow-x-hidden transition-colors duration-700 ease-in-out bg-transparent text-text-main selection:bg-secondary/20">
       <div className="w-full max-w-[440px] mx-auto flex flex-col justify-between min-h-[100dvh] px-7 pt-[52px] pb-[100px] select-none">
         {/* ── TOP SECTION: Mode Tabs & Strict Mode ── */}
         <header
@@ -290,9 +290,10 @@ function TimerView({
         {/* ── MIDDLE SECTION: Circular Hero Timer ── */}
         <main
           className="flex flex-col items-center justify-center my-auto w-full py-4 relative cursor-pointer"
-          onClick={() => {
-            if (isRunning && mode === 'work' && onToggleNav) {
-              onToggleNav();
+          onClick={(e) => {
+            e.stopPropagation();
+            if (isRunning && mode === 'work') {
+              safeToggleNav();
             }
           }}
         >
@@ -414,14 +415,23 @@ function TimerView({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.4 }}
-            className="fixed inset-0 z-50 flex flex-col justify-between px-7 pt-14 pb-12 bg-[#F0F2EF] text-[#1B1F1A] select-none cursor-pointer"
-            onClick={() => {
-              if (onToggleNav) onToggleNav();
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 z-50 flex flex-col justify-between px-7 pt-12 pb-12 bg-[#F0F2EF] text-[#1B1F1A] select-none cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation();
+              safeToggleNav();
+            }}
+            onTouchEnd={(e) => {
+              if (e.target.closest('button') || e.target.closest('[role="button"]')) return;
+              e.stopPropagation();
+              safeToggleNav();
             }}
           >
+            {/* Top Bar with Minimalist Back/Minimize Button */}
+            <div className="w-full max-w-[384px] mx-auto flex items-center justify-between pointer-events-auto"></div>
+
             {/* Minimalist Hero Section with Stacked 168px Numerals from Figma */}
-            <div className="w-full max-w-[384px] mx-auto flex flex-col justify-start pt-10 pointer-events-none">
+            <div className="w-full max-w-[384px] mx-auto flex flex-col justify-start pt-4 pointer-events-none">
               {/* Row 1: Minutes (168px font-weight 800 Manrope, line-height 148px, letter-spacing -8px, color #1B1F1A) */}
               <div className="w-full flex items-baseline">
                 <span className="text-[168px] leading-[148px] font-extrabold tracking-[-8px] text-[#1B1F1A] font-sans">

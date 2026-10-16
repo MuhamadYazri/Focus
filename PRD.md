@@ -67,7 +67,7 @@ The core execution environment designed to eliminate cognitive friction and exte
   * **Pomodoro Mode:** Standard 25-min focus / 5-min short break, followed by a **15-to-30-min Long Break after every 4 focus cycles** (fully customizable per task in Premium).
   * **Stopwatch Mode:** Open-ended count-up timer for uninterrupted flow sessions.
 * **Immersive Zen Environment:**
-  * **Dynamic Background Themes:** Aesthetic nature scenery (mountain lakes, starry nights, minimalist dark modes).
+  * **Dynamic Background Themes:** Aesthetic nature scenery and tactile minimalist light zen modes.
   * **White Noise & Soundscapes:** Integrated audio player featuring rain, forest wind, ocean waves, cafe chatter, and ticking clocks to boost concentration.
   * **Full-Screen Mode:** Distraction-free full-screen UI hiding system status bars and notifications.
 * **Strict Mode (Digital Wellbeing & Distraction Blocking):**
@@ -116,7 +116,7 @@ A sustainable business model offering powerful cloud backup and advanced customi
 | **Cloud Backup & Device Sync** | Local Storage Only | **Real-Time Multi-Device Cloud Sync** |
 | **Advanced Statistics** | Basic Daily / Weekly view | **Full Monthly/Yearly/Heatmaps & Export** |
 | **Strict Mode & App Blocking** | Basic Timer Lock | **Full App Block, Notification Mute, Flip Phone** |
-| **Soundscapes & Themes** | 2 Basic Sounds & Standard Dark Theme | **All White Noise Audio & Premium Themes** |
+| **Soundscapes & Themes** | 2 Basic Sounds & Standard Light Theme | **All White Noise Audio & Premium Themes** |
 | **Manual Data Entry** | Disabled | **Manually Add & Edit Pomodoro Records** |
 
 * **Pricing Structure (Localized Example IDR / USD equivalent):**
@@ -223,7 +223,7 @@ graph TD
 ## 7. Development Roadmap & Phased Rollout
 
 ### Phase 1: MVP Core — Android Focus (Weeks 1–4)
-* [x] Project setup, design system, and dark mode theme tokens (Android-first architecture).
+* [x] Project setup, unified Light Mode design system tokens (#E2E4DC, #F9F9F6, #1A1F18, #ED7D31, #40513B).
 * [ ] Local SQLite database schema for Projects, Tasks (with priorities & subtasks), and Sessions.
 * [ ] Core Task Management UI (Add, Complete, Sub-tasks checklist, Color-coded Priority, Estimate Pomodoros, Smart Lists).
 * [ ] Standard Pomodoro Timer (25m work / 5m short break / 15m long break after 4 cycles) with start/pause/reset and audio notifications.

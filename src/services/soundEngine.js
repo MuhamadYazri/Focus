@@ -3,10 +3,15 @@ class SoundEngine {
   constructor() {
     this.ctx = null;
     this.activeSource = null;
+    this.activeFilter = null;
+    this.activeLfo = null;
+    this.activeLfoGain = null;
     this.gainNode = null;
     this.clockInterval = null;
     this.currentSound = 'none';
     this.volume = 0.6;
+    this.noiseBuffer = null;
+    this.noiseBufferSampleRate = 0;
   }
 
   init() {
@@ -19,6 +24,36 @@ class SoundEngine {
     if (this.ctx && this.ctx.state === 'suspended') {
       this.ctx.resume();
     }
+  }
+
+  getOrCreateNoiseBuffer() {
+    if (!this.ctx) return null;
+    if (this.noiseBuffer && this.noiseBufferSampleRate === this.ctx.sampleRate) {
+      return this.noiseBuffer;
+    }
+
+    // Create noise buffer once (3 seconds looped) and cache across plays
+    const bufferSize = 3 * this.ctx.sampleRate;
+    const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+    const output = noiseBuffer.getChannelData(0);
+
+    // Fill buffer with Pink/White noise
+    let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+    for (let i = 0; i < bufferSize; i++) {
+      const white = Math.random() * 2 - 1;
+      b0 = 0.99886 * b0 + white * 0.0555179;
+      b1 = 0.99332 * b1 + white * 0.0750759;
+      b2 = 0.96900 * b2 + white * 0.1538520;
+      b3 = 0.86650 * b3 + white * 0.3104856;
+      b4 = 0.55000 * b4 + white * 0.5329522;
+      b5 = -0.7616 * b5 - white * 0.0168980;
+      output[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.1;
+      b6 = white * 0.115926;
+    }
+
+    this.noiseBuffer = noiseBuffer;
+    this.noiseBufferSampleRate = this.ctx.sampleRate;
+    return this.noiseBuffer;
   }
 
   setVolume(val) {
@@ -35,6 +70,31 @@ class SoundEngine {
         this.activeSource.disconnect();
       } catch (e) {}
       this.activeSource = null;
+    }
+    if (this.activeLfo) {
+      try {
+        this.activeLfo.stop();
+        this.activeLfo.disconnect();
+      } catch (e) {}
+      this.activeLfo = null;
+    }
+    if (this.activeLfoGain) {
+      try {
+        this.activeLfoGain.disconnect();
+      } catch (e) {}
+      this.activeLfoGain = null;
+    }
+    if (this.activeFilter) {
+      try {
+        this.activeFilter.disconnect();
+      } catch (e) {}
+      this.activeFilter = null;
+    }
+    if (this.gainNode) {
+      try {
+        this.gainNode.disconnect();
+      } catch (e) {}
+      this.gainNode = null;
     }
     if (this.clockInterval) {
       clearInterval(this.clockInterval);
@@ -57,24 +117,8 @@ class SoundEngine {
       return;
     }
 
-    // Create noise buffer (3 seconds looped)
-    const bufferSize = 3 * this.ctx.sampleRate;
-    const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-    const output = noiseBuffer.getChannelData(0);
-
-    // Fill buffer with Pink/White noise
-    let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
-    for (let i = 0; i < bufferSize; i++) {
-      const white = Math.random() * 2 - 1;
-      b0 = 0.99886 * b0 + white * 0.0555179;
-      b1 = 0.99332 * b1 + white * 0.0750759;
-      b2 = 0.96900 * b2 + white * 0.1538520;
-      b3 = 0.86650 * b3 + white * 0.3104856;
-      b4 = 0.55000 * b4 + white * 0.5329522;
-      b5 = -0.7616 * b5 - white * 0.0168980;
-      output[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.1;
-      b6 = white * 0.115926;
-    }
+    const noiseBuffer = this.getOrCreateNoiseBuffer();
+    if (!noiseBuffer) return;
 
     const whiteNoise = this.ctx.createBufferSource();
     whiteNoise.buffer = noiseBuffer;
@@ -82,6 +126,7 @@ class SoundEngine {
 
     // Filter audio based on soundscape
     const filter = this.ctx.createBiquadFilter();
+    this.activeFilter = filter;
     this.gainNode = this.ctx.createGain();
     this.gainNode.gain.setValueAtTime(this.volume, this.ctx.currentTime);
 
@@ -100,8 +145,11 @@ class SoundEngine {
       const lfoGain = this.ctx.createGain();
       lfo.frequency.setValueAtTime(0.12, this.ctx.currentTime); // 8 seconds wave cycle
       lfoGain.gain.setValueAtTime(300, this.ctx.currentTime);
-      lfo.connect(filter.frequency);
+      lfo.connect(lfoGain);
+      lfoGain.connect(filter.frequency);
       lfo.start();
+      this.activeLfo = lfo;
+      this.activeLfoGain = lfoGain;
     } else if (soundType === 'cafe') {
       filter.type = 'lowpass';
       filter.frequency.setValueAtTime(2200, this.ctx.currentTime);

@@ -1,53 +1,71 @@
 import React from 'react';
-import { ShieldAlert } from 'lucide-react';
-
-const G = "Geist, 'Helvetica Neue', sans-serif";
-const M = "'JetBrains Mono', monospace";
+import { createPortal } from 'react-dom';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import errorIconLottie from '../../assets/errorIcon.lottie';
 
 export default function StrictModeModal({ isOpen, onClose, onResetTimer }) {
   if (!isOpen) return null;
 
-  return (
-    <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 select-none animate-fadeIn"
-      style={{ background: 'rgba(10, 38, 53, 0.4)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[70] flex items-center justify-center p-4 select-none animate-fadeIn"
+      style={{
+        background: 'rgba(26, 31, 24, 0.45)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+      }}
+      onClick={onClose}
     >
-      <div className="w-full max-w-sm border rounded-2xl shadow-[var(--shadow-focus)] p-6 text-center space-y-6 relative animate-slideUp" style={{ background: 'var(--surface-card)', borderColor: 'var(--surface-border)' }}>
-        
-        <div className="flex flex-col items-center gap-1">
-          <ShieldAlert className="w-6 h-6 mb-3" style={{ color: 'var(--text-primary)' }} strokeWidth={1.5} />
-          <span style={{ fontFamily: M, fontSize: 10, color: 'var(--text-secondary)', letterSpacing: '0.1em' }}>
-            STRICT MODE
-          </span>
-          <h3 className="text-lg mt-1" style={{ fontFamily: G, fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
-            Fokus Terputus
-          </h3>
-          <p className="text-sm mt-1.5 leading-relaxed" style={{ fontFamily: G, color: 'var(--text-secondary)' }}>
-            Anda meninggalkan aplikasi saat sesi strict mode sedang berjalan.
-          </p>
+      <div
+        className="w-full max-w-[280px] bg-surface border border-border rounded-[28px] p-5 text-center flex flex-col items-center shadow-2xl ring-1 ring-white/80 relative animate-slideUp"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Animated Error Lottie */}
+        <div className="w-16 h-16 flex items-center justify-center mb-1">
+          <DotLottieReact
+            src={errorIconLottie}
+            autoplay
+            loop={false}
+            className="w-full h-full"
+          />
         </div>
 
-        <div className="pt-2 flex flex-col gap-2">
+        {/* Tag & Heading */}
+        <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-primary/70 bg-primary/10 px-2.5 py-0.5 rounded-full mb-1.5 shadow-2xs">
+          STRICT MODE
+        </span>
+        <h3 className="text-[17px] font-bold text-text-main font-display tracking-tight">
+          Focus Interrupted
+        </h3>
+        <p className="text-[12px] text-text-sub font-sans leading-relaxed mt-1 mb-4 px-1">
+          You left the app while a Strict Mode session was in progress.
+        </p>
+
+        {/* Actions */}
+        <div className="w-full flex flex-col gap-2">
           <button
-            onClick={onClose}
-            className="w-full py-3 rounded-xl font-medium text-sm transition squish"
-            style={{ fontFamily: G, background: 'var(--text-primary)', color: '#fff' }}
+            onClick={() => {
+              if (window.navigator?.vibrate) window.navigator.vibrate(10);
+              onClose();
+            }}
+            className="w-full py-2.5 rounded-full bg-primary text-white font-semibold text-[13px] font-sans shadow-md shadow-primary/25 ring-1 ring-white/20 hover:bg-primary-hover active:scale-95 transition-all"
           >
-            Lanjutkan Fokus
+            Resume Focus
           </button>
 
           <button
             onClick={() => {
+              if (window.navigator?.vibrate) window.navigator.vibrate(20);
               onResetTimer();
               onClose();
             }}
-            className="w-full py-3 rounded-xl bg-transparent font-medium text-sm transition squish"
-            style={{ fontFamily: G, color: 'var(--text-secondary)' }}
+            className="w-full py-2 rounded-full text-text-sub hover:text-[#BA1A1A] font-medium text-[12px] font-sans active:scale-95 transition-all"
           >
-            Menyerah & Reset
+            Give Up &amp; Reset
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

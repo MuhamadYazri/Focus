@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Check, Briefcase, BookOpen, Heart, Rocket, Code, Star, Target, Zap, Coffee, Music } from 'lucide-react';
 
-const G = "Geist, 'Helvetica Neue', sans-serif";
-const M = "'JetBrains Mono', monospace";
-
 const COLOR_PALETTE = [
-  'var(--accent)', 'var(--text-secondary)', '#4A7090', 'var(--text-secondary)',
-  '#2ecc71', '#e84393', '#00cec9', '#fdcb6e',
-  '#a55eea', '#26de81', '#fc5c65', '#45aaf2'
+  '#1B1F1A', '#41493F', '#667463', '#8B9E87',
+  '#B1C9AC', '#D6F3D0', '#344E41', '#588157',
+  '#A3B18A', '#6D6875', '#B5838D', '#8A7968'
 ];
 
 const ICONS_LIST = [
@@ -55,49 +53,41 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
     onClose();
   };
 
-  return (
+  return createPortal(
     <div
-      className={`fixed inset-0 z-50 flex flex-col items-center justify-center p-4 select-none animate-fadeIn`}
-      style={{ background: 'rgba(10, 38, 53, 0.4)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
+      className="fixed inset-0 z-[70] flex flex-col items-center justify-center p-4 animate-fadeIn select-none"
+      style={{
+        background: 'rgba(26, 31, 24, 0.45)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+      }}
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md border rounded-2xl shadow-[var(--shadow-focus)] p-5 relative animate-slideUp"
-        style={{ fontFamily: G, background: 'var(--surface-card)', borderColor: 'var(--surface-border)', color: 'var(--text-on-accent)' }}
+        className="w-full max-w-sm bg-surface border border-border rounded-3xl p-6 shadow-2xl ring-1 ring-white/80 relative animate-slideUp"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between pb-3.5 mb-4 border-b" style={{ borderColor: 'var(--surface-border)' }}>
-          <div>
-            <span style={{ fontFamily: M, fontSize: 10, color: 'var(--text-secondary)', letterSpacing: '0.1em' }}>
+        <div className="flex items-center justify-between pb-4 mb-5 border-b border-border">
+          <div className="flex flex-col">
+            <span className="text-[10px] font-bold text-text-sub tracking-widest font-mono uppercase">
               FOCUS // CATEGORY
             </span>
-            <h3 className="text-base font-bold mt-0.5" style={{ color: 'var(--text-on-accent)' }}>
+            <h3 className="text-lg font-bold text-text-main mt-0.5 font-display tracking-tight">
               {projectToEdit ? 'Edit Category' : 'New Category'}
             </h3>
           </div>
           <button
             type="button"
             onClick={onClose}
-            style={{
-              width: 28,
-              height: 28,
-              borderRadius: 6,
-              border: '1px solid var(--surface-border)',
-              background: 'var(--surface-low)',
-              color: 'var(--text-muted)'
-            }}
-            className="flex items-center justify-center transition-opacity hover:opacity-70 active:opacity-50"
+            className="w-8 h-8 rounded-full bg-surface-hover flex items-center justify-center text-text-sub hover:text-text-main transition-colors border border-border shadow-2xs"
           >
-            <X size={14} strokeWidth={1.5} />
+            <X size={16} strokeWidth={2} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label
-              style={{ fontFamily: M, fontSize: 10, color: 'var(--text-secondary)', letterSpacing: '0.08em' }}
-              className="block mb-2 uppercase"
-            >
+            <label className="block mb-2 text-[10px] font-bold text-text-sub uppercase tracking-widest font-mono">
               Category Name
             </label>
             <input
@@ -106,43 +96,35 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
               autoFocus
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. 04 // WORK_PROJECTS"
-              style={{
-                width: '100%',
-                background: 'var(--surface-low)',
-                border: '1px solid var(--surface-border)',
-                borderRadius: 8,
-                padding: '11px 14px',
-                fontFamily: G,
-                fontSize: 14,
-                color: 'var(--text-on-accent)',
-                outline: 'none',
-                caretColor: 'var(--accent)',
-              }}
+              placeholder="e.g. Deep Work, Learning"
+              className="w-full bg-canvas border border-border rounded-xl px-4 py-3 text-sm font-sans text-text-main outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-text-sub/50 shadow-inner"
             />
           </div>
 
           <div>
-            <label
-              style={{ fontFamily: M, fontSize: 10, color: 'var(--text-secondary)', letterSpacing: '0.08em' }}
-              className="block mb-2 uppercase"
-            >
+            <label className="block mb-2 text-[10px] font-bold text-text-sub uppercase tracking-widest font-mono">
               Accent Color
             </label>
-            <div className="grid grid-cols-6 gap-2">
+            <div className="grid grid-cols-6 gap-3">
               {COLOR_PALETTE.map((c) => (
                 <button
                   key={c}
                   type="button"
                   onClick={() => setColor(c)}
-                  className="w-10 h-10 rounded-lg flex items-center justify-center transition-transform hover:scale-105 active:scale-95 border"
+                  className="w-full aspect-square rounded-full flex items-center justify-center transition-transform hover:scale-110 active:scale-95 shadow-xs ring-1 ring-black/10"
                   style={{
                     backgroundColor: c,
-                    borderColor: color === c ? 'var(--text-primary)' : 'transparent',
+                    boxShadow: color === c ? `0 0 0 3px var(--theme-surface), 0 0 0 5px ${c}` : undefined,
                   }}
                 >
                   {color === c && (
-                    <Check className="w-4 h-4 text-[var(--text-primary)] stroke-[3px]" />
+                    <Check
+                      className={`w-4 h-4 stroke-[3px] ${
+                        c === '#D6F3D0' || c === '#B1C9AC' || c === '#8B9E87' || c === '#A3B18A'
+                          ? 'text-ink-dark'
+                          : 'text-white'
+                      }`}
+                    />
                   )}
                 </button>
               ))}
@@ -150,10 +132,7 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
           </div>
 
           <div>
-            <label
-              style={{ fontFamily: M, fontSize: 10, color: 'var(--text-secondary)', letterSpacing: '0.08em' }}
-              className="block mb-2 uppercase"
-            >
+            <label className="block mb-2 text-[10px] font-bold text-text-sub uppercase tracking-widest font-mono">
               Category Icon
             </label>
             <div className="grid grid-cols-5 gap-2">
@@ -165,55 +144,37 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
                     key={item.name}
                     type="button"
                     onClick={() => setIcon(item.name)}
-                    className="p-2.5 rounded-lg flex items-center justify-center border transition"
-                    style={{
-                      background: isSelected ? 'var(--accent)' : 'var(--surface-low)',
-                      borderColor: isSelected ? 'var(--accent)' : 'var(--surface-border)',
-                      color: isSelected ? 'var(--text-primary)' : 'var(--text-secondary)',
-                    }}
+                    className={`aspect-square rounded-xl flex items-center justify-center border transition-all ${
+                      isSelected 
+                        ? 'bg-primary border-primary text-white scale-105 shadow-sm shadow-primary/25 ring-1 ring-white/20' 
+                        : 'bg-surface-hover border-border text-text-sub hover:bg-border shadow-2xs'
+                    }`}
                   >
-                    <IconComp className="w-4 h-4" />
+                    <IconComp size={20} strokeWidth={isSelected ? 2.5 : 2} />
                   </button>
                 );
               })}
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-2.5 pt-3 border-t" style={{ borderColor: 'var(--surface-border)' }}>
+          <div className="flex items-center justify-end gap-3 pt-5 mt-2 border-t border-border">
             <button
               type="button"
               onClick={onClose}
-              style={{
-                fontFamily: M,
-                fontSize: 11,
-                padding: '10px 16px',
-                borderRadius: 8,
-                border: '1px solid var(--surface-border)',
-                color: 'var(--text-secondary)',
-                background: 'transparent',
-              }}
-              className="hover:opacity-70 transition"
+              className="px-5 py-2.5 rounded-full text-xs font-semibold text-text-sub hover:bg-surface-hover hover:text-text-main transition-colors font-sans border border-border bg-[#F4F0E8] shadow-2xs active:scale-95"
             >
               Cancel
             </button>
             <button
               type="submit"
-              style={{
-                fontFamily: G,
-                fontSize: 13,
-                fontWeight: 600,
-                padding: '10px 20px',
-                borderRadius: 8,
-                background: 'var(--accent)',
-                color: 'var(--text-on-accent)',
-              }}
-              className="hover:opacity-90 transition active:opacity-80"
+              className="px-6 py-2.5 rounded-full text-xs font-bold bg-primary text-white hover:bg-primary-hover active:scale-95 transition-all shadow-md shadow-primary/25 ring-1 ring-white/20 font-sans"
             >
               {projectToEdit ? 'Save Category' : 'Create Category'}
             </button>
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

@@ -1,18 +1,24 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, startTransition } from 'react';
 import BottomNav from './components/Navigation/BottomNav';
 import TaskList from './components/Tasks/TaskList';
 import TaskModal from './components/Tasks/TaskModal';
-import ProjectList from './components/Projects/ProjectList';
 import ProjectModal from './components/Projects/ProjectModal';
 import TimerView from './components/Timer/TimerView';
 import StrictModeModal from './components/Timer/StrictModeModal';
 import AnalyticsDashboard from './components/Analytics/AnalyticsDashboard';
 import ProfileView from './components/Profile/ProfileView';
-import { storage, DEFAULT_PROJECTS, DEFAULT_TASKS, DEFAULT_SETTINGS, generateSampleSessions } from './services/storage';
+import { storage, DEFAULT_PROJECTS, DEFAULT_TASKS, DEFAULT_SETTINGS } from './services/storage';
 import { soundEngine } from './services/soundEngine';
-import { StatusBar, Style } from '@capacitor/status-bar';
+import { StatusBar } from '@capacitor/status-bar';
 import { KeepAwake } from '@capacitor-community/keep-awake';
+import clockTickingLottie from './assets/clockTicking.lottie';
 import { ForegroundService } from '@capawesome-team/capacitor-android-foreground-service';
+import { Haptics } from '@capacitor/haptics';
+import { App as CapApp } from '@capacitor/app';
+import { timerWorker } from './services/timerWorker';
+import SplitRevealPreloader from './components/animata/preloader/SplitRevealPreloader';
+import UndoToast from './components/Feedback/UndoToast';
+import SessionCompletionScreen from './components/Feedback/SessionCompletionScreen';
 
 const getLocalDateStr = (d) => {
   try {
@@ -28,9 +34,19 @@ const getLocalDateStr = (d) => {
 function processDailyRollover(tasksList) {
   if (!tasksList || !tasksList.length) return tasksList;
   const todayStr = getLocalDateStr();
+  const currentDayOfWeek = new Date().getDay(); // 0 is Sun, 1 is Mon...
+  
   return tasksList.map((task) => {
     const compDate = task.completedDateStr || (typeof task.completedAt === 'string' ? task.completedAt.split('T')[0] : null);
-    if (task && task.scheduleType === 'daily' && task.completed && compDate && compDate !== todayStr) {
+    
+    let shouldRollover = false;
+    if (task.scheduleType === 'daily') {
+      shouldRollover = true;
+    } else if (task.scheduleType === 'weekly' && Array.isArray(task.weeklyDays) && task.weeklyDays.includes(currentDayOfWeek)) {
+      shouldRollover = true;
+    }
+
+    if (task && shouldRollover && task.completed && compDate && compDate !== todayStr) {
       return { ...task, completed: false, completedPomos: 0, completedDateStr: null, completedAt: null };
     }
     return task;
@@ -38,12 +54,14 @@ function processDailyRollover(tasksList) {
 }
 
 export default function App() {
+  const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const initialTab = urlParams?.get('tab') || 'home';
+  const skipPreloader = urlParams?.has('no_preloader') || false;
+
   // Navigation State: 4 monochrome tabs: 'home', 'timer', 'reports', 'profile'
-  const [activeTab, setActiveTab] = useState('home');
+  const [navTab, setNavTab] = useState(initialTab); // Instant tab indicator state (<16ms INP)
+  const [activeTab, setActiveTab] = useState(initialTab); // Screen content state (deferred via startTransition)
   const [selectedProjectId, setSelectedProjectId] = useState(null);
-  const [prevTab, setPrevTab] = useState(null);
-  const [slideDir, setSlideDir] = useState('left');
-  const [isTransitioning, setIsTransitioning] = useState(false);
 
   // Data State
   const [projects, setProjects] = useState(DEFAULT_PROJECTS);
@@ -51,6 +69,14 @@ export default function App() {
   const [sessions, setSessions] = useState([]);
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [showPreloader, setShowPreloader] = useState(!skipPreloader);
+  const handleFinishPreloader = useCallback(() => {
+    setShowPreloader(false);
+  }, []);
+
+  // Shared Analytics & Profile Timeframe State
+  const [activityPeriod, setActivityPeriod] = useState('Daily');
+  const [activityOffset, setActivityOffset] = useState(0);
 
   // Timer State
   const [timerMode, setTimerMode] = useState('work');
@@ -59,7 +85,57 @@ export default function App() {
   const [cycleCount, setCycleCount] = useState(0);
   const [activeTask, setActiveTask] = useState(null);
   const [currentSound, setCurrentSound] = useState('none');
-  const [sessionDoneAlert, setSessionDoneAlert] = useState(null);
+
+  // Queue of full-width lottie modals (session done, break done, daily goal)
+  const [celebrations, setCelebrations] = useState([]);
+  const celebrationIdRef = useRef(0);
+
+  const enqueueCelebration = useCallback((item) => {
+    celebrationIdRef.current += 1;
+    const id = celebrationIdRef.current;
+    setCelebrations((q) => [...q, { ...item, id }]);
+  }, []);
+
+  const dismissCelebration = useCallback((id) => {
+    setCelebrations((q) => q.filter((c) => c.id !== id));
+  }, []);
+
+  const triggerCelebration = useCallback(
+    (title, subtitle) => {
+      enqueueCelebration({ title, subtitle });
+      if (window.navigator?.vibrate) window.navigator.vibrate([15, 40, 15, 40, 30]);
+    },
+    [enqueueCelebration]
+  );
+
+  // Dedicated Celebration Actions
+  const handleCelebrationPrimaryAction = useCallback((celebration) => {
+    dismissCelebration(celebration.id);
+    if (!celebration) return;
+
+    if (celebration.type === 'work') {
+      // Focus ended -> go to break
+      const isLong = (cycleCount > 0 && cycleCount % (settings.longBreakInterval || 4) === 0);
+      const nextMode = isLong ? 'longBreak' : 'shortBreak';
+      const nextSecs = (isLong ? settings.longBreakDuration : settings.shortBreakDuration) * 60;
+      setTimerMode(nextMode);
+      timerModeRef.current = nextMode;
+      setTimeLeft(nextSecs);
+      timeLeftRef.current = nextSecs;
+      setIsRunning(true);
+      isRunningRef.current = true;
+    } else if (celebration.type === 'break') {
+      // Break ended -> go to focus
+      const nextSecs = (settings.workDuration || 25) * 60;
+      setTimerMode('work');
+      timerModeRef.current = 'work';
+      setTimeLeft(nextSecs);
+      timeLeftRef.current = nextSecs;
+      setIsRunning(true);
+      isRunningRef.current = true;
+    }
+  }, [dismissCelebration, cycleCount, settings]);
+
   const [isNavHidden, setIsNavHidden] = useState(false);
 
   // Modals State
@@ -69,28 +145,59 @@ export default function App() {
   const [projectToEdit, setProjectToEdit] = useState(null);
   const [strictModalOpen, setStrictModalOpen] = useState(false);
 
+  // UX feedback state
+  const [toast, setToast] = useState(null);
+  const [justCompletedId, setJustCompletedId] = useState(null);
+
   const timerRef = useRef(null);
   const lastTickRef = useRef(null);
+
+  // Synchronized state references for unthrottled background execution & stable callbacks
+  const navTabRef = useRef(navTab);
+  navTabRef.current = navTab;
+
+  const timerModeRef = useRef(timerMode);
+  timerModeRef.current = timerMode;
+
+  const timeLeftRef = useRef(timeLeft);
+  timeLeftRef.current = timeLeft;
+
+  const isRunningRef = useRef(isRunning);
+  isRunningRef.current = isRunning;
+
+  const cycleCountRef = useRef(cycleCount);
+  cycleCountRef.current = cycleCount;
+
+  const activeTaskRef = useRef(activeTask);
+  activeTaskRef.current = activeTask;
+
+  const tasksRef = useRef(tasks);
+  tasksRef.current = tasks;
+
+  const projectsRef = useRef(projects);
+  projectsRef.current = projects;
+
+  const settingsRef = useRef(settings);
+  settingsRef.current = settings;
+
+  const currentSoundRef = useRef(currentSound);
+  currentSoundRef.current = currentSound;
 
   // Swipe gesture refs
   const touchStart = useRef({ x: null, y: null });
   const touchEnd = useRef({ x: null, y: null });
 
-  const TAB_ORDER = { home: 0, timer: 1, reports: 2, profile: 3 };
+  const handleTabSwitch = useCallback((newTab) => {
+    if (newTab === navTabRef.current) return;
+    // 1. Immediate UI update for the bottom dock indicator (Paint occurs in <16ms, INP < 60ms)
+    navTabRef.current = newTab;
+    setNavTab(newTab);
 
-  const handleTabSwitch = (newTab) => {
-    if (newTab === activeTab || isTransitioning) return;
-    const dir = TAB_ORDER[newTab] > TAB_ORDER[activeTab] ? 'left' : 'right';
-    setSlideDir(dir);
-    setPrevTab(activeTab);
-    setActiveTab(newTab);
-    setIsTransitioning(true);
-
-    setTimeout(() => {
-      setIsTransitioning(false);
-      setPrevTab(null);
-    }, 320);
-  };
+    // 2. React 19 startTransition yields main thread to browser paint before mounting incoming screen
+    startTransition(() => {
+      setActiveTab(newTab);
+    });
+  }, []);
 
   // Load initial data from IDB/localStorage
   useEffect(() => {
@@ -102,9 +209,12 @@ export default function App() {
       setProjects(p || DEFAULT_PROJECTS);
       setTasks(processDailyRollover(t || DEFAULT_TASKS));
       setSessions(s || []);
-      setSettings(set || DEFAULT_SETTINGS);
-      setTimeLeft((set ? set.workDuration : 25) * 60);
-      setCurrentSound(set ? set.soundscape : 'none');
+      const loadedSettings = set || DEFAULT_SETTINGS;
+      setSettings(loadedSettings);
+      
+      document.documentElement.setAttribute('data-theme', 'japandi');
+      setTimeLeft((loadedSettings.workDuration) * 60);
+      setCurrentSound(loadedSettings.soundscape || 'none');
       try {
         await StatusBar.hide();
       } catch (e) {
@@ -128,14 +238,38 @@ export default function App() {
     if (isLoaded) storage.saveSessions(sessions);
   }, [sessions, isLoaded]);
 
+  const prevDurationsRef = useRef({
+    workDuration: DEFAULT_SETTINGS.workDuration,
+    shortBreakDuration: DEFAULT_SETTINGS.shortBreakDuration,
+    longBreakDuration: DEFAULT_SETTINGS.longBreakDuration,
+  });
+
   useEffect(() => {
     if (isLoaded) {
       storage.saveSettings(settings);
-      if (!isRunning && timerMode === 'work') {
-        setTimeLeft(settings.workDuration * 60);
+      document.documentElement.setAttribute('data-theme', 'japandi');
+      const prevDurations = prevDurationsRef.current;
+      const durationsChanged =
+        prevDurations.workDuration !== settings.workDuration ||
+        prevDurations.shortBreakDuration !== settings.shortBreakDuration ||
+        prevDurations.longBreakDuration !== settings.longBreakDuration;
+
+      if (!isRunning && durationsChanged) {
+        if (timerMode === 'work') {
+          setTimeLeft(settings.workDuration * 60);
+        } else if (timerMode === 'shortBreak') {
+          setTimeLeft(settings.shortBreakDuration * 60);
+        } else if (timerMode === 'longBreak') {
+          setTimeLeft(settings.longBreakDuration * 60);
+        }
       }
+      prevDurationsRef.current = {
+        workDuration: settings.workDuration,
+        shortBreakDuration: settings.shortBreakDuration,
+        longBreakDuration: settings.longBreakDuration,
+      };
     }
-  }, [settings, isLoaded]);
+  }, [settings, isLoaded, isRunning, timerMode]);
 
   // Strict Mode Distraction Shield
   useEffect(() => {
@@ -191,21 +325,51 @@ export default function App() {
     };
   }, [isRunning, settings.keepAwake]);
 
+  const updateNotification = useCallback((mode, seconds, currentSettings, running = true) => {
+    if (!currentSettings || currentSettings.liveNotification === false) return;
+    if (!running) {
+      ForegroundService.stopForegroundService().catch(() => {});
+      return;
+    }
+    const mins = Math.floor(seconds / 60);
+    const rem = seconds % 60;
+    const formattedTime = `${mins.toString().padStart(2, '0')}:${rem.toString().padStart(2, '0')}`;
+    const modeLabel = mode === 'work' ? 'Focus' : (mode === 'shortBreak' ? 'Short Break' : (mode === 'stopwatch' ? 'Focus' : 'Long Break'));
+    const prefix = mode === 'stopwatch' ? 'CHRONO_UP:' : 'CHRONO:';
+    ForegroundService.updateForegroundService({
+      id: 1993,
+      title: modeLabel,
+      body: `${prefix}${formattedTime}`,
+      smallIcon: 'ic_stat_focus_text',
+      silent: true,
+      serviceType: 1073741824 // FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+    }).catch(() => {});
+  }, []);
+
   // Manage Live Notification (Origin Island Foreground Service)
   useEffect(() => {
     const manageForegroundService = async () => {
-      if (isRunning && settings.liveNotification) {
+      if (isRunning && settings.liveNotification !== false) {
         try {
-          const modeLabel = timerMode === 'work' ? 'Focus Session' : (timerMode === 'shortBreak' ? 'Short Break' : 'Long Break');
-          const mins = Math.floor(timeLeft / 60);
-          const rem = timeLeft % 60;
+          // Android 13+ requires explicit permission for notifications
+          if (ForegroundService.requestPermissions) {
+            await ForegroundService.requestPermissions();
+          }
+
+          const curMode = timerModeRef.current;
+          const curTime = timeLeftRef.current;
+          const modeLabel = curMode === 'work' ? 'Focus' : (curMode === 'shortBreak' ? 'Short Break' : (curMode === 'stopwatch' ? 'Focus' : 'Long Break'));
+          const mins = Math.floor(curTime / 60);
+          const rem = curTime % 60;
           const formattedTime = `${mins.toString().padStart(2, '0')}:${rem.toString().padStart(2, '0')}`;
           
+          const prefix = curMode === 'stopwatch' ? 'CHRONO_UP:' : 'CHRONO:';
           await ForegroundService.startForegroundService({
             id: 1993,
-            title: formattedTime,
-            body: modeLabel,
-            smallIcon: 'ic_launcher'
+            title: modeLabel,
+            body: `${prefix}${formattedTime}`,
+            smallIcon: 'ic_stat_focus_text',
+            serviceType: 1073741824 // FOREGROUND_SERVICE_TYPE_SPECIAL_USE
           });
         } catch (e) {
           console.log('ForegroundService start error:', e);
@@ -217,102 +381,119 @@ export default function App() {
       }
     };
     manageForegroundService();
-  }, [isRunning, settings.liveNotification, timerMode]);
+  }, [isRunning, settings.liveNotification]);
 
   // Auto hide/show bottom nav when timer starts or stops
   useEffect(() => {
-    if (isRunning && activeTab === 'timer') {
+    if (isRunning) {
       setIsNavHidden(true);
     } else {
       setIsNavHidden(false);
     }
-  }, [isRunning, activeTab]);
+  }, [isRunning]);
 
-  // Timer Tick Logic
-  useEffect(() => {
-    if (isRunning) {
-      lastTickRef.current = Date.now();
-      timerRef.current = setInterval(() => {
-        const now = Date.now();
-        const deltaSecs = Math.floor((now - lastTickRef.current) / 1000);
+  // Advance timer state and simulate background cycle transitions
+  const advanceTime = useCallback((deltaSecs) => {
+    if (deltaSecs <= 0) return;
 
-        if (deltaSecs >= 1) {
-          lastTickRef.current += deltaSecs * 1000;
-          setTimeLeft((prev) => {
-            let nextVal = prev;
-            if (timerMode === 'stopwatch') nextVal = prev + deltaSecs;
-            else if (prev - deltaSecs <= 0) nextVal = 0;
-            else nextVal = prev - deltaSecs;
+    let remainingDelta = deltaSecs;
+    let curMode = timerModeRef.current;
+    let curTimeLeft = timeLeftRef.current;
+    let curRunning = isRunningRef.current;
+    let curCycles = cycleCountRef.current;
+    const curSettings = settingsRef.current;
+    const curTask = activeTaskRef.current;
+    const curProjects = projectsRef.current;
 
-            if (settings.liveNotification) {
-              const mins = Math.floor(nextVal / 60);
-              const rem = nextVal % 60;
-              const formattedTime = `${mins.toString().padStart(2, '0')}:${rem.toString().padStart(2, '0')}`;
-              const modeLabel = timerMode === 'work' ? 'Focus Session' : (timerMode === 'shortBreak' ? 'Short Break' : 'Long Break');
-              ForegroundService.updateForegroundService({
-                id: 1993,
-                title: formattedTime,
-                body: modeLabel,
-                smallIcon: 'ic_launcher'
-              }).catch(() => {});
-            }
+    if (!curRunning) return;
 
-            if (nextVal === 0 && timerMode !== 'stopwatch') {
-              clearInterval(timerRef.current);
-              setTimeout(() => handleTimerFinish(), 0);
-              return 0;
-            }
-            return nextVal;
+    if (curMode === 'stopwatch') {
+      const nextTime = curTimeLeft + remainingDelta;
+      timeLeftRef.current = nextTime;
+      setTimeLeft(nextTime);
+      updateNotification(curMode, nextTime, curSettings, true);
+      return;
+    }
+
+    const sessionsToAdd = [];
+    let pomosEarned = 0;
+    const celebrationsToEnqueue = [];
+
+    while (remainingDelta > 0 && curRunning) {
+      if (remainingDelta < curTimeLeft) {
+        curTimeLeft -= remainingDelta;
+        remainingDelta = 0;
+      } else {
+        // Current cycle completed!
+        remainingDelta -= curTimeLeft;
+
+        if (curMode === 'work') {
+          pomosEarned += 1;
+          curCycles += 1;
+
+          const newSess = {
+            id: `sess-${Date.now()}-${sessionsToAdd.length}`,
+            projectId: curTask ? curTask.projectId : (curProjects[0] ? curProjects[0].id : 'proj-1'),
+            duration: curSettings.workDuration,
+            completedAt: new Date().toISOString(),
+            dateStr: getLocalDateStr(),
+          };
+          sessionsToAdd.push(newSess);
+
+          celebrationsToEnqueue.push({
+            type: 'work',
+            title: `Session ${curCycles} Completed`,
+            subtitle: 'Great focus! Enjoy a moment of calm.',
+            duration: curSettings.workDuration || 25,
+            autoStarted: !!curSettings.autoStartBreaks,
+            lottie: clockTickingLottie,
           });
+
+          const isLong = curCycles % (curSettings.longBreakInterval || 4) === 0;
+          curMode = isLong ? 'longBreak' : 'shortBreak';
+          curTimeLeft = (isLong ? curSettings.longBreakDuration : curSettings.shortBreakDuration) * 60;
+
+          if (!curSettings.autoStartBreaks) {
+            curRunning = false;
+            remainingDelta = 0;
+          }
+        } else {
+          // Break completed!
+          celebrationsToEnqueue.push({
+            type: 'break',
+            title: 'Break Completed',
+            subtitle: 'Refreshed? Ready to focus again?',
+            duration: (curMode === 'longBreak' ? curSettings.longBreakDuration : curSettings.shortBreakDuration) || 5,
+            autoStarted: !!curSettings.autoStartPomodoros,
+            lottie: clockTickingLottie,
+          });
+
+          curMode = 'work';
+          curTimeLeft = (curSettings.workDuration || 25) * 60;
+
+          if (!curSettings.autoStartPomodoros) {
+            curRunning = false;
+            remainingDelta = 0;
+          }
         }
-      }, 1000);
-    } else {
-      if (timerRef.current) clearInterval(timerRef.current);
-    }
-    return () => clearInterval(timerRef.current);
-  }, [isRunning, timerMode, cycleCount, activeTask, settings]);
-
-  const handleTimerFinish = () => {
-    setIsRunning(false);
-    soundEngine.playChime();
-    if (window.navigator && window.navigator.vibrate) {
-      window.navigator.vibrate([100, 50, 100, 50, 200]);
+      }
     }
 
-    setSessionDoneAlert({
-      mode: timerMode,
-      title: timerMode === 'work' ? `Session ${cycleCount + 1} Completed` : 'Break Completed',
-      subtitle: timerMode === 'work' ? 'Great focus! Enjoy a moment of calm.' : 'Refreshed? Ready to focus again?',
-    });
-    setTimeout(() => {
-      setSessionDoneAlert(null);
-    }, 5000);
+    if (sessionsToAdd.length > 0) {
+      setSessions((prev) => [...sessionsToAdd, ...prev]);
 
-    if (timerMode === 'work') {
-
-      const nextCycle = cycleCount + 1;
-      setCycleCount(nextCycle);
-
-      const newSess = {
-        id: `sess-${Date.now()}`,
-        projectId: activeTask ? activeTask.projectId : (projects[0] ? projects[0].id : 'proj-1'),
-        duration: settings.workDuration,
-        completedAt: new Date().toISOString(),
-        dateStr: getLocalDateStr(),
-      };
-      setSessions((prev) => [newSess, ...prev]);
-
+      const primaryProjId = sessionsToAdd[0].projectId;
       setProjects((prev) =>
         prev.map((p) =>
-          p.id === newSess.projectId ? { ...p, pomodoros: (p.pomodoros || 0) + 1 } : p
+          p.id === primaryProjId ? { ...p, pomodoros: (p.pomodoros || 0) + pomosEarned } : p
         )
       );
 
-      if (activeTask) {
+      if (curTask) {
         setTasks((prev) =>
           prev.map((t) => {
-            if (t.id === activeTask.id) {
-              const updatedPomos = (t.completedPomos || 0) + 1;
+            if (t.id === curTask.id) {
+              const updatedPomos = (t.completedPomos || 0) + pomosEarned;
               const isDone = updatedPomos >= t.estimatedPomos;
               const todayStr = getLocalDateStr();
               return {
@@ -327,103 +508,393 @@ export default function App() {
           })
         );
         setActiveTask((prev) =>
-          prev ? { ...prev, completedPomos: (prev.completedPomos || 0) + 1 } : null
+          prev ? { ...prev, completedPomos: (prev.completedPomos || 0) + pomosEarned } : null
         );
       }
+    }
 
-      if (nextCycle % (settings.longBreakInterval || 4) === 0) {
-        setTimerMode('longBreak');
-        setTimeLeft(settings.longBreakDuration * 60);
-      } else {
-        setTimerMode('shortBreak');
-        setTimeLeft(settings.shortBreakDuration * 60);
+    if (celebrationsToEnqueue.length > 0) {
+      soundEngine.stop();
+      soundEngine.playChime();
+      if (window.navigator?.vibrate) {
+        window.navigator.vibrate([100, 50, 100, 50, 200]);
       }
+      try {
+        Haptics.vibrate({ duration: 500 }).catch(() => {});
+      } catch (e) {}
 
-      if (settings.autoStartBreaks) {
-        setTimeout(() => setIsRunning(true), 1500);
-      }
-    } else {
-      setTimerMode('work');
-      setTimeLeft(settings.workDuration * 60);
-      if (settings.autoStartPomodoros) {
-        setTimeout(() => setIsRunning(true), 1500);
+      celebrationsToEnqueue.forEach((c) => enqueueCelebration(c));
+    }
+
+    timeLeftRef.current = curTimeLeft;
+    setTimeLeft(curTimeLeft);
+
+    if (curMode !== timerModeRef.current) {
+      timerModeRef.current = curMode;
+      setTimerMode(curMode);
+    }
+
+    if (curCycles !== cycleCountRef.current) {
+      cycleCountRef.current = curCycles;
+      setCycleCount(curCycles);
+    }
+
+    if (curRunning !== isRunningRef.current) {
+      isRunningRef.current = curRunning;
+      setIsRunning(curRunning);
+      if (!curRunning) {
+        setIsNavHidden(false);
       }
     }
-  };
 
-  const handleTogglePlay = () => {
-    if (!isRunning && currentSound !== 'none') {
-      soundEngine.play(currentSound, settings.soundVolume);
-    } else if (isRunning) {
+    updateNotification(curMode, curTimeLeft, curSettings, curRunning);
+  }, [enqueueCelebration, updateNotification]);
+
+  // Tick listener callback
+  const handleTick = useCallback(() => {
+    if (!isRunningRef.current) return;
+    const now = Date.now();
+    if (!lastTickRef.current) {
+      lastTickRef.current = now;
+      return;
+    }
+    const deltaSecs = Math.floor((now - lastTickRef.current) / 1000);
+    if (deltaSecs >= 1) {
+      lastTickRef.current += deltaSecs * 1000;
+      advanceTime(deltaSecs);
+    }
+  }, [advanceTime]);
+
+  // Manage unthrottled timer execution (Dedicated Web Worker + Fallback)
+  useEffect(() => {
+    if (isRunning) {
+      lastTickRef.current = Date.now();
+      timerWorker.start(handleTick);
+    } else {
+      timerWorker.stop();
+      lastTickRef.current = null;
+    }
+    return () => {
+      timerWorker.stop();
+    };
+  }, [isRunning, handleTick]);
+
+  // Immediate catch-up when returning to foreground / unlocking screen / app resume
+  useEffect(() => {
+    const handleSync = () => {
+      if (isRunningRef.current && lastTickRef.current) {
+        const now = Date.now();
+        const deltaSecs = Math.floor((now - lastTickRef.current) / 1000);
+        if (deltaSecs >= 1) {
+          lastTickRef.current += deltaSecs * 1000;
+          advanceTime(deltaSecs);
+        }
+      }
+    };
+
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        handleSync();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    let appStateHandle = null;
+    try {
+      CapApp.addListener('appStateChange', (state) => {
+        if (state.isActive) {
+          handleSync();
+        }
+      }).then((handle) => {
+        appStateHandle = handle;
+      }).catch(() => {});
+    } catch (e) {}
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility);
+      if (appStateHandle && typeof appStateHandle.remove === 'function') {
+        appStateHandle.remove();
+      }
+    };
+  }, [advanceTime]);
+
+  const showToast = useCallback((message, onUndo) => {
+    setToast({ id: Date.now(), message, onUndo });
+  }, []);
+
+  const dismissToast = useCallback((id) => {
+    setToast((cur) => (cur && cur.id === id ? null : cur));
+  }, []);
+
+  const saveFocusProgress = useCallback((elapsedSecs) => {
+    if (elapsedSecs < 30) return;
+    const elapsedMins = Math.round(elapsedSecs / 60);
+    const savedDuration = Math.max(1, elapsedMins);
+    const curTask = activeTaskRef.current;
+    const curProjects = projectsRef.current;
+    const newSess = {
+      id: `sess-${Date.now()}`,
+      projectId: curTask ? curTask.projectId : (curProjects[0] ? curProjects[0].id : 'proj-1'),
+      duration: savedDuration,
+      completedAt: new Date().toISOString(),
+      dateStr: getLocalDateStr(),
+    };
+    setSessions((prev) => [newSess, ...prev]);
+
+    setProjects((prev) =>
+      prev.map((p) =>
+        p.id === newSess.projectId ? { ...p, pomodoros: (p.pomodoros || 0) + 1 } : p
+      )
+    );
+
+    if (curTask) {
+      setTasks((prev) =>
+        prev.map((t) => {
+          if (t.id === curTask.id) {
+            const updatedPomos = (t.completedPomos || 0) + 1;
+            const isDone = updatedPomos >= t.estimatedPomos;
+            const todayStr = getLocalDateStr();
+            return {
+              ...t,
+              completedPomos: updatedPomos,
+              completed: isDone,
+              completedDateStr: isDone ? todayStr : t.completedDateStr,
+              completedAt: isDone ? new Date().toISOString() : t.completedAt,
+            };
+          }
+          return t;
+        })
+      );
+      setActiveTask((prev) =>
+        prev ? { ...prev, completedPomos: (prev.completedPomos || 0) + 1 } : null
+      );
+    }
+  }, []);
+
+  const handleTogglePlay = useCallback((targetMode) => {
+    const curMode = timerModeRef.current;
+    const curRunning = isRunningRef.current;
+    const curSettings = settingsRef.current;
+    const curTimeLeft = timeLeftRef.current;
+    const curSound = currentSoundRef.current;
+    const effectiveMode = targetMode || curMode;
+
+    // If starting a different mode than the one currently running
+    if (curRunning && targetMode && targetMode !== curMode) {
+      // If we were running a focus timer and are now starting a break timer: save focus progress
+      if (curMode === 'work') {
+        const totalSecs = curSettings.workDuration * 60;
+        const elapsedSecs = Math.max(0, totalSecs - curTimeLeft);
+        saveFocusProgress(elapsedSecs);
+        setCycleCount((prev) => {
+          const next = prev + 1;
+          cycleCountRef.current = next;
+          return next;
+        });
+      }
+      // Set new mode time
+      let newDurationSecs = curSettings.workDuration * 60;
+      if (effectiveMode === 'shortBreak') newDurationSecs = curSettings.shortBreakDuration * 60;
+      else if (effectiveMode === 'longBreak') newDurationSecs = curSettings.longBreakDuration * 60;
+      else if (effectiveMode === 'stopwatch') newDurationSecs = 0;
+
+      timerModeRef.current = effectiveMode;
+      setTimerMode(effectiveMode);
+      timeLeftRef.current = newDurationSecs;
+      setTimeLeft(newDurationSecs);
+      isRunningRef.current = true;
+      setIsRunning(true);
+      if (curSound !== 'none') soundEngine.play(curSound, curSettings.soundVolume);
+      return;
+    }
+
+    // Normal play/pause toggle for current mode
+    if (!curRunning && curSound !== 'none') {
+      soundEngine.play(curSound, curSettings.soundVolume);
+    } else if (curRunning) {
       soundEngine.stop();
     }
-    setIsRunning(!isRunning);
-  };
+    const nextRunning = !curRunning;
+    isRunningRef.current = nextRunning;
+    setIsRunning(nextRunning);
+  }, [saveFocusProgress]);
 
-  const handleSelectMode = (mode) => {
-    setIsRunning(false);
-    soundEngine.stop();
-    setTimerMode(mode);
-    if (mode === 'work') setTimeLeft(settings.workDuration * 60);
-    else if (mode === 'shortBreak') setTimeLeft(settings.shortBreakDuration * 60);
-    else if (mode === 'longBreak') setTimeLeft(settings.longBreakDuration * 60);
-    else if (mode === 'stopwatch') setTimeLeft(0);
-  };
-
-  const handleResetTimer = () => {
-    setIsRunning(false);
-    soundEngine.stop();
-    if (timerMode === 'work') setTimeLeft(settings.workDuration * 60);
-    else if (timerMode === 'shortBreak') setTimeLeft(settings.shortBreakDuration * 60);
-    else if (timerMode === 'longBreak') setTimeLeft(settings.longBreakDuration * 60);
-    else if (timerMode === 'stopwatch') setTimeLeft(0);
-  };
-
-  const handleSkipBreak = () => {
-    setIsRunning(false);
-    soundEngine.stop();
-    setTimerMode('work');
-    setTimeLeft(settings.workDuration * 60);
-    if (settings.autoStartPomodoros) {
-      setTimeout(() => setIsRunning(true), 500);
+  const handleSelectMode = useCallback((mode) => {
+    // If not running, change mode immediately
+    if (!isRunningRef.current) {
+      const curSettings = settingsRef.current;
+      setIsNavHidden(false);
+      soundEngine.stop();
+      timerModeRef.current = mode;
+      setTimerMode(mode);
+      let nextSecs = 0;
+      if (mode === 'work') nextSecs = curSettings.workDuration * 60;
+      else if (mode === 'shortBreak') nextSecs = curSettings.shortBreakDuration * 60;
+      else if (mode === 'longBreak') nextSecs = curSettings.longBreakDuration * 60;
+      else if (mode === 'stopwatch') nextSecs = 0;
+      timeLeftRef.current = nextSecs;
+      setTimeLeft(nextSecs);
     }
-  };
+    // When timer is running, TimerView maintains a preview tab so accidental clicks do not interrupt the session
+  }, []);
 
-  const handleSaveTask = (savedTask) => {
+  const handleResetTimer = useCallback(() => {
+    const curMode = timerModeRef.current;
+    const curSettings = settingsRef.current;
+    setIsRunning(false);
+    isRunningRef.current = false;
+    setIsNavHidden(false);
+    soundEngine.stop();
+    ForegroundService.stopForegroundService().catch(() => {});
+    let resetSecs = 0;
+    if (curMode === 'work') resetSecs = curSettings.workDuration * 60;
+    else if (curMode === 'shortBreak') resetSecs = curSettings.shortBreakDuration * 60;
+    else if (curMode === 'longBreak') resetSecs = curSettings.longBreakDuration * 60;
+    else if (curMode === 'stopwatch') resetSecs = 0;
+    setTimeLeft(resetSecs);
+    timeLeftRef.current = resetSecs;
+  }, []);
+
+  const handleSkip = useCallback(() => {
+    soundEngine.stop();
+    const curMode = timerModeRef.current;
+    const curSettings = settingsRef.current;
+    const curTimeLeft = timeLeftRef.current;
+    const curCycles = cycleCountRef.current;
+
+    if (curMode === 'work') {
+      const totalSecs = curSettings.workDuration * 60;
+      const elapsedSecs = Math.max(0, totalSecs - curTimeLeft);
+      saveFocusProgress(elapsedSecs);
+
+      const nextCycle = curCycles + 1;
+      setCycleCount(nextCycle);
+      cycleCountRef.current = nextCycle;
+
+      const isLong = nextCycle % (curSettings.longBreakInterval || 4) === 0;
+      const nextMode = isLong ? 'longBreak' : 'shortBreak';
+      const nextDuration = (isLong ? curSettings.longBreakDuration : curSettings.shortBreakDuration) * 60;
+
+      setTimerMode(nextMode);
+      timerModeRef.current = nextMode;
+      setTimeLeft(nextDuration);
+      timeLeftRef.current = nextDuration;
+
+      const shouldAuto = !!curSettings.autoStartBreaks;
+      setIsRunning(shouldAuto);
+      isRunningRef.current = shouldAuto;
+      if (!shouldAuto) {
+        setIsNavHidden(false);
+        ForegroundService.stopForegroundService().catch(() => {});
+      } else {
+        lastTickRef.current = Date.now();
+        updateNotification(nextMode, nextDuration, curSettings, true);
+      }
+    } else {
+      // Skipping break transitions back to work
+      const nextDuration = curSettings.workDuration * 60;
+      setTimerMode('work');
+      timerModeRef.current = 'work';
+      setTimeLeft(nextDuration);
+      timeLeftRef.current = nextDuration;
+
+      const shouldAuto = !!curSettings.autoStartPomodoros;
+      setIsRunning(shouldAuto);
+      isRunningRef.current = shouldAuto;
+      if (!shouldAuto) {
+        setIsNavHidden(false);
+        ForegroundService.stopForegroundService().catch(() => {});
+      } else {
+        lastTickRef.current = Date.now();
+        updateNotification('work', nextDuration, curSettings, true);
+      }
+    }
+  }, [saveFocusProgress, updateNotification]);
+
+  const handleSaveTask = useCallback((savedTask) => {
     setTasks((prev) => {
       const exists = prev.some((t) => t.id === savedTask.id);
       if (exists) return prev.map((t) => (t.id === savedTask.id ? savedTask : t));
       return [savedTask, ...prev];
     });
-    if (activeTask && activeTask.id === savedTask.id) {
+    if (activeTaskRef.current && activeTaskRef.current.id === savedTask.id) {
       setActiveTask(savedTask);
     }
-  };
+  }, []);
 
-  const handleDeleteTask = (id) => {
+  const handleDeleteTask = useCallback((taskOrId) => {
+    const id = typeof taskOrId === 'object' ? taskOrId?.id : taskOrId;
+    if (!id) return;
+    const target =
+      typeof taskOrId === 'object'
+        ? taskOrId
+        : tasksRef.current.find((t) => t.id === id);
+
     setTasks((prev) => prev.filter((t) => t.id !== id));
-    if (activeTask && activeTask.id === id) setActiveTask(null);
-  };
+    if (activeTaskRef.current && activeTaskRef.current.id === id) {
+      setActiveTask(null);
+    }
 
-  const handleToggleComplete = (id) => {
+    if (target) {
+      showToast('Task deleted', () => {
+        setTasks((prev) => {
+          if (prev.some((t) => t.id === target.id)) return prev;
+          return [target, ...prev];
+        });
+      });
+    }
+  }, [showToast]);
+
+  // Celebrate once when today's focus time crosses the daily goal.
+  const goalMetRef = useRef(null);
+  useEffect(() => {
+    if (!isLoaded) return;
     const todayStr = getLocalDateStr();
-    setTasks((prev) =>
-      prev.map((t) => {
-        if (t.id === id) {
-          const nextCompleted = !t.completed;
-          return {
-            ...t,
-            completed: nextCompleted,
-            completedDateStr: nextCompleted ? todayStr : null,
-            completedAt: nextCompleted ? new Date().toISOString() : null,
-          };
-        }
-        return t;
-      })
-    );
-  };
+    const todayMins = (sessions || []).reduce((acc, s) => {
+      if (!s || typeof s !== 'object') return acc;
+      const sDt = s.dateStr || (typeof s.completedAt === 'string' ? s.completedAt.split('T')[0] : '');
+      return sDt === todayStr ? acc + (Number(s.duration) || 25) : acc;
+    }, 0);
+    const goalHours = Number(settings?.dailyGoalHours) || 4;
+    const met = todayMins >= goalHours * 60;
+    if (goalMetRef.current === false && met) {
+      triggerCelebration('Daily goal reached!', `${goalHours}h of focus completed today`);
+    }
+    goalMetRef.current = met;
+  }, [sessions, settings?.dailyGoalHours, isLoaded, triggerCelebration]);
 
-  const handleToggleSubtask = (taskId, subId) => {
+  const handleToggleComplete = useCallback((id) => {
+    const todayStr = getLocalDateStr();
+    const target = tasksRef.current.find((t) => t.id === id);
+    if (!target) return;
+    const nextCompleted = !target.completed;
+
+    setTasks((prev) =>
+      prev.map((t) =>
+        t.id === id
+          ? {
+              ...t,
+              completed: nextCompleted,
+              completedDateStr: nextCompleted ? todayStr : null,
+              completedAt: nextCompleted ? new Date().toISOString() : null,
+            }
+          : t
+      )
+    );
+
+    if (nextCompleted) {
+      setJustCompletedId(id);
+      setTimeout(() => setJustCompletedId((cur) => (cur === id ? null : cur)), 1100);
+      if (window.navigator?.vibrate) window.navigator.vibrate([10, 30, 14]);
+      showToast('Task completed', () => {
+        setTasks((prev) => prev.map((t) => (t.id === id ? { ...target } : t)));
+        setJustCompletedId(null);
+      });
+    }
+  }, [showToast]);
+
+  const handleToggleSubtask = useCallback((taskId, subId) => {
     setTasks((prev) =>
       prev.map((t) => {
         if (t.id === taskId) {
@@ -435,47 +906,77 @@ export default function App() {
         return t;
       })
     );
-  };
+  }, []);
 
-  const handleStartPomodoroForTask = (task) => {
+  const handleStartPomodoroForTask = useCallback((task) => {
+    if (!task) return;
+    const curActive = activeTaskRef.current;
+    const curRunning = isRunningRef.current;
+    const curMode = timerModeRef.current;
+    const curSettings = settingsRef.current;
+
+    // 1. If tapping the Pause button on the currently running focus task, pause it in-place
+    if (curActive && curActive.id === task.id && curRunning) {
+      handleTogglePlay('work');
+      return;
+    }
+
+    // 2. If tapping Play on the same task that is already selected (paused), resume without resetting timeLeft
+    if (curActive && curActive.id === task.id && !curRunning) {
+      if (curMode !== 'work') {
+        const workSecs = curSettings.workDuration * 60;
+        timerModeRef.current = 'work';
+        setTimerMode('work');
+        timeLeftRef.current = workSecs;
+        setTimeLeft(workSecs);
+      }
+      handleTabSwitch('timer');
+      return;
+    }
+
+    // 3. Switching to a different task: if a focus session was running, preserve elapsed progress
+    if (curRunning && curMode === 'work') {
+      const totalSecs = curSettings.workDuration * 60;
+      const elapsedSecs = Math.max(0, totalSecs - timeLeftRef.current);
+      saveFocusProgress(elapsedSecs);
+    }
+
+    const workSecs = curSettings.workDuration * 60;
+    activeTaskRef.current = task;
     setActiveTask(task);
+    timerModeRef.current = 'work';
     setTimerMode('work');
-    setTimeLeft(settings.workDuration * 60);
+    timeLeftRef.current = workSecs;
+    setTimeLeft(workSecs);
     handleTabSwitch('timer');
-    if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(30);
-  };
+  }, [handleTabSwitch, handleTogglePlay, saveFocusProgress]);
 
-  const handleSaveProject = (savedProj) => {
+  const handleSaveProject = useCallback((savedProj) => {
     setProjects((prev) => {
       const exists = prev.some((p) => p.id === savedProj.id);
       if (exists) return prev.map((p) => (p.id === savedProj.id ? savedProj : p));
       return [...prev, savedProj];
     });
-  };
+  }, []);
 
-  const handleDeleteProject = (id) => {
+  const handleDeleteProject = useCallback((id) => {
     setProjects((prev) => prev.filter((p) => p.id !== id));
     setTasks((prev) => prev.filter((t) => t.projectId !== id));
-    if (selectedProjectId === id) setSelectedProjectId(null);
-  };
+    setSelectedProjectId((prev) => (prev === id ? null : prev));
+  }, []);
 
-  const handleResetAllData = () => {
-    setProjects(DEFAULT_PROJECTS);
-    setTasks(DEFAULT_TASKS);
-    setSessions(generateSampleSessions());
+  const handleResetAllData = useCallback(() => {
+    // True clean wipe
+    setProjects([{ id: 'proj-1', name: 'Personal', color: 'var(--theme-primary)' }]);
+    setTasks([]);
+    setSessions([]);
     setSettings(DEFAULT_SETTINGS);
     setActiveTask(null);
     setCycleCount(0);
     setTimeLeft(25 * 60);
-  };
-
-  if (!isLoaded) {
-    return (
-      <div className="min-h-screen flex items-center justify-center font-mono font-bold text-xs animate-pulse tracking-widest" style={{ background: 'var(--canvas)', color: 'var(--text-primary)' }}>
-        INITIALIZING FOCUS LEDGER // SOLO_OS...
-      </div>
-    );
-  }
+    setCurrentSound('none');
+    soundEngine.stop();
+  }, []);
 
   const getTotalTimeForMode = () => {
     if (timerMode === 'work') return settings.workDuration * 60;
@@ -483,6 +984,79 @@ export default function App() {
     if (timerMode === 'longBreak') return settings.longBreakDuration * 60;
     return 1;
   };
+
+  const handleUpdateSettings = useCallback((newSettings) => {
+    const prevSettings = settingsRef.current;
+    if (newSettings.soundscape !== undefined && newSettings.soundscape !== currentSoundRef.current) {
+      currentSoundRef.current = newSettings.soundscape;
+      setCurrentSound(newSettings.soundscape);
+      if (isRunningRef.current) {
+        if (newSettings.soundscape === 'none') {
+          soundEngine.stop();
+        } else {
+          soundEngine.play(newSettings.soundscape, newSettings.soundVolume ?? prevSettings.soundVolume ?? 0.8);
+        }
+      }
+    }
+    if (newSettings.soundVolume !== undefined && newSettings.soundVolume !== prevSettings.soundVolume) {
+      soundEngine.setVolume(newSettings.soundVolume);
+    }
+    startTransition(() => {
+      setSettings(newSettings);
+    });
+  }, []);
+
+  // Stable UI callbacks so React.memo tab views never re-render unnecessarily during 1Hz timer ticks
+  const handleOpenAddTask = useCallback(() => {
+    setTaskToEdit(null);
+    setTaskModalOpen(true);
+  }, []);
+
+  const handleOpenEditTask = useCallback((task) => {
+    setTaskToEdit(task);
+    setTaskModalOpen(true);
+  }, []);
+
+  const handleOpenAddProject = useCallback(() => {
+    setProjectToEdit(null);
+    setProjectModalOpen(true);
+  }, []);
+
+  const handleOpenEditProject = useCallback((proj) => {
+    setProjectToEdit(proj);
+    setProjectModalOpen(true);
+  }, []);
+
+  const handleSelectSound = useCallback((snd) => {
+    currentSoundRef.current = snd;
+    setCurrentSound(snd);
+    setSettings((prev) => ({ ...prev, soundscape: snd }));
+  }, []);
+
+  const handleChangeVolume = useCallback((vol) => {
+    setSettings((prev) => ({ ...prev, soundVolume: vol }));
+  }, []);
+
+  const handleClearActiveTask = useCallback(() => {
+    setActiveTask(null);
+    handleTabSwitch('home');
+  }, [handleTabSwitch]);
+
+  const handleToggleStrictMode = useCallback(() => {
+    setSettings((prev) => ({ ...prev, strictMode: !prev.strictMode }));
+  }, []);
+
+  const handleToggleNav = useCallback(() => {
+    setIsNavHidden((prev) => !prev);
+  }, []);
+
+  const handleCloseTaskModal = useCallback(() => setTaskModalOpen(false), []);
+  const handleCloseProjectModal = useCallback(() => setProjectModalOpen(false), []);
+  const handleCloseStrictModal = useCallback(() => setStrictModalOpen(false), []);
+  const handleResetStrictModal = useCallback(() => {
+    handleResetTimer();
+    setStrictModalOpen(false);
+  }, [handleResetTimer]);
 
   const renderTabContent = (tabKey) => {
     if (tabKey === 'home') {
@@ -494,27 +1068,18 @@ export default function App() {
           settings={settings}
           selectedProjectId={selectedProjectId}
           onSelectProject={setSelectedProjectId}
-          onAddTask={() => {
-            setTaskToEdit(null);
-            setTaskModalOpen(true);
-          }}
-          onEditTask={(task) => {
-            setTaskToEdit(task);
-            setTaskModalOpen(true);
-          }}
+          onAddTask={handleOpenAddTask}
+          onEditTask={handleOpenEditTask}
           onDeleteTask={handleDeleteTask}
           onToggleComplete={handleToggleComplete}
+          justCompletedId={justCompletedId}
           onToggleSubtask={handleToggleSubtask}
           onStartPomodoro={handleStartPomodoroForTask}
-          onAddProject={() => {
-            setProjectToEdit(null);
-            setProjectModalOpen(true);
-          }}
-          onEditProject={(proj) => {
-            setProjectToEdit(proj);
-            setProjectModalOpen(true);
-          }}
+          onAddProject={handleOpenAddProject}
+          onEditProject={handleOpenEditProject}
           onDeleteProject={handleDeleteProject}
+          activeTaskId={activeTask?.id}
+          isTimerRunning={isRunning}
         />
       );
     }
@@ -526,27 +1091,22 @@ export default function App() {
           totalTime={getTotalTimeForMode()}
           isRunning={isRunning}
           cycleCount={cycleCount}
+          longBreakInterval={settings.longBreakInterval || 4}
           activeTask={activeTask}
           projects={projects}
           currentSound={currentSound}
           soundVolume={settings.soundVolume}
           onTogglePlay={handleTogglePlay}
           onReset={handleResetTimer}
-          onSkip={handleSkipBreak}
+          onSkip={handleSkip}
           onModeChange={handleSelectMode}
-          onSelectSound={(snd) => {
-            setCurrentSound(snd);
-            setSettings({ ...settings, soundscape: snd });
-          }}
-          onChangeVolume={(vol) => setSettings({ ...settings, soundVolume: vol })}
-          onClearActiveTask={() => {
-            setActiveTask(null);
-            handleTabSwitch('home');
-          }}
+          onSelectSound={handleSelectSound}
+          onChangeVolume={handleChangeVolume}
+          onClearActiveTask={handleClearActiveTask}
           strictMode={settings.strictMode}
-          onToggleStrictMode={() => setSettings({ ...settings, strictMode: !settings.strictMode })}
+          onToggleStrictMode={handleToggleStrictMode}
           isNavHidden={isNavHidden && activeTab === 'timer'}
-          onToggleNav={() => setIsNavHidden((prev) => !prev)}
+          onToggleNav={handleToggleNav}
         />
       );
     }
@@ -556,6 +1116,12 @@ export default function App() {
           tasks={tasks}
           projects={projects}
           sessions={sessions}
+          settings={settings}
+          period={activityPeriod}
+          setPeriod={setActivityPeriod}
+          offset={activityOffset}
+          setOffset={setActivityOffset}
+          hideHeader={false}
         />
       );
     }
@@ -564,17 +1130,11 @@ export default function App() {
         <ProfileView
           sessions={sessions}
           settings={settings}
-          onUpdateSettings={setSettings}
+          onUpdateSettings={handleUpdateSettings}
           onResetAllData={handleResetAllData}
           projects={projects}
-          onAddProject={() => {
-            setProjectToEdit(null);
-            setProjectModalOpen(true);
-          }}
-          onEditProject={(proj) => {
-            setProjectToEdit(proj);
-            setProjectModalOpen(true);
-          }}
+          onAddProject={handleOpenAddProject}
+          onEditProject={handleOpenEditProject}
           onDeleteProject={handleDeleteProject}
         />
       );
@@ -594,6 +1154,7 @@ export default function App() {
   const handleTouchEnd = (e) => {
     if (isNavHidden) return; // Don't swipe when in fullscreen timer mode
     if (e.target.tagName?.toLowerCase() === 'input' && e.target.type === 'range') return;
+    if (e.target.closest('.no-swipe')) return; // Ignore swipes in horizontal scroll areas
 
     if (!touchStart.current.x || !touchEnd.current.x) return;
     const dx = touchStart.current.x - touchEnd.current.x;
@@ -607,9 +1168,11 @@ export default function App() {
       const currentIndex = tabs.indexOf(activeTab);
       
       if (isLeftSwipe && currentIndex < tabs.length - 1) {
+        if (window.navigator?.vibrate) window.navigator.vibrate(10);
         handleTabSwitch(tabs[currentIndex + 1]);
       }
       if (isRightSwipe && currentIndex > 0) {
+        if (window.navigator?.vibrate) window.navigator.vibrate(10);
         handleTabSwitch(tabs[currentIndex - 1]);
       }
     }
@@ -620,108 +1183,77 @@ export default function App() {
 
   return (
     <div 
-      className={`min-h-[100dvh] flex flex-col font-sans ${isNavHidden ? 'overflow-hidden h-[100dvh]' : ''}`} 
-      style={{ background: 'var(--canvas)', color: 'var(--text-primary)' }}
+      className={`min-h-[100dvh] flex flex-col font-sans bg-canvas text-text-main animate-app-enter-fade ${isNavHidden ? 'overflow-hidden h-[100dvh]' : ''}`} 
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Active Tab Screen */}
+      {/* App Launch Split Reveal Animation */}
+      {showPreloader && (
+        <SplitRevealPreloader onFinish={handleFinishPreloader} />
+      )}
+
+      {/* Single Screen Mount with Hardware-Accelerated GPU Opacity Fade-In (Zero DOM stacking, INP < 60ms) */}
       <main className={`flex-1 relative ${isNavHidden ? 'overflow-hidden' : 'overflow-x-hidden'}`}>
-        <div className="relative w-full min-h-full">
-          {isTransitioning && prevTab && (
-            <div className={`absolute inset-0 w-full ${slideDir === 'left' ? 'animate-slide-out-left' : 'animate-slide-out-right'}`}>
-              {renderTabContent(prevTab)}
-            </div>
-          )}
-          <div className={`w-full min-h-full ${isTransitioning ? (slideDir === 'left' ? 'animate-slide-in-right' : 'animate-slide-in-left') : ''}`}>
-            {renderTabContent(activeTab)}
-          </div>
+        <div
+          key={activeTab}
+          className="relative w-full min-h-full animate-page-fade-in z-20"
+          style={{ willChange: 'opacity' }}
+        >
+          {renderTabContent(activeTab)}
         </div>
       </main>
 
-      {/* Bottom Screen Fade Overlay */}
+      {/* Bottom Screen Fade Overlay (Pure GPU gradient, zero backdrop-blur overhead) */}
       <div 
-        className="fixed bottom-0 left-0 right-0 h-32 pointer-events-none z-40 transition-opacity duration-500 backdrop-blur-md"
+        className="fixed bottom-0 left-0 right-0 h-28 pointer-events-none z-40 transition-opacity duration-300"
         style={{
-          background: 'rgba(250, 250, 250, 0.8)', // slight transparency for the blur to show
-          maskImage: 'linear-gradient(to top, black 25%, transparent)',
-          WebkitMaskImage: 'linear-gradient(to top, black 25%, transparent)',
+          background: 'linear-gradient(to top, var(--theme-canvas) 20%, transparent 100%)',
           opacity: (isNavHidden && activeTab === 'timer') ? 0 : 1,
         }}
       />
 
       {/* Bottom Navigation */}
       <BottomNav
-        activeTab={activeTab}
+        activeTab={navTab}
         setActiveTab={handleTabSwitch}
-        onOpenNewTask={() => {
-          setTaskToEdit(null);
-          setTaskModalOpen(true);
-        }}
+        onOpenNewTask={handleOpenAddTask}
         isHidden={isNavHidden && activeTab === 'timer'}
       />
 
       {/* Modals */}
       <TaskModal
         isOpen={taskModalOpen}
-        onClose={() => setTaskModalOpen(false)}
+        onClose={handleCloseTaskModal}
         onSave={handleSaveTask}
+        onDelete={handleDeleteTask}
         projects={projects}
         taskToEdit={taskToEdit}
         defaultProjectId={selectedProjectId}
-        onOpenCreateProject={() => {
-          setProjectToEdit(null);
-          setProjectModalOpen(true);
-        }}
+        onOpenCreateProject={handleOpenAddProject}
       />
 
       <ProjectModal
         isOpen={projectModalOpen}
-        onClose={() => setProjectModalOpen(false)}
+        onClose={handleCloseProjectModal}
         onSave={handleSaveProject}
         projectToEdit={projectToEdit}
       />
 
       <StrictModeModal
         isOpen={strictModalOpen}
-        onClose={() => setStrictModalOpen(false)}
-        onResetTimer={() => {
-          handleResetTimer();
-          setStrictModalOpen(false);
-        }}
+        onClose={handleCloseStrictModal}
+        onResetTimer={handleResetStrictModal}
       />
 
-      {/* Minimalist Session Completion Banner */}
-      {sessionDoneAlert && (
-        <div className="fixed top-8 left-1/2 z-50 animate-slideDown" style={{ transform: 'translateX(-50%)' }}>
-          <div
-            className="flex items-center gap-3.5 select-none"
-            style={{
-              background: 'rgba(250, 250, 250, 0.85)',
-              backdropFilter: 'blur(32px)',
-              WebkitBackdropFilter: 'blur(32px)',
-              border: '1px solid var(--surface-border)',
-              boxShadow: '0 16px 40px -12px rgba(0,0,0,0.15)',
-              borderRadius: 99,
-              padding: '12px 24px 12px 14px',
-            }}
-          >
-            <div className="flex items-center justify-center shrink-0" style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--text-primary)' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#fff' }}>check</span>
-            </div>
-            <div className="flex flex-col justify-center whitespace-nowrap" style={{ marginTop: -2 }}>
-              <span style={{ fontFamily: "'Geist', sans-serif", fontSize: 15, fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-                {sessionDoneAlert.title}
-              </span>
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.04em', marginTop: 3 }}>
-                {sessionDoneAlert.subtitle}
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
-
+      {/* UX feedback layers */}
+      <UndoToast toast={toast} onDismiss={dismissToast} />
+      {/* Dedicated Full-Screen Celebration: session done, break done, daily goal */}
+      <SessionCompletionScreen
+        celebration={celebrations[0] || null}
+        onDismiss={dismissCelebration}
+        onPrimaryAction={handleCelebrationPrimaryAction}
+      />
 
     </div>
   );

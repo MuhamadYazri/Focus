@@ -1,51 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import SharedActivitySection from './SharedActivitySection';
-
-const G = "'Geist', system-ui, sans-serif";
-const M = "'JetBrains Mono', monospace";
-
-function polarToXY(cx, cy, r, deg) {
-  const rad = ((deg - 90) * Math.PI) / 180;
-  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
-}
-
-function donutArc(cx, cy, r, ri, s, e) {
-  const a = polarToXY(cx, cy, r, s),
-    b = polarToXY(cx, cy, r, e);
-  const c = polarToXY(cx, cy, ri, e),
-    d = polarToXY(cx, cy, ri, s);
-  const lg = e - s > 180 ? 1 : 0;
-  return `M${a.x} ${a.y} A${r} ${r} 0 ${lg} 1 ${b.x} ${b.y} L${c.x} ${c.y} A${ri} ${ri} 0 ${lg} 0 ${d.x} ${d.y}Z`;
-}
-
-function getDateRangeLabel(period, offset) {
-  const now = new Date();
-  if (period === 'Daily') {
-    const d = new Date(now);
-    d.setDate(d.getDate() + offset);
-    if (offset === 0) return `Today (${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })})`;
-    if (offset === -1) return `Yesterday (${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })})`;
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  }
-  if (period === 'Weekly') {
-    const day = now.getDay() || 7;
-    const start = new Date(now);
-    start.setDate(now.getDate() - day + 1 + offset * 7);
-    const end = new Date(start);
-    end.setDate(start.getDate() + 6);
-    const sStr = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    const eStr = end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    return `${sStr} – ${eStr}`;
-  }
-  if (period === 'Monthly') {
-    const d = new Date(now.getFullYear(), now.getMonth() + offset, 1);
-    return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-  }
-  if (period === 'Yearly') {
-    return `${now.getFullYear() + offset}`;
-  }
-  return '';
-}
+import RingChart from '../animata/graphs/ring-chart';
 
 const getLocalDateStr = (d) => {
   try {
@@ -53,7 +8,7 @@ const getLocalDateStr = (d) => {
     if (isNaN(dt.getTime())) return new Date().toISOString().split('T')[0];
     const z = new Date(dt.getTime() - dt.getTimezoneOffset() * 60000);
     return z.toISOString().split('T')[0];
-  } catch (e) {
+  } catch {
     return new Date().toISOString().split('T')[0];
   }
 };
@@ -100,16 +55,42 @@ function filterSessionsForPeriod(sessions, period, offset) {
     });
   }
   return [];
-}export default function AnalyticsDashboard({ tasks = [], projects = [], sessions = [] }) {
-  const [currentPeriod, setCurrentPeriod] = useState('Daily');
-  const [currentOffset, setCurrentOffset] = useState(0);
+}
 
-  const cx = 70,
-    cy = 70,
-    r = 54,
-    ri = 36,
-    gap = 4;
-  let deg = 0;
+const TAILWIND_COLORS = [
+  'var(--theme-primary)',
+  'var(--theme-secondary)',
+  'var(--theme-sage)',
+  'var(--theme-celadon)',
+];
+
+const toTitleCase = (str) => {
+  if (!str) return '';
+  return str
+    .toLowerCase()
+    .split(' ')
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+};
+
+function AnalyticsDashboard({
+  _tasks = [],
+  projects = [],
+  sessions = [],
+  settings = {},
+  period: controlledPeriod,
+  setPeriod: controlledSetPeriod,
+  offset: controlledOffset,
+  setOffset: controlledSetOffset,
+  hideHeader = false,
+}) {
+  const [internalPeriod, setInternalPeriod] = useState('Daily');
+  const [internalOffset, setInternalOffset] = useState(0);
+
+  const currentPeriod = controlledPeriod !== undefined ? controlledPeriod : internalPeriod;
+  const setCurrentPeriod = controlledSetPeriod || setInternalPeriod;
+  const currentOffset = controlledOffset !== undefined ? controlledOffset : internalOffset;
+  const setCurrentOffset = controlledSetOffset || setInternalOffset;
 
   const formatDisplayHours = (mins) => {
     if (!mins || mins <= 0) return '0h 00m';
@@ -119,95 +100,146 @@ function filterSessionsForPeriod(sessions, period, offset) {
     return `${h}h ${m < 10 ? '0' : ''}${m}m`;
   };
 
-  const todayStr = new Date().toISOString().split('T')[0];
-  const filteredSessions = filterSessionsForPeriod(sessions, currentPeriod, currentOffset);
-  const totalMins = (filteredSessions || []).reduce((acc, s) => acc + (s.duration || 25), 0);
-  const displayTotalTime = formatDisplayHours(totalMins);
+  const filteredSessions = useMemo(() => {
+    return filterSessionsForPeriod(sessions, currentPeriod, currentOffset);
+  }, [sessions, currentPeriod, currentOffset]);
 
-  const computedSegments = (projects && projects.length ? projects : [
-    { id: 'proj-1', name: '01 // STUDY', color: 'var(--accent)' },
-    { id: 'proj-2', name: '02 // PERSONAL_APP_DEV', color: 'var(--text-secondary)' },
-    { id: 'proj-3', name: '03 // SYS_ARCHITECTURE', color: 'var(--text-secondary)' },
-  ])
-    .map((proj, idx) => {
-      const projSessions = (filteredSessions || []).filter((s) => {
-        return s.projectId === proj.id || (!s.projectId && idx === 0);
-      });
-      const count = projSessions.length;
-      const projMins = projSessions.reduce((acc, s) => acc + (s.duration || 25), 0);
-      const pct = totalMins > 0 ? Math.round((projMins / totalMins) * 100) : 0;
-      return {
-        label: proj.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' '),
-        pct,
-        count,
-        mins: projMins,
-        displayTime: formatDisplayHours(projMins),
-        color: proj.color || 'var(--accent)',
-      };
-    })
-    .filter((seg) => seg.pct > 0 || seg.count > 0)
-    .sort((a, b) => b.mins - a.mins);
+  const totalMins = useMemo(() => {
+    return (filteredSessions || []).reduce((acc, s) => acc + (s.duration || 25), 0);
+  }, [filteredSessions]);
 
-  const activeSegments = computedSegments.length ? computedSegments : [{ label: 'No Data', pct: 100, count: 0, mins: 0, displayTime: '0h 00m', color: 'var(--surface-border)' }];
+  const displayTotalTime = useMemo(() => formatDisplayHours(totalMins), [totalMins]);
+
+  const activeSegments = useMemo(() => {
+    const projList =
+      projects && projects.length
+        ? projects
+        : [
+            { id: 'proj-1', name: '01 // STUDY', color: TAILWIND_COLORS[0] },
+            { id: 'proj-2', name: '02 // PERSONAL_APP_DEV', color: TAILWIND_COLORS[1] },
+            { id: 'proj-3', name: '03 // SYS_ARCHITECTURE', color: TAILWIND_COLORS[2] },
+          ];
+
+    // Single-pass O(N) grouping by projectId
+    const projStats = new Map();
+    (filteredSessions || []).forEach((s) => {
+      const pid = s.projectId || projList[0]?.id || 'default';
+      const dur = s.duration || 25;
+      const cur = projStats.get(pid) || { count: 0, mins: 0 };
+      projStats.set(pid, { count: cur.count + 1, mins: cur.mins + dur });
+    });
+
+    const filtered = projList
+      .map((proj, idx) => {
+        const stats = projStats.get(proj.id) || { count: 0, mins: 0 };
+        const pct = totalMins > 0 ? Math.round((stats.mins / totalMins) * 100) : 0;
+        const rawLabel = proj.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' ');
+        return {
+          label: toTitleCase(rawLabel),
+          pct,
+          count: stats.count,
+          mins: stats.mins,
+          displayTime: formatDisplayHours(stats.mins),
+          color:
+            proj.color?.startsWith('var(') || !proj.color
+              ? TAILWIND_COLORS[idx % TAILWIND_COLORS.length]
+              : proj.color,
+        };
+      })
+      .filter((seg) => seg.pct > 0 || seg.count > 0)
+      .sort((a, b) => b.mins - a.mins);
+
+    return filtered.length
+      ? filtered
+      : [
+          {
+            label: 'No Data',
+            pct: 100,
+            count: 0,
+            mins: 0,
+            displayTime: '0h 00m',
+            color: 'var(--theme-track, #C8D8CC)',
+          },
+        ];
+  }, [projects, filteredSessions, totalMins]);
 
   return (
-    <div className="min-h-[100dvh] pb-32" style={{ fontFamily: G, background: 'var(--canvas)' }}>
-
-      {/* ── Sticky Header ── */}
-      <header className="glass sticky top-0 z-40 px-5 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <span className="material-symbols-outlined fill" style={{ color: 'var(--text-primary)', fontSize: 22 }}>bar_chart</span>
-          <h1 style={{ fontFamily: G, fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>Reports</h1>
-        </div>
-        <span style={{ fontFamily: M, fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.1em' }}>FOCUS</span>
-      </header>
-
-      <div className="px-5 pt-5 flex flex-col gap-5 max-w-md mx-auto">
-
-      {/* Shared Activity Section with interactive tabs, checkmark heatmap, and dynamic chart */}
-      <div>
+    <main
+      className={`flex-1 w-full bg-[#F0F2EF] ${
+        hideHeader ? 'pt-4' : 'pt-14'
+      } pb-36 min-h-[100dvh] relative text-[#1B1F1A] select-none`}
+    >
+      <div className="flex flex-col w-full px-5 pb-12 gap-3.5 max-w-[440px] mx-auto">
         <SharedActivitySection
           showKPIs={true}
           sessions={sessions}
+          settings={settings}
+          period={currentPeriod}
+          setPeriod={setCurrentPeriod}
+          offset={currentOffset}
+          setOffset={setCurrentOffset}
+          hideHeader={hideHeader}
           onPeriodChange={(data) => {
             setCurrentPeriod(data.period);
             setCurrentOffset(data.offset);
           }}
         />
-      </div>
 
-        {/* ── Donut Card ── */}
-        <div className="card-2xl p-6 animate-slideUp" style={{ animationDelay: '0.25s' }}>
-          <span style={{ fontFamily: M, fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.06em', display: 'block', marginBottom: 16 }}>FOCUS DISTRIBUTION</span>
+        {/* Focus Distribution Donut Card from Figma: 400px x 156px rounded-[18px] */}
+        <div className="bg-white rounded-[18px] p-4 border border-[#D6E0D4] shadow-[0px_2px_8px_rgba(27,31,26,0.031)] flex flex-col gap-4">
+          <span className="text-[9px] uppercase tracking-[1.2px] text-[#8B9E87] font-extrabold font-sans">
+            FOCUS DISTRIBUTION
+          </span>
+
           <div className="flex items-center gap-5">
-            {/* Donut SVG */}
-            <svg width={140} height={140} viewBox="0 0 140 140" style={{ flexShrink: 0 }}>
-              <circle cx={cx} cy={cy} r={(r + ri) / 2} fill="none" stroke="var(--surface-low)" strokeWidth={r - ri} />
-              {activeSegments.map((seg) => {
-                const sweep = (seg.pct / 100) * 360;
-                const s = deg + gap / 2;
-                const e = deg + sweep - gap / 2;
-                const path = donutArc(cx, cy, r, ri, s, e);
-                deg += sweep;
-                return <path key={seg.label} d={path} fill={seg.color} opacity={0.9} />;
-              })}
-              <text x={cx} y={cy - 4} textAnchor="middle" fill="var(--text-primary)" fontSize={14} fontWeight={700} fontFamily="Geist">{displayTotalTime}</text>
-              <text x={cx} y={cy + 12} textAnchor="middle" fill="var(--text-secondary)" fontSize={9} fontFamily="JetBrains Mono">TOTAL</text>
-            </svg>
+            {/* Donut Chart: 96px x 96px */}
+            <div className="relative shrink-0 w-[96px] h-[96px] flex items-center justify-center">
+              <RingChart
+                size={55}
+                gap={6}
+                width={10}
+                rings={activeSegments.map((seg) => ({
+                  progress: seg.pct,
+                  color: seg.color,
+                  trackColor: '#E8EDE6',
+                }))}
+              >
+                <div className="flex flex-col items-center justify-center">
+                  <span className="text-[13px] leading-[18px] text-[#1B1F1A] font-extrabold font-sans tracking-[-0.3px]">
+                    {displayTotalTime}
+                  </span>
+                  <span className="text-[8px] leading-[11px] uppercase font-bold text-[#8B9E87] tracking-[1px] font-sans">
+                    TOTAL
+                  </span>
+                </div>
+              </RingChart>
+            </div>
 
-            {/* Legend */}
-            <div className="flex flex-col gap-3 flex-1 min-w-0">
-              {activeSegments.map((seg) => (
-                <div key={seg.label}>
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div style={{ width: 8, height: 8, borderRadius: '50%', background: seg.color, flexShrink: 0 }} />
-                      <span style={{ fontFamily: G, fontSize: 12, color: 'var(--text-primary)' }} className="truncate">{seg.label}</span>
+            {/* Legend & Progress Tracks from Figma */}
+            <div className="flex-1 flex flex-col gap-2.5 min-w-0 justify-center">
+              {activeSegments.slice(0, 3).map((seg) => (
+                <div key={seg.label} className="flex flex-col gap-1.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 truncate">
+                      <span
+                        className="w-2 h-2 rounded-full shrink-0"
+                        style={{ backgroundColor: seg.color }}
+                      />
+                      <span className="text-[11px] leading-[15px] font-medium text-[#41493F] truncate font-sans">
+                        {seg.label}
+                      </span>
                     </div>
-                    <span style={{ fontFamily: M, fontSize: 11, color: 'var(--text-secondary)', marginLeft: 6, flexShrink: 0 }}>{seg.pct}%</span>
+                    <span className="text-[11px] leading-[15px] text-[#667463] shrink-0 font-bold font-sans">
+                      {seg.pct}%
+                    </span>
                   </div>
-                  <div style={{ width: '100%', height: 4, background: 'var(--surface-low)', borderRadius: 99, overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: `${seg.pct}%`, background: seg.color, borderRadius: 99 }} />
+
+                  {/* 5px Progress Track from Figma */}
+                  <div className="w-full h-[5px] rounded-full bg-[#E8EDE6] overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{ width: `${Math.max(2, seg.pct)}%`, backgroundColor: seg.color }}
+                    />
                   </div>
                 </div>
               ))}
@@ -215,6 +247,8 @@ function filterSessionsForPeriod(sessions, period, offset) {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
+
+export default React.memo(AnalyticsDashboard);

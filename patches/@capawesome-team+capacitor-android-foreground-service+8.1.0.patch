@@ -1,0 +1,674 @@
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/1f0e311665e859248dcd3f2dcaf82a4c/results.bin b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/1f0e311665e859248dcd3f2dcaf82a4c/results.bin
+new file mode 100644
+index 0000000..0d259dd
+--- /dev/null
++++ b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/1f0e311665e859248dcd3f2dcaf82a4c/results.bin
+@@ -0,0 +1 @@
++o/classes
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/1f0e311665e859248dcd3f2dcaf82a4c/transformed/classes/classes_dex/classes.dex b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/1f0e311665e859248dcd3f2dcaf82a4c/transformed/classes/classes_dex/classes.dex
+new file mode 100644
+index 0000000..ee15070
+Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/1f0e311665e859248dcd3f2dcaf82a4c/transformed/classes/classes_dex/classes.dex differ
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/2082e10f3397219f12a9713195e8005d/results.bin b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/2082e10f3397219f12a9713195e8005d/results.bin
+new file mode 100644
+index 0000000..0d259dd
+--- /dev/null
++++ b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/2082e10f3397219f12a9713195e8005d/results.bin
+@@ -0,0 +1 @@
++o/classes
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/2082e10f3397219f12a9713195e8005d/transformed/classes/classes_dex/classes.dex b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/2082e10f3397219f12a9713195e8005d/transformed/classes/classes_dex/classes.dex
+new file mode 100644
+index 0000000..5155a69
+Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/2082e10f3397219f12a9713195e8005d/transformed/classes/classes_dex/classes.dex differ
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/56d5a5b903aece17062c4a33865e93ee/results.bin b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/56d5a5b903aece17062c4a33865e93ee/results.bin
+new file mode 100644
+index 0000000..0d259dd
+--- /dev/null
++++ b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/56d5a5b903aece17062c4a33865e93ee/results.bin
+@@ -0,0 +1 @@
++o/classes
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/56d5a5b903aece17062c4a33865e93ee/transformed/classes/classes_dex/classes.dex b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/56d5a5b903aece17062c4a33865e93ee/transformed/classes/classes_dex/classes.dex
+new file mode 100644
+index 0000000..864cb9c
+Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/56d5a5b903aece17062c4a33865e93ee/transformed/classes/classes_dex/classes.dex differ
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/7d84e832a52676740540bc6db8f9907a/results.bin b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/7d84e832a52676740540bc6db8f9907a/results.bin
+new file mode 100644
+index 0000000..0d259dd
+--- /dev/null
++++ b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/7d84e832a52676740540bc6db8f9907a/results.bin
+@@ -0,0 +1 @@
++o/classes
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/7d84e832a52676740540bc6db8f9907a/transformed/classes/classes_dex/classes.dex b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/7d84e832a52676740540bc6db8f9907a/transformed/classes/classes_dex/classes.dex
+new file mode 100644
+index 0000000..680f39f
+Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/.transforms/7d84e832a52676740540bc6db8f9907a/transformed/classes/classes_dex/classes.dex differ
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml
+new file mode 100644
+index 0000000..77bc329
+--- /dev/null
++++ b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml
+@@ -0,0 +1,9 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="io.capawesome.capacitorjs.plugins.foregroundservice" >
++
++    <uses-sdk android:minSdkVersion="23" />
++
++    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json
+new file mode 100644
+index 0000000..9ea9257
+--- /dev/null
++++ b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json
+@@ -0,0 +1,18 @@
++{
++  "version": 3,
++  "artifactType": {
++    "type": "AAPT_FRIENDLY_MERGED_MANIFESTS",
++    "kind": "Directory"
++  },
++  "applicationId": "io.capawesome.capacitorjs.plugins.foregroundservice",
++  "variantName": "debug",
++  "elements": [
++    {
++      "type": "SINGLE",
++      "filters": [],
++      "attributes": [],
++      "outputFile": "AndroidManifest.xml"
++    }
++  ],
++  "elementType": "File"
++}
+\ No newline at end of file
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/aar_main_jar/debug/syncDebugLibJars/classes.jar b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/aar_main_jar/debug/syncDebugLibJars/classes.jar
+new file mode 100644
+index 0000000..0f3eb56
+Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/aar_main_jar/debug/syncDebugLibJars/classes.jar differ
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties
+new file mode 100644
+index 0000000..1211b1e
+--- /dev/null
++++ b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties
+@@ -0,0 +1,6 @@
++aarFormatVersion=1.0
++aarMetadataVersion=1.0
++minCompileSdk=1
++minCompileSdkExtension=0
++minAndroidGradlePluginVersion=1.0.0
++coreLibraryDesugaringEnabled=false
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json
+new file mode 100644
+index 0000000..9e26dfe
+--- /dev/null
++++ b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json
+@@ -0,0 +1 @@
++{}
+\ No newline at end of file
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/annotations_typedef_file/debug/extractDebugAnnotations/typedefs.txt b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/annotations_typedef_file/debug/extractDebugAnnotations/typedefs.txt
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar
+new file mode 100644
+index 0000000..9d1b200
+Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar differ
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar
+new file mode 100644
+index 0000000..9961f54
+Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar differ
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/compile_symbol_list/debug/generateDebugRFile/R.txt b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/compile_symbol_list/debug/generateDebugRFile/R.txt
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/incremental/debug-mergeJavaRes/merge-state b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/incremental/debug-mergeJavaRes/merge-state
+new file mode 100644
+index 0000000..1c983fc
+Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/incremental/debug-mergeJavaRes/merge-state differ
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+new file mode 100644
+index 0000000..0e033a5
+--- /dev/null
++++ b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+@@ -0,0 +1 @@
++#Fri Oct 09 12:56:01 WIB 2026
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+new file mode 100644
+index 0000000..ae6c514
+--- /dev/null
++++ b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/home/muhamad-yazri/Project/Focus/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/main/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main" generated-set="main$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/home/muhamad-yazri/Project/Focus/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/main/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/home/muhamad-yazri/Project/Focus/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/debug/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug" generated-set="debug$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/home/muhamad-yazri/Project/Focus/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/debug/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/home/muhamad-yazri/Project/Focus/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/generated/res/resValues/debug"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated" generated-set="generated$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/home/muhamad-yazri/Project/Focus/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/generated/res/resValues/debug"/></dataSet><mergedItems/></merger>
+\ No newline at end of file
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml
+new file mode 100644
+index 0000000..79a8398
+--- /dev/null
++++ b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/home/muhamad-yazri/Project/Focus/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/main/jniLibs"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/home/muhamad-yazri/Project/Focus/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/debug/jniLibs"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/incremental/mergeDebugShaders/merger.xml b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/incremental/mergeDebugShaders/merger.xml
+new file mode 100644
+index 0000000..e956be5
+--- /dev/null
++++ b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/incremental/mergeDebugShaders/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/home/muhamad-yazri/Project/Focus/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/main/shaders"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/home/muhamad-yazri/Project/Focus/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/debug/shaders"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/incremental/packageDebugAssets/merger.xml b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/incremental/packageDebugAssets/merger.xml
+new file mode 100644
+index 0000000..5c2d4bf
+--- /dev/null
++++ b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/incremental/packageDebugAssets/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/home/muhamad-yazri/Project/Focus/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/main/assets"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/home/muhamad-yazri/Project/Focus/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/debug/assets"/></dataSet><dataSet config="generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/home/muhamad-yazri/Project/Focus/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/shader_assets/debug/compileDebugShaders/out"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/capawesome/capacitorjs/plugins/foregroundservice/AndroidForegroundService$1.class b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/capawesome/capacitorjs/plugins/foregroundservice/AndroidForegroundService$1.class
+new file mode 100644
+index 0000000..6bb88c1
+Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/capawesome/capacitorjs/plugins/foregroundservice/AndroidForegroundService$1.class differ
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/capawesome/capacitorjs/plugins/foregroundservice/AndroidForegroundService.class b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/capawesome/capacitorjs/plugins/foregroundservice/AndroidForegroundService.class
+new file mode 100644
+index 0000000..6d72578
+Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/capawesome/capacitorjs/plugins/foregroundservice/AndroidForegroundService.class differ
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/capawesome/capacitorjs/plugins/foregroundservice/ForegroundService.class b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/capawesome/capacitorjs/plugins/foregroundservice/ForegroundService.class
+new file mode 100644
+index 0000000..28a6851
+Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/capawesome/capacitorjs/plugins/foregroundservice/ForegroundService.class differ
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/capawesome/capacitorjs/plugins/foregroundservice/ForegroundServiceHelper.class b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/capawesome/capacitorjs/plugins/foregroundservice/ForegroundServiceHelper.class
+new file mode 100644
+index 0000000..efdfd94
+Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/capawesome/capacitorjs/plugins/foregroundservice/ForegroundServiceHelper.class differ
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/capawesome/capacitorjs/plugins/foregroundservice/ForegroundServicePlugin.class b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/capawesome/capacitorjs/plugins/foregroundservice/ForegroundServicePlugin.class
+new file mode 100644
+index 0000000..cda0a0a
+Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/capawesome/capacitorjs/plugins/foregroundservice/ForegroundServicePlugin.class differ
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/capawesome/capacitorjs/plugins/foregroundservice/NotificationActionBroadcastReceiver.class b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/capawesome/capacitorjs/plugins/foregroundservice/NotificationActionBroadcastReceiver.class
+new file mode 100644
+index 0000000..4e28046
+Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/capawesome/capacitorjs/plugins/foregroundservice/NotificationActionBroadcastReceiver.class differ
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt
+new file mode 100644
+index 0000000..78ac5b8
+--- /dev/null
++++ b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt
+@@ -0,0 +1,2 @@
++R_DEF: Internal format may change without notice
++local
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt
+new file mode 100644
+index 0000000..476d4ff
+--- /dev/null
++++ b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt
+@@ -0,0 +1,11 @@
++1<?xml version="1.0" encoding="utf-8"?>
++2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++3    package="io.capawesome.capacitorjs.plugins.foregroundservice" >
++4
++5    <uses-sdk android:minSdkVersion="23" />
++6
++7    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
++7-->/home/muhamad-yazri/Project/Focus/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/main/AndroidManifest.xml:2:5-76
++7-->/home/muhamad-yazri/Project/Focus/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/main/AndroidManifest.xml:2:22-74
++8
++9</manifest>
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/merged_java_res/debug/mergeDebugJavaResource/feature-capawesome-team-capacitor-android-foreground-service.jar b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/merged_java_res/debug/mergeDebugJavaResource/feature-capawesome-team-capacitor-android-foreground-service.jar
+new file mode 100644
+index 0000000..15cb0ec
+Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/merged_java_res/debug/mergeDebugJavaResource/feature-capawesome-team-capacitor-android-foreground-service.jar differ
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml
+new file mode 100644
+index 0000000..77bc329
+--- /dev/null
++++ b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml
+@@ -0,0 +1,9 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="io.capawesome.capacitorjs.plugins.foregroundservice" >
++
++    <uses-sdk android:minSdkVersion="23" />
++
++    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json
+new file mode 100644
+index 0000000..0637a08
+--- /dev/null
++++ b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json
+@@ -0,0 +1 @@
++[]
+\ No newline at end of file
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt
+new file mode 100644
+index 0000000..08f4ebe
+--- /dev/null
++++ b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt
+@@ -0,0 +1 @@
++0 Warning/Error
+\ No newline at end of file
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar
+new file mode 100644
+index 0000000..4332286
+Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar differ
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt
+new file mode 100644
+index 0000000..023f096
+--- /dev/null
++++ b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt
+@@ -0,0 +1 @@
++io.capawesome.capacitorjs.plugins.foregroundservice
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/outputs/aar/capawesome-team-capacitor-android-foreground-service-debug.aar b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/outputs/aar/capawesome-team-capacitor-android-foreground-service-debug.aar
+new file mode 100644
+index 0000000..1abbde1
+Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/outputs/aar/capawesome-team-capacitor-android-foreground-service-debug.aar differ
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/outputs/logs/manifest-merger-debug-report.txt b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/outputs/logs/manifest-merger-debug-report.txt
+new file mode 100644
+index 0000000..e266c73
+--- /dev/null
++++ b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/outputs/logs/manifest-merger-debug-report.txt
+@@ -0,0 +1,20 @@
++-- Merging decision tree log ---
++manifest
++ADDED from /home/muhamad-yazri/Project/Focus/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/main/AndroidManifest.xml:1:1-3:12
++INJECTED from /home/muhamad-yazri/Project/Focus/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/main/AndroidManifest.xml:1:1-3:12
++	package
++		INJECTED from /home/muhamad-yazri/Project/Focus/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/main/AndroidManifest.xml
++	xmlns:android
++		ADDED from /home/muhamad-yazri/Project/Focus/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/main/AndroidManifest.xml:1:11-69
++uses-permission#android.permission.POST_NOTIFICATIONS
++ADDED from /home/muhamad-yazri/Project/Focus/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/main/AndroidManifest.xml:2:5-76
++	android:name
++		ADDED from /home/muhamad-yazri/Project/Focus/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/main/AndroidManifest.xml:2:22-74
++uses-sdk
++INJECTED from /home/muhamad-yazri/Project/Focus/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/main/AndroidManifest.xml reason: use-sdk injection requested
++INJECTED from /home/muhamad-yazri/Project/Focus/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/main/AndroidManifest.xml
++INJECTED from /home/muhamad-yazri/Project/Focus/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/main/AndroidManifest.xml
++	android:targetSdkVersion
++		INJECTED from /home/muhamad-yazri/Project/Focus/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/main/AndroidManifest.xml
++	android:minSdkVersion
++		INJECTED from /home/muhamad-yazri/Project/Focus/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/main/AndroidManifest.xml
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/AndroidForegroundService$1.class.uniqueId0 b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/AndroidForegroundService$1.class.uniqueId0
+new file mode 100644
+index 0000000..536436f
+Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/AndroidForegroundService$1.class.uniqueId0 differ
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/AndroidForegroundService.class.uniqueId2 b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/AndroidForegroundService.class.uniqueId2
+new file mode 100644
+index 0000000..3cda630
+Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/AndroidForegroundService.class.uniqueId2 differ
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/ForegroundService.class.uniqueId1 b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/ForegroundService.class.uniqueId1
+new file mode 100644
+index 0000000..28a6851
+Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/ForegroundService.class.uniqueId1 differ
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin
+new file mode 100644
+index 0000000..bf82cc0
+Binary files /dev/null and b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin differ
+diff --git a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/main/java/io/capawesome/capacitorjs/plugins/foregroundservice/AndroidForegroundService.java b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/main/java/io/capawesome/capacitorjs/plugins/foregroundservice/AndroidForegroundService.java
+index 3df5ad5..58d329a 100644
+--- a/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/main/java/io/capawesome/capacitorjs/plugins/foregroundservice/AndroidForegroundService.java
++++ b/node_modules/@capawesome-team/capacitor-android-foreground-service/android/src/main/java/io/capawesome/capacitorjs/plugins/foregroundservice/AndroidForegroundService.java
+@@ -9,73 +9,325 @@ import android.content.Intent;
+ import android.os.Build;
+ import android.os.Bundle;
+ import android.os.IBinder;
++import android.os.PowerManager;
++import android.os.VibrationEffect;
++import android.os.Vibrator;
+ import androidx.annotation.Nullable;
+ import com.getcapacitor.Logger;
+ import java.util.ArrayList;
++import java.util.concurrent.Executors;
++import java.util.concurrent.ScheduledExecutorService;
++import java.util.concurrent.TimeUnit;
+ 
+ public class AndroidForegroundService extends Service {
+ 
++    private ScheduledExecutorService tickerExecutor;
++    private PowerManager.WakeLock wakeLock;
++
++    private int notificationId = 1993;
++    private String currentTitle = "Focus Session";
++    private int currentIcon = 0;
++    private boolean isSilent = true;
++    private String currentChannelId = ForegroundService.DEFAULT_NOTIFICATION_CHANNEL_ID;
++    private ArrayList<Bundle> currentButtons = new ArrayList<>();
++    private int currentServiceType = 0;
++    private PendingIntent currentContentIntent;
++
++    private long targetEndTimeMs = 0;
++    private long stopwatchStartTimeMs = 0;
++    private boolean isStopwatch = false;
++    private boolean isTimerActive = false;
++
+     @Nullable
+     @Override
+     public IBinder onBind(Intent intent) {
+         return null;
+     }
+ 
++    @Override
++    public void onCreate() {
++        super.onCreate();
++        try {
++            PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
++            if (powerManager != null) {
++                wakeLock = powerManager.newWakeLock(
++                    PowerManager.PARTIAL_WAKE_LOCK,
++                    "FocusApp::ForegroundServiceWakeLock"
++                );
++                wakeLock.setReferenceCounted(false);
++                wakeLock.acquire(4 * 60 * 60 * 1000L); // 4-hour safety timeout
++            }
++        } catch (Exception e) {
++            Logger.error(ForegroundServicePlugin.TAG, "Failed to acquire wake lock in service", e);
++        }
++    }
++
++    @Override
++    public void onDestroy() {
++        stopTicker();
++        releaseWakeLock();
++        super.onDestroy();
++    }
++
++    private void releaseWakeLock() {
++        try {
++            if (wakeLock != null && wakeLock.isHeld()) {
++                wakeLock.release();
++            }
++        } catch (Exception e) {}
++    }
++
+     @Override
+     public int onStartCommand(Intent intent, int flags, int startId) {
+         try {
++            if (intent == null) {
++                return START_STICKY;
++            }
+             String action = intent.getAction();
+             Bundle extras = intent.getExtras();
+-            String channelId = extras.getString("channelId", ForegroundService.DEFAULT_NOTIFICATION_CHANNEL_ID);
++            if (extras == null) {
++                return START_STICKY;
++            }
++
++            currentChannelId = extras.getString("channelId", ForegroundService.DEFAULT_NOTIFICATION_CHANNEL_ID);
+             Bundle notificationBundle = extras.getBundle("notification");
++            if (notificationBundle == null) {
++                return START_STICKY;
++            }
++
+             String body = notificationBundle.getString("body");
+-            int id = notificationBundle.getInt("id");
+-            int icon = notificationBundle.getInt("icon");
+-            String title = notificationBundle.getString("title");
+-            boolean silent = notificationBundle.getBoolean("silent", false);
+-            ArrayList<Bundle> buttonsBundle = notificationBundle.getParcelableArrayList("buttons");
+-            int serviceType = notificationBundle.getInt("serviceType", 0);
+-
+-            PendingIntent contentIntent = buildContentIntent(id);
+-            Notification.Builder builder;
+-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+-                builder = new Notification.Builder(getApplicationContext(), channelId);
++            notificationId = notificationBundle.getInt("id", 1993);
++            currentIcon = notificationBundle.getInt("icon", 0);
++            currentTitle = notificationBundle.getString("title", "Focus Session");
++            isSilent = notificationBundle.getBoolean("silent", true);
++            ArrayList<Bundle> buttons = notificationBundle.getParcelableArrayList("buttons");
++            if (buttons != null) {
++                currentButtons = buttons;
++            }
++            currentServiceType = notificationBundle.getInt("serviceType", 0);
++            currentContentIntent = buildContentIntent(notificationId);
++
++            boolean isChrono = false;
++            if (body != null && (body.startsWith("CHRONO:") || body.startsWith("CHRONO_UP:"))) {
++                isChrono = true;
++                boolean isUp = body.startsWith("CHRONO_UP:");
++                String timeStr = body.substring(isUp ? 10 : 7);
++                String[] parts = timeStr.split(":");
++                if (parts.length >= 2) {
++                    int mins = Integer.parseInt(parts[0]);
++                    int secs = Integer.parseInt(parts[1]);
++                    int totalSecs = mins * 60 + secs;
++
++                    isStopwatch = isUp;
++                    if (isStopwatch) {
++                        long proposedStart = System.currentTimeMillis() - totalSecs * 1000L;
++                        if (!isTimerActive || Math.abs(stopwatchStartTimeMs - proposedStart) > 2000L) {
++                            stopwatchStartTimeMs = proposedStart;
++                        }
++                    } else {
++                        long proposedEnd = System.currentTimeMillis() + totalSecs * 1000L;
++                        if (!isTimerActive || Math.abs(targetEndTimeMs - proposedEnd) > 2000L) {
++                            targetEndTimeMs = proposedEnd;
++                        }
++                    }
++                    isTimerActive = true;
++                }
+             } else {
+-                builder = new Notification.Builder(getApplicationContext());
+-            }
+-            builder
+-                .setContentTitle(title)
+-                .setContentText(body)
+-                .setContentIntent(contentIntent)
+-                .setOngoing(true)
+-                .setSmallIcon(icon)
+-                .setPriority(Notification.PRIORITY_HIGH)
+-                .setOnlyAlertOnce(silent);
+-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+-                Notification.Action[] actions = convertBundlesToNotificationActions(
+-                    buttonsBundle.toArray(new Bundle[buttonsBundle.size()])
+-                );
+-                builder.setActions(actions);
++                isTimerActive = false;
+             }
+ 
+-            Notification notification = builder.build();
++            Notification notification = buildNotification(body, isChrono);
+ 
+             if (ForegroundService.ACTION_UPDATE.equals(action)) {
+                 NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+-                notificationManager.notify(id, notification);
++                if (notificationManager != null) {
++                    notificationManager.notify(notificationId, notification);
++                }
+             } else {
+-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && serviceType != 0) {
+-                    startForeground(id, notification, serviceType);
++                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && currentServiceType != 0) {
++                    startForeground(notificationId, notification, currentServiceType);
+                 } else {
+-                    startForeground(id, notification);
++                    startForeground(notificationId, notification);
+                 }
+             }
++
++            if (isTimerActive) {
++                startTicker();
++            } else {
++                stopTicker();
++            }
++
+         } catch (Exception exception) {
+             Logger.error(ForegroundServicePlugin.TAG, exception.getMessage(), exception);
+         }
+         return START_STICKY;
+     }
+ 
++    private Notification buildNotification(String body, boolean isChrono) {
++        Notification.Builder builder;
++        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
++            builder = new Notification.Builder(getApplicationContext(), currentChannelId);
++        } else {
++            builder = new Notification.Builder(getApplicationContext());
++        }
++
++        String timeStr = "";
++        long whenTime = 0;
++
++        if (isChrono) {
++            if (isStopwatch) {
++                long elapsedMs = Math.max(0, System.currentTimeMillis() - stopwatchStartTimeMs);
++                int totalSecs = (int) (elapsedMs / 1000L);
++                timeStr = String.format("%02d:%02d", totalSecs / 60, totalSecs % 60);
++                whenTime = stopwatchStartTimeMs;
++            } else {
++                long remainingMs = Math.max(0, targetEndTimeMs - System.currentTimeMillis());
++                int remainingSecs = (int) Math.round(remainingMs / 1000.0);
++                timeStr = String.format("%02d:%02d", remainingSecs / 60, remainingSecs % 60);
++                whenTime = targetEndTimeMs;
++            }
++        }
++
++        String displayText = isChrono ? "Tap to return to focus" : (body != null ? body : "");
++
++        int iconToUse = currentIcon;
++        try {
++            int focusRes = getApplicationContext().getResources().getIdentifier("ic_stat_focus_text", "drawable", getPackageName());
++            if (focusRes != 0) {
++                iconToUse = focusRes;
++            }
++        } catch (Exception e) {}
++
++        builder
++            .setContentTitle(currentTitle)
++            .setContentText(displayText)
++            .setContentIntent(currentContentIntent)
++            .setOngoing(true)
++            .setSmallIcon(iconToUse)
++            .setPriority(Notification.PRIORITY_HIGH)
++            .setOnlyAlertOnce(true);
++
++        if (isChrono) {
++            builder.setUsesChronometer(true);
++            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
++                builder.setChronometerCountDown(!isStopwatch);
++            }
++            builder.setWhen(whenTime);
++            builder.setTicker(timeStr);
++
++            // Android 16 Promoted Ongoing (Dynamic Island / Origin Island / Status Pill)
++            if (Build.VERSION.SDK_INT >= 36) {
++                builder.getExtras().putBoolean("android.requestPromotedOngoing", true);
++                try {
++                    builder.setShortCriticalText(timeStr);
++                } catch (NoSuchMethodError e) {}
++            }
++        }
++
++        if (currentButtons != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
++            Notification.Action[] actions = convertBundlesToNotificationActions(
++                currentButtons.toArray(new Bundle[currentButtons.size()])
++            );
++            builder.setActions(actions);
++        }
++
++        return builder.build();
++    }
++
++    private synchronized void startTicker() {
++        if (tickerExecutor != null && !tickerExecutor.isShutdown()) {
++            return;
++        }
++        tickerExecutor = Executors.newSingleThreadScheduledExecutor();
++        tickerExecutor.scheduleAtFixedRate(new Runnable() {
++            @Override
++            public void run() {
++                try {
++                    updateNotificationTick();
++                } catch (Exception e) {
++                    Logger.error(ForegroundServicePlugin.TAG, "Ticker error", e);
++                }
++            }
++        }, 1, 1, TimeUnit.SECONDS);
++    }
++
++    private synchronized void stopTicker() {
++        if (tickerExecutor != null) {
++            try {
++                tickerExecutor.shutdownNow();
++            } catch (Exception e) {}
++            tickerExecutor = null;
++        }
++    }
++
++    private void updateNotificationTick() {
++        if (!isTimerActive) return;
++
++        boolean isFinished = false;
++        if (!isStopwatch) {
++            long remainingMs = targetEndTimeMs - System.currentTimeMillis();
++            if (remainingMs <= 500) {
++                isFinished = true;
++            }
++        }
++
++        Notification notification;
++        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
++
++        if (isFinished) {
++            isTimerActive = false;
++            stopTicker();
++
++            Notification.Builder finishBuilder;
++            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
++                finishBuilder = new Notification.Builder(getApplicationContext(), currentChannelId);
++            } else {
++                finishBuilder = new Notification.Builder(getApplicationContext());
++            }
++
++            finishBuilder
++                .setContentTitle(currentTitle.contains("Break") ? "Break Completed" : "Session Completed")
++                .setContentText("00:00 • Great job! Tap to return.")
++                .setContentIntent(currentContentIntent)
++                .setOngoing(false)
++                .setAutoCancel(true)
++                .setSmallIcon(currentIcon)
++                .setPriority(Notification.PRIORITY_HIGH)
++                .setOnlyAlertOnce(false);
++
++            if (Build.VERSION.SDK_INT >= 36) {
++                try {
++                    finishBuilder.setShortCriticalText("00:00");
++                } catch (NoSuchMethodError e) {}
++            }
++
++            notification = finishBuilder.build();
++            if (notificationManager != null) {
++                notificationManager.notify(notificationId, notification);
++            }
++            triggerFinishAlert();
++            return;
++        }
++
++        notification = buildNotification(null, true);
++        if (notificationManager != null) {
++            notificationManager.notify(notificationId, notification);
++        }
++    }
++
++    private void triggerFinishAlert() {
++        try {
++            Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
++            if (v != null) {
++                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
++                    v.vibrate(VibrationEffect.createWaveform(new long[]{0, 250, 150, 250, 150, 450}, -1));
++                } else {
++                    v.vibrate(new long[]{0, 250, 150, 250, 150, 450}, -1);
++                }
++            }
++        } catch (Exception e) {}
++    }
++
+     private PendingIntent buildContentIntent(int id) {
+         Intent launchIntent = getPackageManager().getLaunchIntentForPackage(getPackageName());
+         if (launchIntent == null) {

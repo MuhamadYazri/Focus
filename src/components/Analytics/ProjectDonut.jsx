@@ -82,8 +82,8 @@ export default function ProjectDonut({ sessions = [], projects = [] }) {
             })}
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-            <span className="text-xl font-bold text-[var(--text-primary)]">{stats.reduce((acc, s) => acc + s.count, 0)}</span>
-            <span className="text-[8px] text-[var(--text-secondary)] uppercase tracking-wider">TOTAL_POMS</span>
+            <span className="text-xl font-bold font-display tracking-tight text-[var(--text-primary)]">{stats.reduce((acc, s) => acc + s.count, 0)}</span>
+            <span className="text-[8px] font-mono text-[var(--text-secondary)] uppercase tracking-widest">TOTAL_POMS</span>
           </div>
         </div>
 

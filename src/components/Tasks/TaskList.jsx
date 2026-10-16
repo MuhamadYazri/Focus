@@ -1,24 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, startTransition } from 'react';
+import { Check, Pause } from 'lucide-react';
 
-const G = "'Geist', system-ui, sans-serif";
-const M = "'JetBrains Mono', monospace";
+const FILTER_TABS = ['Today', 'Planned', 'Done'];
 
-export default function TaskList({
+function TaskList({
   tasks = [],
-  projects = [],
   sessions = [],
   settings = {},
-  selectedProjectId,
-  onSelectProject,
   onAddTask,
   onEditTask,
-  onDeleteTask,
   onToggleComplete,
-  onToggleSubtask,
+  justCompletedId = null,
   onStartPomodoro,
-  onAddProject,
-  onEditProject,
-  onDeleteProject,
+  activeTaskId = null,
+  isTimerRunning = false,
 }) {
   const getLocalDateStr = (d) => {
     try {
@@ -26,330 +21,314 @@ export default function TaskList({
       if (isNaN(dt.getTime())) return new Date().toISOString().split('T')[0];
       const z = new Date(dt.getTime() - dt.getTimezoneOffset() * 60000);
       return z.toISOString().split('T')[0];
-    } catch (e) {
+    } catch {
       return new Date().toISOString().split('T')[0];
     }
   };
 
+  const todayStr = useMemo(() => getLocalDateStr(), []);
+  const todayDayOfWeek = useMemo(() => new Date().getDay(), []);
+  const [navFilterTab, setNavFilterTab] = useState('Today');
   const [filterTab, setFilterTab] = useState('Today');
-  const todayStr = getLocalDateStr();
 
-  const calculateDailyProgress = () => {
+  // Daily Focus Hours Calculation (s.duration is stored in minutes)
+  const { todayHours, targetHours, progressPercent } = useMemo(() => {
     try {
       const todaySessions = (sessions || []).filter((s) => {
         if (!s || typeof s !== 'object') return false;
-        const sDt = s.dateStr || (typeof s.completedAt === 'string' ? s.completedAt.split('T')[0] : '');
-        return sDt === todayStr;
+        const sDateStr = s.dateStr || (s.completedAt ? getLocalDateStr(s.completedAt) : '');
+        return sDateStr === todayStr;
       });
-      const todayMins = todaySessions.reduce((acc, s) => acc + ((s && s.duration) ? Number(s.duration) : 25), 0);
-      const todayHours = Number((todayMins / 60).toFixed(1));
 
-      let targetHours = 4.0;
-      try {
-        const hist = JSON.parse(localStorage.getItem('focus_daily_goals_history_v1') || '{}');
-        if (hist && hist[todayStr]) targetHours = Number(hist[todayStr]);
-        else if (settings && settings.dailyGoalHours) targetHours = Number(settings.dailyGoalHours);
-      } catch (e) { }
+      const todayMinutes = todaySessions.reduce((acc, s) => acc + (Number(s.duration) || 0), 0);
+      const rawHours = todayMinutes / 60;
+      const todayHours = parseFloat(rawHours.toFixed(1));
+      const targetHours = Number(settings?.dailyGoalHours) || 4.0;
+      const progressPercent = Math.min(100, Math.round((rawHours / targetHours) * 100));
 
-      const progressPercent = targetHours > 0 ? Math.min(100, Math.round((todayHours / targetHours) * 100)) : 0;
+      return { todayHours, targetHours, progressPercent };
+    } catch {
+      return {
+        todayHours: 0.0,
+        targetHours: 4.0,
+        progressPercent: 0,
+      };
+    }
+  }, [sessions, settings?.dailyGoalHours, todayStr]);
 
-      let streak = 0;
-      const now = new Date();
-      for (let i = 0; i < 365; i++) {
-        const d = new Date(now);
-        d.setDate(now.getDate() - i);
-        const dStr = getLocalDateStr(d);
-        const daySess = (sessions || []).filter((s) => {
-          if (!s || typeof s !== 'object') return false;
-          const sDt = s.dateStr || (typeof s.completedAt === 'string' ? s.completedAt.split('T')[0] : '');
-          return sDt === dStr;
-        });
-        if (daySess.length > 0) streak++;
-        else if (i === 0) continue;
-        else break;
+  // Tasks Filtered by 3 clean tabs: Today, Planned, Done
+  const filteredTasks = useMemo(() => {
+    return tasks.filter((task) => {
+      if (
+        justCompletedId === task.id &&
+        task.completed &&
+        (filterTab === 'Today' || filterTab === 'Planned')
+      ) {
+        return true;
       }
 
-      let statusText = 'Ready to focus';
-      if (progressPercent >= 100) statusText = 'Goal achieved!';
-      else if (progressPercent >= 50) statusText = 'Making good progress';
-      else if (todayHours > 0) statusText = 'In progress';
-
-      return { todayHours, targetHours, progressPercent, streak: Math.max(streak, 14), statusText };
-    } catch (err) {
-      return { todayHours: 0.0, targetHours: 4.0, progressPercent: 0, streak: 14, statusText: 'Ready to focus' };
-    }
-  };
-
-  const { todayHours, targetHours, progressPercent, streak, statusText } = calculateDailyProgress();
-
-  const filteredTasks = tasks.filter((task) => {
-    if (selectedProjectId && task.projectId !== selectedProjectId) return false;
-    const st = task.scheduleType || 'today';
-    if (filterTab === 'Archive') return task.completed && st !== 'daily';
-    if (filterTab === 'Today') {
-      if (st === 'daily') return true;
-      if (task.completed) return false;
-      if (st === 'today') return true;
-      if (st === 'date' && task.scheduledDate && task.scheduledDate <= todayStr) return true;
-      return false;
-    }
-    if (filterTab === 'This Week') {
-      if (st === 'daily') return true;
-      if (task.completed) return false;
-      if (st === 'today') return true;
-      if (st === 'date') {
-        const endOfWeek = new Date();
-        endOfWeek.setDate(new Date().getDate() + 7);
-        const endStr = getLocalDateStr(endOfWeek);
-        return !task.scheduledDate || task.scheduledDate <= endStr;
+      if (filterTab === 'Done') {
+        return task.completed;
       }
-      return false;
-    }
-    if (filterTab === 'Planned') {
+
       if (task.completed) return false;
-      if (st === 'date') return true;
-      return false;
-    }
-    return true;
-  });
 
-  const activeCount = tasks.filter((t) => !t.completed).length;
+      const st = task.scheduleType || 'today';
 
-  const getGreeting = () => {
-    const h = new Date().getHours();
-    if (h < 12) return 'Good morning.';
-    if (h < 17) return 'Good afternoon.';
-    return 'Good evening.';
-  };
+      if (filterTab === 'Today') {
+        if (st === 'daily' || st === 'today') return true;
+        if (st === 'date' && task.scheduledDate && task.scheduledDate <= todayStr) return true;
+        if (st === 'weekly') {
+          return (
+            !Array.isArray(task.weeklyDays) ||
+            task.weeklyDays.length === 0 ||
+            task.weeklyDays.includes(todayDayOfWeek)
+          );
+        }
+        return false;
+      }
+
+      if (filterTab === 'Planned') {
+        if (st === 'date' && task.scheduledDate && task.scheduledDate > todayStr) return true;
+        if (
+          st === 'weekly' &&
+          Array.isArray(task.weeklyDays) &&
+          task.weeklyDays.length > 0 &&
+          !task.weeklyDays.includes(todayDayOfWeek)
+        ) {
+          return true;
+        }
+        return false;
+      }
+
+      return true;
+    });
+  }, [tasks, filterTab, todayStr, todayDayOfWeek, justCompletedId]);
 
   return (
-    <div className="min-h-[100dvh] pb-32" style={{ fontFamily: G }}>
-
-      {/* ── Sticky Header ── */}
-      <header className="glass sticky top-0 z-40 px-5 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <span className="material-symbols-outlined fill text-[22px]" style={{ color: 'var(--text-on-accent)' }}>grid_view</span>
-          <h1 style={{ fontFamily: G, fontSize: 22, fontWeight: 700, color: 'var(--text-on-accent)', letterSpacing: '-0.02em' }}>
-            Dashboard
-          </h1>
-        </div>
-        <span style={{ fontFamily: M, fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.1em' }}>
-          FOCUS
-        </span>
-      </header>
-
-      <div className="px-5 pt-6 flex flex-col gap-5 max-w-md mx-auto">
-
-        {/* ── Greeting ── */}
-        <section className="animate-slideUp" style={{ animationDelay: '0.05s' }}>
-          <h2 style={{ fontFamily: G, fontSize: 34, fontWeight: 700, color: 'var(--text-on-accent)', letterSpacing: '-0.025em', lineHeight: 1.1 }}>
-            {getGreeting()}
-          </h2>
-          <p style={{ fontFamily: G, fontSize: 15, color: 'var(--text-secondary)', marginTop: 6 }}>
-            {activeCount} task{activeCount !== 1 ? 's' : ''} scheduled for today.
-          </p>
-        </section>
-
-        {/* ── Bento Grid: Target + Streak ── */}
-        <section className="animate-slideUp" style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 12, animationDelay: '0.1s' }}>
-
-          {/* Daily Target Card */}
-          <div className="card-2xl squish p-6 flex flex-col justify-between" style={{ minHeight: 130 }}>
-            <div className="flex items-start justify-between">
-              <div>
-                <p style={{ fontFamily: M, fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.06em' }}>DAILY TARGET</p>
-                <p style={{ fontFamily: G, fontSize: 15, color: 'var(--text-on-accent)', marginTop: 2 }}>
-                  {todayHours}h of {targetHours}h completed
-                </p>
-              </div>
-              <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: 24 }}>crisis_alert</span>
-            </div>
-            <div style={{ marginTop: 12 }}>
-              <div style={{ width: '100%', height: 6, background: 'var(--surface-low)', borderRadius: 99, overflow: 'hidden' }}>
-                <div style={{ width: `${progressPercent}%`, height: '100%', background: 'var(--accent)', borderRadius: 99, transition: 'width 0.6s ease-out' }} />
-              </div>
-              <div className="flex justify-between" style={{ marginTop: 6 }}>
-                <span style={{ fontFamily: M, fontSize: 10, color: 'var(--text-muted)' }}>{statusText}</span>
-                <span style={{ fontFamily: M, fontSize: 10, color: 'var(--text-muted)' }}>{progressPercent}%</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Streak Card */}
-          <div
-            className="card-2xl squish flex flex-col justify-between p-5 relative overflow-hidden"
-            style={{ background: 'var(--text-primary)', minWidth: 110, minHeight: 130 }}
-          >
-            <div className="flex justify-between items-start">
-              <span style={{ fontFamily: M, fontSize: 9, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.06em' }}>STREAK</span>
-              <span className="material-symbols-outlined" style={{ color: 'rgba(255,255,255,0.7)', fontSize: 18 }}>local_fire_department</span>
-            </div>
-            <div>
-              <div style={{ fontFamily: G, fontSize: 38, fontWeight: 700, color: '#fff', letterSpacing: '-0.03em', lineHeight: 1 }}>
-                {streak}
-              </div>
-              <p style={{ fontFamily: G, fontSize: 12, color: 'rgba(255,255,255,0.55)', marginTop: 2 }}>Days</p>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Categories ── */}
-        <section className="animate-slideUp" style={{ animationDelay: '0.15s', overflow: 'visible' }}>
-          <div
-            className="flex gap-2 overflow-x-auto no-scrollbar py-4 -my-4 -mx-5 px-5"
-            style={{
-              maskImage: 'linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent)',
-              WebkitMaskImage: 'linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent)',
-            }}
-          >
-            {/* All Tasks chip */}
-            <button
-              type="button"
-              onClick={() => { if (window.navigator?.vibrate) window.navigator.vibrate(10); if (onSelectProject) onSelectProject(null); }}
-              className="squish flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all"
-              style={{
-                background: !selectedProjectId ? 'var(--text-primary)' : 'var(--surface-card)',
-                color: !selectedProjectId ? '#fff' : 'var(--text-primary)',
-                border: !selectedProjectId ? 'none' : '1px solid var(--surface-border)',
-                fontFamily: G, fontSize: 14, fontWeight: !selectedProjectId ? 600 : 400,
-                boxShadow: !selectedProjectId ? 'none' : 'var(--shadow-soft)',
-              }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: 18, opacity: 0.7 }}>task_alt</span>
-              All Tasks
-            </button>
-
-            {projects.map((proj) => {
-              const isSel = selectedProjectId === proj.id;
-              const cleanName = proj.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' ');
-              return (
-                <button
-                  key={proj.id}
-                  type="button"
-                  onClick={() => { if (window.navigator?.vibrate) window.navigator.vibrate(10); if (onSelectProject) onSelectProject(isSel ? null : proj.id); }}
-                  className="squish flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all"
-                  style={{
-                    background: isSel ? proj.color || 'var(--accent)' : 'var(--surface-card)',
-                    color: isSel ? 'var(--text-on-accent)' : 'var(--text-primary)',
-                    border: isSel ? 'none' : '1px solid var(--surface-border)',
-                    fontFamily: G,
-                    fontSize: 14,
-                    fontWeight: isSel ? 600 : 400,
-                    boxShadow: isSel ? 'none' : 'var(--shadow-soft)',
-                  }}
-                >
-                  <div style={{ width: 7, height: 7, borderRadius: '50%', background: isSel ? 'var(--text-on-accent)' : (proj.color || 'var(--accent)') }} />
-                  {cleanName}
-                </button>
-              );
+    <div className="w-full max-w-[440px] min-h-screen bg-[#F0F2EF] flex flex-col justify-between relative px-7 pt-[52px] pb-36 mx-auto select-none">
+      <div className="w-full flex flex-col flex-1">
+        {/* BEGIN: Header */}
+        <header className="w-full flex items-center justify-between" data-purpose="header-section">
+          <span className="text-[10px] font-bold leading-[14px] uppercase tracking-[2px] text-[#667463]">
+            {new Date().toLocaleDateString('en-US', {
+              weekday: 'short',
+              month: 'short',
+              day: 'numeric',
             })}
+          </span>
+          <span className="text-[13px] font-bold leading-[14px] tracking-[-0.2px] text-[#1B1F1A]">
+            {navFilterTab}
+          </span>
+        </header>
+        {/* END: Header */}
+
+        {/* BEGIN: DailyGoalProgress (Section-hours) */}
+        <section className="pt-14" data-purpose="hero-progress-metric">
+          <div className="flex flex-col">
+            <div className="flex items-baseline gap-1">
+              <span className="text-[96px] font-extrabold leading-[88px] tracking-[-4px] text-[#1B1F1A] font-sans">
+                {todayHours.toFixed(1)}
+              </span>
+              <span className="text-[40px] font-extrabold leading-[44px] tracking-[-2px] text-[#1B1F1A] font-sans">
+                h
+              </span>
+            </div>
+
+            <div className="pt-1.5">
+              <span className="text-[14px] font-normal leading-[20px] tracking-[-0.2px] text-[#8B9E87]">
+                / {targetHours.toFixed(1)}h goal
+              </span>
+            </div>
+
+            {/* Progress Bar (2px height, #D6F3D0 track, #1B1F1A fill) */}
+            <div className="pt-7">
+              <div className="w-full h-[2px] bg-[#D6F3D0] rounded-[1px] overflow-hidden">
+                <div
+                  aria-valuemax="100"
+                  aria-valuemin="0"
+                  aria-valuenow={progressPercent}
+                  className="h-full bg-[#1B1F1A] rounded-[1px] transition-all duration-700 ease-out"
+                  role="progressbar"
+                  style={{ width: `${Math.max(1, progressPercent)}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Stats Row */}
+            <div className="flex items-center justify-between pt-2.5">
+              <span className="text-[9px] font-bold uppercase tracking-[2.2px] text-[#667463]">
+                FOCUS HOURS COMPLETED
+              </span>
+              <span className="text-[11px] font-semibold leading-[16px] tracking-[-0.1px] text-[#1B1F1A]">
+                {progressPercent}% complete
+              </span>
+            </div>
           </div>
         </section>
+        {/* END: DailyGoalProgress */}
 
-        {/* ── Filter Tabs ── */}
-        <section className="animate-slideUp" style={{ animationDelay: '0.2s' }}>
-          <div className="flex gap-6 border-b" style={{ borderColor: 'var(--surface-border)', paddingBottom: 2 }}>
-            {['Today', 'This Week', 'Planned', 'Archive'].map((tab) => {
-              const on = filterTab === tab;
+        {/* BEGIN: Navigation - Task Status Filter */}
+        <nav aria-label="Task Status Filter" className="pt-11" data-purpose="segmented-tabs">
+          <div className="flex items-center gap-6 border-b border-[#1B1F1A]/10 relative">
+            {FILTER_TABS.map((tab) => {
+              const on = navFilterTab === tab;
               return (
                 <button
                   key={tab}
-                  onClick={() => { if (window.navigator?.vibrate) window.navigator.vibrate(10); setFilterTab(tab); }}
-                  style={{
-                    fontFamily: G, fontSize: 15, fontWeight: on ? 600 : 400,
-                    color: on ? 'var(--text-primary)' : 'var(--text-secondary)',
-                    paddingBottom: 10,
-                    borderBottom: on ? '2px solid var(--text-primary)' : '2px solid transparent',
-                    marginBottom: -2,
-                    transition: 'all 0.2s',
+                  type="button"
+                  onClick={() => {
+                    if (tab === navFilterTab) return;
+                    if (window.navigator?.vibrate) window.navigator.vibrate(10);
+                    setNavFilterTab(tab);
+                    startTransition(() => {
+                      setFilterTab(tab);
+                    });
                   }}
+                  className={`tap-effect pb-2.5 text-[10px] leading-[14px] tracking-[1.2px] uppercase transition-colors duration-150 relative select-none ${
+                    on ? 'font-extrabold text-[#1B1F1A]' : 'font-medium text-[#8B9E87] hover:text-[#1B1F1A]'
+                  }`}
                 >
-                  {tab}
+                  <span>{tab}</span>
+                  <span
+                    aria-hidden="true"
+                    className={`absolute bottom-0 inset-x-0 h-[2px] bg-[#1B1F1A] rounded-full z-10 transition-transform duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] origin-center ${
+                      on ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'
+                    }`}
+                    style={{ willChange: 'transform, opacity' }}
+                  />
                 </button>
               );
             })}
           </div>
-        </section>
+        </nav>
+        {/* END: Navigation - Task Status Filter */}
 
-        {/* ── Task List ── */}
-        <section className="flex flex-col gap-3 animate-slideUp" style={{ animationDelay: '0.2s' }}>
-          <span style={{ fontFamily: M, fontSize: 10, color: 'var(--text-muted)', letterSpacing: '0.06em' }}>
-            TASKS · {activeCount} ACTIVE
-          </span>
-          {filteredTasks.length === 0 ? (
-            <div className="card-2xl p-8 text-center">
-              <span className="material-symbols-outlined" style={{ fontSize: 32, color: 'var(--text-muted)', display: 'block', marginBottom: 8 }}>check_circle</span>
-              <p style={{ fontFamily: G, fontSize: 14, color: 'var(--text-muted)' }}>No tasks in this view. Add one below.</p>
-            </div>
-          ) : (
-            filteredTasks.map((task) => {
-              const project = projects.find((p) => p.id === task.projectId);
-              const cleanProjectName = project ? project.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' ') : null;
-              return (
-                <div
-                  key={task.id}
-                  className="card-2xl squish flex items-center gap-4 p-4 group cursor-pointer"
-                  onClick={() => { if (onEditTask) onEditTask(task); }}
-                  style={{ opacity: task.completed ? 0.55 : 1 }}
-                >
-                  {/* Checkbox */}
-                  <button
-                    type="button"
-                    onClick={(e) => { e.stopPropagation(); if (window.navigator?.vibrate) window.navigator.vibrate(10); if (onToggleComplete) onToggleComplete(task.id); }}
-                    className="flex-shrink-0 flex items-center justify-center transition-all"
-                    style={{ width: 28, height: 28, borderRadius: '50%', border: `2px solid ${task.completed ? 'var(--accent)' : 'var(--surface-mid)'}`, background: task.completed ? 'var(--accent)' : 'transparent' }}
+        {/* BEGIN: Section-tasks */}
+        <section className="flex-1 pt-1" data-purpose="task-list">
+          <div>
+            {filteredTasks.length === 0 ? (
+              <div className="py-12 text-center text-xs font-mono text-[#8B9E87]">
+                No tasks in {filterTab.toLowerCase()}
+              </div>
+            ) : (
+              filteredTasks.map((task) => {
+                const isCurrentFocus = activeTaskId === task.id && isTimerRunning;
+                const isJust = justCompletedId === task.id && task.completed;
+                const completedPomos = task.completedPomos || 0;
+                const estimatedPomos = task.estimatedPomos || 1;
+
+                return (
+                  <article
+                    key={task.id}
+                    className={`group py-5 flex items-center justify-between border-b border-[#1B1F1A]/5 transition-colors ${
+                      isJust ? 'animate-task-exit' : ''
+                    } ${task.completed ? 'opacity-60' : ''}`}
+                    onClick={() => onEditTask && onEditTask(task)}
                   >
-                    {task.completed && <span className="material-symbols-outlined fill" style={{ fontSize: 16, color: '#fff' }}>check</span>}
-                  </button>
+                    <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-3 cursor-pointer">
+                      <button
+                        aria-label="Mark task as complete"
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (window.navigator?.vibrate) window.navigator.vibrate(15);
+                          onToggleComplete?.(task.id);
+                        }}
+                        className={`tap-effect w-[18px] h-[18px] rounded-full border flex items-center justify-center flex-shrink-0 transition-colors ${
+                          task.completed
+                            ? 'border-[#41493F] bg-[#41493F] text-white'
+                            : 'border-[#8B9E87] hover:border-[#1B1F1A]'
+                        }`}
+                      >
+                        {task.completed ? (
+                          <Check size={11} strokeWidth={3} className="text-white" />
+                        ) : isCurrentFocus ? (
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#41493F]" />
+                        ) : null}
+                      </button>
 
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <p style={{ fontFamily: G, fontSize: 15, fontWeight: 500, color: 'var(--text-on-accent)', textDecoration: task.completed ? 'line-through' : 'none' }} className="truncate">
-                      {task.title}
-                    </p>
-                    <div className="flex items-center gap-3 mt-1">
-                      {cleanProjectName && (
-                        <span className="flex items-center gap-1" style={{ fontFamily: M, fontSize: 10, color: 'var(--text-secondary)' }}>
-                          <div style={{ width: 6, height: 6, borderRadius: '50%', background: project?.color || 'var(--accent)', flexShrink: 0 }} />
-                          {cleanProjectName}
+                      <div className="flex items-center gap-2 truncate">
+                        <span
+                          className={`text-[14px] leading-[20px] tracking-[-0.3px] truncate ${
+                            task.completed
+                              ? 'line-through text-[#667463]'
+                              : isCurrentFocus
+                              ? 'font-semibold text-[#1B1F1A]'
+                              : 'font-medium text-[#1B1F1A]'
+                          }`}
+                        >
+                          {task.title}
                         </span>
-                      )}
-                      {task.estimatedPomos && (
-                        <span style={{ fontFamily: M, fontSize: 10, color: 'var(--text-muted)' }}>
-                          {task.completedPomos || 0}/{task.estimatedPomos} pomos
-                        </span>
+                        {isCurrentFocus && (
+                          <span
+                            className="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0 status-pulse"
+                            title="Active Now"
+                          />
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2.5 flex-shrink-0">
+                      <span className="text-[11px] leading-[16px] font-semibold text-[#8B9E87]">
+                        {completedPomos}/{estimatedPomos}
+                      </span>
+                      {!task.completed && (
+                        <button
+                          aria-label={`Focus on ${task.title}`}
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (window.navigator?.vibrate) window.navigator.vibrate(10);
+                            onStartPomodoro?.(task);
+                          }}
+                          className={`tap-effect w-[30px] h-[30px] rounded-full border border-[#D5DAD3] flex items-center justify-center transition-colors ${
+                            isCurrentFocus
+                              ? 'bg-[#1B1F1A] text-white hover:bg-[#41493F]'
+                              : 'text-[#1B1F1A] hover:bg-white'
+                          }`}
+                        >
+                          {isCurrentFocus ? (
+                            <Pause size={11} className="fill-current" />
+                          ) : (
+                            <svg className="w-3 h-3 ml-0.5 fill-[#1B1F1A]" viewBox="0 0 24 24">
+                              <polygon points="6 4 20 12 6 20 6 4" />
+                            </svg>
+                          )}
+                        </button>
                       )}
                     </div>
-                  </div>
-
-                  {/* Play action */}
-                  {!task.completed && (
-                    <button
-                      type="button"
-                      onClick={(e) => { e.stopPropagation(); if (window.navigator?.vibrate) window.navigator.vibrate(20); if (onStartPomodoro) onStartPomodoro(task); }}
-                      className="flex-shrink-0 p-2 rounded-lg transition-transform active:scale-95 flex items-center justify-center"
-                      style={{ background: 'var(--surface-low)' }}
-                    >
-                      <span className="material-symbols-outlined fill" style={{ fontSize: 22, color: 'var(--text-primary)' }}>play_arrow</span>
-                    </button>
-                  )}
-                </div>
-              );
-            })
-          )}
+                  </article>
+                );
+              })
+            )}
+          </div>
         </section>
+        {/* END: Section-tasks */}
       </div>
 
-      {/* ── FAB ── */}
-      <button
-        type="button"
-        onClick={() => { if (window.navigator?.vibrate) window.navigator.vibrate(15); if (onAddTask) onAddTask(); }}
-        className="animate-fab-in squish fixed right-5 bottom-24 z-40 flex items-center justify-center"
-        style={{ width: 56, height: 56, borderRadius: 16, background: 'var(--text-primary)', boxShadow: '0 4px 24px rgba(0,0,0,0.15)' }}
-        title="Add new task"
-      >
-        <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: 26 }}>add</span>
-      </button>
+      {/* BEGIN: Floating Add Button */}
+      <div className="fixed bottom-0 inset-x-0 mx-auto w-full max-w-[440px] pointer-events-none z-30">
+        <div className="absolute bottom-[92px] right-7 pointer-events-auto">
+          <button
+            type="button"
+            aria-label="Add new focus task"
+            onClick={() => {
+              if (window.navigator?.vibrate) window.navigator.vibrate(15);
+              if (onAddTask) onAddTask();
+            }}
+            className="tap-effect w-[44px] h-[44px] rounded-full bg-[#1B1F1A] text-white flex items-center justify-center shadow-[0px_8px_20px_-2px_rgba(27,31,26,0.11)] hover:bg-[#41493F] transition-all cursor-pointer"
+          >
+            <svg className="w-5 h-5 stroke-[1.67]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <line x1="12" x2="12" y1="5" y2="19" />
+              <line x1="5" x2="19" y1="12" y2="12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+      {/* END: Floating Add Button */}
     </div>
   );
 }
+
+export default React.memo(TaskList);

@@ -70,7 +70,7 @@ export default function ReportCardModal({ onClose, projects, sessions }) {
 
           {/* Hero Metric */}
           <div className="relative z-10 my-auto py-6 border-y border-[var(--surface-border)]/60 space-y-2">
-            <div className="text-6xl font-bold tracking-tight text-[var(--text-primary)] font-sans leading-none">
+            <div className="text-6xl font-bold tracking-tight text-[var(--text-primary)] font-display leading-none">
               37.0 <span className="text-2xl font-mono font-normal text-[var(--accent)]">HOURS</span>
             </div>
             <div className="text-[10px] font-mono tracking-wider text-[var(--text-secondary)] uppercase">

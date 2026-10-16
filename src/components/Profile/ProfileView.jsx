@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, startTransition } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Clock,
@@ -135,7 +135,9 @@ function ProfileView({
 
   const handleChange = (key, value) => {
     if (onUpdateSettings) {
-      onUpdateSettings({ ...settings, [key]: value });
+      startTransition(() => {
+        onUpdateSettings({ ...settings, [key]: value });
+      });
     }
   };
 

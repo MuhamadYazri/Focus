@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { startTransition } from 'react';
 
 export const PERIODS = ['All', 'Daily', 'Weekly', 'Monthly', 'Yearly'];
 
@@ -75,8 +75,10 @@ function TimeframeHeader({ period, setPeriod, offset, setOffset }) {
               key={p}
               onClick={() => {
                 if (window.navigator?.vibrate) window.navigator.vibrate(10);
-                setPeriod(p);
-                setOffset(0);
+                startTransition(() => {
+                  setPeriod(p);
+                  setOffset(0);
+                });
               }}
               className={`tap-effect relative flex-1 h-[25px] px-2 text-center rounded-full text-[11px] leading-[15px] flex items-center justify-center transition-colors duration-150 z-10 select-none ${
                 active ? 'font-bold text-white' : 'font-medium text-[#667463] hover:text-[#1B1F1A]'
@@ -97,7 +99,9 @@ function TimeframeHeader({ period, setPeriod, offset, setOffset }) {
         <button
           onClick={() => {
             if (window.navigator?.vibrate) window.navigator.vibrate(10);
-            setOffset((prev) => prev - 1);
+            startTransition(() => {
+              setOffset((prev) => prev - 1);
+            });
           }}
           className="tap-effect h-[26px] px-2 bg-[#E8EDE6] rounded-full text-[10px] font-bold tracking-[0.8px] text-[#667463] hover:text-[#1B1F1A] flex items-center gap-1 transition-all"
         >
@@ -111,7 +115,9 @@ function TimeframeHeader({ period, setPeriod, offset, setOffset }) {
         <button
           onClick={() => {
             if (window.navigator?.vibrate) window.navigator.vibrate(10);
-            setOffset((prev) => Math.min(0, prev + 1));
+            startTransition(() => {
+              setOffset((prev) => Math.min(0, prev + 1));
+            });
           }}
           disabled={offset >= 0}
           className={`tap-effect h-[22px] px-2 bg-[#E8EDE6] rounded-full text-[10px] font-bold tracking-[0.8px] flex items-center gap-1 transition-all ${

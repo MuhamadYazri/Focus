@@ -61,7 +61,6 @@ export default function App() {
   // Navigation State: 4 monochrome tabs: 'home', 'timer', 'reports', 'profile'
   const [navTab, setNavTab] = useState(initialTab); // Instant tab indicator state (<16ms INP)
   const [activeTab, setActiveTab] = useState(initialTab); // Screen content state (deferred via startTransition)
-  const [exitingTab, setExitingTab] = useState(null); // Screen currently fading out
   const [selectedProjectId, setSelectedProjectId] = useState(null);
 
   // Data State
@@ -153,22 +152,12 @@ export default function App() {
 
   const TAB_ORDER = { home: 0, timer: 1, reports: 2, profile: 3 };
 
-  const exitTimerRef = useRef(null);
-
   const handleTabSwitch = (newTab) => {
     if (newTab === navTab) return;
-    // 1. Immediate UI update for the bottom dock indicator (Paint occurs in <16ms, INP remains green)
+    // 1. Immediate UI update for the bottom dock indicator (Paint occurs in <16ms, INP < 60ms)
     setNavTab(newTab);
-    
-    // 2. Capture outgoing screen for seamless crossfade opacity out
-    const previous = activeTab;
-    setExitingTab(previous);
-    if (exitTimerRef.current) clearTimeout(exitTimerRef.current);
-    exitTimerRef.current = setTimeout(() => {
-      setExitingTab(null);
-    }, 300);
 
-    // 3. React 19 startTransition yields main thread to browser paint before rendering heavy incoming tab
+    // 2. React 19 startTransition yields main thread to browser paint before mounting incoming screen
     startTransition(() => {
       setActiveTab(newTab);
     });
@@ -872,6 +861,12 @@ export default function App() {
     return 1;
   };
 
+  const handleUpdateSettings = useCallback((newSettings) => {
+    startTransition(() => {
+      setSettings(newSettings);
+    });
+  }, []);
+
   const renderTabContent = (tabKey) => {
     if (tabKey === 'home') {
       return (
@@ -961,7 +956,7 @@ export default function App() {
         <ProfileView
           sessions={sessions}
           settings={settings}
-          onUpdateSettings={setSettings}
+          onUpdateSettings={handleUpdateSettings}
           onResetAllData={handleResetAllData}
           projects={projects}
           onAddProject={() => {
@@ -1030,22 +1025,10 @@ export default function App() {
         <SplitRevealPreloader onFinish={handleFinishPreloader} />
       )}
 
-      {/* Tab Screen with Smooth Crossfade Opacity */}
+      {/* Single Screen Mount with Hardware-Accelerated GPU Opacity Fade-In (Zero DOM stacking, INP < 60ms) */}
       <main className={`flex-1 relative ${isNavHidden ? 'overflow-hidden' : 'overflow-x-hidden'}`}>
-        {/* Outgoing Screen (Fade Out) */}
-        {exitingTab && exitingTab !== activeTab && (
-          <div
-            key={`exit-${exitingTab}`}
-            className="absolute inset-0 w-full min-h-full pointer-events-none animate-page-fade-out z-10"
-            style={{ willChange: 'opacity' }}
-          >
-            {renderTabContent(exitingTab)}
-          </div>
-        )}
-
-        {/* Incoming Screen (Fade In) */}
         <div
-          key={`active-${activeTab}`}
+          key={activeTab}
           className="relative w-full min-h-full animate-page-fade-in z-20"
           style={{ willChange: 'opacity' }}
         >

@@ -159,7 +159,7 @@ function ProfileView({
   };
 
   return (
-    <main className="flex-1 w-full bg-[#F0F2EF] pt-14 pb-36 min-h-[100dvh] relative text-[#1B1F1A] select-none">
+    <main className="flex-1 w-full bg-[#F0F2EF] pt-14 pb-36 min-h-[100dvh] overflow-y-auto relative text-[#1B1F1A] select-none">
       <div className="flex flex-col w-full max-w-[440px] mx-auto px-5 gap-4">
         {/* ── Profile & Settings Header ── */}
         <header className="flex items-center justify-between pb-1">
@@ -209,10 +209,10 @@ function ProfileView({
             },
           ].map(({ key, label, presets, min, max, unit }) => {
             const currentVal = settings[key] ?? presets[0];
-            const isCustom = !presets.includes(currentVal);
+            const isCustom = !presets.some((p) => Number(p) === Number(currentVal));
             const totalSlots = presets.length + 1; // presets + custom button
-            const activeIdx = presets.indexOf(currentVal);
-            const selectedIdx = isCustom ? presets.length : activeIdx;
+            const activeIdx = presets.findIndex((p) => Number(p) === Number(currentVal));
+            const selectedIdx = isCustom ? presets.length : (activeIdx !== -1 ? activeIdx : 0);
 
             return (
               <div key={key} className="flex flex-col gap-1.5">
@@ -238,7 +238,7 @@ function ProfileView({
                   />
 
                   {presets.map((p) => {
-                    const isActive = currentVal === p;
+                    const isActive = Number(currentVal) === Number(p);
                     return (
                       <button
                         key={p}
@@ -253,7 +253,7 @@ function ProfileView({
                             : 'text-[#667463] hover:text-[#1B1F1A] font-medium'
                         }`}
                       >
-                        {p}m
+                        <span className="relative z-10">{p}m</span>
                       </button>
                     );
                   })}
@@ -270,7 +270,7 @@ function ProfileView({
                         : 'text-[#667463] hover:text-[#1B1F1A] font-medium'
                     }`}
                   >
-                    {isCustom ? `${currentVal}m` : 'Custom'}
+                    <span className="relative z-10">{isCustom ? `${currentVal}m` : 'Custom'}</span>
                   </button>
                 </div>
               </div>
@@ -289,7 +289,7 @@ function ProfileView({
               {/* Fluid sliding pill indicator */}
               {(() => {
                 const intervalPresets = [2, 3, 4, 5];
-                const activeIdx = intervalPresets.indexOf(settings.longBreakInterval || 4);
+                const activeIdx = intervalPresets.findIndex((c) => Number(c) === Number(settings.longBreakInterval || 4));
                 if (activeIdx !== -1) {
                   return (
                     <div
@@ -306,7 +306,7 @@ function ProfileView({
                 return null;
               })()}
               {[2, 3, 4, 5].map((count) => {
-                const isActive = (settings.longBreakInterval || 4) === count;
+                const isActive = Number(settings.longBreakInterval || 4) === Number(count);
                 return (
                   <button
                     key={count}
@@ -321,7 +321,7 @@ function ProfileView({
                         : 'text-[#667463] hover:text-[#1B1F1A] font-medium'
                     }`}
                   >
-                    {count} cycles
+                    <span className="relative z-10">{count} cycles</span>
                   </button>
                 );
               })}
@@ -333,16 +333,17 @@ function ProfileView({
             <div className="flex items-center justify-between">
               <span className="text-[12px] font-medium text-[#1B1F1A]">Daily Target Goal</span>
               <span className="text-[12px] font-bold text-[#1B1F1A]">
-                {(settings.dailyGoalHours || 4.0).toFixed(1)}h / day
+                {(Number(settings.dailyGoalHours) || 4.0).toFixed(1)}h / day
               </span>
             </div>
             <div className="relative flex items-center p-1 bg-[#E8EDE6] rounded-full overflow-hidden">
               {/* Fluid sliding pill indicator */}
               {(() => {
                 const goalPresets = [2.0, 4.0, 6.0, 8.0];
-                const isCustom = !goalPresets.includes(settings.dailyGoalHours || 4.0);
-                const activeIdx = goalPresets.indexOf(settings.dailyGoalHours || 4.0);
-                const selectedIdx = isCustom ? goalPresets.length : activeIdx;
+                const curGoal = Number(settings.dailyGoalHours) || 4.0;
+                const isCustom = !goalPresets.some((h) => Number(h) === curGoal);
+                const activeIdx = goalPresets.findIndex((h) => Number(h) === curGoal);
+                const selectedIdx = isCustom ? goalPresets.length : (activeIdx !== -1 ? activeIdx : 1);
                 return (
                   <div
                     aria-hidden="true"
@@ -356,7 +357,7 @@ function ProfileView({
                 );
               })()}
               {[2.0, 4.0, 6.0, 8.0].map((h) => {
-                const isActive = (settings.dailyGoalHours || 4.0) === h;
+                const isActive = Number(settings.dailyGoalHours || 4.0) === Number(h);
                 return (
                   <button
                     key={h}
@@ -371,7 +372,7 @@ function ProfileView({
                         : 'text-[#667463] hover:text-[#1B1F1A] font-medium'
                     }`}
                   >
-                    {h}h
+                    <span className="relative z-10">{h}h</span>
                   </button>
                 );
               })}
@@ -387,17 +388,19 @@ function ProfileView({
                     unit: 'h',
                     step: 0.5,
                   });
-                  setCustomVal(settings.dailyGoalHours || 4.0);
+                  setCustomVal(Number(settings.dailyGoalHours) || 4.0);
                 }}
                 className={`tap-effect flex-1 h-[26px] rounded-full text-[11px] relative z-10 transition-colors duration-150 flex items-center justify-center select-none ${
-                  ![2.0, 4.0, 6.0, 8.0].includes(settings.dailyGoalHours || 4.0)
+                  ![2.0, 4.0, 6.0, 8.0].some((h) => Number(h) === Number(settings.dailyGoalHours || 4.0))
                     ? 'text-white font-bold'
                     : 'text-[#667463] hover:text-[#1B1F1A] font-medium'
                 }`}
               >
-                {![2.0, 4.0, 6.0, 8.0].includes(settings.dailyGoalHours || 4.0)
-                  ? `${settings.dailyGoalHours}h`
-                  : 'Custom'}
+                <span className="relative z-10">
+                  {![2.0, 4.0, 6.0, 8.0].some((h) => Number(h) === Number(settings.dailyGoalHours || 4.0))
+                    ? `${settings.dailyGoalHours}h`
+                    : 'Custom'}
+                </span>
               </button>
             </div>
           </div>
@@ -835,7 +838,7 @@ function ProfileView({
             onClick={() => setCustomModal(null)}
           >
             <div
-              className="w-full max-w-xs bg-white border border-[#D6E0D4] rounded-[24px] p-5 shadow-2xl flex flex-col gap-4"
+              className="w-full max-w-xs bg-white border border-[#D6E0D4] rounded-[24px] p-5 shadow-2xl flex flex-col gap-4 animate-slideUp"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between pb-2 border-b border-[#D6E0D4]">
@@ -923,7 +926,7 @@ function ProfileView({
             onClick={() => setProjectToDelete(null)}
           >
             <div
-              className="w-full max-w-sm rounded-[24px] p-5 flex flex-col gap-4 border border-[#D6E0D4] bg-white shadow-2xl"
+              className="w-full max-w-sm rounded-[24px] p-5 flex flex-col gap-4 border border-[#D6E0D4] bg-white shadow-2xl animate-slideUp"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex flex-col gap-1">
@@ -977,7 +980,7 @@ function ProfileView({
             onClick={() => setConfirmAction(null)}
           >
             <div
-              className="w-full max-w-sm rounded-[24px] p-5 flex flex-col gap-4 border border-[#D6E0D4] bg-white shadow-2xl"
+              className="w-full max-w-sm rounded-[24px] p-5 flex flex-col gap-4 border border-[#D6E0D4] bg-white shadow-2xl animate-slideUp"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex flex-col gap-1">

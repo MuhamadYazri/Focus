@@ -141,16 +141,19 @@ function TaskList({
               </span>
             </div>
 
-            {/* Progress Bar (2px height, #D6F3D0 track, #1B1F1A fill) */}
+            {/* Progress Bar (2px height, #D6F3D0 track, #1B1F1A fill, GPU scaleX) */}
             <div className="pt-7">
               <div className="w-full h-[2px] bg-[#D6F3D0] rounded-[1px] overflow-hidden">
                 <div
                   aria-valuemax="100"
                   aria-valuemin="0"
                   aria-valuenow={progressPercent}
-                  className="h-full bg-[#1B1F1A] rounded-[1px] transition-all duration-700 ease-out"
+                  className="w-full h-full bg-[#1B1F1A] rounded-[1px] origin-left transition-transform duration-700 ease-out"
                   role="progressbar"
-                  style={{ width: `${Math.max(1, progressPercent)}%` }}
+                  style={{
+                    transform: `scaleX(${Math.max(0.01, progressPercent / 100)})`,
+                    willChange: 'transform',
+                  }}
                 />
               </div>
             </div>
@@ -222,8 +225,8 @@ function TaskList({
                   <article
                     key={task.id}
                     className={`group py-5 flex items-center justify-between border-b border-[#1B1F1A]/5 transition-colors ${
-                      isJust ? 'animate-task-exit' : ''
-                    } ${task.completed ? 'opacity-60' : ''}`}
+                      isJust ? 'animate-task-exit' : task.completed ? 'opacity-60' : ''
+                    }`}
                     onClick={() => onEditTask && onEditTask(task)}
                   >
                     <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-3 cursor-pointer">
@@ -239,10 +242,14 @@ function TaskList({
                           task.completed
                             ? 'border-[#41493F] bg-[#41493F] text-white'
                             : 'border-[#8B9E87] hover:border-[#1B1F1A]'
-                        }`}
+                        } ${isJust ? 'animate-check-pop' : ''}`}
                       >
                         {task.completed ? (
-                          <Check size={11} strokeWidth={3} className="text-white" />
+                          <Check
+                            size={11}
+                            strokeWidth={3}
+                            className={`text-white ${isJust ? 'check-draw' : ''}`}
+                          />
                         ) : isCurrentFocus ? (
                           <span className="w-1.5 h-1.5 rounded-full bg-[#41493F]" />
                         ) : null}
@@ -251,7 +258,9 @@ function TaskList({
                       <div className="flex items-center gap-2 truncate">
                         <span
                           className={`text-[14px] leading-[20px] tracking-[-0.3px] truncate ${
-                            task.completed
+                            isJust
+                              ? 'strike-anim text-[#667463] font-medium'
+                              : task.completed
                               ? 'line-through text-[#667463]'
                               : isCurrentFocus
                               ? 'font-semibold text-[#1B1F1A]'

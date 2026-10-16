@@ -5,460 +5,387 @@
   --color-canvas: var(--theme-canvas);
   --color-surface: var(--theme-surface);
   --color-surface-hover: var(--theme-surface-hover);
-  --color-border: var(--theme-border);
   --color-primary: var(--theme-primary);
-  --color-primary-hover: var(--theme-primary-hover);
+  --color-primary-fg: var(--theme-primary-fg);
   --color-secondary: var(--theme-secondary);
-  --color-mint: var(--theme-mint);
-  --color-mint-light: var(--theme-mint-light);
-  --color-sage: var(--theme-sage);
-  --color-celadon: var(--theme-celadon);
-  --color-terracotta: var(--theme-secondary);
-  --color-terracotta-hover: var(--theme-secondary-hover);
-  --color-oatmeal: var(--theme-border);
-  --color-ink-dark: var(--theme-ink-dark);
+  --color-accent: var(--theme-accent);
   --color-text-main: var(--theme-text-main);
   --color-text-sub: var(--theme-text-sub);
-  --color-track: var(--theme-track);
+  --color-border: var(--theme-border);
+  
+  --color-sage-100: #F0F2EF;
+  --color-sage-200: #E4EAE2;
+  --color-sage-300: #D6E0D4;
+  --color-sage-400: #8B9E87;
+  --color-sage-500: #667463;
+  --color-sage-600: #41493F;
+  --color-ink-dark: #1B1F1A;
+  --color-forest: #344E41;
+  --color-fern: #588157;
+  --color-moss: #A3B18A;
+  --color-dusk: #6D6875;
+  --color-rose: #B5838D;
+  --color-earth: #8A7968;
 
-  --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
-
-  --shadow-2xs: var(--shadow-2xs);
-  --shadow-xs: var(--shadow-xs);
-  --shadow-sm: var(--shadow-sm);
-  --shadow-md: var(--shadow-md);
-  --shadow-lg: var(--shadow-lg);
-  --shadow-xl: var(--shadow-xl);
-  --shadow-2xl: var(--shadow-2xl);
+  --font-display: var(--theme-font-display);
+  --font-sans: var(--theme-font-sans);
+  --font-mono: var(--theme-font-mono);
+  --font-styro: 'Styro', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-/* ── Design Tokens ─────────────────────────────────────────── */
-@layer base {
-  :root {
-    /* ColorKit / Figma Palette */
-    --theme-canvas: #F0F2EF;
-    --theme-surface: #FFFFFF;
-    --theme-surface-hover: #EEF3EC;
-    --theme-border: #D6E0D4;
-    --theme-track: #CBD7C9;
-    --theme-primary: #41493F;
-    --theme-primary-hover: #333A31;
-    --theme-secondary: #667463;
-    --theme-secondary-hover: #556252;
-    --theme-mint: #D6F3D0;
-    --theme-mint-light: #EAF7E6;
-    --theme-sage: #8B9E87;
-    --theme-celadon: #B1C9AC;
-    --theme-terracotta: #667463;
-    --theme-terracotta-hover: #556252;
-    --theme-oatmeal: #D6E0D4;
-    --theme-ink-dark: #1B1F1A;
-    --theme-text-main: #1B1F1A;
-    --theme-text-sub: #5F6C5C;
+:root, [data-theme="japandi"] {
+  --theme-canvas: #F0F2EF;
+  --theme-surface: #FFFFFF;
+  --theme-surface-hover: #E8EDE6;
+  --theme-primary: #1B1F1A;
+  --theme-primary-fg: #FFFFFF;
+  --theme-secondary: #588157;
+  --theme-accent: #344E41;
+  --theme-text-main: #1B1F1A;
+  --theme-text-sub: #667463;
+  --theme-border: #D6E0D4;
 
-    /* Shadows - Anchored in Charcoal Forest #1B1F1A for organic depth */
-    --shadow-2xs: 0 1px 2px 0 rgba(27, 31, 26, 0.04);
-    --shadow-xs: 0 1px 3px 0 rgba(27, 31, 26, 0.06), 0 1px 2px -1px rgba(27, 31, 26, 0.04);
-    --shadow-sm: 0 2px 6px -1px rgba(27, 31, 26, 0.07), 0 1px 3px -1px rgba(27, 31, 26, 0.05);
-    --shadow-md: 0 6px 16px -3px rgba(27, 31, 26, 0.09), 0 2px 6px -1px rgba(27, 31, 26, 0.05);
-    --shadow-lg: 0 12px 26px -4px rgba(27, 31, 26, 0.11), 0 4px 10px -2px rgba(27, 31, 26, 0.06);
-    --shadow-xl: 0 18px 36px -6px rgba(27, 31, 26, 0.13), 0 6px 14px -3px rgba(27, 31, 26, 0.07);
-    --shadow-2xl: 0 24px 48px -8px rgba(27, 31, 26, 0.16), 0 8px 18px -4px rgba(27, 31, 26, 0.08);
-    --shadow-soft: 0 8px 22px -3px rgba(27, 31, 26, 0.08), 0 3px 8px -1px rgba(27, 31, 26, 0.04);
-    --shadow-ambient: 0 0 36px -6px rgba(27, 31, 26, 0.08);
+  --theme-font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Plus Jakarta Sans", "Inter", Roboto, sans-serif;
+  --theme-font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Plus Jakarta Sans", "Inter", Roboto, sans-serif;
+  --theme-font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Monaco, Consolas, monospace;
+
+  --theme-radius: 18px;
+  --theme-border-width: 1px;
+  --theme-shadow: 0px 2px 8px rgba(27, 31, 26, 0.031);
+  --theme-shadow-lg: 0px 8px 24px rgba(27, 31, 26, 0.06);
+  --theme-shadow-sm: 0px 1px 4px rgba(27, 31, 26, 0.03);
+}
+
+/* ── Base Reset ─────────────────────────────────── */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
   }
 
-  body {
+  html, body {
+    margin: 0;
+    padding: 0;
     background-color: var(--theme-canvas);
     color: var(--theme-text-main);
-    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    font-family: var(--theme-font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
-    -webkit-tap-highlight-color: transparent;
-    min-height: 100dvh;
-  }
-
-  * {
     user-select: none;
+    -webkit-user-select: none;
   }
-  
-  ::-webkit-scrollbar {
-    display: none;
+
+  input, button, textarea, select {
+    font-family: inherit;
+  }
+
+  /* ── Accessible Keyboard Focus Ring ────────────── */
+  :focus-visible {
+    outline: 2px solid var(--theme-secondary);
+    outline-offset: 2px;
+  }
+
+  button:focus:not(:focus-visible),
+  input:focus:not(:focus-visible) {
+    outline: none;
   }
 }
 
-/* ── Material Symbols ──────────────────────────────────────── */
-.material-symbols-outlined {
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-  font-family: 'Material Symbols Outlined';
-  font-style: normal;
-  display: inline-block;
-  line-height: 1;
-  letter-spacing: normal;
-  word-wrap: normal;
-  white-space: nowrap;
-  direction: ltr;
-}
-.material-symbols-outlined.fill {
-  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+/* ── Reduced Motion Support ────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
-/* ── Scrollbars ────────────────────────────────────────────── */
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--theme-border); border-radius: 9999px; }
-::-webkit-scrollbar-thumb:hover { background: var(--theme-text-sub); }
-
-/* ── Glass Utility ─────────────────────────────────────────── */
-.glass {
-  background: var(--glass-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--surface-border);
+/* ── Scrollbar Hide ─────────────────────────────── */
+::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+  background: transparent;
 }
 
-.glass-nav {
-  background: var(--glass-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid var(--surface-border);
-  box-shadow: 0 -4px 6px -1px rgba(0,0,0,0.04);
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
-/* ── Card Utility with Tactile Bevel & Ambient Lighting ── */
-.card {
-  background: var(--theme-surface, #FFFFFF);
-  border: 1px solid var(--theme-border, #D6E0D4);
-  border-radius: 1rem;
-  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.75) inset, var(--shadow-sm);
+/* ── Tactile Press Feedback (GPU-Composited) ──────── */
+.tap-effect {
+  transition: transform 0.12s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.12s ease;
+}
+.tap-effect:active {
+  transform: scale(0.96);
 }
 
-.card-2xl {
-  background: var(--theme-surface, #FFFFFF);
-  border: 1px solid var(--theme-border, #D6E0D4);
-  border-radius: 1.5rem;
-  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.8) inset, var(--shadow-md);
+/* ── GPU-Accelerated App Launch Split Preloader ── */
+@keyframes splitTopPanel {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(0, -100%, 0); }
 }
 
-.tactile-surface {
-  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.6) inset, var(--shadow-xs);
+@keyframes splitBottomPanel {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(0, 100%, 0); }
 }
 
-.tactile-btn {
-  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.25) inset, 0 2px 4px 0 rgba(27, 31, 26, 0.12);
-  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.tactile-btn:active {
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1) inset;
-  transform: translateY(1px);
+@keyframes preloaderContentFadeOut {
+  0%, 60% { opacity: 1; transform: scale3d(1, 1, 1); }
+  100% { opacity: 0; transform: scale3d(0.95, 0.95, 1); }
 }
 
-/* ── Squish Interactions ───────────────────────────────────── */
-.squish:hover { transform: scale(0.98); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-.squish:active { transform: scale(0.95); transition: transform 0.1s; }
-
-/* ── IOS-Style Toggle ──────────────────────────────────────── */
-.ios-toggle {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 44px;
-  height: 26px;
-  background: var(--surface-mid);
-  border-radius: 9999px;
-  position: relative;
-  cursor: pointer;
-  transition: background 0.2s;
-  flex-shrink: 0;
-}
-.ios-toggle::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: white;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.ios-toggle:checked {
-  background: var(--accent);
-}
-.ios-toggle:checked::after {
-  transform: translateX(18px);
+@keyframes appEnterFade {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
 }
 
-/* ── Progress Ring ─────────────────────────────────────────── */
-.progress-ring__circle {
-  transition: stroke-dashoffset 1s linear;
-  transform: rotate(-90deg);
-  transform-origin: 50% 50%;
+.preloader-panel-top {
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
 }
 
-/* ── Animations ────────────────────────────────────────────── */
-@keyframes pulse-subtle {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
+.preloader-panel-bottom {
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
 }
-.animate-pulse-subtle { animation: pulse-subtle 2.5s infinite ease-in-out; }
 
+.preloader-splitting .preloader-panel-top {
+  animation: splitTopPanel 0.65s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+}
+
+.preloader-splitting .preloader-panel-bottom {
+  animation: splitBottomPanel 0.65s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+}
+
+.animate-preloader-fade {
+  will-change: transform, opacity;
+  animation: preloaderContentFadeOut 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-app-enter-fade {
+  animation: appEnterFade 0.3s ease-out forwards;
+}
+
+/* ── Fast Hardware-Accelerated Page Transition ── */
+@keyframes pageFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-page-fade-in {
+  animation: pageFadeIn 0.14s ease-out forwards;
+}
+
+/* ── Modal & Overlay Animations (GPU-Composited) ── */
 @keyframes fadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
-.animate-fadeIn { animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-
-@keyframes slideOutUp {
-  0% { transform: translate3d(0, 0, 0); opacity: 1; }
-  100% { transform: translate3d(0, -35%, 0); opacity: 0; }
-}
-@keyframes slideInUp {
-  0% { transform: translate3d(0, 35%, 0); opacity: 0; }
-  100% { transform: translate3d(0, 0, 0); opacity: 1; }
-}
-.animate-slide-out-up { animation: slideOutUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; will-change: transform, opacity; transform: translateZ(0); }
-.animate-slide-in-up { animation: slideInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; will-change: transform, opacity; transform: translateZ(0); }
 
 @keyframes slideUp {
-  from { transform: translate3d(0, 12px, 0); opacity: 0; }
-  to   { transform: translate3d(0, 0, 0);    opacity: 1; }
-}
-.animate-slideUp { animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; will-change: transform, opacity; transform: translateZ(0); }
-
-@keyframes sheetUp {
-  from { transform: translate3d(0, 100%, 0); }
-  to   { transform: translate3d(0, 0, 0); }
-}
-.animate-sheet-up { animation: sheetUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; will-change: transform; transform: translateZ(0); }
-
-@keyframes slideDown {
-  from { transform: translate3d(-50%, -16px, 0); opacity: 0; }
-  to   { transform: translate3d(-50%, 0, 0); opacity: 1; }
-}
-.animate-slideDown { animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; will-change: transform, opacity; transform: translateZ(0); }
-
-@keyframes slideDownBanner {
-  from { transform: translate3d(0, -20px, 0); opacity: 0; }
-  to   { transform: translate3d(0, 0, 0); opacity: 1; }
-}
-.animate-slideDownBanner { animation: slideDownBanner 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; will-change: transform, opacity; transform: translateZ(0); }
-
-/* ── App Preloader Split Reveal (Hardware Compositor 120Hz) ── */
-/* ── App Preloader Split Reveal (Unified 120Hz GPU Compositor) ── */
-@keyframes splitTextFlow {
-  0% {
-    transform: translate3d(0, 24px, 0);
+  from {
     opacity: 0;
+    transform: translate3d(0, 14px, 0) scale(0.96);
   }
-  24% {
-    transform: translate3d(0, 0, 0);
+  to {
     opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
   }
-  58% {
-    transform: translate3d(0, 0, 0);
-    opacity: 1;
-  }
-  74%, 100% {
-    transform: translate3d(0, -18px, 0);
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.26s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 20px);
+}
+
+/* ── Sheet Slide Up & Down (TaskModal) ── */
+@keyframes sheetSlideUp {
+  from {
     opacity: 0;
+    transform: translate3d(0, 100%, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
   }
 }
 
-@keyframes splitShutterTop {
-  0%, 72% {
+@keyframes sheetSlideDown {
+  from {
+    opacity: 1;
     transform: translate3d(0, 0, 0);
   }
-  100% {
-    transform: translate3d(0, -100%, 0);
-  }
-}
-
-@keyframes splitShutterBottom {
-  0%, 72% {
-    transform: translate3d(0, 0, 0);
-  }
-  100% {
+  to {
+    opacity: 0;
     transform: translate3d(0, 100%, 0);
   }
 }
 
-.animate-split-text-flow {
-  animation: splitTextFlow 1.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  will-change: transform, opacity;
-  transform: translateZ(0);
-}
-
-.animate-shutter-top-split {
-  animation: splitShutterTop 1.4s cubic-bezier(0.76, 0, 0.24, 1) forwards;
-  will-change: transform;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-}
-
-.animate-shutter-bottom-split {
-  animation: splitShutterBottom 1.4s cubic-bezier(0.76, 0, 0.24, 1) forwards;
-  will-change: transform;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-}
-
-@keyframes fabPopIn {
-  0%   { transform: scale(0) rotate(-45deg); opacity: 0; }
-  60%  { transform: scale(1.12) rotate(5deg); opacity: 1; }
-  100% { transform: scale(1) rotate(0deg); opacity: 1; }
-}
-.animate-fab-in { animation: fabPopIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-
-@keyframes appEnterFadeIn {
+@keyframes sheetBackdropIn {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
-.animate-app-enter-fade {
-  animation: appEnterFadeIn 1000ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  will-change: opacity;
+
+.animate-sheet-backdrop {
+  animation: sheetBackdropIn 0.22s ease-out forwards;
 }
 
-/* ── Page Fade Transitions (Lightweight 60/120Hz GPU Compositor, ultra-low INP) ── */
-@keyframes pageFadeIn {
-  0%   { opacity: 0; transform: translateZ(0); }
-  100% { opacity: 1; transform: translateZ(0); }
-}
-@keyframes pageFadeOut {
-  0%   { opacity: 1; transform: translateZ(0); }
-  100% { opacity: 0; transform: translateZ(0); }
-}
-.animate-page-fade-in  { animation: pageFadeIn 320ms cubic-bezier(0.2, 0.9, 0.3, 1) forwards; will-change: opacity; }
-.animate-page-fade-out { animation: pageFadeOut 280ms cubic-bezier(0.2, 0.9, 0.3, 1) forwards; will-change: opacity; }
-
-/* ── Micro-interactions ────────────────────────────────────── */
-.squish {
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-  will-change: transform;
-}
-.squish:active {
-  transform: scale(0.95);
+.animate-sheet-up {
+  animation: sheetSlideUp 0.34s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
 }
 
-@keyframes tickSlideOutDown {
-  0% { transform: translateY(0); opacity: 1; }
-  100% { transform: translateY(40%); opacity: 0; }
-}
-@keyframes tickSlideInDown {
-  0% { transform: translateY(-40%); opacity: 0; }
-  100% { transform: translateY(0); opacity: 1; }
-}
-.animate-tick-out { animation: tickSlideOutDown 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-.animate-tick-in { animation: tickSlideInDown 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-
-.font-display,
-.font-display * {
-  font-family: 'Outfit', sans-serif !important;
+.animate-sheet-down {
+  animation: sheetSlideDown 0.24s cubic-bezier(0.4, 0, 1, 1) forwards;
+  will-change: transform, opacity;
 }
 
-.font-sans,
-.font-sans * {
-  font-family: 'Manrope', sans-serif !important;
-}
-
-.font-styro,
-.font-styro * {
-  font-family: 'Styro', sans-serif !important;
-}
-
-
-@keyframes zoomInAlert {
-  0% { transform: scale(0.9); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
-}
-.animate-zoomInAlert { animation: zoomInAlert 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-
-@keyframes zoomOutAlert {
-  0% { transform: scale(1); opacity: 1; }
-  100% { transform: scale(0.9); opacity: 0; }
-}
-.animate-zoomOutAlert { animation: zoomOutAlert 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-
-@keyframes fadeOut {
-  from { opacity: 1; }
-  to   { opacity: 0; }
-}
-.animate-fadeOut { animation: fadeOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-
-/* ── Task completion feedback ──────────────────────────────── */
+/* ── Task Completion Choreography (100% GPU-Composited) ── */
 @keyframes checkDraw {
-  to { stroke-dashoffset: 0; }
+  from { stroke-dashoffset: 24; }
+  to   { stroke-dashoffset: 0; }
 }
-.check-draw path {
-  stroke-dasharray: 24;
-  stroke-dashoffset: 24;
-  animation: checkDraw 0.32s 0.06s cubic-bezier(0.65, 0, 0.35, 1) forwards;
-}
+
 @keyframes checkPop {
-  0%   { transform: scale(0.7); }
-  55%  { transform: scale(1.22); }
+  0%   { transform: scale(0.8); }
+  55%  { transform: scale(1.18); }
   100% { transform: scale(1); }
 }
-.animate-check-pop { animation: checkPop 0.38s cubic-bezier(0.34, 1.56, 0.64, 1); }
 
-@keyframes taskExit {
-  from { transform: translate3d(0, 0, 0) scale(1); opacity: 0.6; }
-  to   { transform: translate3d(28px, 0, 0) scale(0.96); opacity: 0; }
+@keyframes strikeScaleX {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
 }
-.animate-task-exit { animation: taskExit 0.32s 0.72s cubic-bezier(0.4, 0, 1, 1) forwards; }
 
-@keyframes strikeGrow {
-  from { background-size: 0% 1.5px; }
-  to   { background-size: 100% 1.5px; }
+@keyframes taskCompleteSlide {
+  0%   { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+  100% { opacity: 0; transform: translate3d(14px, 0, 0) scale(0.98); }
 }
+
+.animate-check-pop {
+  animation: checkPop 0.32s cubic-bezier(0.22, 1.3, 0.36, 1) forwards;
+  will-change: transform;
+}
+
+.check-draw {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  animation: checkDraw 0.26s cubic-bezier(0.22, 1, 0.36, 1) 0.04s forwards;
+}
+
 .strike-anim {
-  background-image: linear-gradient(currentColor, currentColor);
-  background-repeat: no-repeat;
-  background-position: 0 58%;
-  background-size: 0% 1.5px;
-  animation: strikeGrow 0.35s 0.12s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  position: relative;
+}
+.strike-anim::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1.5px;
+  background: currentColor;
+  transform-origin: left center;
+  transform: scaleX(0);
+  animation: strikeScaleX 0.24s cubic-bezier(0.22, 1, 0.36, 1) 0.05s forwards;
+  will-change: transform;
 }
 
-/* ── Undo toast ────────────────────────────────────────────── */
+.animate-task-exit {
+  animation: taskCompleteSlide 0.24s cubic-bezier(0.4, 0, 0.2, 1) 0.22s forwards;
+  will-change: transform, opacity;
+}
+
+/* ── Toast & Undo Snackbar ── */
 @keyframes toastIn {
-  from { transform: translate3d(0, 16px, 0) scale(0.96); opacity: 0; }
-  to   { transform: translate3d(0, 0, 0) scale(1); opacity: 1; }
+  from {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
 }
+
 @keyframes toastOut {
-  from { transform: translate3d(0, 0, 0) scale(1); opacity: 1; }
-  to   { transform: translate3d(0, 12px, 0) scale(0.97); opacity: 0; }
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0) scale(0.96);
+  }
 }
-@keyframes toastCountdown {
+
+.animate-toast-in {
+  animation: toastIn 0.26s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
+}
+
+.animate-toast-out {
+  animation: toastOut 0.18s ease-in forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes toastProgress {
   from { transform: scaleX(1); }
   to   { transform: scaleX(0); }
 }
-.animate-toast-in  { animation: toastIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-.animate-toast-out { animation: toastOut 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-@media (prefers-reduced-motion: reduce) {
-  .check-draw path { animation: none; stroke-dashoffset: 0; }
-  .animate-check-pop, .strike-anim { animation-duration: 0.01s; animation-delay: 0s; }
-}
-
-/* ── Tap effect & Status pulse ────────────────────────────── */
-.tap-effect {
-  transition: transform 0.16s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.16s ease;
-}
-.tap-effect:active {
-  transform: scale(0.96);
-  opacity: 0.85;
+.toast-progress-bar {
+  transform-origin: left center;
+  animation: toastProgress linear forwards;
+  will-change: transform;
 }
 
-@keyframes subtlePulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.45; transform: scale(0.85); }
-}
-.status-pulse {
-  animation: subtlePulse 2.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+/* ── Full-Width Session Completion Screen ── */
+@keyframes celebrationBackdropIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
+@keyframes celebrationCardIn {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0) scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+.animate-celebration-backdrop {
+  animation: celebrationBackdropIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-celebration-card {
+  animation: celebrationCardIn 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
+}

@@ -4,12 +4,23 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    tailwindcss(),
+    react(),
+  ],
   assetsInclude: ['**/*.lottie'],
   build: {
-    sourcemap: false,
-  },
-  oxc: {
-    drop: ['console', 'debugger'],
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('@lottiefiles/dotlottie-react')) {
+            return 'vendor-lottie';
+          }
+          if (id.includes('node_modules/react-dom') || id.includes('node_modules/react/')) {
+            return 'vendor-react';
+          }
+        },
+      },
+    },
   },
 })

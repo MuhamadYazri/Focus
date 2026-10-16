@@ -101,7 +101,7 @@ const HeatmapCell = React.memo(function HeatmapCell({ cell, period, setOffset })
   return (
     <div
       onClick={handleCellClick}
-      className={`relative h-[34px] rounded-[10px] flex flex-col items-center justify-center text-[10px] font-sans transition-all overflow-hidden cursor-pointer active:scale-95 ${bgClass} ${borderClass}`}
+      className={`relative h-[34px] rounded-[10px] flex flex-col items-center justify-center text-[10px] font-sans transition-transform duration-150 overflow-hidden cursor-pointer active:scale-95 ${bgClass} ${borderClass}`}
       title={
         hasHours
           ? `${cell?.dateStr}: ${cell?.curHours?.toFixed(1)}h / ${cell?.targetHours}h goal`
@@ -118,7 +118,7 @@ const HeatmapCell = React.memo(function HeatmapCell({ cell, period, setOffset })
   );
 });
 
-const ChartBarColumn = React.memo(function ChartBarColumn({ slot, setOffset }) {
+const ChartBarColumn = React.memo(function ChartBarColumn({ slot, setOffset, index = 0 }) {
   const isSelected = slot.isCurrent;
   const hasVal = slot.v > 0;
   const barH = hasVal ? Math.max(6, Math.min(58, Math.round(slot.v * 58))) : 0;
@@ -150,16 +150,19 @@ const ChartBarColumn = React.memo(function ChartBarColumn({ slot, setOffset }) {
         {slot.val}
       </span>
 
-      {/* Bar Outer from Figma: 45px max-w, 58px height, bg #E8EDE6 rounded-full */}
+      {/* Bar Outer: fills column slot width, 58px height, bg #E8EDE6 rounded-full */}
       <div
-        className={`w-full max-w-[45px] h-[58px] bg-[#E8EDE6] rounded-full flex flex-col justify-end overflow-hidden relative ${
+        className={`w-full h-[58px] bg-[#E8EDE6] rounded-full flex flex-col justify-end overflow-hidden relative ${
           isSelected ? 'border border-[#1B1F1A]' : ''
         }`}
       >
         {hasVal && (
           <div
-            className="w-full bg-[#588157] transition-all duration-500 ease-out"
-            style={{ height: `${barH}px` }}
+            className="w-full bg-[#588157] rounded-full transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
+            style={{
+              height: `${barH}px`,
+              transitionDelay: `${index * 22}ms`,
+            }}
           />
         )}
       </div>
@@ -258,7 +261,10 @@ function SharedActivitySection({
       const todayStr = getLocalDateStr(new Date());
       const rangeStart = hlStart || todayStr;
       const rangeEnd = hlEnd || rangeStart;
-      const targetMonthPrefix = `${ref.getFullYear()}-${String(ref.getMonth() + 1).padStart(2, '0')}`;
+      const targetMonthPrefix = `${ref.getFullYear()}-${String(ref.getMonth() + 1).padStart(
+        2,
+        '0'
+      )}`;
 
       const grid = [];
       for (let w = 0; w < 5; w++) {
@@ -324,7 +330,7 @@ function SharedActivitySection({
       targetDate.setDate(now.getDate() + offset);
       const targetStr = getLocalDateStr(targetDate);
       heatmapTitleDate = targetDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-      
+
       const totalMins = sessionDateMap.get(targetStr) || 0;
       const daySessions = (sessions || []).filter((s) => {
         const sDt = s.dateStr || (s.completedAt && s.completedAt.split('T')[0]);
@@ -405,7 +411,11 @@ function SharedActivitySection({
 
       // Keep a sliding 4-week window containing the active week offset (clamped to max 0 for future)
       const maxW = Math.min(0, offset + 3);
-      const thisWeekMon = new Date(now.getFullYear(), now.getMonth(), now.getDate() - dayOfWeek + 1);
+      const thisWeekMon = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() - dayOfWeek + 1
+      );
 
       for (let w = maxW - 3; w <= maxW; w++) {
         const curStart = new Date(thisWeekMon);
@@ -514,7 +524,7 @@ function SharedActivitySection({
       const targetYr = now.getFullYear() + offset;
       const yrStr = String(targetYr);
       heatmapTitleDate = 'All Time';
-      
+
       const totalMins = sessionYearMap.get(yrStr) || 0;
       const yrSessions = (sessions || []).filter((s) =>
         (s.dateStr || s.completedAt || '').startsWith(yrStr)
@@ -556,7 +566,9 @@ function SharedActivitySection({
     } else if (period === 'All') {
       heatmapTitleDate = 'All Time';
       let totalMins = 0;
-      sessionYearMap.forEach((v) => { totalMins += v; });
+      sessionYearMap.forEach((v) => {
+        totalMins += v;
+      });
       displayHours = formatDisplayHours(totalMins);
       displayPomos = (sessions || []).length;
       const uniqueDays = new Set(
@@ -687,12 +699,7 @@ function SharedActivitySection({
         <div className="grid grid-cols-7 gap-1 text-center select-none">
           {activeHeatmap.map((week, wi) =>
             week.map((cell, di) => (
-              <HeatmapCell
-                key={`${wi}-${di}`}
-                cell={cell}
-                period={period}
-                setOffset={setOffset}
-              />
+              <HeatmapCell key={`${wi}-${di}`} cell={cell} period={period} setOffset={setOffset} />
             ))
           )}
         </div>
@@ -718,11 +725,12 @@ function SharedActivitySection({
           className="grid gap-2.5 items-end min-h-[96px] pt-1"
           style={{ gridTemplateColumns: `repeat(${activeChart.length}, minmax(0, 1fr))` }}
         >
-          {activeChart.map((slot) => (
+          {activeChart.map((slot, idx) => (
             <ChartBarColumn
               key={`${slot.targetOffset !== undefined ? slot.targetOffset : slot.h}-${slot.h}`}
               slot={slot}
               setOffset={setOffset}
+              index={idx}
             />
           ))}
         </div>

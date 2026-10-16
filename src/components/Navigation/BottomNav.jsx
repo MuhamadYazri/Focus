@@ -88,7 +88,9 @@ function BottomNav({ activeTab, setActiveTab, isHidden = false }) {
               }`}
             >
               <div className="flex items-center gap-[5px] truncate relative">
-                {icon}
+                <span className={`inline-flex items-center justify-center transition-colors duration-150 ${on ? 'text-white' : 'text-[#667463]'}`}>
+                  {icon}
+                </span>
                 <span
                   className={`text-[12px] leading-[14px] tracking-[-0.2px] whitespace-nowrap transition-colors duration-150 ${
                     on ? 'font-semibold text-white' : 'font-medium text-[#667463]'

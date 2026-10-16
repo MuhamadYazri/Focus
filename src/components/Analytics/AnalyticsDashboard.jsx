@@ -229,11 +229,15 @@ function AnalyticsDashboard({
                     </span>
                   </div>
 
-                  {/* 5px Progress Track from Figma */}
+                  {/* 5px Progress Track from Figma (GPU scaleX) */}
                   <div className="w-full h-[5px] rounded-full bg-[#E8EDE6] overflow-hidden">
                     <div
-                      className="h-full rounded-full transition-all duration-500"
-                      style={{ width: `${Math.max(2, seg.pct)}%`, backgroundColor: seg.color }}
+                      className="w-full h-full rounded-full origin-left transition-transform duration-500 ease-out"
+                      style={{
+                        transform: `scaleX(${Math.max(0.02, seg.pct / 100)})`,
+                        backgroundColor: seg.color,
+                        willChange: 'transform',
+                      }}
                     />
                   </div>
                 </div>

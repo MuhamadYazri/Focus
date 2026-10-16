@@ -1,10 +1,7 @@
-import React, { useState, useEffect, useRef, useCallback, startTransition } from 'react';
+import React, { useState, useEffect, useRef, useCallback, startTransition, Suspense } from 'react';
 import BottomNav from './components/Navigation/BottomNav';
 import TaskList from './components/Tasks/TaskList';
-import TaskModal from './components/Tasks/TaskModal';
-import ProjectModal from './components/Projects/ProjectModal';
 import TimerView from './components/Timer/TimerView';
-import StrictModeModal from './components/Timer/StrictModeModal';
 import AnalyticsDashboard from './components/Analytics/AnalyticsDashboard';
 import ProfileView from './components/Profile/ProfileView';
 import { storage, DEFAULT_PROJECTS, DEFAULT_TASKS, DEFAULT_SETTINGS } from './services/storage';
@@ -18,7 +15,11 @@ import { App as CapApp } from '@capacitor/app';
 import { timerWorker } from './services/timerWorker';
 import SplitRevealPreloader from './components/animata/preloader/SplitRevealPreloader';
 import UndoToast from './components/Feedback/UndoToast';
-import SessionCompletionScreen from './components/Feedback/SessionCompletionScreen';
+
+const TaskModal = React.lazy(() => import('./components/Tasks/TaskModal'));
+const ProjectModal = React.lazy(() => import('./components/Projects/ProjectModal'));
+const StrictModeModal = React.lazy(() => import('./components/Timer/StrictModeModal'));
+const SessionCompletionScreen = React.lazy(() => import('./components/Feedback/SessionCompletionScreen'));
 
 const getLocalDateStr = (d) => {
   try {
@@ -187,6 +188,7 @@ export default function App() {
 
   const handleTabSwitch = useCallback((newTab) => {
     if (newTab === navTabRef.current) return;
+    setIsNavHidden(false);
     // 1. Immediate UI update for the bottom dock indicator (Paint occurs in <16ms, INP < 60ms)
     navTabRef.current = newTab;
     setNavTab(newTab);
@@ -221,6 +223,22 @@ export default function App() {
       setIsLoaded(true);
     }
     loadAll();
+  }, []);
+
+  // Preload lazy modal chunks during browser idle time so opening them is instant
+  useEffect(() => {
+    const preload = () => {
+      import('./components/Tasks/TaskModal');
+      import('./components/Projects/ProjectModal');
+      import('./components/Timer/StrictModeModal');
+      import('./components/Feedback/SessionCompletionScreen');
+    };
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      const id = window.requestIdleCallback(preload, { timeout: 2500 });
+      return () => window.cancelIdleCallback(id);
+    }
+    const timer = setTimeout(preload, 1500);
+    return () => clearTimeout(timer);
   }, []);
 
   // Save changes to storage
@@ -882,7 +900,7 @@ export default function App() {
 
     if (nextCompleted) {
       setJustCompletedId(id);
-      setTimeout(() => setJustCompletedId((cur) => (cur === id ? null : cur)), 1100);
+      setTimeout(() => setJustCompletedId((cur) => (cur === id ? null : cur)), 520);
       if (window.navigator?.vibrate) window.navigator.vibrate([10, 30, 14]);
       showToast('Task completed', () => {
         setTasks((prev) => prev.map((t) => (t.id === id ? { ...target } : t)));
@@ -1147,7 +1165,9 @@ export default function App() {
 
   return (
     <div 
-      className={`min-h-[100dvh] flex flex-col font-sans bg-canvas text-text-main animate-app-enter-fade ${isNavHidden ? 'overflow-hidden h-[100dvh]' : ''}`} 
+      className={`min-h-[100dvh] flex flex-col font-sans bg-canvas text-text-main animate-app-enter-fade ${
+        (isNavHidden && activeTab === 'timer') ? 'overflow-hidden h-[100dvh]' : ''
+      }`} 
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -1158,7 +1178,7 @@ export default function App() {
       )}
 
       {/* Single Screen Mount with Hardware-Accelerated GPU Opacity Fade-In (Zero DOM stacking, INP < 60ms) */}
-      <main className={`flex-1 relative ${isNavHidden ? 'overflow-hidden' : 'overflow-x-hidden'}`}>
+      <main className={`flex-1 relative ${(isNavHidden && activeTab === 'timer') ? 'overflow-hidden' : 'overflow-x-hidden'}`}>
         <div
           key={activeTab}
           className="relative w-full min-h-full animate-page-fade-in z-20"
@@ -1185,39 +1205,48 @@ export default function App() {
         isHidden={isNavHidden && activeTab === 'timer'}
       />
 
-      {/* Modals */}
-      <TaskModal
-        isOpen={taskModalOpen}
-        onClose={handleCloseTaskModal}
-        onSave={handleSaveTask}
-        onDelete={handleDeleteTask}
-        projects={projects}
-        taskToEdit={taskToEdit}
-        onOpenCreateProject={handleOpenAddProject}
-      />
-
-      <ProjectModal
-        isOpen={projectModalOpen}
-        onClose={handleCloseProjectModal}
-        onSave={handleSaveProject}
-        projectToEdit={projectToEdit}
-      />
-
-      <StrictModeModal
-        isOpen={strictModalOpen}
-        onClose={handleCloseStrictModal}
-        onResetTimer={handleResetStrictModal}
-      />
-
-      {/* UX feedback layers */}
+      {/*UX feedback layers */}
       <UndoToast toast={toast} onDismiss={dismissToast} />
-      {/* Dedicated Full-Screen Celebration: session done, break done, daily goal */}
-      <SessionCompletionScreen
-        celebration={celebrations[0] || null}
-        onDismiss={dismissCelebration}
-        onPrimaryAction={handleCelebrationPrimaryAction}
-      />
 
+      {/* Lazy-Loaded Modals & Full-Screen Celebration */}
+      <Suspense fallback={null}>
+        {taskModalOpen && (
+          <TaskModal
+            isOpen={taskModalOpen}
+            onClose={handleCloseTaskModal}
+            onSave={handleSaveTask}
+            onDelete={handleDeleteTask}
+            projects={projects}
+            taskToEdit={taskToEdit}
+            onOpenCreateProject={handleOpenAddProject}
+          />
+        )}
+
+        {projectModalOpen && (
+          <ProjectModal
+            isOpen={projectModalOpen}
+            onClose={handleCloseProjectModal}
+            onSave={handleSaveProject}
+            projectToEdit={projectToEdit}
+          />
+        )}
+
+        {strictModalOpen && (
+          <StrictModeModal
+            isOpen={strictModalOpen}
+            onClose={handleCloseStrictModal}
+            onResetTimer={handleResetStrictModal}
+          />
+        )}
+
+        {celebrations.length > 0 && (
+          <SessionCompletionScreen
+            celebration={celebrations[0] || null}
+            onDismiss={dismissCelebration}
+            onPrimaryAction={handleCelebrationPrimaryAction}
+          />
+        )}
+      </Suspense>
     </div>
   );
 }

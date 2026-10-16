@@ -1,33 +1,30 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
+  Play,
+  Pause,
+  RotateCcw,
   SkipForward,
   Headphones,
   Volume2,
   VolumeX,
+  Lock,
   Unlock,
   CloudRain,
   Trees,
   Waves,
   Coffee,
   Clock,
+  X,
 } from 'lucide-react';
-import {
-  PlayIcon as Play,
-  PauseIcon as Pause,
-  RotateCcwIcon as RotateCcw,
-  LockIcon as Lock,
-  XIcon,
-} from 'lucide-animated';
 import { soundEngine } from '../../services/soundEngine';
 
 const DIGITS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 /**
  * High-performance Rolling Digit Column
- * Pre-renders 0-9 in a single static filmstrip and shifts strictly via GPU translateY
- * with spring physics, avoiding DOM re-mounts and frame drops at 60 FPS.
+ * Pre-renders 0-9 in a single static filmstrip and shifts strictly via GPU translate3d
+ * with spring cubic-bezier physics on the compositor thread (zero JS main-thread rAF loop).
  */
 const RollingDigitColumn = React.memo(function RollingDigitColumn({
   digit,
@@ -43,19 +40,15 @@ const RollingDigitColumn = React.memo(function RollingDigitColumn({
 
   return (
     <div
-      className="relative overflow-hidden inline-block select-none tabular-nums"
+      className="relative overflow-hidden inline-block select-none tabular-nums p-1"
       style={{ height: `${height}px` }}
     >
-      <motion.div
-        animate={{ y: -safeDigit * height }}
-        transition={{
-          type: 'spring',
-          stiffness: 450,
-          damping: 34,
-          mass: 0.8,
-        }}
+      <div
         className="flex flex-col will-change-transform"
-        style={{ transform: 'translateZ(0)' }}
+        style={{
+          transform: `translate3d(0, ${-safeDigit * height}px, 0)`,
+          transition: 'transform 420ms cubic-bezier(0.22, 1.2, 0.36, 1)',
+        }}
       >
         {DIGITS.map((num) => (
           <span
@@ -66,7 +59,7 @@ const RollingDigitColumn = React.memo(function RollingDigitColumn({
             {num}
           </span>
         ))}
-      </motion.div>
+      </div>
     </div>
   );
 });
@@ -203,7 +196,6 @@ function TimerView({
   isNavHidden,
   onToggleNav,
 }) {
-  const iconRefs = useRef({});
   const [showSoundModal, setShowSoundModal] = useState(false);
 
   // Fullscreen immersive mode is active whenever navigation is hidden
@@ -294,9 +286,7 @@ function TimerView({
                     }
                   }}
                   className={`tap-effect relative flex-1 h-[30px] rounded-full text-[12px] leading-[16px] transition-colors duration-150 flex items-center justify-center z-10 select-none ${
-                    on
-                      ? 'font-bold text-white'
-                      : 'font-medium text-[#667463] hover:text-[#1B1F1A]'
+                    on ? 'font-bold text-white' : 'font-medium text-[#667463] hover:text-[#1B1F1A]'
                   }`}
                 >
                   <span className="relative z-10">{label}</span>
@@ -313,18 +303,11 @@ function TimerView({
               onClick={() => {
                 if (window.navigator?.vibrate) window.navigator.vibrate(10);
                 if (onToggleStrictMode) onToggleStrictMode();
-                iconRefs.current.lock?.startAnimation();
-                setTimeout(() => iconRefs.current.lock?.stopAnimation(), 600);
               }}
               className="tap-effect h-[20px] px-2.5 bg-white border border-[#CBD7C9] rounded-full flex items-center gap-[5px] transition-colors"
             >
               {strictMode ? (
-                <Lock
-                  ref={(el) => (iconRefs.current.lock = el)}
-                  animateOnHover={false}
-                  size={11}
-                  className="text-[#41493F]"
-                />
+                <Lock size={11} className="text-[#41493F]" />
               ) : (
                 <Unlock size={11} className="text-[#5F6C5C]" />
               )}
@@ -371,17 +354,14 @@ function TimerView({
               onClick={() => {
                 if (window.navigator?.vibrate) window.navigator.vibrate(10);
                 if (onReset) onReset();
-                iconRefs.current.reset?.startAnimation();
-                setTimeout(() => iconRefs.current.reset?.stopAnimation(), 600);
               }}
               aria-label="Reset timer"
-              className="tap-effect w-[44px] h-[44px] rounded-full bg-white border border-[#D6E0D4] text-[#667463] hover:text-[#1B1F1A] flex items-center justify-center shadow-[0px_1px_2px_rgba(27,31,26,0.04)]"
+              className="group tap-effect w-[44px] h-[44px] rounded-full bg-white border border-[#D6E0D4] text-[#667463] hover:text-[#1B1F1A] flex items-center justify-center shadow-[0px_1px_2px_rgba(27,31,26,0.04)]"
             >
               <RotateCcw
-                ref={(el) => (iconRefs.current.reset = el)}
-                animateOnHover={false}
                 size={17}
                 strokeWidth={2}
+                className="transition-transform duration-300 group-active:-rotate-90"
               />
             </button>
 
@@ -393,8 +373,6 @@ function TimerView({
                 const targetPreview = previewMode;
                 setPreviewMode(null);
                 if (onTogglePlay) onTogglePlay(targetPreview);
-                iconRefs.current.playPause?.startAnimation();
-                setTimeout(() => iconRefs.current.playPause?.stopAnimation(), 600);
               }}
               aria-label={
                 isPreviewingDifferentMode
@@ -405,22 +383,12 @@ function TimerView({
                   ? 'Pause timer'
                   : 'Start timer'
               }
-              className="tap-effect w-[72px] h-[72px] rounded-full bg-[#1B1F1A] text-white flex items-center justify-center shadow-[0px_0px_0px_3px_rgba(214,243,208,0.2),0px_8px_20px_-4px_rgba(27,31,26,0.125)] transition-all active:scale-90 hover:scale-105"
+              className="tap-effect w-[72px] h-[72px] rounded-full bg-[#1B1F1A] text-white flex items-center justify-center shadow-[0px_0px_0px_3px_rgba(214,243,208,0.2),0px_8px_20px_-4px_rgba(27,31,26,0.125)] transition-transform active:scale-90 hover:scale-105"
             >
               {isRunning && !isPreviewingDifferentMode ? (
-                <Pause
-                  ref={(el) => (iconRefs.current.playPause = el)}
-                  animateOnHover={false}
-                  size={28}
-                  className="fill-current text-white"
-                />
+                <Pause size={28} className="fill-current text-white" />
               ) : (
-                <Play
-                  ref={(el) => (iconRefs.current.playPause = el)}
-                  animateOnHover={false}
-                  size={28}
-                  className="translate-x-0.5 fill-current text-white"
-                />
+                <Play size={28} className="translate-x-0.5 fill-current text-white" />
               )}
             </button>
 
@@ -437,13 +405,13 @@ function TimerView({
             </button>
           </div>
 
-          {/* Floating Soundscape Capsule from Figma: 264px x 32px */}
+          {/* Floating Soundscape Capsule from Figma: 264px x 32px (opaque bg-white, no redundant backdrop-blur) */}
           <div
             onClick={() => {
               if (window.navigator?.vibrate) window.navigator.vibrate(10);
               setShowSoundModal(true);
             }}
-            className="w-full max-w-[264px] h-[32px] bg-white border border-[#D6E0D4] backdrop-blur-md rounded-full px-3.5 flex items-center justify-between shadow-[0px_1px_2px_rgba(27,31,26,0.03)] cursor-pointer hover:bg-white/95 transition-all active:scale-[0.98]"
+            className="w-full max-w-[264px] h-[32px] bg-white border border-[#D6E0D4] rounded-full px-3.5 flex items-center justify-between shadow-[0px_1px_2px_rgba(27,31,26,0.03)] cursor-pointer hover:bg-white/95 transition-transform active:scale-[0.98]"
           >
             <div className="flex items-center gap-2 truncate">
               <Headphones size={14} className="text-[#667463] shrink-0" />
@@ -470,154 +438,148 @@ function TimerView({
       </div>
 
       {/* ── FULLSCREEN MINIMALIST TIMER (Image 1 & Figma CSS) ── */}
-      <AnimatePresence>
-        {isImmersive && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="fixed inset-0 z-50 flex flex-col justify-between px-7 pt-12 pb-12 bg-[#F0F2EF] text-[#1B1F1A] select-none cursor-pointer"
-            onClick={(e) => {
-              e.stopPropagation();
-              safeToggleNav();
-            }}
-            onTouchEnd={(e) => {
-              if (e.target.closest('button') || e.target.closest('[role="button"]')) return;
-              e.stopPropagation();
-              safeToggleNav();
-            }}
-          >
-            {/* Top Bar with Minimalist Back/Minimize Button */}
-            <div className="w-full max-w-[384px] mx-auto flex items-center justify-between pointer-events-auto">
-              <span className="text-[10px] text-[#8B9E87] uppercase tracking-[1.5px] font-bold">
-                Tap anywhere to exit
+      {isImmersive && (
+        <div
+          className="fixed inset-0 z-50 flex flex-col justify-between px-7 pt-12 pb-12 bg-[#F0F2EF] text-[#1B1F1A] select-none cursor-pointer animate-fadeIn"
+          onClick={(e) => {
+            e.stopPropagation();
+            safeToggleNav();
+          }}
+          onTouchEnd={(e) => {
+            if (e.target.closest('button') || e.target.closest('[role="button"]')) return;
+            e.stopPropagation();
+            safeToggleNav();
+          }}
+        >
+          {/* Top Bar with Minimalist Back/Minimize Button */}
+          <div className="w-full max-w-[384px] mx-auto flex items-center justify-between pointer-events-auto">
+            <span className="text-[10px] text-[#8B9E87] uppercase tracking-[1.5px] font-bold">
+              Tap anywhere to exit
+            </span>
+          </div>
+
+          {/* Minimalist Hero Section with Stacked 168px Numerals from Figma */}
+          <div className="w-full max-w-[384px] mx-auto flex flex-col justify-start pt-4 pointer-events-none">
+            {/* Row 1: Minutes (168px font-weight 800 Manrope, line-height 148px, letter-spacing -8px, color #1B1F1A) */}
+            <div className="w-full flex items-baseline overflow-hidden h-[148px]">
+              <RollingDigitColumn
+                digit={Math.floor(m / 10)}
+                height={148}
+                fontSizeClass="text-[168px]"
+                lineHeightClass="leading-[148px]"
+                trackingClass="tracking-[-8px]"
+                colorClass="text-[#1B1F1A]"
+                fontWeightClass="font-extrabold"
+              />
+              <RollingDigitColumn
+                digit={m % 10}
+                height={148}
+                fontSizeClass="text-[168px]"
+                lineHeightClass="leading-[148px]"
+                trackingClass="tracking-[-8px]"
+                colorClass="text-[#1B1F1A]"
+                fontWeightClass="font-extrabold"
+              />
+            </div>
+
+            {/* Divider: 1px height #CBD7C9 */}
+            <div className="w-full h-[1px] bg-[#CBD7C9] my-2" />
+
+            {/* Row 2: Seconds (168px font-weight 800 Manrope, line-height 148px, letter-spacing -8px, color #41493F) */}
+            <div className="w-full flex items-baseline overflow-hidden h-[148px]">
+              <RollingDigitColumn
+                digit={Math.floor(s / 10)}
+                height={148}
+                fontSizeClass="text-[168px]"
+                lineHeightClass="leading-[148px]"
+                trackingClass="tracking-[-8px]"
+                colorClass="text-[#41493F]"
+                fontWeightClass="font-extrabold"
+              />
+              <RollingDigitColumn
+                digit={s % 10}
+                height={148}
+                fontSizeClass="text-[168px]"
+                lineHeightClass="leading-[148px]"
+                trackingClass="tracking-[-8px]"
+                colorClass="text-[#41493F]"
+                fontWeightClass="font-extrabold"
+              />
+            </div>
+
+            {/* MIN · SEC Subtitle */}
+            <div className="pt-2">
+              <span className="text-[10px] font-bold uppercase tracking-[2px] text-[#8B9E87]">
+                MIN · SEC
               </span>
             </div>
 
-            {/* Minimalist Hero Section with Stacked 168px Numerals from Figma */}
-            <div className="w-full max-w-[384px] mx-auto flex flex-col justify-start pt-4 pointer-events-none">
-              {/* Row 1: Minutes (168px font-weight 800 Manrope, line-height 148px, letter-spacing -8px, color #1B1F1A) */}
-              <div className="w-full flex items-baseline overflow-hidden h-[148px]">
-                <RollingDigitColumn
-                  digit={Math.floor(m / 10)}
-                  height={148}
-                  fontSizeClass="text-[168px]"
-                  lineHeightClass="leading-[148px]"
-                  trackingClass="tracking-[-8px]"
-                  colorClass="text-[#1B1F1A]"
-                  fontWeightClass="font-extrabold"
-                />
-                <RollingDigitColumn
-                  digit={m % 10}
-                  height={148}
-                  fontSizeClass="text-[168px]"
-                  lineHeightClass="leading-[148px]"
-                  trackingClass="tracking-[-8px]"
-                  colorClass="text-[#1B1F1A]"
-                  fontWeightClass="font-extrabold"
-                />
-              </div>
-
-              {/* Divider: 1px height #CBD7C9 */}
-              <div className="w-full h-[1px] bg-[#CBD7C9] my-2" />
-
-              {/* Row 2: Seconds (168px font-weight 800 Manrope, line-height 148px, letter-spacing -8px, color #41493F) */}
-              <div className="w-full flex items-baseline overflow-hidden h-[148px]">
-                <RollingDigitColumn
-                  digit={Math.floor(s / 10)}
-                  height={148}
-                  fontSizeClass="text-[168px]"
-                  lineHeightClass="leading-[148px]"
-                  trackingClass="tracking-[-8px]"
-                  colorClass="text-[#41493F]"
-                  fontWeightClass="font-extrabold"
-                />
-                <RollingDigitColumn
-                  digit={s % 10}
-                  height={148}
-                  fontSizeClass="text-[168px]"
-                  lineHeightClass="leading-[148px]"
-                  trackingClass="tracking-[-8px]"
-                  colorClass="text-[#41493F]"
-                  fontWeightClass="font-extrabold"
-                />
-              </div>
-
-              {/* MIN · SEC Subtitle */}
-              <div className="pt-2">
-                <span className="text-[10px] font-bold uppercase tracking-[2px] text-[#8B9E87]">
-                  MIN · SEC
-                </span>
-              </div>
-
-              {/* Session Status & Indicator Dots */}
-              <div className="pt-14">
-                <p className="text-[12px] font-normal leading-[18px] text-[#667463]">
-                  session {currentSessionNumber} of {totalCycles} today
-                </p>
-                <div className="flex items-center gap-1.5 mt-2">
-                  {Array.from({ length: totalCycles }, (_, i) => i + 1).map((n) => {
-                    const isCurrent = n === currentSessionNumber;
-                    const isDone = n < currentSessionNumber;
-                    return (
-                      <span
-                        key={n}
-                        className={`rounded-full transition-all duration-300 ${
-                          isCurrent
-                            ? 'w-4 h-[3px] bg-[#41493F]'
-                            : isDone
-                            ? 'w-1.5 h-1.5 bg-[#41493F]'
-                            : 'w-1 h-1 bg-[#CBD7C9]'
-                        }`}
-                      />
-                    );
-                  })}
-                </div>
+            {/* Session Status & Indicator Dots */}
+            <div className="pt-14">
+              <p className="text-[12px] font-normal leading-[18px] text-[#667463]">
+                session {currentSessionNumber} of {totalCycles} today
+              </p>
+              <div className="flex items-center gap-1.5 mt-2">
+                {Array.from({ length: totalCycles }, (_, i) => i + 1).map((n) => {
+                  const isCurrent = n === currentSessionNumber;
+                  const isDone = n < currentSessionNumber;
+                  return (
+                    <span
+                      key={n}
+                      className={`rounded-full transition-all duration-300 ${
+                        isCurrent
+                          ? 'w-4 h-[3px] bg-[#41493F]'
+                          : isDone
+                          ? 'w-1.5 h-1.5 bg-[#41493F]'
+                          : 'w-1 h-1 bg-[#CBD7C9]'
+                      }`}
+                    />
+                  );
+                })}
               </div>
             </div>
+          </div>
 
-            {/* Bottom Actions Bar from Image 1: PAUSE · · · END */}
-            <div
-              className="w-full max-w-[384px] mx-auto flex items-center justify-between pb-6 cursor-default"
-              onClick={stopProp}
+          {/* Bottom Actions Bar from Image 1: PAUSE · · · END */}
+          <div
+            className="w-full max-w-[384px] mx-auto flex items-center justify-between pb-6 cursor-default"
+            onClick={stopProp}
+          >
+            <button
+              onClick={(e) => {
+                stopProp(e);
+                if (window.navigator?.vibrate) window.navigator.vibrate(20);
+                if (onTogglePlay) onTogglePlay();
+              }}
+              className="text-[11px] font-bold uppercase tracking-[2px] text-[#1B1F1A] hover:opacity-70 transition-opacity"
             >
-              <button
-                onClick={(e) => {
-                  stopProp(e);
-                  if (window.navigator?.vibrate) window.navigator.vibrate(20);
-                  if (onTogglePlay) onTogglePlay();
-                }}
-                className="text-[11px] font-bold uppercase tracking-[2px] text-[#1B1F1A] hover:opacity-70 transition-opacity"
-              >
-                {isRunning ? 'PAUSE' : 'RESUME'}
-              </button>
+              {isRunning ? 'PAUSE' : 'RESUME'}
+            </button>
 
-              <button
-                onClick={(e) => {
-                  stopProp(e);
-                  setShowSoundModal(true);
-                }}
-                className="text-[#8B9E87] hover:text-[#1B1F1A] transition-colors tracking-widest text-[14px]"
-                aria-label="Sound options"
-              >
-                · · ·
-              </button>
+            <button
+              onClick={(e) => {
+                stopProp(e);
+                setShowSoundModal(true);
+              }}
+              className="text-[#8B9E87] hover:text-[#1B1F1A] transition-colors tracking-widest text-[14px]"
+              aria-label="Sound options"
+            >
+              · · ·
+            </button>
 
-              <button
-                onClick={(e) => {
-                  stopProp(e);
-                  if (window.navigator?.vibrate) window.navigator.vibrate(10);
-                  if (onSkip) onSkip();
-                }}
-                className="text-[11px] font-bold uppercase tracking-[2px] text-[#1B1F1A] hover:opacity-70 transition-opacity"
-              >
-                END
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <button
+              onClick={(e) => {
+                stopProp(e);
+                if (window.navigator?.vibrate) window.navigator.vibrate(10);
+                if (onSkip) onSkip();
+              }}
+              className="text-[11px] font-bold uppercase tracking-[2px] text-[#1B1F1A] hover:opacity-70 transition-opacity"
+            >
+              END
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ── SOUNDSCAPE & VOLUME MODAL ── */}
       {showSoundModal &&
@@ -637,7 +599,7 @@ function TimerView({
             onTouchEnd={(e) => e.stopPropagation()}
           >
             <div
-              className="w-full max-w-sm rounded-3xl p-6 flex flex-col gap-4 border border-border bg-surface shadow-2xl ring-1 ring-white/80"
+              className="w-full max-w-sm rounded-3xl p-6 flex flex-col gap-4 border border-border bg-surface shadow-2xl ring-1 ring-white/80 animate-slideUp"
               onClick={(e) => e.stopPropagation()}
               onTouchStart={(e) => e.stopPropagation()}
               onTouchEnd={(e) => e.stopPropagation()}
@@ -653,7 +615,7 @@ function TimerView({
                   }}
                   className="w-8 h-8 flex items-center justify-center rounded-full bg-surface-hover text-text-sub hover:bg-border transition-colors active:scale-95"
                 >
-                  <XIcon size={18} strokeWidth={2.5} />
+                  <X size={18} strokeWidth={2.5} />
                 </button>
               </div>
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 export default function DonutChart({
   size,
@@ -11,18 +11,9 @@ export default function DonutChart({
   className = "",
   children,
 }) {
-  const [shouldUseValue, setShouldUseValue] = useState(false);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setShouldUseValue(true);
-    }, 250);
-    return () => clearTimeout(timeout);
-  }, []);
-
   const radius = size / 2 - Math.max(progressWidth, circleWidth) / 2;
   const circumference = Math.PI * radius * 2;
-  const percentage = shouldUseValue ? circumference * ((100 - progress) / 100) : circumference;
+  const percentage = circumference * ((100 - progress) / 100);
 
   return (
     <div className={className}>

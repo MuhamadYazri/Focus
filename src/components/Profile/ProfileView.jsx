@@ -68,6 +68,7 @@ function ProfileView({
   onDeleteProject,
 }) {
   const [projectToDelete, setProjectToDelete] = useState(null);
+  const [confirmAction, setConfirmAction] = useState(null); // 'reset' | 'restore' | null
   const [backupStatus, setBackupStatus] = useState('idle');
   const [backupMsg, setBackupMsg] = useState('');
   const [customModal, setCustomModal] = useState(null);
@@ -142,13 +143,14 @@ function ProfileView({
   };
 
   const handleResetData = () => {
-    if (
-      window.confirm(
-        'Are you sure you want to completely reset all tasks, projects, and focus telemetry? This cannot be undone.'
-      )
-    ) {
-      if (onResetAllData) onResetAllData();
-    }
+    if (window.navigator?.vibrate) window.navigator.vibrate(15);
+    setConfirmAction('reset');
+  };
+
+  const executeResetData = () => {
+    if (window.navigator?.vibrate) window.navigator.vibrate(20);
+    setConfirmAction(null);
+    if (onResetAllData) onResetAllData();
   };
 
   const handleBackup = async () => {
@@ -181,8 +183,14 @@ function ProfileView({
     }
   };
 
-  const handleRestore = async () => {
-    if (!window.confirm('Restoring will overwrite current data. Continue?')) return;
+  const handleRestore = () => {
+    if (window.navigator?.vibrate) window.navigator.vibrate(15);
+    setConfirmAction('restore');
+  };
+
+  const executeRestore = async () => {
+    if (window.navigator?.vibrate) window.navigator.vibrate(15);
+    setConfirmAction(null);
     try {
       setBackupStatus('restoring');
       setBackupMsg('');
@@ -1100,6 +1108,56 @@ function ProfileView({
                   className="tap-effect flex-1 h-[40px] rounded-full bg-[#BA1A1A] text-white font-bold text-[12px] shadow-sm"
                 >
                   Delete
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+
+      {/* ── Reset / Restore Confirmation Modal ── */}
+      {confirmAction &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[70] flex items-center justify-center p-4 animate-fadeIn select-none"
+            style={{
+              background: 'rgba(27, 31, 26, 0.45)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+            }}
+            onClick={() => setConfirmAction(null)}
+          >
+            <div
+              className="w-full max-w-sm rounded-[24px] p-5 flex flex-col gap-4 border border-[#D6E0D4] bg-white shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex flex-col gap-1">
+                <span className="text-[16px] font-bold text-[#1B1F1A]">
+                  {confirmAction === 'reset' ? 'Wipe All Data?' : 'Restore Backup?'}
+                </span>
+                <p className="text-[12px] text-[#667463] leading-relaxed">
+                  {confirmAction === 'reset'
+                    ? 'Are you sure you want to completely reset all tasks, categories, and focus telemetry? This cannot be undone.'
+                    : 'Restoring from a backup file will overwrite your current tasks, categories, and focus history. Continue?'}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setConfirmAction(null)}
+                  className="tap-effect flex-1 h-[40px] rounded-full border border-[#D6E0D4] bg-[#F0F2EF] text-[#1B1F1A] font-bold text-[12px]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmAction === 'reset' ? executeResetData : executeRestore}
+                  className={`tap-effect flex-1 h-[40px] rounded-full text-white font-bold text-[12px] shadow-sm ${
+                    confirmAction === 'reset' ? 'bg-[#BA1A1A]' : 'bg-[#1B1F1A]'
+                  }`}
+                >
+                  {confirmAction === 'reset' ? 'Wipe Data' : 'Choose File'}
                 </button>
               </div>
             </div>

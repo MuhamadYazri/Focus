@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useMemo, startTransition } from 'react';
 import { Check, Pause } from 'lucide-react';
+
+const FILTER_TABS = ['Today', 'Planned', 'Done'];
 
 function TaskList({
   tasks = [],
@@ -26,21 +27,24 @@ function TaskList({
   };
 
   const todayStr = useMemo(() => getLocalDateStr(), []);
+  const todayDayOfWeek = useMemo(() => new Date().getDay(), []);
+  const [navFilterTab, setNavFilterTab] = useState('Today');
   const [filterTab, setFilterTab] = useState('Today');
 
-  // Daily Focus Hours Calculation
+  // Daily Focus Hours Calculation (s.duration is stored in minutes)
   const { todayHours, targetHours, progressPercent } = useMemo(() => {
     try {
       const todaySessions = (sessions || []).filter((s) => {
-        if (!s.completedAt) return false;
-        const sDateStr = getLocalDateStr(s.completedAt);
+        if (!s || typeof s !== 'object') return false;
+        const sDateStr = s.dateStr || (s.completedAt ? getLocalDateStr(s.completedAt) : '');
         return sDateStr === todayStr;
       });
 
-      const todayMinutes = todaySessions.reduce((acc, s) => acc + (s.duration || 0), 0) / 60;
-      const todayHours = parseFloat((todayMinutes / 60).toFixed(1));
-      const targetHours = settings?.dailyGoalHours || 4.0;
-      const progressPercent = Math.min(100, Math.round((todayHours / targetHours) * 100));
+      const todayMinutes = todaySessions.reduce((acc, s) => acc + (Number(s.duration) || 0), 0);
+      const rawHours = todayMinutes / 60;
+      const todayHours = parseFloat(rawHours.toFixed(1));
+      const targetHours = Number(settings?.dailyGoalHours) || 4.0;
+      const progressPercent = Math.min(100, Math.round((rawHours / targetHours) * 100));
 
       return { todayHours, targetHours, progressPercent };
     } catch {
@@ -74,17 +78,32 @@ function TaskList({
       if (filterTab === 'Today') {
         if (st === 'daily' || st === 'today') return true;
         if (st === 'date' && task.scheduledDate && task.scheduledDate <= todayStr) return true;
+        if (st === 'weekly') {
+          return (
+            !Array.isArray(task.weeklyDays) ||
+            task.weeklyDays.length === 0 ||
+            task.weeklyDays.includes(todayDayOfWeek)
+          );
+        }
         return false;
       }
 
       if (filterTab === 'Planned') {
         if (st === 'date' && task.scheduledDate && task.scheduledDate > todayStr) return true;
+        if (
+          st === 'weekly' &&
+          Array.isArray(task.weeklyDays) &&
+          task.weeklyDays.length > 0 &&
+          !task.weeklyDays.includes(todayDayOfWeek)
+        ) {
+          return true;
+        }
         return false;
       }
 
       return true;
     });
-  }, [tasks, filterTab, todayStr, justCompletedId]);
+  }, [tasks, filterTab, todayStr, todayDayOfWeek, justCompletedId]);
 
   return (
     <div className="w-full max-w-[440px] min-h-screen bg-[#F0F2EF] flex flex-col justify-between relative px-7 pt-[52px] pb-36 mx-auto select-none">
@@ -99,7 +118,7 @@ function TaskList({
             })}
           </span>
           <span className="text-[13px] font-bold leading-[14px] tracking-[-0.2px] text-[#1B1F1A]">
-            {filterTab}
+            {navFilterTab}
           </span>
         </header>
         {/* END: Header */}
@@ -152,30 +171,32 @@ function TaskList({
         {/* BEGIN: Navigation - Task Status Filter */}
         <nav aria-label="Task Status Filter" className="pt-11" data-purpose="segmented-tabs">
           <div className="flex items-center gap-6 border-b border-[#1B1F1A]/10 relative">
-            {['Today', 'Planned', 'Done'].map((tab) => {
-              const on = filterTab === tab;
+            {FILTER_TABS.map((tab) => {
+              const on = navFilterTab === tab;
               return (
                 <button
                   key={tab}
                   type="button"
-                  onClick={() => setFilterTab(tab)}
-                  className={`tap-effect pb-2.5 text-[10px] leading-[14px] tracking-[1.2px] uppercase transition-colors relative select-none ${
+                  onClick={() => {
+                    if (tab === navFilterTab) return;
+                    if (window.navigator?.vibrate) window.navigator.vibrate(10);
+                    setNavFilterTab(tab);
+                    startTransition(() => {
+                      setFilterTab(tab);
+                    });
+                  }}
+                  className={`tap-effect pb-2.5 text-[10px] leading-[14px] tracking-[1.2px] uppercase transition-colors duration-150 relative select-none ${
                     on ? 'font-extrabold text-[#1B1F1A]' : 'font-medium text-[#8B9E87] hover:text-[#1B1F1A]'
                   }`}
                 >
                   <span>{tab}</span>
-                  {on && (
-                    <motion.div
-                      layoutId="taskStatusTabUnderline"
-                      className="absolute bottom-0 inset-x-0 h-[2px] bg-[#1B1F1A] rounded-full z-10"
-                      transition={{
-                        type: 'spring',
-                        stiffness: 420,
-                        damping: 32,
-                        mass: 0.8,
-                      }}
-                    />
-                  )}
+                  <span
+                    aria-hidden="true"
+                    className={`absolute bottom-0 inset-x-0 h-[2px] bg-[#1B1F1A] rounded-full z-10 transition-transform duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] origin-center ${
+                      on ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'
+                    }`}
+                    style={{ willChange: 'transform, opacity' }}
+                  />
                 </button>
               );
             })}

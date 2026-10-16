@@ -77,6 +77,7 @@ const TimerClockRing = React.memo(function TimerClockRing({
   totalTime,
   mode = 'work',
   cycleCount = 0,
+  longBreakInterval = 4,
 }) {
   const radius = 135;
   const circumference = 2 * Math.PI * radius; // ~848.23
@@ -85,18 +86,18 @@ const TimerClockRing = React.memo(function TimerClockRing({
 
   const m = Math.floor(timeLeft / 60);
   const s = timeLeft % 60;
-  const timeString = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
   const isBreak = mode === 'shortBreak' || mode === 'longBreak';
-  const currentSessionNumber = (cycleCount % 4) + 1;
+  const totalCycles = Math.max(1, Number(longBreakInterval) || 4);
+  const currentSessionNumber = (cycleCount % totalCycles) + 1;
 
   const getSubLabel = () => {
     if (mode === 'work') {
-      return `session ${currentSessionNumber} of 4 today`;
+      return `session ${currentSessionNumber} of ${totalCycles} today`;
     }
     if (mode === 'shortBreak') {
-      return 'Rest & recharge · 5 min';
+      return `Rest & recharge · ${Math.round(totalTime / 60)} min`;
     }
-    return 'Deep recovery · 15 min';
+    return `Deep recovery · ${Math.round(totalTime / 60)} min`;
   };
 
   return (
@@ -144,9 +145,9 @@ const TimerClockRing = React.memo(function TimerClockRing({
           {getSubLabel()}
         </p>
 
-        {/* 4 Horizon Dots from Figma: Active dot 18x5px #41493F, Inactive 5x5px #CBD7C9 */}
+        {/* Horizon Dots: Active dot 18x5px #41493F, Done 5x5px #41493F, Inactive 5x5px #CBD7C9 */}
         <div className="flex items-center gap-[5px] mt-2.5">
-          {[1, 2, 3, 4].map((n) => {
+          {Array.from({ length: totalCycles }, (_, i) => i + 1).map((n) => {
             const isCurrent = n === currentSessionNumber;
             const isDone = n < currentSessionNumber;
             return (
@@ -189,6 +190,7 @@ function TimerView({
   totalTime,
   isRunning,
   cycleCount,
+  longBreakInterval = 4,
   activeTask: _activeTask,
   currentSound = 'none',
   soundVolume = 0.8,
@@ -226,6 +228,12 @@ function TimerView({
 
   const activeTabMode = previewMode || mode;
   const isPreviewingDifferentMode = isRunning && previewMode && previewMode !== mode;
+  const activeModeIdx = Math.max(
+    0,
+    MODE_TABS.findIndex((t) => t.key === activeTabMode)
+  );
+  const totalCycles = Math.max(1, Number(longBreakInterval) || 4);
+  const currentSessionNumber = (cycleCount % totalCycles) + 1;
 
   const stopProp = (e) => e.stopPropagation();
   const lastNavToggleRef = useRef(0);
@@ -253,12 +261,26 @@ function TimerView({
           onClick={stopProp}
         >
           {/* Segmented Mode Switcher from Figma: 384px x 36px #E4EAE2 border #CBD7C9 */}
-          <div className="w-full max-w-[384px] mx-auto h-[36px] bg-[#E4EAE2] border border-[#CBD7C9] rounded-full p-[3px] flex items-center justify-between shadow-[0px_1px_2px_rgba(27,31,26,0.03)]">
+          <div className="w-full max-w-[384px] mx-auto h-[36px] bg-[#E4EAE2] border border-[#CBD7C9] rounded-full p-[3px] flex items-center justify-between shadow-[0px_1px_2px_rgba(27,31,26,0.03)] relative overflow-hidden">
+            {/* Hardware-accelerated GPU sliding pill indicator (Zero getBoundingClientRect reflows on 4x/6x CPU slowdown) */}
+            <div
+              aria-hidden="true"
+              className={`absolute top-[3px] bottom-[3px] w-[calc((100%-6px)/3)] rounded-full shadow-[0px_0px_0px_1px_rgba(255,255,255,0.13),0px_1px_4px_-1px_rgba(27,31,26,0.09)] pointer-events-none transition-transform duration-250 ease-[cubic-bezier(0.25,1,0.5,1)] ${
+                isPreviewingDifferentMode ? 'bg-[#5F6C5C]' : 'bg-[#41493F]'
+              }`}
+              style={{
+                left: '3px',
+                transform: `translate3d(calc(${activeModeIdx} * 100%), 0, 0)`,
+                willChange: 'transform',
+              }}
+            />
+
             {MODE_TABS.map(({ key, label }) => {
               const on = activeTabMode === key;
               return (
                 <button
                   key={key}
+                  type="button"
                   onClick={() => {
                     if (window.navigator?.vibrate) window.navigator.vibrate(10);
                     if (isRunning) {
@@ -273,26 +295,12 @@ function TimerView({
                       if (onModeChange) onModeChange(key);
                     }
                   }}
-                  className={`relative flex-1 h-[30px] rounded-full text-[12px] leading-[16px] transition-all flex items-center justify-center z-10 ${
+                  className={`tap-effect relative flex-1 h-[30px] rounded-full text-[12px] leading-[16px] transition-colors duration-150 flex items-center justify-center z-10 select-none ${
                     on
-                      ? 'font-bold text-white shadow-[0px_0px_0px_1px_rgba(255,255,255,0.13),0px_1px_4px_-1px_rgba(27,31,26,0.09)]'
+                      ? 'font-bold text-white'
                       : 'font-medium text-[#667463] hover:text-[#1B1F1A]'
                   }`}
                 >
-                  {on && (
-                    <motion.div
-                      layoutId="timerModeTabPill"
-                      className={`absolute inset-0 rounded-full z-[-1] ${
-                        isPreviewingDifferentMode ? 'bg-[#5F6C5C]' : 'bg-[#41493F]'
-                      }`}
-                      transition={{
-                        type: 'spring',
-                        stiffness: 420,
-                        damping: 32,
-                        mass: 0.8,
-                      }}
-                    />
-                  )}
                   <span className="relative z-10">{label}</span>
                 </button>
               );
@@ -302,13 +310,15 @@ function TimerView({
           {/* Controls Bar: Strict Mode Toggle */}
           <div className="w-full max-w-[384px] mx-auto flex items-center justify-end">
             <button
+              type="button"
               aria-label="Toggle strict mode"
               onClick={() => {
+                if (window.navigator?.vibrate) window.navigator.vibrate(10);
+                if (onToggleStrictMode) onToggleStrictMode();
                 iconRefs.current.lock?.startAnimation();
                 setTimeout(() => iconRefs.current.lock?.stopAnimation(), 600);
-                setTimeout(() => onToggleStrictMode && onToggleStrictMode(), 50);
               }}
-              className="h-[20px] px-2.5 bg-white border border-[#CBD7C9] rounded-full flex items-center gap-[5px] transition-colors"
+              className="tap-effect h-[20px] px-2.5 bg-white border border-[#CBD7C9] rounded-full flex items-center gap-[5px] transition-colors"
             >
               {strictMode ? (
                 <Lock
@@ -342,6 +352,7 @@ function TimerView({
             totalTime={totalTime}
             mode={mode}
             cycleCount={cycleCount}
+            longBreakInterval={longBreakInterval}
           />
         </main>
 
@@ -358,11 +369,12 @@ function TimerView({
           <div className="flex items-center justify-center gap-5">
             {/* Reset Button */}
             <button
+              type="button"
               onClick={() => {
                 if (window.navigator?.vibrate) window.navigator.vibrate(10);
+                if (onReset) onReset();
                 iconRefs.current.reset?.startAnimation();
                 setTimeout(() => iconRefs.current.reset?.stopAnimation(), 600);
-                setTimeout(() => onReset && onReset(), 50);
               }}
               aria-label="Reset timer"
               className="tap-effect w-[44px] h-[44px] rounded-full bg-white border border-[#D6E0D4] text-[#667463] hover:text-[#1B1F1A] flex items-center justify-center shadow-[0px_1px_2px_rgba(27,31,26,0.04)]"
@@ -377,14 +389,14 @@ function TimerView({
 
             {/* Play/Pause Button from Figma: 72x72 bg #1B1F1A with subtle mint ring */}
             <button
+              type="button"
               onClick={() => {
                 if (window.navigator?.vibrate) window.navigator.vibrate(20);
+                const targetPreview = previewMode;
+                setPreviewMode(null);
+                if (onTogglePlay) onTogglePlay(targetPreview);
                 iconRefs.current.playPause?.startAnimation();
                 setTimeout(() => iconRefs.current.playPause?.stopAnimation(), 600);
-                setTimeout(() => {
-                  if (onTogglePlay) onTogglePlay(previewMode);
-                  setPreviewMode(null);
-                }, 50);
               }}
               aria-label={
                 isPreviewingDifferentMode
@@ -544,13 +556,25 @@ function TimerView({
               {/* Session Status & Indicator Dots */}
               <div className="pt-14">
                 <p className="text-[12px] font-normal leading-[18px] text-[#667463]">
-                  session {(cycleCount % 4) + 1} of 4 today
+                  session {currentSessionNumber} of {totalCycles} today
                 </p>
                 <div className="flex items-center gap-1.5 mt-2">
-                  <span className="w-4 h-[3px] bg-[#41493F] rounded-full" />
-                  <span className="w-1 h-1 bg-[#CBD7C9] rounded-full" />
-                  <span className="w-1 h-1 bg-[#CBD7C9] rounded-full" />
-                  <span className="w-1 h-1 bg-[#CBD7C9] rounded-full" />
+                  {Array.from({ length: totalCycles }, (_, i) => i + 1).map((n) => {
+                    const isCurrent = n === currentSessionNumber;
+                    const isDone = n < currentSessionNumber;
+                    return (
+                      <span
+                        key={n}
+                        className={`rounded-full transition-all duration-300 ${
+                          isCurrent
+                            ? 'w-4 h-[3px] bg-[#41493F]'
+                            : isDone
+                            ? 'w-1.5 h-1.5 bg-[#41493F]'
+                            : 'w-1 h-1 bg-[#CBD7C9]'
+                        }`}
+                      />
+                    );
+                  })}
                 </div>
               </div>
             </div>

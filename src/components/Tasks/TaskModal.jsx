@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Plus, ChevronUp, ChevronDown, Check } from 'lucide-react';
+import { X, Plus, ChevronUp, ChevronDown, Check, Trash2 } from 'lucide-react';
 
 const toTitleCase = (str) => {
   if (!str) return '';
@@ -15,6 +15,7 @@ export default function TaskModal({
   isOpen,
   onClose,
   onSave,
+  onDelete = null,
   projects = [],
   taskToEdit = null,
   defaultProjectId = null,
@@ -42,10 +43,12 @@ export default function TaskModal({
   };
 
   const [scheduledDate, setScheduledDate] = useState(() => getLocalDateStr());
-  const [dragY, setDragY] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const [startY, setStartY] = useState(0);
   const [isClosing, setIsClosing] = useState(false);
+
+  // Direct DOM refs for 120Hz zero-re-render bottom-sheet dragging
+  const sheetRef = useRef(null);
+  const handlePillRef = useRef(null);
+  const dragStateRef = useRef({ isDragging: false, startY: 0, currentY: 0 });
 
   useEffect(() => {
     if (taskToEdit) {
@@ -68,9 +71,8 @@ export default function TaskModal({
     setNewSubtaskTitle('');
     setShowTags(false);
     setShowSubtasks(false);
-    setDragY(0);
-    setIsDragging(false);
     setIsClosing(false);
+    dragStateRef.current = { isDragging: false, startY: 0, currentY: 0 };
   }, [taskToEdit, isOpen, projects, defaultProjectId]);
 
   if (!isOpen) return null;
@@ -107,6 +109,13 @@ export default function TaskModal({
     onClose();
   };
 
+  const handleDeleteClick = () => {
+    if (!taskToEdit || !onDelete) return;
+    if (window.navigator?.vibrate) window.navigator.vibrate(15);
+    onDelete(taskToEdit);
+    onClose();
+  };
+
   const handleAddSubtask = (e) => {
     e.preventDefault();
     if (!newSubtaskTitle.trim()) return;
@@ -121,35 +130,55 @@ export default function TaskModal({
     try {
       if (e && e.pointerId) e.currentTarget.setPointerCapture(e.pointerId);
     } catch (err) {}
-    setIsDragging(true);
-    setStartY(e.clientY || (e.touches && e.touches[0].clientY) || 0);
+    const clientY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
+    dragStateRef.current = { isDragging: true, startY: clientY, currentY: 0 };
+    if (sheetRef.current) {
+      sheetRef.current.classList.remove('animate-sheet-up');
+      sheetRef.current.style.transition = 'none';
+    }
+    if (handlePillRef.current) {
+      handlePillRef.current.classList.remove('bg-border');
+      handlePillRef.current.classList.add('bg-secondary');
+    }
   };
 
   const handlePointerMove = (e) => {
-    if (!isDragging) return;
+    if (!dragStateRef.current.isDragging) return;
     const currentY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
-    const diff = currentY - startY;
-    setDragY(diff > 0 ? diff : 0);
+    const diff = Math.max(0, currentY - dragStateRef.current.startY);
+    dragStateRef.current.currentY = diff;
+    if (sheetRef.current) {
+      sheetRef.current.style.transform = `translate3d(0, ${diff}px, 0)`;
+    }
   };
 
   const handlePointerUp = (e) => {
-    if (!isDragging) return;
+    if (!dragStateRef.current.isDragging) return;
     try {
       if (e && e.pointerId) e.currentTarget.releasePointerCapture(e.pointerId);
     } catch (err) {}
-    setIsDragging(false);
-    const currentY = (e && e.clientY) || (e && e.changedTouches && e.changedTouches[0].clientY) || 0;
-    const diff = currentY - startY;
-    if (diff > 100 || dragY > 100) {
+    dragStateRef.current.isDragging = false;
+    if (handlePillRef.current) {
+      handlePillRef.current.classList.remove('bg-secondary');
+      handlePillRef.current.classList.add('bg-border');
+    }
+    const endY = (e && e.clientY) || (e && e.changedTouches && e.changedTouches[0].clientY) || 0;
+    const diff = endY ? endY - dragStateRef.current.startY : dragStateRef.current.currentY;
+    if (diff > 100 || dragStateRef.current.currentY > 100) {
+      if (sheetRef.current) {
+        sheetRef.current.style.transition = 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)';
+        sheetRef.current.style.transform = 'translate3d(0, 100%, 0)';
+      }
       setIsClosing(true);
       setTimeout(() => {
         setIsClosing(false);
-        setDragY(0);
         onClose();
       }, 200);
-    } else {
-      setDragY(0);
+    } else if (sheetRef.current) {
+      sheetRef.current.style.transition = 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
+      sheetRef.current.style.transform = 'translate3d(0, 0, 0)';
     }
+    dragStateRef.current.currentY = 0;
   };
 
   return createPortal(
@@ -166,11 +195,14 @@ export default function TaskModal({
       onTouchEnd={handlePointerUp}
     >
       <div
-        className={`w-full max-w-md mx-auto bg-surface rounded-t-3xl overflow-hidden shadow-2xl border-t border-l border-r border-border ring-1 ring-white/60 ${isClosing || isDragging || dragY > 0 ? '' : 'animate-sheet-up'}`}
+        ref={sheetRef}
+        className={`w-full max-w-md mx-auto bg-surface rounded-t-3xl overflow-hidden shadow-2xl border-t border-l border-r border-border ring-1 ring-white/60 will-change-transform ${
+          isClosing ? '' : 'animate-sheet-up'
+        }`}
         onClick={(e) => e.stopPropagation()}
         style={{
-          transform: isClosing ? 'translateY(100%)' : `translateY(${dragY}px)`,
-          transition: isDragging ? 'none' : 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+          transform: isClosing ? 'translate3d(0, 100%, 0)' : 'translate3d(0, 0, 0)',
+          transition: 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
         }}
       >
         {/* Drag handle */}
@@ -185,7 +217,7 @@ export default function TaskModal({
           onTouchEnd={handlePointerUp}
           style={{ touchAction: 'none' }}
         >
-          <div className={`w-10 h-1.5 rounded-full transition-colors ${isDragging ? 'bg-secondary' : 'bg-border'}`} />
+          <div ref={handlePillRef} className="w-10 h-1.5 rounded-full transition-colors bg-border" />
         </div>
 
         {/* Header */}
@@ -193,12 +225,26 @@ export default function TaskModal({
           <h3 className="font-display text-xl font-bold text-text-main tracking-tight">
             {taskToEdit ? 'Edit task' : 'New task'}
           </h3>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-full bg-surface-hover text-text-sub hover:text-text-main hover:bg-border transition-colors"
-          >
-            <X size={18} strokeWidth={2.5} />
-          </button>
+          <div className="flex items-center gap-2">
+            {taskToEdit && onDelete && (
+              <button
+                type="button"
+                aria-label="Delete task"
+                onClick={handleDeleteClick}
+                className="tap-effect p-1.5 rounded-full bg-[#BA1A1A]/10 text-[#BA1A1A] hover:bg-[#BA1A1A]/20 transition-colors"
+              >
+                <Trash2 size={17} strokeWidth={2.2} />
+              </button>
+            )}
+            <button
+              type="button"
+              aria-label="Close modal"
+              onClick={onClose}
+              className="tap-effect p-1.5 rounded-full bg-surface-hover text-text-sub hover:text-text-main hover:bg-border transition-colors"
+            >
+              <X size={18} strokeWidth={2.5} />
+            </button>
+          </div>
         </div>
 
         <div className="px-6 py-5 flex flex-col gap-6 max-h-[75vh] overflow-y-auto bg-surface">

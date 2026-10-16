@@ -152,7 +152,10 @@ export default function App() {
   const timerRef = useRef(null);
   const lastTickRef = useRef(null);
 
-  // Synchronized state references for unthrottled background execution
+  // Synchronized state references for unthrottled background execution & stable callbacks
+  const navTabRef = useRef(navTab);
+  navTabRef.current = navTab;
+
   const timerModeRef = useRef(timerMode);
   timerModeRef.current = timerMode;
 
@@ -168,28 +171,33 @@ export default function App() {
   const activeTaskRef = useRef(activeTask);
   activeTaskRef.current = activeTask;
 
+  const tasksRef = useRef(tasks);
+  tasksRef.current = tasks;
+
   const projectsRef = useRef(projects);
   projectsRef.current = projects;
 
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
 
+  const currentSoundRef = useRef(currentSound);
+  currentSoundRef.current = currentSound;
+
   // Swipe gesture refs
   const touchStart = useRef({ x: null, y: null });
   const touchEnd = useRef({ x: null, y: null });
 
-  const TAB_ORDER = { home: 0, timer: 1, reports: 2, profile: 3 };
-
-  const handleTabSwitch = (newTab) => {
-    if (newTab === navTab) return;
+  const handleTabSwitch = useCallback((newTab) => {
+    if (newTab === navTabRef.current) return;
     // 1. Immediate UI update for the bottom dock indicator (Paint occurs in <16ms, INP < 60ms)
+    navTabRef.current = newTab;
     setNavTab(newTab);
 
     // 2. React 19 startTransition yields main thread to browser paint before mounting incoming screen
     startTransition(() => {
       setActiveTab(newTab);
     });
-  };
+  }, []);
 
   // Load initial data from IDB/localStorage
   useEffect(() => {
@@ -206,7 +214,7 @@ export default function App() {
       
       document.documentElement.setAttribute('data-theme', 'japandi');
       setTimeLeft((loadedSettings.workDuration) * 60);
-      setCurrentSound(set ? set.soundscape : 'none');
+      setCurrentSound(loadedSettings.soundscape || 'none');
       try {
         await StatusBar.hide();
       } catch (e) {
@@ -611,13 +619,23 @@ export default function App() {
     };
   }, [advanceTime]);
 
-  const saveFocusProgress = (elapsedSecs) => {
+  const showToast = useCallback((message, onUndo) => {
+    setToast({ id: Date.now(), message, onUndo });
+  }, []);
+
+  const dismissToast = useCallback((id) => {
+    setToast((cur) => (cur && cur.id === id ? null : cur));
+  }, []);
+
+  const saveFocusProgress = useCallback((elapsedSecs) => {
     if (elapsedSecs < 30) return;
     const elapsedMins = Math.round(elapsedSecs / 60);
     const savedDuration = Math.max(1, elapsedMins);
+    const curTask = activeTaskRef.current;
+    const curProjects = projectsRef.current;
     const newSess = {
       id: `sess-${Date.now()}`,
-      projectId: activeTask ? activeTask.projectId : (projects[0] ? projects[0].id : 'proj-1'),
+      projectId: curTask ? curTask.projectId : (curProjects[0] ? curProjects[0].id : 'proj-1'),
       duration: savedDuration,
       completedAt: new Date().toISOString(),
       dateStr: getLocalDateStr(),
@@ -630,10 +648,10 @@ export default function App() {
       )
     );
 
-    if (activeTask) {
+    if (curTask) {
       setTasks((prev) =>
         prev.map((t) => {
-          if (t.id === activeTask.id) {
+          if (t.id === curTask.id) {
             const updatedPomos = (t.completedPomos || 0) + 1;
             const isDone = updatedPomos >= t.estimatedPomos;
             const todayStr = getLocalDateStr();
@@ -652,93 +670,118 @@ export default function App() {
         prev ? { ...prev, completedPomos: (prev.completedPomos || 0) + 1 } : null
       );
     }
-  };
+  }, []);
 
-  const handleTogglePlay = (targetMode) => {
-    const effectiveMode = targetMode || timerMode;
+  const handleTogglePlay = useCallback((targetMode) => {
+    const curMode = timerModeRef.current;
+    const curRunning = isRunningRef.current;
+    const curSettings = settingsRef.current;
+    const curTimeLeft = timeLeftRef.current;
+    const curSound = currentSoundRef.current;
+    const effectiveMode = targetMode || curMode;
 
     // If starting a different mode than the one currently running
-    if (isRunning && targetMode && targetMode !== timerMode) {
+    if (curRunning && targetMode && targetMode !== curMode) {
       // If we were running a focus timer and are now starting a break timer: save focus progress
-      if (timerMode === 'work') {
-        const totalSecs = settings.workDuration * 60;
-        const elapsedSecs = Math.max(0, totalSecs - timeLeft);
+      if (curMode === 'work') {
+        const totalSecs = curSettings.workDuration * 60;
+        const elapsedSecs = Math.max(0, totalSecs - curTimeLeft);
         saveFocusProgress(elapsedSecs);
-        setCycleCount((prev) => prev + 1);
+        setCycleCount((prev) => {
+          const next = prev + 1;
+          cycleCountRef.current = next;
+          return next;
+        });
       }
       // Set new mode time
-      let newDurationSecs = settings.workDuration * 60;
-      if (effectiveMode === 'shortBreak') newDurationSecs = settings.shortBreakDuration * 60;
-      else if (effectiveMode === 'longBreak') newDurationSecs = settings.longBreakDuration * 60;
+      let newDurationSecs = curSettings.workDuration * 60;
+      if (effectiveMode === 'shortBreak') newDurationSecs = curSettings.shortBreakDuration * 60;
+      else if (effectiveMode === 'longBreak') newDurationSecs = curSettings.longBreakDuration * 60;
       else if (effectiveMode === 'stopwatch') newDurationSecs = 0;
 
+      timerModeRef.current = effectiveMode;
       setTimerMode(effectiveMode);
+      timeLeftRef.current = newDurationSecs;
       setTimeLeft(newDurationSecs);
+      isRunningRef.current = true;
       setIsRunning(true);
-      if (currentSound !== 'none') soundEngine.play(currentSound, settings.soundVolume);
+      if (curSound !== 'none') soundEngine.play(curSound, curSettings.soundVolume);
       return;
     }
 
     // Normal play/pause toggle for current mode
-    if (!isRunning && currentSound !== 'none') {
-      soundEngine.play(currentSound, settings.soundVolume);
-    } else if (isRunning) {
+    if (!curRunning && curSound !== 'none') {
+      soundEngine.play(curSound, curSettings.soundVolume);
+    } else if (curRunning) {
       soundEngine.stop();
     }
-    setIsRunning(!isRunning);
-  };
+    const nextRunning = !curRunning;
+    isRunningRef.current = nextRunning;
+    setIsRunning(nextRunning);
+  }, [saveFocusProgress]);
 
-  const handleSelectMode = (mode) => {
+  const handleSelectMode = useCallback((mode) => {
     // If not running, change mode immediately
-    if (!isRunning) {
+    if (!isRunningRef.current) {
+      const curSettings = settingsRef.current;
       setIsNavHidden(false);
       soundEngine.stop();
+      timerModeRef.current = mode;
       setTimerMode(mode);
-      if (mode === 'work') setTimeLeft(settings.workDuration * 60);
-      else if (mode === 'shortBreak') setTimeLeft(settings.shortBreakDuration * 60);
-      else if (mode === 'longBreak') setTimeLeft(settings.longBreakDuration * 60);
-      else if (mode === 'stopwatch') setTimeLeft(0);
+      let nextSecs = 0;
+      if (mode === 'work') nextSecs = curSettings.workDuration * 60;
+      else if (mode === 'shortBreak') nextSecs = curSettings.shortBreakDuration * 60;
+      else if (mode === 'longBreak') nextSecs = curSettings.longBreakDuration * 60;
+      else if (mode === 'stopwatch') nextSecs = 0;
+      timeLeftRef.current = nextSecs;
+      setTimeLeft(nextSecs);
     }
     // When timer is running, TimerView maintains a preview tab so accidental clicks do not interrupt the session
-  };
+  }, []);
 
-  const handleResetTimer = () => {
+  const handleResetTimer = useCallback(() => {
+    const curMode = timerModeRef.current;
+    const curSettings = settingsRef.current;
     setIsRunning(false);
     isRunningRef.current = false;
     setIsNavHidden(false);
     soundEngine.stop();
     ForegroundService.stopForegroundService().catch(() => {});
     let resetSecs = 0;
-    if (timerMode === 'work') resetSecs = settings.workDuration * 60;
-    else if (timerMode === 'shortBreak') resetSecs = settings.shortBreakDuration * 60;
-    else if (timerMode === 'longBreak') resetSecs = settings.longBreakDuration * 60;
-    else if (timerMode === 'stopwatch') resetSecs = 0;
+    if (curMode === 'work') resetSecs = curSettings.workDuration * 60;
+    else if (curMode === 'shortBreak') resetSecs = curSettings.shortBreakDuration * 60;
+    else if (curMode === 'longBreak') resetSecs = curSettings.longBreakDuration * 60;
+    else if (curMode === 'stopwatch') resetSecs = 0;
     setTimeLeft(resetSecs);
     timeLeftRef.current = resetSecs;
-  };
+  }, []);
 
-  const handleSkip = () => {
+  const handleSkip = useCallback(() => {
     soundEngine.stop();
+    const curMode = timerModeRef.current;
+    const curSettings = settingsRef.current;
+    const curTimeLeft = timeLeftRef.current;
+    const curCycles = cycleCountRef.current;
 
-    if (timerMode === 'work') {
-      const totalSecs = settings.workDuration * 60;
-      const elapsedSecs = Math.max(0, totalSecs - timeLeft);
+    if (curMode === 'work') {
+      const totalSecs = curSettings.workDuration * 60;
+      const elapsedSecs = Math.max(0, totalSecs - curTimeLeft);
       saveFocusProgress(elapsedSecs);
 
-      const nextCycle = cycleCount + 1;
+      const nextCycle = curCycles + 1;
       setCycleCount(nextCycle);
       cycleCountRef.current = nextCycle;
 
-      const isLong = nextCycle % (settings.longBreakInterval || 4) === 0;
+      const isLong = nextCycle % (curSettings.longBreakInterval || 4) === 0;
       const nextMode = isLong ? 'longBreak' : 'shortBreak';
-      const nextDuration = (isLong ? settings.longBreakDuration : settings.shortBreakDuration) * 60;
+      const nextDuration = (isLong ? curSettings.longBreakDuration : curSettings.shortBreakDuration) * 60;
 
       setTimerMode(nextMode);
       timerModeRef.current = nextMode;
       setTimeLeft(nextDuration);
       timeLeftRef.current = nextDuration;
 
-      const shouldAuto = !!settings.autoStartBreaks;
+      const shouldAuto = !!curSettings.autoStartBreaks;
       setIsRunning(shouldAuto);
       isRunningRef.current = shouldAuto;
       if (!shouldAuto) {
@@ -746,17 +789,17 @@ export default function App() {
         ForegroundService.stopForegroundService().catch(() => {});
       } else {
         lastTickRef.current = Date.now();
-        updateNotification(nextMode, nextDuration, settings, true);
+        updateNotification(nextMode, nextDuration, curSettings, true);
       }
     } else {
       // Skipping break transitions back to work
-      const nextDuration = settings.workDuration * 60;
+      const nextDuration = curSettings.workDuration * 60;
       setTimerMode('work');
       timerModeRef.current = 'work';
       setTimeLeft(nextDuration);
       timeLeftRef.current = nextDuration;
 
-      const shouldAuto = !!settings.autoStartPomodoros;
+      const shouldAuto = !!curSettings.autoStartPomodoros;
       setIsRunning(shouldAuto);
       isRunningRef.current = shouldAuto;
       if (!shouldAuto) {
@@ -764,34 +807,44 @@ export default function App() {
         ForegroundService.stopForegroundService().catch(() => {});
       } else {
         lastTickRef.current = Date.now();
-        updateNotification('work', nextDuration, settings, true);
+        updateNotification('work', nextDuration, curSettings, true);
       }
     }
-  };
+  }, [saveFocusProgress, updateNotification]);
 
-  const handleSaveTask = (savedTask) => {
+  const handleSaveTask = useCallback((savedTask) => {
     setTasks((prev) => {
       const exists = prev.some((t) => t.id === savedTask.id);
       if (exists) return prev.map((t) => (t.id === savedTask.id ? savedTask : t));
       return [savedTask, ...prev];
     });
-    if (activeTask && activeTask.id === savedTask.id) {
+    if (activeTaskRef.current && activeTaskRef.current.id === savedTask.id) {
       setActiveTask(savedTask);
     }
-  };
+  }, []);
 
-  const handleDeleteTask = (id) => {
+  const handleDeleteTask = useCallback((taskOrId) => {
+    const id = typeof taskOrId === 'object' ? taskOrId?.id : taskOrId;
+    if (!id) return;
+    const target =
+      typeof taskOrId === 'object'
+        ? taskOrId
+        : tasksRef.current.find((t) => t.id === id);
+
     setTasks((prev) => prev.filter((t) => t.id !== id));
-    if (activeTask && activeTask.id === id) setActiveTask(null);
-  };
+    if (activeTaskRef.current && activeTaskRef.current.id === id) {
+      setActiveTask(null);
+    }
 
-  const showToast = useCallback((message, onUndo) => {
-    setToast({ id: Date.now(), message, onUndo });
-  }, []);
-
-  const dismissToast = useCallback((id) => {
-    setToast((cur) => (cur && cur.id === id ? null : cur));
-  }, []);
+    if (target) {
+      showToast('Task deleted', () => {
+        setTasks((prev) => {
+          if (prev.some((t) => t.id === target.id)) return prev;
+          return [target, ...prev];
+        });
+      });
+    }
+  }, [showToast]);
 
   // Celebrate once when today's focus time crosses the daily goal.
   const goalMetRef = useRef(null);
@@ -811,9 +864,9 @@ export default function App() {
     goalMetRef.current = met;
   }, [sessions, settings?.dailyGoalHours, isLoaded, triggerCelebration]);
 
-  const handleToggleComplete = (id) => {
+  const handleToggleComplete = useCallback((id) => {
     const todayStr = getLocalDateStr();
-    const target = tasks.find((t) => t.id === id);
+    const target = tasksRef.current.find((t) => t.id === id);
     if (!target) return;
     const nextCompleted = !target.completed;
 
@@ -839,9 +892,9 @@ export default function App() {
         setJustCompletedId(null);
       });
     }
-  };
+  }, [showToast]);
 
-  const handleToggleSubtask = (taskId, subId) => {
+  const handleToggleSubtask = useCallback((taskId, subId) => {
     setTasks((prev) =>
       prev.map((t) => {
         if (t.id === taskId) {
@@ -853,31 +906,66 @@ export default function App() {
         return t;
       })
     );
-  };
+  }, []);
 
-  const handleStartPomodoroForTask = (task) => {
+  const handleStartPomodoroForTask = useCallback((task) => {
+    if (!task) return;
+    const curActive = activeTaskRef.current;
+    const curRunning = isRunningRef.current;
+    const curMode = timerModeRef.current;
+    const curSettings = settingsRef.current;
+
+    // 1. If tapping the Pause button on the currently running focus task, pause it in-place
+    if (curActive && curActive.id === task.id && curRunning) {
+      handleTogglePlay('work');
+      return;
+    }
+
+    // 2. If tapping Play on the same task that is already selected (paused), resume without resetting timeLeft
+    if (curActive && curActive.id === task.id && !curRunning) {
+      if (curMode !== 'work') {
+        const workSecs = curSettings.workDuration * 60;
+        timerModeRef.current = 'work';
+        setTimerMode('work');
+        timeLeftRef.current = workSecs;
+        setTimeLeft(workSecs);
+      }
+      handleTabSwitch('timer');
+      return;
+    }
+
+    // 3. Switching to a different task: if a focus session was running, preserve elapsed progress
+    if (curRunning && curMode === 'work') {
+      const totalSecs = curSettings.workDuration * 60;
+      const elapsedSecs = Math.max(0, totalSecs - timeLeftRef.current);
+      saveFocusProgress(elapsedSecs);
+    }
+
+    const workSecs = curSettings.workDuration * 60;
+    activeTaskRef.current = task;
     setActiveTask(task);
+    timerModeRef.current = 'work';
     setTimerMode('work');
-    setTimeLeft(settings.workDuration * 60);
+    timeLeftRef.current = workSecs;
+    setTimeLeft(workSecs);
     handleTabSwitch('timer');
-    if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(30);
-  };
+  }, [handleTabSwitch, handleTogglePlay, saveFocusProgress]);
 
-  const handleSaveProject = (savedProj) => {
+  const handleSaveProject = useCallback((savedProj) => {
     setProjects((prev) => {
       const exists = prev.some((p) => p.id === savedProj.id);
       if (exists) return prev.map((p) => (p.id === savedProj.id ? savedProj : p));
       return [...prev, savedProj];
     });
-  };
+  }, []);
 
-  const handleDeleteProject = (id) => {
+  const handleDeleteProject = useCallback((id) => {
     setProjects((prev) => prev.filter((p) => p.id !== id));
     setTasks((prev) => prev.filter((t) => t.projectId !== id));
-    if (selectedProjectId === id) setSelectedProjectId(null);
-  };
+    setSelectedProjectId((prev) => (prev === id ? null : prev));
+  }, []);
 
-  const handleResetAllData = () => {
+  const handleResetAllData = useCallback(() => {
     // True clean wipe
     setProjects([{ id: 'proj-1', name: 'Personal', color: 'var(--theme-primary)' }]);
     setTasks([]);
@@ -886,7 +974,9 @@ export default function App() {
     setActiveTask(null);
     setCycleCount(0);
     setTimeLeft(25 * 60);
-  };
+    setCurrentSound('none');
+    soundEngine.stop();
+  }, []);
 
   const getTotalTimeForMode = () => {
     if (timerMode === 'work') return settings.workDuration * 60;
@@ -896,10 +986,77 @@ export default function App() {
   };
 
   const handleUpdateSettings = useCallback((newSettings) => {
+    const prevSettings = settingsRef.current;
+    if (newSettings.soundscape !== undefined && newSettings.soundscape !== currentSoundRef.current) {
+      currentSoundRef.current = newSettings.soundscape;
+      setCurrentSound(newSettings.soundscape);
+      if (isRunningRef.current) {
+        if (newSettings.soundscape === 'none') {
+          soundEngine.stop();
+        } else {
+          soundEngine.play(newSettings.soundscape, newSettings.soundVolume ?? prevSettings.soundVolume ?? 0.8);
+        }
+      }
+    }
+    if (newSettings.soundVolume !== undefined && newSettings.soundVolume !== prevSettings.soundVolume) {
+      soundEngine.setVolume(newSettings.soundVolume);
+    }
     startTransition(() => {
       setSettings(newSettings);
     });
   }, []);
+
+  // Stable UI callbacks so React.memo tab views never re-render unnecessarily during 1Hz timer ticks
+  const handleOpenAddTask = useCallback(() => {
+    setTaskToEdit(null);
+    setTaskModalOpen(true);
+  }, []);
+
+  const handleOpenEditTask = useCallback((task) => {
+    setTaskToEdit(task);
+    setTaskModalOpen(true);
+  }, []);
+
+  const handleOpenAddProject = useCallback(() => {
+    setProjectToEdit(null);
+    setProjectModalOpen(true);
+  }, []);
+
+  const handleOpenEditProject = useCallback((proj) => {
+    setProjectToEdit(proj);
+    setProjectModalOpen(true);
+  }, []);
+
+  const handleSelectSound = useCallback((snd) => {
+    currentSoundRef.current = snd;
+    setCurrentSound(snd);
+    setSettings((prev) => ({ ...prev, soundscape: snd }));
+  }, []);
+
+  const handleChangeVolume = useCallback((vol) => {
+    setSettings((prev) => ({ ...prev, soundVolume: vol }));
+  }, []);
+
+  const handleClearActiveTask = useCallback(() => {
+    setActiveTask(null);
+    handleTabSwitch('home');
+  }, [handleTabSwitch]);
+
+  const handleToggleStrictMode = useCallback(() => {
+    setSettings((prev) => ({ ...prev, strictMode: !prev.strictMode }));
+  }, []);
+
+  const handleToggleNav = useCallback(() => {
+    setIsNavHidden((prev) => !prev);
+  }, []);
+
+  const handleCloseTaskModal = useCallback(() => setTaskModalOpen(false), []);
+  const handleCloseProjectModal = useCallback(() => setProjectModalOpen(false), []);
+  const handleCloseStrictModal = useCallback(() => setStrictModalOpen(false), []);
+  const handleResetStrictModal = useCallback(() => {
+    handleResetTimer();
+    setStrictModalOpen(false);
+  }, [handleResetTimer]);
 
   const renderTabContent = (tabKey) => {
     if (tabKey === 'home') {
@@ -911,27 +1068,15 @@ export default function App() {
           settings={settings}
           selectedProjectId={selectedProjectId}
           onSelectProject={setSelectedProjectId}
-          onAddTask={() => {
-            setTaskToEdit(null);
-            setTaskModalOpen(true);
-          }}
-          onEditTask={(task) => {
-            setTaskToEdit(task);
-            setTaskModalOpen(true);
-          }}
+          onAddTask={handleOpenAddTask}
+          onEditTask={handleOpenEditTask}
           onDeleteTask={handleDeleteTask}
           onToggleComplete={handleToggleComplete}
           justCompletedId={justCompletedId}
           onToggleSubtask={handleToggleSubtask}
           onStartPomodoro={handleStartPomodoroForTask}
-          onAddProject={() => {
-            setProjectToEdit(null);
-            setProjectModalOpen(true);
-          }}
-          onEditProject={(proj) => {
-            setProjectToEdit(proj);
-            setProjectModalOpen(true);
-          }}
+          onAddProject={handleOpenAddProject}
+          onEditProject={handleOpenEditProject}
           onDeleteProject={handleDeleteProject}
           activeTaskId={activeTask?.id}
           isTimerRunning={isRunning}
@@ -946,6 +1091,7 @@ export default function App() {
           totalTime={getTotalTimeForMode()}
           isRunning={isRunning}
           cycleCount={cycleCount}
+          longBreakInterval={settings.longBreakInterval || 4}
           activeTask={activeTask}
           projects={projects}
           currentSound={currentSound}
@@ -954,19 +1100,13 @@ export default function App() {
           onReset={handleResetTimer}
           onSkip={handleSkip}
           onModeChange={handleSelectMode}
-          onSelectSound={(snd) => {
-            setCurrentSound(snd);
-            setSettings({ ...settings, soundscape: snd });
-          }}
-          onChangeVolume={(vol) => setSettings({ ...settings, soundVolume: vol })}
-          onClearActiveTask={() => {
-            setActiveTask(null);
-            handleTabSwitch('home');
-          }}
+          onSelectSound={handleSelectSound}
+          onChangeVolume={handleChangeVolume}
+          onClearActiveTask={handleClearActiveTask}
           strictMode={settings.strictMode}
-          onToggleStrictMode={() => setSettings({ ...settings, strictMode: !settings.strictMode })}
+          onToggleStrictMode={handleToggleStrictMode}
           isNavHidden={isNavHidden && activeTab === 'timer'}
-          onToggleNav={() => setIsNavHidden((prev) => !prev)}
+          onToggleNav={handleToggleNav}
         />
       );
     }
@@ -993,14 +1133,8 @@ export default function App() {
           onUpdateSettings={handleUpdateSettings}
           onResetAllData={handleResetAllData}
           projects={projects}
-          onAddProject={() => {
-            setProjectToEdit(null);
-            setProjectModalOpen(true);
-          }}
-          onEditProject={(proj) => {
-            setProjectToEdit(proj);
-            setProjectModalOpen(true);
-          }}
+          onAddProject={handleOpenAddProject}
+          onEditProject={handleOpenEditProject}
           onDeleteProject={handleDeleteProject}
         />
       );
@@ -1083,41 +1217,33 @@ export default function App() {
       <BottomNav
         activeTab={navTab}
         setActiveTab={handleTabSwitch}
-        onOpenNewTask={() => {
-          setTaskToEdit(null);
-          setTaskModalOpen(true);
-        }}
+        onOpenNewTask={handleOpenAddTask}
         isHidden={isNavHidden && activeTab === 'timer'}
       />
 
       {/* Modals */}
       <TaskModal
         isOpen={taskModalOpen}
-        onClose={() => setTaskModalOpen(false)}
+        onClose={handleCloseTaskModal}
         onSave={handleSaveTask}
+        onDelete={handleDeleteTask}
         projects={projects}
         taskToEdit={taskToEdit}
         defaultProjectId={selectedProjectId}
-        onOpenCreateProject={() => {
-          setProjectToEdit(null);
-          setProjectModalOpen(true);
-        }}
+        onOpenCreateProject={handleOpenAddProject}
       />
 
       <ProjectModal
         isOpen={projectModalOpen}
-        onClose={() => setProjectModalOpen(false)}
+        onClose={handleCloseProjectModal}
         onSave={handleSaveProject}
         projectToEdit={projectToEdit}
       />
 
       <StrictModeModal
         isOpen={strictModalOpen}
-        onClose={() => setStrictModalOpen(false)}
-        onResetTimer={() => {
-          handleResetTimer();
-          setStrictModalOpen(false);
-        }}
+        onClose={handleCloseStrictModal}
+        onResetTimer={handleResetStrictModal}
       />
 
       {/* UX feedback layers */}

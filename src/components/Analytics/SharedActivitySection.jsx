@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, startTransition } from 'react';
 import { Clock, CheckCircle } from 'lucide-react';
 import TimeframeHeader, { PERIODS, getDateRangeLabel } from './TimeframeHeader';
 
@@ -70,7 +70,9 @@ const HeatmapCell = React.memo(function HeatmapCell({ cell, period, setOffset })
     if (period === 'Daily') {
       const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       const diffDays = Math.round((cellDate - todayStart) / (1000 * 60 * 60 * 24));
-      setOffset(diffDays);
+      startTransition(() => {
+        setOffset(diffDays);
+      });
     } else if (period === 'Weekly') {
       const nowDayOfWeek = now.getDay() || 7;
       const currentMon = new Date(
@@ -85,11 +87,15 @@ const HeatmapCell = React.memo(function HeatmapCell({ cell, period, setOffset })
         cellDate.getDate() - cellDayOfWeek + 1
       );
       const diffWeeks = Math.round((cellMon - currentMon) / (1000 * 60 * 60 * 24 * 7));
-      setOffset(diffWeeks);
+      startTransition(() => {
+        setOffset(diffWeeks);
+      });
     } else if (period === 'Monthly') {
       const currentYearMonth = now.getFullYear() * 12 + now.getMonth();
       const cellYearMonth = cellDate.getFullYear() * 12 + cellDate.getMonth();
-      setOffset(cellYearMonth - currentYearMonth);
+      startTransition(() => {
+        setOffset(cellYearMonth - currentYearMonth);
+      });
     }
   };
 
@@ -121,7 +127,9 @@ const ChartBarColumn = React.memo(function ChartBarColumn({ slot, setOffset }) {
   const handleSlotClick = () => {
     if (slot.targetOffset !== undefined) {
       if (window.navigator?.vibrate) window.navigator.vibrate(10);
-      setOffset(slot.targetOffset);
+      startTransition(() => {
+        setOffset(slot.targetOffset);
+      });
     }
   };
 
@@ -257,14 +265,14 @@ function SharedActivitySection({
     return { sessionDateMap: dateMap, sessionMonthMap: monthMap, sessionYearMap: yearMap };
   }, [sessions]);
 
-  // Pre-cached goals map from localStorage to avoid 35x JSON.parse calls per render
+  // Pre-cached goals map from localStorage to avoid synchronous JSON.parse calls during timeframe navigation
   const goalsHistory = useMemo(() => {
     try {
       return JSON.parse(localStorage.getItem('focus_daily_goals_history_v1') || '{}');
     } catch {
       return {};
     }
-  }, [period, offset]);
+  }, [settings?.dailyGoalHours]);
 
   const defaultGoal = Number(settings?.dailyGoalHours) || 4.0;
 

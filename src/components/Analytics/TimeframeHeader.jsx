@@ -103,9 +103,18 @@ function TimeframeHeader({ period, setPeriod, offset, setOffset }) {
               setOffset((prev) => prev - 1);
             });
           }}
-          className="tap-effect h-[26px] px-2 bg-[#E8EDE6] rounded-full text-[10px] font-bold tracking-[0.8px] text-[#667463] hover:text-[#1B1F1A] flex items-center gap-1 transition-all"
+          className="tap-effect h-[26px] px-2.5 bg-[#E8EDE6] rounded-full text-[10px] leading-none font-bold tracking-[0.8px] text-[#667463] hover:text-[#1B1F1A] flex items-center justify-center gap-1.5 transition-all"
         >
-          <span>‹ PREV</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 256 512"
+            fill="currentColor"
+            aria-hidden="true"
+            className="h-2.5 w-auto shrink-0"
+          >
+            <path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256 214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z" />
+          </svg>
+          <span>PREV</span>
         </button>
 
         <span className="text-[13px] font-extrabold leading-[18px] tracking-[-0.4px] text-[#1B1F1A] font-sans">
@@ -120,13 +129,22 @@ function TimeframeHeader({ period, setPeriod, offset, setOffset }) {
             });
           }}
           disabled={offset >= 0}
-          className={`tap-effect h-[22px] px-2 bg-[#E8EDE6] rounded-full text-[10px] font-bold tracking-[0.8px] flex items-center gap-1 transition-all ${
+          className={`tap-effect h-[26px] px-2.5 bg-[#E8EDE6] rounded-full text-[10px] leading-none font-bold tracking-[0.8px] flex items-center justify-center gap-1.5 transition-all ${
             offset >= 0
               ? 'text-[#5F6C5C]/40 cursor-not-allowed'
               : 'text-[#667463] hover:text-[#1B1F1A]'
           }`}
         >
-          <span>NEXT ›</span>
+          <span>NEXT</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 256 512"
+            fill="currentColor"
+            aria-hidden="true"
+            className="h-2.5 w-auto shrink-0"
+          >
+            <path d="M247.1 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L179.2 256 41.9 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z" />
+          </svg>
         </button>
       </div>
     </div>

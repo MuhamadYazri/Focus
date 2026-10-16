@@ -194,7 +194,8 @@ function TimerView({
   const iconRefs = useRef({});
   const [showSoundModal, setShowSoundModal] = useState(false);
 
-  const isImmersive = isRunning && isNavHidden;
+  // Fullscreen immersive mode is active whenever navigation is hidden
+  const isImmersive = isNavHidden;
 
   const handleSelectSound = (soundId) => {
     if (onSelectSound) onSelectSound(soundId);
@@ -212,7 +213,10 @@ function TimerView({
       className="flex flex-col h-[100dvh] w-full overflow-y-auto overflow-x-hidden transition-colors duration-700 ease-in-out bg-transparent text-text-main selection:bg-secondary/20"
       onClick={() => {
         if (showSoundModal) return;
-        if (onToggleNav) onToggleNav();
+        // Only enter fullscreen when actively running in focus/work mode
+        if (isRunning && mode === 'work' && onToggleNav) {
+          onToggleNav();
+        }
       }}
     >
       <div className="w-full max-w-[440px] mx-auto flex flex-col justify-between min-h-[100dvh] px-7 pt-[52px] pb-[100px] select-none">
@@ -284,7 +288,14 @@ function TimerView({
         </header>
 
         {/* ── MIDDLE SECTION: Circular Hero Timer ── */}
-        <main className="flex flex-col items-center justify-center my-auto w-full py-4 relative cursor-pointer" onClick={() => onToggleNav && onToggleNav()}>
+        <main
+          className="flex flex-col items-center justify-center my-auto w-full py-4 relative cursor-pointer"
+          onClick={() => {
+            if (isRunning && mode === 'work' && onToggleNav) {
+              onToggleNav();
+            }
+          }}
+        >
           <TimerClockRing
             timeLeft={timeLeft}
             totalTime={totalTime}
@@ -404,11 +415,13 @@ function TimerView({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4 }}
-            className="fixed inset-0 z-50 flex flex-col justify-between px-7 pt-14 pb-12 bg-[#F0F2EF] text-[#1B1F1A] select-none"
-            onClick={stopProp}
+            className="fixed inset-0 z-50 flex flex-col justify-between px-7 pt-14 pb-12 bg-[#F0F2EF] text-[#1B1F1A] select-none cursor-pointer"
+            onClick={() => {
+              if (onToggleNav) onToggleNav();
+            }}
           >
             {/* Minimalist Hero Section with Stacked 168px Numerals from Figma */}
-            <div className="w-full max-w-[384px] mx-auto flex flex-col justify-start pt-10">
+            <div className="w-full max-w-[384px] mx-auto flex flex-col justify-start pt-10 pointer-events-none">
               {/* Row 1: Minutes (168px font-weight 800 Manrope, line-height 148px, letter-spacing -8px, color #1B1F1A) */}
               <div className="w-full flex items-baseline">
                 <span className="text-[168px] leading-[148px] font-extrabold tracking-[-8px] text-[#1B1F1A] font-sans">
@@ -448,9 +461,13 @@ function TimerView({
             </div>
 
             {/* Bottom Actions Bar from Image 1: PAUSE · · · END */}
-            <div className="w-full max-w-[384px] mx-auto flex items-center justify-between pb-6">
+            <div
+              className="w-full max-w-[384px] mx-auto flex items-center justify-between pb-6 cursor-default"
+              onClick={stopProp}
+            >
               <button
-                onClick={() => {
+                onClick={(e) => {
+                  stopProp(e);
                   if (window.navigator?.vibrate) window.navigator.vibrate(20);
                   if (onTogglePlay) onTogglePlay();
                 }}
@@ -460,7 +477,10 @@ function TimerView({
               </button>
 
               <button
-                onClick={() => setShowSoundModal(true)}
+                onClick={(e) => {
+                  stopProp(e);
+                  setShowSoundModal(true);
+                }}
                 className="text-[#8B9E87] hover:text-[#1B1F1A] transition-colors tracking-widest text-[14px]"
                 aria-label="Sound options"
               >
@@ -468,8 +488,10 @@ function TimerView({
               </button>
 
               <button
-                onClick={() => {
-                  if (onToggleNav) onToggleNav();
+                onClick={(e) => {
+                  stopProp(e);
+                  if (window.navigator?.vibrate) window.navigator.vibrate(10);
+                  if (onSkip) onSkip();
                 }}
                 className="text-[11px] font-bold uppercase tracking-[2px] text-[#1B1F1A] hover:opacity-70 transition-opacity"
               >

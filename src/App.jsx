@@ -165,11 +165,23 @@ export default function App() {
     if (isLoaded) storage.saveSessions(sessions);
   }, [sessions, isLoaded]);
 
+  const prevDurationsRef = useRef({
+    workDuration: DEFAULT_SETTINGS.workDuration,
+    shortBreakDuration: DEFAULT_SETTINGS.shortBreakDuration,
+    longBreakDuration: DEFAULT_SETTINGS.longBreakDuration,
+  });
+
   useEffect(() => {
     if (isLoaded) {
       storage.saveSettings(settings);
       document.documentElement.setAttribute('data-theme', 'japandi');
-      if (!isRunning) {
+      const prevDurations = prevDurationsRef.current;
+      const durationsChanged =
+        prevDurations.workDuration !== settings.workDuration ||
+        prevDurations.shortBreakDuration !== settings.shortBreakDuration ||
+        prevDurations.longBreakDuration !== settings.longBreakDuration;
+
+      if (!isRunning && durationsChanged) {
         if (timerMode === 'work') {
           setTimeLeft(settings.workDuration * 60);
         } else if (timerMode === 'shortBreak') {
@@ -178,6 +190,11 @@ export default function App() {
           setTimeLeft(settings.longBreakDuration * 60);
         }
       }
+      prevDurationsRef.current = {
+        workDuration: settings.workDuration,
+        shortBreakDuration: settings.shortBreakDuration,
+        longBreakDuration: settings.longBreakDuration,
+      };
     }
   }, [settings, isLoaded, isRunning, timerMode]);
 
@@ -365,6 +382,7 @@ export default function App() {
 
   const handleTimerFinish = () => {
     setIsRunning(false);
+    setIsNavHidden(false);
     soundEngine.playChime();
     if (window.navigator && window.navigator.vibrate) {
       window.navigator.vibrate([100, 50, 100, 50, 200]);
@@ -377,7 +395,6 @@ export default function App() {
     });
 
     if (timerMode === 'work') {
-
       const nextCycle = cycleCount + 1;
       setCycleCount(nextCycle);
 
@@ -450,6 +467,7 @@ export default function App() {
 
   const handleSelectMode = (mode) => {
     setIsRunning(false);
+    setIsNavHidden(false);
     soundEngine.stop();
     setTimerMode(mode);
     if (mode === 'work') setTimeLeft(settings.workDuration * 60);
@@ -460,6 +478,7 @@ export default function App() {
 
   const handleResetTimer = () => {
     setIsRunning(false);
+    setIsNavHidden(false);
     soundEngine.stop();
     if (timerMode === 'work') setTimeLeft(settings.workDuration * 60);
     else if (timerMode === 'shortBreak') setTimeLeft(settings.shortBreakDuration * 60);
@@ -467,13 +486,79 @@ export default function App() {
     else if (timerMode === 'stopwatch') setTimeLeft(0);
   };
 
-  const handleSkipBreak = () => {
+  const handleSkip = () => {
     setIsRunning(false);
+    setIsNavHidden(false);
     soundEngine.stop();
-    setTimerMode('work');
-    setTimeLeft(settings.workDuration * 60);
-    if (settings.autoStartPomodoros) {
-      setTimeout(() => setIsRunning(true), 500);
+
+    if (timerMode === 'work') {
+      const totalSecs = settings.workDuration * 60;
+      const elapsedSecs = Math.max(0, totalSecs - timeLeft);
+      const elapsedMins = Math.round(elapsedSecs / 60);
+
+      // Save session if elapsed time is meaningful (>= 30 seconds)
+      if (elapsedSecs >= 30) {
+        const savedDuration = Math.max(1, elapsedMins);
+        const newSess = {
+          id: `sess-${Date.now()}`,
+          projectId: activeTask ? activeTask.projectId : (projects[0] ? projects[0].id : 'proj-1'),
+          duration: savedDuration,
+          completedAt: new Date().toISOString(),
+          dateStr: getLocalDateStr(),
+        };
+        setSessions((prev) => [newSess, ...prev]);
+
+        setProjects((prev) =>
+          prev.map((p) =>
+            p.id === newSess.projectId ? { ...p, pomodoros: (p.pomodoros || 0) + 1 } : p
+          )
+        );
+
+        if (activeTask) {
+          setTasks((prev) =>
+            prev.map((t) => {
+              if (t.id === activeTask.id) {
+                const updatedPomos = (t.completedPomos || 0) + 1;
+                const isDone = updatedPomos >= t.estimatedPomos;
+                const todayStr = getLocalDateStr();
+                return {
+                  ...t,
+                  completedPomos: updatedPomos,
+                  completed: isDone,
+                  completedDateStr: isDone ? todayStr : t.completedDateStr,
+                  completedAt: isDone ? new Date().toISOString() : t.completedAt,
+                };
+              }
+              return t;
+            })
+          );
+          setActiveTask((prev) =>
+            prev ? { ...prev, completedPomos: (prev.completedPomos || 0) + 1 } : null
+          );
+        }
+      }
+
+      const nextCycle = cycleCount + 1;
+      setCycleCount(nextCycle);
+
+      if (nextCycle % (settings.longBreakInterval || 4) === 0) {
+        setTimerMode('longBreak');
+        setTimeLeft(settings.longBreakDuration * 60);
+      } else {
+        setTimerMode('shortBreak');
+        setTimeLeft(settings.shortBreakDuration * 60);
+      }
+
+      if (settings.autoStartBreaks) {
+        setTimeout(() => setIsRunning(true), 500);
+      }
+    } else {
+      // Skipping break transitions back to work
+      setTimerMode('work');
+      setTimeLeft(settings.workDuration * 60);
+      if (settings.autoStartPomodoros) {
+        setTimeout(() => setIsRunning(true), 500);
+      }
     }
   };
 
@@ -672,7 +757,7 @@ export default function App() {
           soundVolume={settings.soundVolume}
           onTogglePlay={handleTogglePlay}
           onReset={handleResetTimer}
-          onSkip={handleSkipBreak}
+          onSkip={handleSkip}
           onModeChange={handleSelectMode}
           onSelectSound={(snd) => {
             setCurrentSound(snd);

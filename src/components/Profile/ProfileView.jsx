@@ -12,15 +12,11 @@ import {
   Upload,
   X,
   Loader2,
-  Share2,
-  Flame,
-  Calendar,
   Shield,
   Coffee,
   CloudRain,
   Trees,
   Waves,
-  CheckCircle2,
 } from 'lucide-react';
 import { storage } from '../../services/storage';
 import { Filesystem, Directory } from '@capacitor/filesystem';
@@ -45,7 +41,6 @@ const SOUNDSCAPES = [
 ];
 
 function ProfileView({
-  sessions = [],
   settings = {
     workDuration: 25,
     shortBreakDuration: 5,
@@ -73,66 +68,6 @@ function ProfileView({
   const [backupMsg, setBackupMsg] = useState('');
   const [customModal, setCustomModal] = useState(null);
   const [customVal, setCustomVal] = useState(25);
-  const [showShareModal, setShowShareModal] = useState(false);
-  const [copied, setCopied] = useState(false);
-
-  const realSessions = sessions || [];
-  const totalMinutes = Math.round(realSessions.reduce((acc, s) => acc + (s.duration || 0), 0));
-  const hours = Math.floor(totalMinutes / 60);
-  const mins = totalMinutes % 60;
-  const totalHoursDisplay = `${hours}h ${String(mins).padStart(2, '0')}m`;
-  const totalPomos = realSessions.length;
-
-  // Unique days focused calculation
-  const uniqueDays = new Set(
-    realSessions
-      .map((s) => {
-        if (s.dateStr) return s.dateStr;
-        try {
-          return new Date(s.completedAt).toISOString().split('T')[0];
-        } catch {
-          return '';
-        }
-      })
-      .filter(Boolean)
-  );
-  const totalDays = uniqueDays.size;
-
-  // Streak Calculation
-  let currentStreak = 0;
-  if (uniqueDays.size > 0) {
-    const sortedDates = Array.from(uniqueDays).sort((a, b) => (a < b ? 1 : -1));
-    const today = new Date();
-    const todayStr = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
-      .toISOString()
-      .split('T')[0];
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = new Date(yesterday.getTime() - yesterday.getTimezoneOffset() * 60000)
-      .toISOString()
-      .split('T')[0];
-
-    let checkDate = new Date(sortedDates[0]);
-    if (sortedDates[0] === todayStr || sortedDates[0] === yesterdayStr) {
-      currentStreak = 1;
-      for (let i = 1; i < sortedDates.length; i++) {
-        const expectedNextDate = new Date(checkDate);
-        expectedNextDate.setDate(expectedNextDate.getDate() - 1);
-        const expectedNextDateStr = new Date(
-          expectedNextDate.getTime() - expectedNextDate.getTimezoneOffset() * 60000
-        )
-          .toISOString()
-          .split('T')[0];
-
-        if (sortedDates[i] === expectedNextDateStr) {
-          currentStreak++;
-          checkDate = expectedNextDate;
-        } else {
-          break;
-        }
-      }
-    }
-  }
 
   const handleChange = (key, value) => {
     if (onUpdateSettings) {
@@ -220,38 +155,6 @@ function ProfileView({
     } catch (e) {
       setBackupStatus('idle');
       setBackupMsg(`Error: ${e.message}`);
-    }
-  };
-
-  const handleCopyReport = () => {
-    if (navigator.clipboard) {
-      let text = `Focus // LIFETIME FOCUS SUMMARY\n`;
-      text += `⏱ Total Focus: ${totalHoursDisplay}\n`;
-      text += `🍅 Sessions: ${totalPomos.toLocaleString()} pomodoros\n`;
-      text += `🔥 Streak: ${currentStreak} days\n`;
-      text += `📅 Consistency: ${totalDays} days focused`;
-      navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
-
-  const handleShareReport = async () => {
-    const text = `Focus // LIFETIME FOCUS SUMMARY\n⏱ Total Focus: ${totalHoursDisplay}\n🍅 Sessions: ${totalPomos.toLocaleString()} pomodoros\n🔥 Streak: ${currentStreak} days\n📅 Consistency: ${totalDays} days focused`;
-    try {
-      if (Share?.share) {
-        await Share.share({
-          title: 'Focus - Summary',
-          text,
-          dialogTitle: 'Share Focus Summary',
-        });
-      } else if (navigator.share) {
-        await navigator.share({ title: 'Focus - Summary', text });
-      } else {
-        handleCopyReport();
-      }
-    } catch {
-      handleCopyReport();
     }
   };
 
@@ -887,7 +790,7 @@ function ProfileView({
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Instagram - Yqzriii"
-              className="tap-effect w-9 h-9 rounded-full  flex items-center justify-center text-[#1B1F1A]  transition-allcursor-pointer"
+              className="tap-effect w-9 h-9 rounded-full flex items-center justify-center text-[#1B1F1A] transition-all cursor-pointer"
             >
               <svg
                 viewBox="0 0 24 24"
@@ -909,7 +812,7 @@ function ProfileView({
               target="_blank"
               rel="noopener noreferrer"
               aria-label="LinkedIn - Muhamad Yazri"
-              className="tap-effect w-9 h-9 rounded-full  flex items-center justify-center text-[#1B1F1A] cursor-pointer"
+              className="tap-effect w-9 h-9 rounded-full flex items-center justify-center text-[#1B1F1A] cursor-pointer"
             >
               <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
                 <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9h2.79v8.37H6.46v-8.37M7.86 6.54a1.63 1.63 0 1 0 0 3.26 1.63 1.63 0 0 0 0-3.26z" />
@@ -918,60 +821,6 @@ function ProfileView({
           </div>
         </footer>
       </div>
-
-      {/* ── Share Modal ── */}
-      {showShareModal &&
-        createPortal(
-          <div
-            className="fixed inset-0 z-[70] flex items-center justify-center p-4 animate-fadeIn select-none"
-            style={{
-              background: 'rgba(27, 31, 26, 0.45)',
-              backdropFilter: 'blur(8px)',
-              WebkitBackdropFilter: 'blur(8px)',
-            }}
-            onClick={() => setShowShareModal(false)}
-          >
-            <div
-              className="w-full max-w-sm rounded-3xl p-6 flex flex-col gap-4 border border-[#D6E0D4] bg-white shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-center justify-between pb-2 border-b border-[#D6E0D4]">
-                <h3 className="text-[16px] font-extrabold text-[#1B1F1A] font-sans">
-                  Lifetime Progress
-                </h3>
-                <button
-                  onClick={() => setShowShareModal(false)}
-                  className="w-7 h-7 rounded-full bg-[#F0F2EF] text-[#667463] flex items-center justify-center"
-                >
-                  <X size={14} />
-                </button>
-              </div>
-
-              <div className="p-4 bg-[#F0F2EF] rounded-2xl flex flex-col gap-2 font-mono text-[12px] text-[#1B1F1A]">
-                <div>⏱ Total Focus: {totalHoursDisplay}</div>
-                <div>🍅 Sessions: {totalPomos.toLocaleString()} pomodoros</div>
-                <div>🔥 Streak: {currentStreak} days</div>
-                <div>📅 Consistency: {totalDays} days active</div>
-              </div>
-
-              <div className="flex items-center gap-2 pt-2">
-                <button
-                  onClick={handleCopyReport}
-                  className="tap-effect flex-1 h-[42px] rounded-full border border-[#D6E0D4] bg-[#F0F2EF] text-[#1B1F1A] text-[12px] font-bold"
-                >
-                  {copied ? 'Copied!' : 'Copy'}
-                </button>
-                <button
-                  onClick={handleShareReport}
-                  className="tap-effect flex-1 h-[42px] rounded-full bg-[#1B1F1A] text-white text-[12px] font-bold shadow-sm"
-                >
-                  Share
-                </button>
-              </div>
-            </div>
-          </div>,
-          document.body
-        )}
 
       {/* ── Custom Duration Modal ── */}
       {customModal &&

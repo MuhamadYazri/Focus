@@ -68,32 +68,32 @@ class SoundEngine {
       try {
         this.activeSource.stop();
         this.activeSource.disconnect();
-      } catch (e) {}
+      } catch {}
       this.activeSource = null;
     }
     if (this.activeLfo) {
       try {
         this.activeLfo.stop();
         this.activeLfo.disconnect();
-      } catch (e) {}
+      } catch {}
       this.activeLfo = null;
     }
     if (this.activeLfoGain) {
       try {
         this.activeLfoGain.disconnect();
-      } catch (e) {}
+      } catch {}
       this.activeLfoGain = null;
     }
     if (this.activeFilter) {
       try {
         this.activeFilter.disconnect();
-      } catch (e) {}
+      } catch {}
       this.activeFilter = null;
     }
     if (this.gainNode) {
       try {
         this.gainNode.disconnect();
-      } catch (e) {}
+      } catch {}
       this.gainNode = null;
     }
     if (this.clockInterval) {

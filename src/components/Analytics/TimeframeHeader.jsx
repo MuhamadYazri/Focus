@@ -1,8 +1,8 @@
 import React, { startTransition } from 'react';
 
-export const PERIODS = ['All', 'Daily', 'Weekly', 'Monthly', 'Yearly'];
+const PERIODS = ['All', 'Daily', 'Weekly', 'Monthly', 'Yearly'];
 
-export const getDateRangeLabel = (p, off) => {
+const getDateRangeLabel = (p, off) => {
   const d = new Date();
   if (p === 'Daily') {
     d.setDate(d.getDate() + off);

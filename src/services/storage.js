@@ -14,7 +14,7 @@ const getLocalDateStr = (d) => {
     if (isNaN(dt.getTime())) return new Date().toISOString().split('T')[0];
     const z = new Date(dt.getTime() - dt.getTimezoneOffset() * 60000);
     return z.toISOString().split('T')[0];
-  } catch (e) {
+  } catch {
     return new Date().toISOString().split('T')[0];
   }
 };
@@ -96,7 +96,7 @@ const getLocal = (key, defaultVal) => {
   try {
     const val = localStorage.getItem(key);
     return val ? JSON.parse(val) : defaultVal;
-  } catch (e) {
+  } catch {
     return defaultVal;
   }
 };
@@ -104,7 +104,7 @@ const getLocal = (key, defaultVal) => {
 const setLocal = (key, val) => {
   try {
     localStorage.setItem(key, JSON.stringify(val));
-  } catch (e) {}
+  } catch {}
 };
 
 export const storage = {
@@ -113,26 +113,26 @@ export const storage = {
       let data = await get(STORAGE_KEYS.PROJECTS);
       data = data || getLocal(STORAGE_KEYS.PROJECTS, DEFAULT_PROJECTS);
       return data;
-    } catch (e) {
+    } catch {
       return getLocal(STORAGE_KEYS.PROJECTS, DEFAULT_PROJECTS);
     }
   },
   async saveProjects(projects) {
     setLocal(STORAGE_KEYS.PROJECTS, projects);
-    try { await set(STORAGE_KEYS.PROJECTS, projects); } catch (e) {}
+    try { await set(STORAGE_KEYS.PROJECTS, projects); } catch {}
   },
 
   async getTasks() {
     try {
       const data = await get(STORAGE_KEYS.TASKS);
       return data || getLocal(STORAGE_KEYS.TASKS, DEFAULT_TASKS);
-    } catch (e) {
+    } catch {
       return getLocal(STORAGE_KEYS.TASKS, DEFAULT_TASKS);
     }
   },
   async saveTasks(tasks) {
     setLocal(STORAGE_KEYS.TASKS, tasks);
-    try { await set(STORAGE_KEYS.TASKS, tasks); } catch (e) {}
+    try { await set(STORAGE_KEYS.TASKS, tasks); } catch {}
   },
 
   async getSessions() {
@@ -140,13 +140,13 @@ export const storage = {
       let data = await get(STORAGE_KEYS.SESSIONS);
       data = data || getLocal(STORAGE_KEYS.SESSIONS, []);
       return data;
-    } catch (e) {
+    } catch {
       return getLocal(STORAGE_KEYS.SESSIONS, []);
     }
   },
   async saveSessions(sessions) {
     setLocal(STORAGE_KEYS.SESSIONS, sessions);
-    try { await set(STORAGE_KEYS.SESSIONS, sessions); } catch (e) {}
+    try { await set(STORAGE_KEYS.SESSIONS, sessions); } catch {}
   },
 
   async getSettings() {
@@ -158,7 +158,7 @@ export const storage = {
         await this.saveSettings(data);
       }
       return data;
-    } catch (e) {
+    } catch {
       const local = getLocal(STORAGE_KEYS.SETTINGS, DEFAULT_SETTINGS);
       if (local && local.keepAwake === undefined) local.keepAwake = true;
       return local;
@@ -166,7 +166,7 @@ export const storage = {
   },
   async saveSettings(settings) {
     setLocal(STORAGE_KEYS.SETTINGS, settings);
-    try { await set(STORAGE_KEYS.SETTINGS, settings); } catch (e) {}
+    try { await set(STORAGE_KEYS.SETTINGS, settings); } catch {}
     if (settings && settings.dailyGoalHours) {
       this.recordDailyGoalForToday(settings.dailyGoalHours);
     }
@@ -181,13 +181,13 @@ export const storage = {
     try {
       const data = await get(STORAGE_KEYS.DAILY_GOALS_HISTORY);
       return data || getLocal(STORAGE_KEYS.DAILY_GOALS_HISTORY, defaultHist);
-    } catch (e) {
+    } catch {
       return getLocal(STORAGE_KEYS.DAILY_GOALS_HISTORY, defaultHist);
     }
   },
   async saveDailyGoalsHistory(map) {
     setLocal(STORAGE_KEYS.DAILY_GOALS_HISTORY, map);
-    try { await set(STORAGE_KEYS.DAILY_GOALS_HISTORY, map); } catch (e) {}
+    try { await set(STORAGE_KEYS.DAILY_GOALS_HISTORY, map); } catch {}
   },
   async recordDailyGoalForToday(hours) {
     const todayStr = getLocalDateStr();

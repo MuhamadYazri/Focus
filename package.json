@@ -1,5 +1,5 @@
 {
-  "name": "temp_vite",
+  "name": "focus",
   "private": true,
   "version": "1.0.1",
   "type": "module",
@@ -27,17 +27,12 @@
     "@capacitor/status-bar": "^8.0.2",
     "@capawesome-team/capacitor-android-foreground-service": "^8.1.0",
     "@lottiefiles/dotlottie-react": "^0.20.0",
-    "canvas-confetti": "^1.9.4",
-    "clsx": "^2.1.1",
-    "date-fns": "^4.4.0",
     "framer-motion": "^14.1.0",
     "idb-keyval": "^6.2.6",
     "lucide-animated": "^1.0.5",
     "lucide-react": "^1.23.0",
-    "motion": "^14.1.0",
     "react": "^19.2.7",
-    "react-dom": "^19.2.7",
-    "tailwind-merge": "^3.6.0"
+    "react-dom": "^19.2.7"
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",

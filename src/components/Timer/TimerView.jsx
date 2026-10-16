@@ -12,7 +12,6 @@ import {
   Waves,
   Coffee,
   Clock,
-  Minimize2,
 } from 'lucide-react';
 import {
   PlayIcon as Play,
@@ -191,7 +190,6 @@ function TimerView({
   isRunning,
   cycleCount,
   longBreakInterval = 4,
-  activeTask: _activeTask,
   currentSound = 'none',
   soundVolume = 0.8,
   onTogglePlay,

@@ -12,12 +12,12 @@ import clockTickingLottie from '../../assets/clockTicking.lottie';
 export default function SessionCompletionScreen({ celebration, onDismiss, onPrimaryAction }) {
   const [closing, setClosing] = useState(false);
 
-  useEffect(() => {
-    if (!celebration) return;
-    setClosing(false);
+  const celebrationId = celebration?.id;
 
-    // Subtle Japanese earth-toned confetti burst on milestone achievement
-  }, [celebration?.id]);
+  useEffect(() => {
+    if (!celebrationId) return;
+    setClosing(false);
+  }, [celebrationId]);
 
   if (!celebration) return null;
 

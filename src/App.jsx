@@ -26,7 +26,7 @@ const getLocalDateStr = (d) => {
     if (isNaN(dt.getTime())) return new Date().toISOString().split('T')[0];
     const z = new Date(dt.getTime() - dt.getTimezoneOffset() * 60000);
     return z.toISOString().split('T')[0];
-  } catch (e) {
+  } catch {
     return new Date().toISOString().split('T')[0];
   }
 };
@@ -61,7 +61,6 @@ export default function App() {
   // Navigation State: 4 monochrome tabs: 'home', 'timer', 'reports', 'profile'
   const [navTab, setNavTab] = useState(initialTab); // Instant tab indicator state (<16ms INP)
   const [activeTab, setActiveTab] = useState(initialTab); // Screen content state (deferred via startTransition)
-  const [selectedProjectId, setSelectedProjectId] = useState(null);
 
   // Data State
   const [projects, setProjects] = useState(DEFAULT_PROJECTS);
@@ -149,7 +148,6 @@ export default function App() {
   const [toast, setToast] = useState(null);
   const [justCompletedId, setJustCompletedId] = useState(null);
 
-  const timerRef = useRef(null);
   const lastTickRef = useRef(null);
 
   // Synchronized state references for unthrottled background execution & stable callbacks
@@ -217,7 +215,7 @@ export default function App() {
       setCurrentSound(loadedSettings.soundscape || 'none');
       try {
         await StatusBar.hide();
-      } catch (e) {
+      } catch {
         // Ignored on non-native environments
       }
       setIsLoaded(true);
@@ -276,7 +274,6 @@ export default function App() {
     const handleVisibilityChange = () => {
       if (document.hidden && isRunning && settings.strictMode && timerMode === 'work') {
         setIsRunning(false);
-        if (timerRef.current) clearInterval(timerRef.current);
         soundEngine.stop();
         if (window.navigator && window.navigator.vibrate) {
           window.navigator.vibrate([200, 100, 200, 100, 200]);
@@ -294,34 +291,34 @@ export default function App() {
       if (isRunning && settings.keepAwake) {
         try {
           await KeepAwake.keepAwake();
-        } catch (e) {
+        } catch {
           try {
             if ('wakeLock' in navigator && !window._wakeLockSentinel) {
               window._wakeLockSentinel = await navigator.wakeLock.request('screen');
             }
-          } catch (err) { }
+          } catch {}
         }
       } else {
         try {
           await KeepAwake.allowSleep();
-        } catch (e) { }
+        } catch {}
         try {
           if (window._wakeLockSentinel) {
             await window._wakeLockSentinel.release();
             window._wakeLockSentinel = null;
           }
-        } catch (err) { }
+        } catch {}
       }
     };
     manageWakeLock();
     return () => {
-      try { KeepAwake.allowSleep(); } catch (e) { }
+      try { KeepAwake.allowSleep(); } catch {}
       try {
         if (window._wakeLockSentinel) {
           window._wakeLockSentinel.release();
           window._wakeLockSentinel = null;
         }
-      } catch (err) { }
+      } catch {}
     };
   }, [isRunning, settings.keepAwake]);
 
@@ -371,13 +368,13 @@ export default function App() {
             smallIcon: 'ic_stat_focus_text',
             serviceType: 1073741824 // FOREGROUND_SERVICE_TYPE_SPECIAL_USE
           });
-        } catch (e) {
-          console.log('ForegroundService start error:', e);
+        } catch {
+          // Ignored on non-native environments
         }
       } else {
         try {
           await ForegroundService.stopForegroundService();
-        } catch (e) { }
+        } catch {}
       }
     };
     manageForegroundService();
@@ -521,7 +518,7 @@ export default function App() {
       }
       try {
         Haptics.vibrate({ duration: 500 }).catch(() => {});
-      } catch (e) {}
+      } catch {}
 
       celebrationsToEnqueue.forEach((c) => enqueueCelebration(c));
     }
@@ -609,7 +606,7 @@ export default function App() {
       }).then((handle) => {
         appStateHandle = handle;
       }).catch(() => {});
-    } catch (e) {}
+    } catch {}
 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibility);
@@ -894,20 +891,6 @@ export default function App() {
     }
   }, [showToast]);
 
-  const handleToggleSubtask = useCallback((taskId, subId) => {
-    setTasks((prev) =>
-      prev.map((t) => {
-        if (t.id === taskId) {
-          const updatedSub = t.subtasks.map((s) =>
-            s.id === subId ? { ...s, completed: !s.completed } : s
-          );
-          return { ...t, subtasks: updatedSub };
-        }
-        return t;
-      })
-    );
-  }, []);
-
   const handleStartPomodoroForTask = useCallback((task) => {
     if (!task) return;
     const curActive = activeTaskRef.current;
@@ -962,7 +945,6 @@ export default function App() {
   const handleDeleteProject = useCallback((id) => {
     setProjects((prev) => prev.filter((p) => p.id !== id));
     setTasks((prev) => prev.filter((t) => t.projectId !== id));
-    setSelectedProjectId((prev) => (prev === id ? null : prev));
   }, []);
 
   const handleResetAllData = useCallback(() => {
@@ -1037,11 +1019,6 @@ export default function App() {
     setSettings((prev) => ({ ...prev, soundVolume: vol }));
   }, []);
 
-  const handleClearActiveTask = useCallback(() => {
-    setActiveTask(null);
-    handleTabSwitch('home');
-  }, [handleTabSwitch]);
-
   const handleToggleStrictMode = useCallback(() => {
     setSettings((prev) => ({ ...prev, strictMode: !prev.strictMode }));
   }, []);
@@ -1063,21 +1040,13 @@ export default function App() {
       return (
         <TaskList
           tasks={tasks}
-          projects={projects}
           sessions={sessions}
           settings={settings}
-          selectedProjectId={selectedProjectId}
-          onSelectProject={setSelectedProjectId}
           onAddTask={handleOpenAddTask}
           onEditTask={handleOpenEditTask}
-          onDeleteTask={handleDeleteTask}
           onToggleComplete={handleToggleComplete}
           justCompletedId={justCompletedId}
-          onToggleSubtask={handleToggleSubtask}
           onStartPomodoro={handleStartPomodoroForTask}
-          onAddProject={handleOpenAddProject}
-          onEditProject={handleOpenEditProject}
-          onDeleteProject={handleDeleteProject}
           activeTaskId={activeTask?.id}
           isTimerRunning={isRunning}
         />
@@ -1092,8 +1061,6 @@ export default function App() {
           isRunning={isRunning}
           cycleCount={cycleCount}
           longBreakInterval={settings.longBreakInterval || 4}
-          activeTask={activeTask}
-          projects={projects}
           currentSound={currentSound}
           soundVolume={settings.soundVolume}
           onTogglePlay={handleTogglePlay}
@@ -1102,7 +1069,6 @@ export default function App() {
           onModeChange={handleSelectMode}
           onSelectSound={handleSelectSound}
           onChangeVolume={handleChangeVolume}
-          onClearActiveTask={handleClearActiveTask}
           strictMode={settings.strictMode}
           onToggleStrictMode={handleToggleStrictMode}
           isNavHidden={isNavHidden && activeTab === 'timer'}
@@ -1113,7 +1079,6 @@ export default function App() {
     if (tabKey === 'reports') {
       return (
         <AnalyticsDashboard
-          tasks={tasks}
           projects={projects}
           sessions={sessions}
           settings={settings}
@@ -1128,7 +1093,6 @@ export default function App() {
     if (tabKey === 'profile') {
       return (
         <ProfileView
-          sessions={sessions}
           settings={settings}
           onUpdateSettings={handleUpdateSettings}
           onResetAllData={handleResetAllData}
@@ -1229,7 +1193,6 @@ export default function App() {
         onDelete={handleDeleteTask}
         projects={projects}
         taskToEdit={taskToEdit}
-        defaultProjectId={selectedProjectId}
         onOpenCreateProject={handleOpenAddProject}
       />
 

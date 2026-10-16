@@ -37,7 +37,7 @@ export default function TaskModal({
       if (isNaN(dt.getTime())) return new Date().toISOString().split('T')[0];
       const z = new Date(dt.getTime() - dt.getTimezoneOffset() * 60000);
       return z.toISOString().split('T')[0];
-    } catch (e) {
+    } catch {
       return new Date().toISOString().split('T')[0];
     }
   };
@@ -129,7 +129,7 @@ export default function TaskModal({
   const handlePointerDown = (e) => {
     try {
       if (e && e.pointerId) e.currentTarget.setPointerCapture(e.pointerId);
-    } catch (err) {}
+    } catch {}
     const clientY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
     dragStateRef.current = { isDragging: true, startY: clientY, currentY: 0 };
     if (sheetRef.current) {
@@ -156,7 +156,7 @@ export default function TaskModal({
     if (!dragStateRef.current.isDragging) return;
     try {
       if (e && e.pointerId) e.currentTarget.releasePointerCapture(e.pointerId);
-    } catch (err) {}
+    } catch {}
     dragStateRef.current.isDragging = false;
     if (handlePillRef.current) {
       handlePillRef.current.classList.remove('bg-secondary');

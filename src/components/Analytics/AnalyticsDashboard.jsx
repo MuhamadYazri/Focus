@@ -74,7 +74,6 @@ const toTitleCase = (str) => {
 };
 
 function AnalyticsDashboard({
-  _tasks = [],
   projects = [],
   sessions = [],
   settings = {},
@@ -179,10 +178,6 @@ function AnalyticsDashboard({
           offset={currentOffset}
           setOffset={setCurrentOffset}
           hideHeader={hideHeader}
-          onPeriodChange={(data) => {
-            setCurrentPeriod(data.period);
-            setCurrentOffset(data.offset);
-          }}
         />
 
         {/* Focus Distribution Donut Card from Figma: 400px x 156px rounded-[18px] */}

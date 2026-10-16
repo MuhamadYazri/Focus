@@ -37,11 +37,10 @@ class TimerWorkerService {
         }
       };
 
-      this.worker.onerror = (err) => {
-        console.warn('TimerWorker encountered an error:', err);
+      this.worker.onerror = () => {
+        // Fallback interval handles tick continuity if Worker errors
       };
-    } catch (err) {
-      console.warn('Web Worker initialization failed, fallback interval will be used:', err);
+    } catch {
       this.worker = null;
     }
   }
@@ -52,8 +51,8 @@ class TimerWorkerService {
     if (this.worker) {
       try {
         this.worker.postMessage('start');
-      } catch (e) {
-        console.warn('Worker postMessage failed, falling back to setInterval:', e);
+      } catch {
+        // Fallback interval below guarantees ticks
       }
     }
 
@@ -70,7 +69,7 @@ class TimerWorkerService {
     if (this.worker) {
       try {
         this.worker.postMessage('stop');
-      } catch (e) {}
+      } catch {}
     }
 
     if (this.fallbackInterval) {

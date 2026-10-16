@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useMemo, startTransition } from 'react';
+import React, { useState, useMemo, startTransition } from 'react';
 import { Clock, CheckCircle } from 'lucide-react';
-import TimeframeHeader, { PERIODS, getDateRangeLabel } from './TimeframeHeader';
+import TimeframeHeader from './TimeframeHeader';
 
 const getLocalDateStr = (d) => {
   try {
@@ -8,7 +8,7 @@ const getLocalDateStr = (d) => {
     if (isNaN(dt.getTime())) return new Date().toISOString().split('T')[0];
     const z = new Date(dt.getTime() - dt.getTimezoneOffset() * 60000);
     return z.toISOString().split('T')[0];
-  } catch (e) {
+  } catch {
     return new Date().toISOString().split('T')[0];
   }
 };
@@ -36,7 +36,6 @@ const HeatmapCell = React.memo(function HeatmapCell({ cell, period, setOffset })
   const isCur = !!cell?.isCurrent;
   const isSameMo = !!cell?.isSameMonth;
   const hasHours = (cell?.curMins || 0) > 0;
-  const isGoalMet = !!cell?.isGoalMet;
   const isToday = !!cell?.isToday;
   const isSelected =
     period === 'Daily'
@@ -181,7 +180,6 @@ function SharedActivitySection({
   showKPIs = true,
   sessions = [],
   settings = {},
-  onPeriodChange,
   period: controlledPeriod,
   setPeriod: controlledSetPeriod,
   offset: controlledOffset,
@@ -195,49 +193,6 @@ function SharedActivitySection({
   const setPeriod = controlledSetPeriod || setInternalPeriod;
   const offset = controlledOffset !== undefined ? controlledOffset : internalOffset;
   const setOffset = controlledSetOffset || setInternalOffset;
-
-  const maxBarH = 64; // Adjusted for new design
-
-  const isAll = period === 'All';
-
-  const getDateRangeLabel = (p, off) => {
-    const d = new Date();
-    if (p === 'Daily') {
-      d.setDate(d.getDate() + off);
-      const isToday = off === 0;
-      const isYesterday = off === -1;
-      const dateStr = d.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      });
-      if (isToday) return `Today (${dateStr})`;
-      if (isYesterday) return `Yesterday (${dateStr})`;
-      return dateStr;
-    }
-    if (p === 'Weekly') {
-      const dayOfWeek = d.getDay() || 7;
-      const mon = new Date(d);
-      mon.setDate(d.getDate() - dayOfWeek + 1 + off * 7);
-      const sun = new Date(mon);
-      sun.setDate(mon.getDate() + 6);
-      const mStr = mon.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      const sStr = sun.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      });
-      return `${mStr} – ${sStr}`;
-    }
-    if (p === 'Monthly') {
-      const m = new Date(d.getFullYear(), d.getMonth() + off, 1);
-      return m.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-    }
-    if (p === 'Yearly') {
-      return `${d.getFullYear() + off}`;
-    }
-    return 'All Time';
-  };
 
   // Fast O(1) date session map to avoid repeatedly filtering large session arrays
   const { sessionDateMap, sessionMonthMap, sessionYearMap } = useMemo(() => {
@@ -265,80 +220,7 @@ function SharedActivitySection({
     return { sessionDateMap: dateMap, sessionMonthMap: monthMap, sessionYearMap: yearMap };
   }, [sessions]);
 
-  // Pre-cached goals map from localStorage to avoid synchronous JSON.parse calls during timeframe navigation
-  const goalsHistory = useMemo(() => {
-    try {
-      return JSON.parse(localStorage.getItem('focus_daily_goals_history_v1') || '{}');
-    } catch {
-      return {};
-    }
-  }, [settings?.dailyGoalHours]);
-
   const defaultGoal = Number(settings?.dailyGoalHours) || 4.0;
-
-  const getDailyGoalHours = (dateStr) => {
-    if (goalsHistory[dateStr]) return Number(goalsHistory[dateStr]);
-    return defaultGoal;
-  };
-
-  const generateHeatmapGrid = (endDateRef, hlStart, hlEnd) => {
-    const ref = new Date(endDateRef || new Date());
-    const firstDayOfMonth = new Date(ref.getFullYear(), ref.getMonth(), 1);
-    const dayOfWeek = firstDayOfMonth.getDay() || 7;
-    const startMon = new Date(firstDayOfMonth);
-    startMon.setDate(firstDayOfMonth.getDate() - (dayOfWeek - 1));
-
-    const todayStr = getLocalDateStr(new Date());
-    const rangeStart = hlStart || todayStr;
-    const rangeEnd = hlEnd || rangeStart;
-    const targetMonthPrefix = `${ref.getFullYear()}-${String(ref.getMonth() + 1).padStart(2, '0')}`;
-
-    const grid = [];
-    for (let w = 0; w < 5; w++) {
-      const row = [];
-      for (let d = 0; d < 7; d++) {
-        const cur = new Date(startMon);
-        cur.setDate(startMon.getDate() + w * 7 + d);
-        const curStr = getLocalDateStr(cur);
-        const curMins = sessionDateMap.get(curStr) || 0;
-        const curHours = curMins / 60;
-        const targetHours = getDailyGoalHours(curStr);
-        let val = 0;
-        if (curHours >= targetHours && targetHours > 0) val = 4;
-        else if (curHours >= targetHours * 0.75) val = 3;
-        else if (curHours >= targetHours * 0.4) val = 2;
-        else if (curHours > 0) val = 1;
-
-        const isSameMonth = curStr.startsWith(targetMonthPrefix);
-        const progressRatio = targetHours > 0 ? curHours / targetHours : curHours > 0 ? 1 : 0;
-        const isGoalMet = targetHours > 0 && curHours >= targetHours;
-        const fillPct =
-          curMins > 0
-            ? isGoalMet
-              ? 100
-              : Math.max(16, Math.min(100, Math.round(progressRatio * 100)))
-            : 0;
-
-        row.push({
-          val,
-          dayNum: cur.getDate(),
-          curMins,
-          curHours,
-          progressRatio,
-          isGoalMet,
-          fillPct,
-          achievedHours: Math.round(curHours),
-          targetHours,
-          dateStr: curStr,
-          isCurrent: curStr >= rangeStart && curStr <= rangeEnd,
-          isToday: curStr === todayStr,
-          isSameMonth,
-        });
-      }
-      grid.push(row);
-    }
-    return grid;
-  };
 
   // Dynamically compute dataset based on period & offset using useMemo
   const {
@@ -353,6 +235,78 @@ function SharedActivitySection({
     chartSubLabel,
     heatmapTitleDate,
   } = useMemo(() => {
+    // Pre-cached goals map from localStorage to avoid synchronous JSON.parse calls during timeframe navigation
+    let goalsHistory = {};
+    try {
+      goalsHistory = JSON.parse(localStorage.getItem('focus_daily_goals_history_v1') || '{}');
+    } catch {
+      goalsHistory = {};
+    }
+
+    const getDailyGoalHours = (dateStr) => {
+      if (goalsHistory[dateStr]) return Number(goalsHistory[dateStr]);
+      return defaultGoal;
+    };
+
+    const generateHeatmapGrid = (endDateRef, hlStart, hlEnd) => {
+      const ref = new Date(endDateRef || new Date());
+      const firstDayOfMonth = new Date(ref.getFullYear(), ref.getMonth(), 1);
+      const dayOfWeek = firstDayOfMonth.getDay() || 7;
+      const startMon = new Date(firstDayOfMonth);
+      startMon.setDate(firstDayOfMonth.getDate() - (dayOfWeek - 1));
+
+      const todayStr = getLocalDateStr(new Date());
+      const rangeStart = hlStart || todayStr;
+      const rangeEnd = hlEnd || rangeStart;
+      const targetMonthPrefix = `${ref.getFullYear()}-${String(ref.getMonth() + 1).padStart(2, '0')}`;
+
+      const grid = [];
+      for (let w = 0; w < 5; w++) {
+        const row = [];
+        for (let d = 0; d < 7; d++) {
+          const cur = new Date(startMon);
+          cur.setDate(startMon.getDate() + w * 7 + d);
+          const curStr = getLocalDateStr(cur);
+          const curMins = sessionDateMap.get(curStr) || 0;
+          const curHours = curMins / 60;
+          const targetHours = getDailyGoalHours(curStr);
+          let val = 0;
+          if (curHours >= targetHours && targetHours > 0) val = 4;
+          else if (curHours >= targetHours * 0.75) val = 3;
+          else if (curHours >= targetHours * 0.4) val = 2;
+          else if (curHours > 0) val = 1;
+
+          const isSameMonth = curStr.startsWith(targetMonthPrefix);
+          const progressRatio = targetHours > 0 ? curHours / targetHours : curHours > 0 ? 1 : 0;
+          const isGoalMet = targetHours > 0 && curHours >= targetHours;
+          const fillPct =
+            curMins > 0
+              ? isGoalMet
+                ? 100
+                : Math.max(16, Math.min(100, Math.round(progressRatio * 100)))
+              : 0;
+
+          row.push({
+            val,
+            dayNum: cur.getDate(),
+            curMins,
+            curHours,
+            progressRatio,
+            isGoalMet,
+            fillPct,
+            achievedHours: Math.round(curHours),
+            targetHours,
+            dateStr: curStr,
+            isCurrent: curStr >= rangeStart && curStr <= rangeEnd,
+            isToday: curStr === todayStr,
+            isSameMonth,
+          });
+        }
+        grid.push(row);
+      }
+      return grid;
+    };
+
     const now = new Date();
     let displayHours = '0h 00m';
     let displayPomos = 0;
@@ -385,8 +339,6 @@ function SharedActivitySection({
       const monDate = new Date(targetDate);
       monDate.setDate(targetDate.getDate() - dayOfWeek + 1);
       const chartDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-      let maxDayMins = 0;
-      let peakDayLabel = 'None';
       const targetDailyGoalHours = getDailyGoalHours(targetStr);
 
       const dailySlots = chartDays.map((label, idx) => {
@@ -394,10 +346,6 @@ function SharedActivitySection({
         d.setDate(monDate.getDate() + idx);
         const dStr = getLocalDateStr(d);
         const mins = sessionDateMap.get(dStr) || 0;
-        if (mins > maxDayMins) {
-          maxDayMins = mins;
-          peakDayLabel = label;
-        }
 
         const slotGoalHours = getDailyGoalHours(dStr);
         const slotGoalMins = slotGoalHours * 60;
@@ -454,7 +402,6 @@ function SharedActivitySection({
       const weeklyTargetMins = weeklyTargetHours * 60;
 
       const weeklySlots = [];
-      let maxWkMins = 0;
 
       // Keep a sliding 4-week window containing the active week offset (clamped to max 0 for future)
       const maxW = Math.min(0, offset + 3);
@@ -465,19 +412,13 @@ function SharedActivitySection({
         curStart.setDate(thisWeekMon.getDate() + w * 7);
         const curEnd = new Date(curStart);
         curEnd.setDate(curStart.getDate() + 6);
-        const csStr = getLocalDateStr(curStart);
-        const ceStr = getLocalDateStr(curEnd);
-        
+
         let mins = 0;
         for (let d = new Date(curStart); d <= curEnd; d.setDate(d.getDate() + 1)) {
           mins += sessionDateMap.get(getLocalDateStr(d)) || 0;
         }
 
         const label = w === 0 ? 'This Wk' : `${Math.abs(w)}Wk Ago`;
-        if (mins > maxWkMins) {
-          maxWkMins = mins;
-        }
-
         const progressRatio = weeklyTargetMins > 0 ? mins / weeklyTargetMins : 0;
         const isGoalMet = weeklyTargetMins > 0 && mins >= weeklyTargetMins;
 
@@ -540,16 +481,9 @@ function SharedActivitySection({
         'Nov',
         'Dec',
       ];
-      let maxMoMins = 0;
-      let peakMoLabel = 'None';
       const monthlySlots = monthNames.map((mName, idx) => {
         const pfx = `${yrStr}-${String(idx + 1).padStart(2, '0')}`;
         const mins = sessionMonthMap.get(pfx) || 0;
-        if (mins > maxMoMins) {
-          maxMoMins = mins;
-          peakMoLabel = mName;
-        }
-
         const progressRatio = monthlyTargetMins > 0 ? mins / monthlyTargetMins : 0;
         const isGoalMet = monthlyTargetMins > 0 && mins >= monthlyTargetMins;
 
@@ -597,13 +531,11 @@ function SharedActivitySection({
 
       const years = [targetYr - 2, targetYr - 1, targetYr];
       let maxYrMins = 0;
-      let peakYrLabel = 'None';
       const yearlySlots = years.map((y) => {
         const yStr = String(y);
         const mins = sessionYearMap.get(yStr) || 0;
         if (mins > maxYrMins) {
           maxYrMins = mins;
-          peakYrLabel = yStr;
         }
         return {
           h: yStr,
@@ -640,13 +572,11 @@ function SharedActivitySection({
       const targetYr = now.getFullYear();
       const years = [targetYr - 2, targetYr - 1, targetYr];
       let maxYrMins = 0;
-      let peakYrLabel = 'None';
       const yearlySlots = years.map((y) => {
         const yStr = String(y);
         const mins = sessionYearMap.get(yStr) || 0;
         if (mins > maxYrMins) {
           maxYrMins = mins;
-          peakYrLabel = yStr;
         }
         return {
           h: yStr,
@@ -677,24 +607,7 @@ function SharedActivitySection({
       chartSubLabel,
       heatmapTitleDate,
     };
-  }, [period, offset, sessions]);
-
-  const dateLabel = getDateRangeLabel(period, offset);
-
-  // Notify parent of period/data changes
-  useEffect(() => {
-    if (onPeriodChange) {
-      onPeriodChange({
-        period,
-        offset,
-        dateLabel,
-        displayHours,
-        displayPomos,
-        displaySubToday,
-        displaySubDays,
-      });
-    }
-  }, [period, offset, sessions]);
+  }, [period, offset, sessions, sessionDateMap, sessionMonthMap, sessionYearMap, defaultGoal]);
 
   return (
     <div className="flex flex-col gap-3.5 ">

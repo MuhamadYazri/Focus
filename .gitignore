@@ -37,3 +37,6 @@ scenario*
 *.jks
 keystore.properties
 Focus*
+
+# Agent Documentation
+flow.md

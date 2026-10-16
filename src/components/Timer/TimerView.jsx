@@ -274,7 +274,12 @@ function TimerView({
                       className={`absolute inset-0 rounded-full z-[-1] ${
                         isPreviewingDifferentMode ? 'bg-[#5F6C5C]' : 'bg-[#41493F]'
                       }`}
-                      transition={{ type: 'spring', bounce: 0.1, duration: 0.55 }}
+                      transition={{
+                        type: 'spring',
+                        stiffness: 420,
+                        damping: 32,
+                        mass: 0.8,
+                      }}
                     />
                   )}
                   <span className="relative z-10">{label}</span>

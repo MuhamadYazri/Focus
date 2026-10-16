@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 
 const NAV_ITEMS = [
   {
@@ -56,7 +57,7 @@ function BottomNav({ activeTab, setActiveTab, isHidden = false }) {
     >
       <nav
         aria-label="Primary Navigation"
-        className="h-[44px] bg-white/90 backdrop-blur-[24px] border border-[#E2E6E0] shadow-[0px_6px_24px_rgba(0,0,0,0.04)] rounded-full p-[4px_6px] flex items-center justify-between gap-1"
+        className="h-[44px] bg-white/90 backdrop-blur-[24px] border border-[#E2E6E0] shadow-[0px_6px_24px_rgba(0,0,0,0.04)] rounded-full p-[4px_6px] flex items-center justify-between gap-1 relative"
       >
         {NAV_ITEMS.map(({ key, label, icon }) => {
           const on = activeTab === key;
@@ -68,16 +69,26 @@ function BottomNav({ activeTab, setActiveTab, isHidden = false }) {
                 if (window.navigator?.vibrate) window.navigator.vibrate(10);
                 setActiveTab(key);
               }}
-              className={`tap-effect flex-1 h-[32px] min-w-0 px-1.5 flex items-center justify-center rounded-full transition-all relative ${
-                on
-                  ? 'bg-[#1B1F1A] text-white shadow-[0px_1px_2px_-1px_rgba(27,31,26,0.04)]'
-                  : 'text-[#667463] hover:text-[#1B1F1A]'
+              className={`tap-effect flex-1 h-[32px] min-w-0 px-1.5 flex items-center justify-center rounded-full transition-colors duration-200 relative select-none ${
+                on ? 'text-white' : 'text-[#667463] hover:text-[#1B1F1A]'
               }`}
             >
-              <div className="flex items-center gap-[5px] z-10 truncate">
+              {on && (
+                <motion.div
+                  layoutId="bottomNavIndicator"
+                  className="absolute inset-0 bg-[#1B1F1A] rounded-full shadow-[0px_1px_4px_-1px_rgba(27,31,26,0.15)] z-0"
+                  transition={{
+                    type: 'spring',
+                    stiffness: 420,
+                    damping: 32,
+                    mass: 0.8,
+                  }}
+                />
+              )}
+              <div className="flex items-center gap-[5px] z-10 truncate relative">
                 {icon}
                 <span
-                  className={`text-[12px] leading-[14px] tracking-[-0.2px] whitespace-nowrap ${
+                  className={`text-[12px] leading-[14px] tracking-[-0.2px] whitespace-nowrap transition-colors duration-150 ${
                     on ? 'font-semibold text-white' : 'font-medium text-[#667463]'
                   }`}
                 >

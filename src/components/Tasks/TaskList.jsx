@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { motion } from 'framer-motion';
 import { Check, Pause } from 'lucide-react';
 
 function TaskList({
@@ -150,7 +151,7 @@ function TaskList({
 
         {/* BEGIN: Navigation - Task Status Filter */}
         <nav aria-label="Task Status Filter" className="pt-11" data-purpose="segmented-tabs">
-          <div className="flex items-center gap-6 border-b border-[#1B1F1A]/10">
+          <div className="flex items-center gap-6 border-b border-[#1B1F1A]/10 relative">
             {['Today', 'Planned', 'Done'].map((tab) => {
               const on = filterTab === tab;
               return (
@@ -158,13 +159,23 @@ function TaskList({
                   key={tab}
                   type="button"
                   onClick={() => setFilterTab(tab)}
-                  className={`tap-effect pb-2.5 text-[10px] leading-[14px] tracking-[1.2px] uppercase transition-all relative ${
-                    on
-                      ? 'font-extrabold text-[#1B1F1A] border-b-2 border-[#1B1F1A] -mb-[1px]'
-                      : 'font-medium text-[#8B9E87] hover:text-[#1B1F1A]'
+                  className={`tap-effect pb-2.5 text-[10px] leading-[14px] tracking-[1.2px] uppercase transition-colors relative select-none ${
+                    on ? 'font-extrabold text-[#1B1F1A]' : 'font-medium text-[#8B9E87] hover:text-[#1B1F1A]'
                   }`}
                 >
-                  {tab}
+                  <span>{tab}</span>
+                  {on && (
+                    <motion.div
+                      layoutId="taskStatusTabUnderline"
+                      className="absolute bottom-0 inset-x-0 h-[2px] bg-[#1B1F1A] rounded-full z-10"
+                      transition={{
+                        type: 'spring',
+                        stiffness: 420,
+                        damping: 32,
+                        mass: 0.8,
+                      }}
+                    />
+                  )}
                 </button>
               );
             })}

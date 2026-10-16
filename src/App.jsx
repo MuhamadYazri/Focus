@@ -456,7 +456,75 @@ export default function App() {
     }
   };
 
-  const handleTogglePlay = () => {
+  const saveFocusProgress = (elapsedSecs) => {
+    if (elapsedSecs < 30) return;
+    const elapsedMins = Math.round(elapsedSecs / 60);
+    const savedDuration = Math.max(1, elapsedMins);
+    const newSess = {
+      id: `sess-${Date.now()}`,
+      projectId: activeTask ? activeTask.projectId : (projects[0] ? projects[0].id : 'proj-1'),
+      duration: savedDuration,
+      completedAt: new Date().toISOString(),
+      dateStr: getLocalDateStr(),
+    };
+    setSessions((prev) => [newSess, ...prev]);
+
+    setProjects((prev) =>
+      prev.map((p) =>
+        p.id === newSess.projectId ? { ...p, pomodoros: (p.pomodoros || 0) + 1 } : p
+      )
+    );
+
+    if (activeTask) {
+      setTasks((prev) =>
+        prev.map((t) => {
+          if (t.id === activeTask.id) {
+            const updatedPomos = (t.completedPomos || 0) + 1;
+            const isDone = updatedPomos >= t.estimatedPomos;
+            const todayStr = getLocalDateStr();
+            return {
+              ...t,
+              completedPomos: updatedPomos,
+              completed: isDone,
+              completedDateStr: isDone ? todayStr : t.completedDateStr,
+              completedAt: isDone ? new Date().toISOString() : t.completedAt,
+            };
+          }
+          return t;
+        })
+      );
+      setActiveTask((prev) =>
+        prev ? { ...prev, completedPomos: (prev.completedPomos || 0) + 1 } : null
+      );
+    }
+  };
+
+  const handleTogglePlay = (targetMode) => {
+    const effectiveMode = targetMode || timerMode;
+
+    // If starting a different mode than the one currently running
+    if (isRunning && targetMode && targetMode !== timerMode) {
+      // If we were running a focus timer and are now starting a break timer: save focus progress
+      if (timerMode === 'work') {
+        const totalSecs = settings.workDuration * 60;
+        const elapsedSecs = Math.max(0, totalSecs - timeLeft);
+        saveFocusProgress(elapsedSecs);
+        setCycleCount((prev) => prev + 1);
+      }
+      // Set new mode time
+      let newDurationSecs = settings.workDuration * 60;
+      if (effectiveMode === 'shortBreak') newDurationSecs = settings.shortBreakDuration * 60;
+      else if (effectiveMode === 'longBreak') newDurationSecs = settings.longBreakDuration * 60;
+      else if (effectiveMode === 'stopwatch') newDurationSecs = 0;
+
+      setTimerMode(effectiveMode);
+      setTimeLeft(newDurationSecs);
+      setIsRunning(true);
+      if (currentSound !== 'none') soundEngine.play(currentSound, settings.soundVolume);
+      return;
+    }
+
+    // Normal play/pause toggle for current mode
     if (!isRunning && currentSound !== 'none') {
       soundEngine.play(currentSound, settings.soundVolume);
     } else if (isRunning) {
@@ -466,14 +534,17 @@ export default function App() {
   };
 
   const handleSelectMode = (mode) => {
-    setIsRunning(false);
-    setIsNavHidden(false);
-    soundEngine.stop();
-    setTimerMode(mode);
-    if (mode === 'work') setTimeLeft(settings.workDuration * 60);
-    else if (mode === 'shortBreak') setTimeLeft(settings.shortBreakDuration * 60);
-    else if (mode === 'longBreak') setTimeLeft(settings.longBreakDuration * 60);
-    else if (mode === 'stopwatch') setTimeLeft(0);
+    // If not running, change mode immediately
+    if (!isRunning) {
+      setIsNavHidden(false);
+      soundEngine.stop();
+      setTimerMode(mode);
+      if (mode === 'work') setTimeLeft(settings.workDuration * 60);
+      else if (mode === 'shortBreak') setTimeLeft(settings.shortBreakDuration * 60);
+      else if (mode === 'longBreak') setTimeLeft(settings.longBreakDuration * 60);
+      else if (mode === 'stopwatch') setTimeLeft(0);
+    }
+    // When timer is running, TimerView maintains a preview tab so accidental clicks do not interrupt the session
   };
 
   const handleResetTimer = () => {
@@ -494,49 +565,7 @@ export default function App() {
     if (timerMode === 'work') {
       const totalSecs = settings.workDuration * 60;
       const elapsedSecs = Math.max(0, totalSecs - timeLeft);
-      const elapsedMins = Math.round(elapsedSecs / 60);
-
-      // Save session if elapsed time is meaningful (>= 30 seconds)
-      if (elapsedSecs >= 30) {
-        const savedDuration = Math.max(1, elapsedMins);
-        const newSess = {
-          id: `sess-${Date.now()}`,
-          projectId: activeTask ? activeTask.projectId : (projects[0] ? projects[0].id : 'proj-1'),
-          duration: savedDuration,
-          completedAt: new Date().toISOString(),
-          dateStr: getLocalDateStr(),
-        };
-        setSessions((prev) => [newSess, ...prev]);
-
-        setProjects((prev) =>
-          prev.map((p) =>
-            p.id === newSess.projectId ? { ...p, pomodoros: (p.pomodoros || 0) + 1 } : p
-          )
-        );
-
-        if (activeTask) {
-          setTasks((prev) =>
-            prev.map((t) => {
-              if (t.id === activeTask.id) {
-                const updatedPomos = (t.completedPomos || 0) + 1;
-                const isDone = updatedPomos >= t.estimatedPomos;
-                const todayStr = getLocalDateStr();
-                return {
-                  ...t,
-                  completedPomos: updatedPomos,
-                  completed: isDone,
-                  completedDateStr: isDone ? todayStr : t.completedDateStr,
-                  completedAt: isDone ? new Date().toISOString() : t.completedAt,
-                };
-              }
-              return t;
-            })
-          );
-          setActiveTask((prev) =>
-            prev ? { ...prev, completedPomos: (prev.completedPomos || 0) + 1 } : null
-          );
-        }
-      }
+      saveFocusProgress(elapsedSecs);
 
       const nextCycle = cycleCount + 1;
       setCycleCount(nextCycle);

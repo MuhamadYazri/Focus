@@ -204,6 +204,18 @@ function TimerView({
     else soundEngine.play(soundId, soundVolume);
   };
 
+  const [previewMode, setPreviewMode] = useState(null);
+
+  // When timer stops or mode changes from parent, sync preview
+  useEffect(() => {
+    if (!isRunning) {
+      setPreviewMode(null);
+    }
+  }, [isRunning, mode]);
+
+  const activeTabMode = previewMode || mode;
+  const isPreviewingDifferentMode = isRunning && previewMode && previewMode !== mode;
+
   const stopProp = (e) => e.stopPropagation();
   const lastNavToggleRef = useRef(0);
 
@@ -232,13 +244,23 @@ function TimerView({
           {/* Segmented Mode Switcher from Figma: 384px x 36px #E4EAE2 border #CBD7C9 */}
           <div className="w-full max-w-[384px] mx-auto h-[36px] bg-[#E4EAE2] border border-[#CBD7C9] rounded-full p-[3px] flex items-center justify-between shadow-[0px_1px_2px_rgba(27,31,26,0.03)]">
             {MODE_TABS.map(({ key, label }) => {
-              const on = mode === key;
+              const on = activeTabMode === key;
               return (
                 <button
                   key={key}
                   onClick={() => {
                     if (window.navigator?.vibrate) window.navigator.vibrate(10);
-                    if (onModeChange) onModeChange(key);
+                    if (isRunning) {
+                      // While running, do NOT interrupt running timer: just set preview tab
+                      if (key === mode) {
+                        setPreviewMode(null);
+                      } else {
+                        setPreviewMode(key);
+                      }
+                    } else {
+                      setPreviewMode(null);
+                      if (onModeChange) onModeChange(key);
+                    }
                   }}
                   className={`relative flex-1 h-[30px] rounded-full text-[12px] leading-[16px] transition-all flex items-center justify-center z-10 ${
                     on
@@ -249,7 +271,9 @@ function TimerView({
                   {on && (
                     <motion.div
                       layoutId="timerModeTabPill"
-                      className="absolute inset-0 bg-[#41493F] rounded-full z-[-1]"
+                      className={`absolute inset-0 rounded-full z-[-1] ${
+                        isPreviewingDifferentMode ? 'bg-[#5F6C5C]' : 'bg-[#41493F]'
+                      }`}
                       transition={{ type: 'spring', bounce: 0.1, duration: 0.55 }}
                     />
                   )}
@@ -341,12 +365,21 @@ function TimerView({
                 if (window.navigator?.vibrate) window.navigator.vibrate(20);
                 iconRefs.current.playPause?.startAnimation();
                 setTimeout(() => iconRefs.current.playPause?.stopAnimation(), 600);
-                setTimeout(() => onTogglePlay && onTogglePlay(), 50);
+                setTimeout(() => {
+                  if (onTogglePlay) onTogglePlay(previewMode);
+                  setPreviewMode(null);
+                }, 50);
               }}
-              aria-label={isRunning ? 'Pause timer' : 'Start timer'}
+              aria-label={
+                isPreviewingDifferentMode
+                  ? `Switch and start ${MODE_TABS.find((t) => t.key === previewMode)?.label || 'mode'}`
+                  : isRunning
+                  ? 'Pause timer'
+                  : 'Start timer'
+              }
               className="tap-effect w-[72px] h-[72px] rounded-full bg-[#1B1F1A] text-white flex items-center justify-center shadow-[0px_0px_0px_3px_rgba(214,243,208,0.2),0px_8px_20px_-4px_rgba(27,31,26,0.125)] transition-all active:scale-90 hover:scale-105"
             >
-              {isRunning ? (
+              {isRunning && !isPreviewingDifferentMode ? (
                 <Pause
                   ref={(el) => (iconRefs.current.playPause = el)}
                   animateOnHover={false}

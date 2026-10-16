@@ -1049,7 +1049,7 @@ export default function App() {
 
   return (
     <div 
-      className={`min-h-[100dvh] flex flex-col font-sans bg-canvas text-text-main ${isNavHidden ? 'overflow-hidden h-[100dvh]' : ''}`} 
+      className={`min-h-[100dvh] flex flex-col font-sans bg-canvas text-text-main animate-app-enter-fade ${isNavHidden ? 'overflow-hidden h-[100dvh]' : ''}`} 
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}

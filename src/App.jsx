@@ -113,6 +113,15 @@ export default function App() {
     dismissCelebration(celebration.id);
     if (!celebration) return;
 
+    // If this session was already auto-started in the background, keep the running countdown intact!
+    if (celebration.autoStarted) {
+      if (!isRunningRef.current) {
+        setIsRunning(true);
+        isRunningRef.current = true;
+      }
+      return;
+    }
+
     if (celebration.type === 'work') {
       // Focus ended -> go to break
       const isLong = (cycleCount > 0 && cycleCount % (settings.longBreakInterval || 4) === 0);
@@ -340,26 +349,59 @@ export default function App() {
     };
   }, [isRunning, settings.keepAwake]);
 
+  const getNotificationPayload = useCallback((mode, seconds, currentSettings) => {
+    const mins = Math.floor(seconds / 60);
+    const rem = seconds % 60;
+    const formattedTime = `${mins.toString().padStart(2, '0')}:${rem.toString().padStart(2, '0')}`;
+    const modeLabel = mode === 'work' ? 'Focus' : (mode === 'shortBreak' ? 'Short Break' : (mode === 'stopwatch' ? 'Focus' : 'Long Break'));
+
+    if (mode === 'stopwatch') {
+      return {
+        title: modeLabel,
+        body: `CHRONO_UP:${formattedTime}`,
+      };
+    }
+
+    // Determine upcoming cycle for auto-start continuous transition
+    let autoStartNext = false;
+    let nextDurationSecs = 0;
+    let nextTitle = '';
+
+    if (mode === 'work') {
+      autoStartNext = !!currentSettings?.autoStartBreaks;
+      const nextCycle = (cycleCountRef.current || 0) + 1;
+      const isLong = nextCycle % (currentSettings?.longBreakInterval || 4) === 0;
+      nextDurationSecs = ((isLong ? currentSettings?.longBreakDuration : currentSettings?.shortBreakDuration) || 5) * 60;
+      nextTitle = isLong ? 'Long Break' : 'Short Break';
+    } else {
+      autoStartNext = !!currentSettings?.autoStartPomodoros;
+      nextDurationSecs = (currentSettings?.workDuration || 25) * 60;
+      nextTitle = 'Focus';
+    }
+
+    const autoStartFlag = autoStartNext ? '1' : '0';
+    return {
+      title: modeLabel,
+      body: `CHRONO:${formattedTime}|${autoStartFlag}|${nextDurationSecs}|${nextTitle}`,
+    };
+  }, []);
+
   const updateNotification = useCallback((mode, seconds, currentSettings, running = true) => {
     if (!currentSettings || currentSettings.liveNotification === false) return;
     if (!running) {
       ForegroundService.stopForegroundService().catch(() => {});
       return;
     }
-    const mins = Math.floor(seconds / 60);
-    const rem = seconds % 60;
-    const formattedTime = `${mins.toString().padStart(2, '0')}:${rem.toString().padStart(2, '0')}`;
-    const modeLabel = mode === 'work' ? 'Focus' : (mode === 'shortBreak' ? 'Short Break' : (mode === 'stopwatch' ? 'Focus' : 'Long Break'));
-    const prefix = mode === 'stopwatch' ? 'CHRONO_UP:' : 'CHRONO:';
+    const { title, body } = getNotificationPayload(mode, seconds, currentSettings);
     ForegroundService.updateForegroundService({
       id: 1993,
-      title: modeLabel,
-      body: `${prefix}${formattedTime}`,
+      title,
+      body,
       smallIcon: 'ic_stat_focus_text',
       silent: true,
       serviceType: 1073741824 // FOREGROUND_SERVICE_TYPE_SPECIAL_USE
     }).catch(() => {});
-  }, []);
+  }, [getNotificationPayload]);
 
   // Manage Live Notification (Origin Island Foreground Service)
   useEffect(() => {
@@ -373,16 +415,12 @@ export default function App() {
 
           const curMode = timerModeRef.current;
           const curTime = timeLeftRef.current;
-          const modeLabel = curMode === 'work' ? 'Focus' : (curMode === 'shortBreak' ? 'Short Break' : (curMode === 'stopwatch' ? 'Focus' : 'Long Break'));
-          const mins = Math.floor(curTime / 60);
-          const rem = curTime % 60;
-          const formattedTime = `${mins.toString().padStart(2, '0')}:${rem.toString().padStart(2, '0')}`;
+          const { title, body } = getNotificationPayload(curMode, curTime, settingsRef.current);
           
-          const prefix = curMode === 'stopwatch' ? 'CHRONO_UP:' : 'CHRONO:';
           await ForegroundService.startForegroundService({
             id: 1993,
-            title: modeLabel,
-            body: `${prefix}${formattedTime}`,
+            title,
+            body,
             smallIcon: 'ic_stat_focus_text',
             serviceType: 1073741824 // FOREGROUND_SERVICE_TYPE_SPECIAL_USE
           });
@@ -396,7 +434,7 @@ export default function App() {
       }
     };
     manageForegroundService();
-  }, [isRunning, settings.liveNotification]);
+  }, [isRunning, settings.liveNotification, getNotificationPayload]);
 
   // Auto hide/show bottom nav when timer starts or stops
   useEffect(() => {

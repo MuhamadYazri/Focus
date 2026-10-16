@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, startTransition } from 'react';
 import BottomNav from './components/Navigation/BottomNav';
 import TaskList from './components/Tasks/TaskList';
 import TaskModal from './components/Tasks/TaskModal';
@@ -57,11 +57,10 @@ export default function App() {
   const skipPreloader = urlParams?.has('no_preloader') || false;
 
   // Navigation State: 4 monochrome tabs: 'home', 'timer', 'reports', 'profile'
-  const [activeTab, setActiveTab] = useState(initialTab);
+  const [navTab, setNavTab] = useState(initialTab); // Instant tab indicator state (<16ms INP)
+  const [activeTab, setActiveTab] = useState(initialTab); // Screen content state (deferred via startTransition)
+  const [exitingTab, setExitingTab] = useState(null); // Screen currently fading out
   const [selectedProjectId, setSelectedProjectId] = useState(null);
-  const [prevTab, setPrevTab] = useState(null);
-  const [slideDir, setSlideDir] = useState('left');
-  const [isTransitioning, setIsTransitioning] = useState(false);
 
   // Data State
   const [projects, setProjects] = useState(DEFAULT_PROJECTS);
@@ -112,18 +111,25 @@ export default function App() {
 
   const TAB_ORDER = { home: 0, timer: 1, reports: 2, profile: 3 };
 
-  const handleTabSwitch = (newTab) => {
-    if (newTab === activeTab || isTransitioning) return;
-    const dir = TAB_ORDER[newTab] > TAB_ORDER[activeTab] ? 'left' : 'right';
-    setSlideDir(dir);
-    setPrevTab(activeTab);
-    setActiveTab(newTab);
-    setIsTransitioning(true);
+  const exitTimerRef = useRef(null);
 
-    setTimeout(() => {
-      setIsTransitioning(false);
-      setPrevTab(null);
-    }, 400);
+  const handleTabSwitch = (newTab) => {
+    if (newTab === navTab) return;
+    // 1. Immediate UI update for the bottom dock indicator (Paint occurs in <16ms, INP remains green)
+    setNavTab(newTab);
+    
+    // 2. Capture outgoing screen for seamless crossfade opacity out
+    const previous = activeTab;
+    setExitingTab(previous);
+    if (exitTimerRef.current) clearTimeout(exitTimerRef.current);
+    exitTimerRef.current = setTimeout(() => {
+      setExitingTab(null);
+    }, 300);
+
+    // 3. React 19 startTransition yields main thread to browser paint before rendering heavy incoming tab
+    startTransition(() => {
+      setActiveTab(newTab);
+    });
   };
 
   // Load initial data from IDB/localStorage
@@ -893,52 +899,26 @@ export default function App() {
         <SplitRevealPreloader onFinish={handleFinishPreloader} />
       )}
 
-      {/* Tab Screens (Pre-mounted for instant 0ms switching) */}
+      {/* Tab Screen with Smooth Crossfade Opacity */}
       <main className={`flex-1 relative ${isNavHidden ? 'overflow-hidden' : 'overflow-x-hidden'}`}>
-        <div className="relative w-full min-h-full">
-          {['home', 'timer', 'reports', 'profile'].map((screenKey) => {
-            const isActive = activeTab === screenKey;
-            const isPrev = isTransitioning && prevTab === screenKey;
+        {/* Outgoing Screen (Fade Out) */}
+        {exitingTab && exitingTab !== activeTab && (
+          <div
+            key={`exit-${exitingTab}`}
+            className="absolute inset-0 w-full min-h-full pointer-events-none animate-page-fade-out z-10"
+            style={{ willChange: 'opacity' }}
+          >
+            {renderTabContent(exitingTab)}
+          </div>
+        )}
 
-            if (!isActive && !isPrev) {
-              return null;
-            }
-
-            let animClass = '';
-            let style = {};
-
-            if (isPrev) {
-              animClass = slideDir === 'left' ? 'animate-slide-out-left' : 'animate-slide-out-right';
-              style = {
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                zIndex: 10,
-                willChange: 'transform, opacity',
-                contain: 'paint layout',
-              };
-            } else if (isActive && isTransitioning) {
-              animClass = slideDir === 'left' ? 'animate-slide-in-right' : 'animate-slide-in-left';
-              style = {
-                position: 'relative',
-                width: '100%',
-                minHeight: '100%',
-                zIndex: 20,
-                willChange: 'transform, opacity',
-                contain: 'paint layout',
-              };
-            } else {
-              style = { position: 'relative', width: '100%', minHeight: '100%', zIndex: 1 };
-            }
-
-            return (
-              <div key={screenKey} className={`w-full min-h-full ${animClass}`} style={style}>
-                {renderTabContent(screenKey)}
-              </div>
-            );
-          })}
+        {/* Incoming Screen (Fade In) */}
+        <div
+          key={`active-${activeTab}`}
+          className="relative w-full min-h-full animate-page-fade-in z-20"
+          style={{ willChange: 'opacity' }}
+        >
+          {renderTabContent(activeTab)}
         </div>
       </main>
 
@@ -951,10 +931,9 @@ export default function App() {
         }}
       />
 
-
       {/* Bottom Navigation */}
       <BottomNav
-        activeTab={activeTab}
+        activeTab={navTab}
         setActiveTab={handleTabSwitch}
         onOpenNewTask={() => {
           setTaskToEdit(null);

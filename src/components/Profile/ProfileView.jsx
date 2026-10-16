@@ -297,6 +297,10 @@ function ProfileView({
           ].map(({ key, label, presets, min, max, unit }) => {
             const currentVal = settings[key] ?? presets[0];
             const isCustom = !presets.includes(currentVal);
+            const totalSlots = presets.length + 1; // presets + custom button
+            const activeIdx = presets.indexOf(currentVal);
+            const selectedIdx = isCustom ? presets.length : activeIdx;
+
             return (
               <div key={key} className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
@@ -307,7 +311,19 @@ function ProfileView({
                   </span>
                 </div>
 
-                <div className="flex items-center gap-1.5 p-1 bg-[#E8EDE6] rounded-full overflow-x-auto no-scrollbar">
+                <div className="relative flex items-center p-1 bg-[#E8EDE6] rounded-full overflow-hidden">
+                  {/* Fluid sliding pill indicator */}
+                  <div
+                    aria-hidden="true"
+                    className="absolute top-1 bottom-1 bg-[#1B1F1A] rounded-full shadow-[0px_1px_2px_rgba(27,31,26,0.1)] pointer-events-none transition-transform duration-250 ease-[cubic-bezier(0.25,1,0.5,1)]"
+                    style={{
+                      left: '4px',
+                      width: `calc((100% - 8px) / ${totalSlots})`,
+                      transform: `translate3d(calc(${selectedIdx} * 100%), 0, 0)`,
+                      willChange: 'transform',
+                    }}
+                  />
+
                   {presets.map((p) => {
                     const isActive = currentVal === p;
                     return (
@@ -318,9 +334,9 @@ function ProfileView({
                           if (window.navigator?.vibrate) window.navigator.vibrate(10);
                           handleChange(key, p);
                         }}
-                        className={`tap-effect flex-1 h-[26px] rounded-full text-[11px] transition-all flex items-center justify-center ${
+                        className={`tap-effect flex-1 h-[26px] rounded-full text-[11px] relative z-10 transition-colors duration-150 flex items-center justify-center select-none ${
                           isActive
-                            ? 'bg-[#1B1F1A] text-white font-bold shadow-[0px_1px_2px_rgba(27,31,26,0.1)]'
+                            ? 'text-white font-bold'
                             : 'text-[#667463] hover:text-[#1B1F1A] font-medium'
                         }`}
                       >
@@ -335,9 +351,9 @@ function ProfileView({
                       setCustomModal({ key, label, min, max, unit: 'm', step: 1 });
                       setCustomVal(currentVal);
                     }}
-                    className={`tap-effect px-2.5 h-[26px] rounded-full text-[11px] transition-all flex items-center justify-center ${
+                    className={`tap-effect flex-1 h-[26px] rounded-full text-[11px] relative z-10 transition-colors duration-150 flex items-center justify-center select-none ${
                       isCustom
-                        ? 'bg-[#1B1F1A] text-white font-bold shadow-[0px_1px_2px_rgba(27,31,26,0.1)]'
+                        ? 'text-white font-bold'
                         : 'text-[#667463] hover:text-[#1B1F1A] font-medium'
                     }`}
                   >
@@ -356,7 +372,26 @@ function ProfileView({
                 Every {settings.longBreakInterval || 4} sessions
               </span>
             </div>
-            <div className="flex items-center gap-1.5 p-1 bg-[#E8EDE6] rounded-full">
+            <div className="relative flex items-center p-1 bg-[#E8EDE6] rounded-full overflow-hidden">
+              {/* Fluid sliding pill indicator */}
+              {(() => {
+                const intervalPresets = [2, 3, 4, 5];
+                const activeIdx = intervalPresets.indexOf(settings.longBreakInterval || 4);
+                if (activeIdx !== -1) {
+                  return (
+                    <div
+                      aria-hidden="true"
+                      className="absolute top-1 bottom-1 w-[calc((100%-8px)/4)] bg-[#1B1F1A] rounded-full shadow-[0px_1px_2px_rgba(27,31,26,0.1)] pointer-events-none transition-transform duration-250 ease-[cubic-bezier(0.25,1,0.5,1)]"
+                      style={{
+                        left: '4px',
+                        transform: `translate3d(calc(${activeIdx} * 100%), 0, 0)`,
+                        willChange: 'transform',
+                      }}
+                    />
+                  );
+                }
+                return null;
+              })()}
               {[2, 3, 4, 5].map((count) => {
                 const isActive = (settings.longBreakInterval || 4) === count;
                 return (
@@ -367,9 +402,9 @@ function ProfileView({
                       if (window.navigator?.vibrate) window.navigator.vibrate(10);
                       handleChange('longBreakInterval', count);
                     }}
-                    className={`tap-effect flex-1 h-[26px] rounded-full text-[11px] transition-all flex items-center justify-center ${
+                    className={`tap-effect flex-1 h-[26px] rounded-full text-[11px] relative z-10 transition-colors duration-150 flex items-center justify-center select-none ${
                       isActive
-                        ? 'bg-[#1B1F1A] text-white font-bold shadow-[0px_1px_2px_rgba(27,31,26,0.1)]'
+                        ? 'text-white font-bold'
                         : 'text-[#667463] hover:text-[#1B1F1A] font-medium'
                     }`}
                   >
@@ -388,7 +423,25 @@ function ProfileView({
                 {(settings.dailyGoalHours || 4.0).toFixed(1)}h / day
               </span>
             </div>
-            <div className="flex items-center gap-1.5 p-1 bg-[#E8EDE6] rounded-full">
+            <div className="relative flex items-center p-1 bg-[#E8EDE6] rounded-full overflow-hidden">
+              {/* Fluid sliding pill indicator */}
+              {(() => {
+                const goalPresets = [2.0, 4.0, 6.0, 8.0];
+                const isCustom = !goalPresets.includes(settings.dailyGoalHours || 4.0);
+                const activeIdx = goalPresets.indexOf(settings.dailyGoalHours || 4.0);
+                const selectedIdx = isCustom ? goalPresets.length : activeIdx;
+                return (
+                  <div
+                    aria-hidden="true"
+                    className="absolute top-1 bottom-1 w-[calc((100%-8px)/5)] bg-[#1B1F1A] rounded-full shadow-[0px_1px_2px_rgba(27,31,26,0.1)] pointer-events-none transition-transform duration-250 ease-[cubic-bezier(0.25,1,0.5,1)]"
+                    style={{
+                      left: '4px',
+                      transform: `translate3d(calc(${selectedIdx} * 100%), 0, 0)`,
+                      willChange: 'transform',
+                    }}
+                  />
+                );
+              })()}
               {[2.0, 4.0, 6.0, 8.0].map((h) => {
                 const isActive = (settings.dailyGoalHours || 4.0) === h;
                 return (
@@ -399,9 +452,9 @@ function ProfileView({
                       if (window.navigator?.vibrate) window.navigator.vibrate(10);
                       handleChange('dailyGoalHours', h);
                     }}
-                    className={`tap-effect flex-1 h-[26px] rounded-full text-[11px] transition-all flex items-center justify-center ${
+                    className={`tap-effect flex-1 h-[26px] rounded-full text-[11px] relative z-10 transition-colors duration-150 flex items-center justify-center select-none ${
                       isActive
-                        ? 'bg-[#1B1F1A] text-white font-bold shadow-[0px_1px_2px_rgba(27,31,26,0.1)]'
+                        ? 'text-white font-bold'
                         : 'text-[#667463] hover:text-[#1B1F1A] font-medium'
                     }`}
                   >
@@ -423,9 +476,9 @@ function ProfileView({
                   });
                   setCustomVal(settings.dailyGoalHours || 4.0);
                 }}
-                className={`tap-effect px-2.5 h-[26px] rounded-full text-[11px] transition-all flex items-center justify-center ${
+                className={`tap-effect flex-1 h-[26px] rounded-full text-[11px] relative z-10 transition-colors duration-150 flex items-center justify-center select-none ${
                   ![2.0, 4.0, 6.0, 8.0].includes(settings.dailyGoalHours || 4.0)
-                    ? 'bg-[#1B1F1A] text-white font-bold shadow-[0px_1px_2px_rgba(27,31,26,0.1)]'
+                    ? 'text-white font-bold'
                     : 'text-[#667463] hover:text-[#1B1F1A] font-medium'
                 }`}
               >
@@ -452,7 +505,7 @@ function ProfileView({
               <div className="flex items-center gap-1.5">
                 <span className="text-[13px] font-bold text-[#1B1F1A]">Strict Focus Mode</span>
                 <span
-                  className={`text-[9px] font-bold uppercase tracking-[0.8px] px-2 py-0.5 rounded-full ${
+                  className={`text-[9px] font-bold uppercase tracking-[0.8px] px-2 py-0.5 rounded-full transition-colors duration-200 ${
                     settings.strictMode ? 'bg-[#1B1F1A] text-white' : 'bg-[#E8EDE6] text-[#667463]'
                   }`}
                 >
@@ -472,14 +525,15 @@ function ProfileView({
                 if (window.navigator?.vibrate) window.navigator.vibrate(10);
                 handleChange('strictMode', !settings.strictMode);
               }}
-              className={`tap-effect w-11 h-6 rounded-full p-0.5 transition-colors duration-200 cursor-pointer shrink-0 ${
+              className={`tap-effect w-11 h-6 rounded-full p-0.5 transition-colors duration-250 cursor-pointer shrink-0 ${
                 settings.strictMode ? 'bg-[#1B1F1A]' : 'bg-[#CBD7C9]'
               }`}
             >
               <div
-                className={`w-5 h-5 rounded-full bg-white shadow-sm transform transition-transform duration-200 ${
+                className={`w-5 h-5 rounded-full bg-white shadow-sm transform transition-transform duration-250 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
                   settings.strictMode ? 'translate-x-5' : 'translate-x-0'
                 }`}
+                style={{ willChange: 'transform' }}
               />
             </button>
           </div>
@@ -501,14 +555,15 @@ function ProfileView({
                 if (window.navigator?.vibrate) window.navigator.vibrate(10);
                 handleChange('autoStartBreaks', !settings.autoStartBreaks);
               }}
-              className={`tap-effect w-11 h-6 rounded-full p-0.5 transition-colors duration-200 cursor-pointer shrink-0 ${
+              className={`tap-effect w-11 h-6 rounded-full p-0.5 transition-colors duration-250 cursor-pointer shrink-0 ${
                 settings.autoStartBreaks ? 'bg-[#1B1F1A]' : 'bg-[#CBD7C9]'
               }`}
             >
               <div
-                className={`w-5 h-5 rounded-full bg-white shadow-sm transform transition-transform duration-200 ${
+                className={`w-5 h-5 rounded-full bg-white shadow-sm transform transition-transform duration-250 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
                   settings.autoStartBreaks ? 'translate-x-5' : 'translate-x-0'
                 }`}
+                style={{ willChange: 'transform' }}
               />
             </button>
           </div>
@@ -530,14 +585,15 @@ function ProfileView({
                 if (window.navigator?.vibrate) window.navigator.vibrate(10);
                 handleChange('autoStartPomodoros', !settings.autoStartPomodoros);
               }}
-              className={`tap-effect w-11 h-6 rounded-full p-0.5 transition-colors duration-200 cursor-pointer shrink-0 ${
+              className={`tap-effect w-11 h-6 rounded-full p-0.5 transition-colors duration-250 cursor-pointer shrink-0 ${
                 settings.autoStartPomodoros ? 'bg-[#1B1F1A]' : 'bg-[#CBD7C9]'
               }`}
             >
               <div
-                className={`w-5 h-5 rounded-full bg-white shadow-sm transform transition-transform duration-200 ${
+                className={`w-5 h-5 rounded-full bg-white shadow-sm transform transition-transform duration-250 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
                   settings.autoStartPomodoros ? 'translate-x-5' : 'translate-x-0'
                 }`}
+                style={{ willChange: 'transform' }}
               />
             </button>
           </div>
@@ -559,14 +615,15 @@ function ProfileView({
                 if (window.navigator?.vibrate) window.navigator.vibrate(10);
                 handleChange('keepAwake', !settings.keepAwake);
               }}
-              className={`tap-effect w-11 h-6 rounded-full p-0.5 transition-colors duration-200 cursor-pointer shrink-0 ${
+              className={`tap-effect w-11 h-6 rounded-full p-0.5 transition-colors duration-250 cursor-pointer shrink-0 ${
                 settings.keepAwake ? 'bg-[#1B1F1A]' : 'bg-[#CBD7C9]'
               }`}
             >
               <div
-                className={`w-5 h-5 rounded-full bg-white shadow-sm transform transition-transform duration-200 ${
+                className={`w-5 h-5 rounded-full bg-white shadow-sm transform transition-transform duration-250 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
                   settings.keepAwake ? 'translate-x-5' : 'translate-x-0'
                 }`}
+                style={{ willChange: 'transform' }}
               />
             </button>
           </div>
@@ -588,14 +645,15 @@ function ProfileView({
                 if (window.navigator?.vibrate) window.navigator.vibrate(10);
                 handleChange('liveNotification', !settings.liveNotification);
               }}
-              className={`tap-effect w-11 h-6 rounded-full p-0.5 transition-colors duration-200 cursor-pointer shrink-0 ${
+              className={`tap-effect w-11 h-6 rounded-full p-0.5 transition-colors duration-250 cursor-pointer shrink-0 ${
                 settings.liveNotification ? 'bg-[#1B1F1A]' : 'bg-[#CBD7C9]'
               }`}
             >
               <div
-                className={`w-5 h-5 rounded-full bg-white shadow-sm transform transition-transform duration-200 ${
+                className={`w-5 h-5 rounded-full bg-white shadow-sm transform transition-transform duration-250 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
                   settings.liveNotification ? 'translate-x-5' : 'translate-x-0'
                 }`}
+                style={{ willChange: 'transform' }}
               />
             </button>
           </div>
@@ -622,11 +680,12 @@ function ProfileView({
                     if (window.navigator?.vibrate) window.navigator.vibrate(10);
                     handleChange('soundscape', id);
                   }}
-                  className={`tap-effect h-[38px] rounded-xl flex items-center justify-center gap-1.5 border transition-all ${
+                  className={`tap-effect h-[38px] rounded-xl flex items-center justify-center gap-1.5 border transition-all duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] ${
                     isSelected
-                      ? 'bg-[#1B1F1A] border-[#1B1F1A] text-white shadow-xs'
-                      : 'bg-[#F0F2EF] border-[#D6E0D4]/60 text-[#667463] hover:text-[#1B1F1A]'
+                      ? 'bg-[#1B1F1A] border-[#1B1F1A] text-white shadow-xs scale-[1.02]'
+                      : 'bg-[#F0F2EF] border-[#D6E0D4]/60 text-[#667463] hover:text-[#1B1F1A] hover:bg-[#E8EDE6]'
                   }`}
+                  style={{ willChange: 'transform' }}
                 >
                   <Icon size={14} />
                   <span className="text-[11px] font-semibold">{label}</span>

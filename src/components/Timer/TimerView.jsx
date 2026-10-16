@@ -70,6 +70,7 @@ const TimerClockRing = React.memo(function TimerClockRing({
   mode = 'work',
   cycleCount = 0,
   longBreakInterval = 4,
+  activeTask = null,
 }) {
   const radius = 135;
   const circumference = 2 * Math.PI * radius; // ~848.23
@@ -79,12 +80,28 @@ const TimerClockRing = React.memo(function TimerClockRing({
   const m = Math.floor(timeLeft / 60);
   const s = timeLeft % 60;
   const isBreak = mode === 'shortBreak' || mode === 'longBreak';
-  const totalCycles = Math.max(1, Number(longBreakInterval) || 4);
-  const currentSessionNumber = (cycleCount % totalCycles) + 1;
+  
+  // If an active task is selected, use its estimated pomos for the session target
+  const hasTask = !!(activeTask && activeTask.estimatedPomos && activeTask.estimatedPomos > 0);
+  const totalSessions = hasTask
+    ? Number(activeTask.estimatedPomos)
+    : Math.max(1, Number(longBreakInterval) || 4);
+
+  const currentSessionNumber = hasTask
+    ? Math.min(totalSessions, (activeTask.completedPomos || 0) + 1)
+    : (cycleCount % totalSessions) + 1;
+
+  const formatTaskTitle = (title) => {
+    if (!title) return '';
+    return title.length > 10 ? `${title.slice(0, 10)}...` : title;
+  };
 
   const getSubLabel = () => {
     if (mode === 'work') {
-      return `session ${currentSessionNumber} of ${totalCycles} today`;
+      if (hasTask) {
+        return `session ${currentSessionNumber} of ${totalSessions} · ${formatTaskTitle(activeTask.title)}`;
+      }
+      return `session ${currentSessionNumber} of ${totalSessions} today`;
     }
     if (mode === 'shortBreak') {
       return `Rest & recharge · ${Math.round(totalTime / 60)} min`;
@@ -133,13 +150,13 @@ const TimerClockRing = React.memo(function TimerClockRing({
         </div>
 
         {/* Subtitle from Figma: 12px 400 line-height 18px letter-spacing 0.1px #8B9E87 */}
-        <p className="font-sans text-[12px] leading-[18px] tracking-[0.1px] text-[#8B9E87] font-normal mt-2.5 text-center">
+        <p className="font-sans text-[12px] leading-[18px] tracking-[0.1px] text-[#8B9E87] font-normal mt-2.5 text-center max-w-[240px] truncate">
           {getSubLabel()}
         </p>
 
         {/* Horizon Dots: Active dot 18x5px #41493F, Done 5x5px #41493F, Inactive 5x5px #CBD7C9 */}
         <div className="flex items-center gap-[5px] mt-2.5">
-          {Array.from({ length: totalCycles }, (_, i) => i + 1).map((n) => {
+          {Array.from({ length: totalSessions }, (_, i) => i + 1).map((n) => {
             const isCurrent = n === currentSessionNumber;
             const isDone = n < currentSessionNumber;
             return (
@@ -185,6 +202,7 @@ function TimerView({
   longBreakInterval = 4,
   currentSound = 'none',
   soundVolume = 0.8,
+  activeTask = null,
   onTogglePlay,
   onReset,
   onSkip,
@@ -222,8 +240,15 @@ function TimerView({
     0,
     MODE_TABS.findIndex((t) => t.key === activeTabMode)
   );
-  const totalCycles = Math.max(1, Number(longBreakInterval) || 4);
-  const currentSessionNumber = (cycleCount % totalCycles) + 1;
+
+  const hasTask = !!(activeTask && activeTask.estimatedPomos && activeTask.estimatedPomos > 0);
+  const totalSessions = hasTask
+    ? Number(activeTask.estimatedPomos)
+    : Math.max(1, Number(longBreakInterval) || 4);
+
+  const currentSessionNumber = hasTask
+    ? Math.min(totalSessions, (activeTask.completedPomos || 0) + 1)
+    : (cycleCount % totalSessions) + 1;
 
   const stopProp = (e) => e.stopPropagation();
   const lastNavToggleRef = useRef(0);
@@ -334,6 +359,7 @@ function TimerView({
             mode={mode}
             cycleCount={cycleCount}
             longBreakInterval={longBreakInterval}
+            activeTask={activeTask}
           />
         </main>
 
@@ -516,11 +542,17 @@ function TimerView({
 
             {/* Session Status & Indicator Dots */}
             <div className="pt-14">
-              <p className="text-[12px] font-normal leading-[18px] text-[#667463]">
-                session {currentSessionNumber} of {totalCycles} today
+              <p className="text-[12px] font-normal leading-[18px] text-[#667463] truncate max-w-[280px]">
+                {hasTask
+                  ? `session ${currentSessionNumber} of ${totalSessions} · ${
+                      activeTask.title?.length > 10
+                        ? `${activeTask.title.slice(0, 10)}...`
+                        : activeTask.title
+                    }`
+                  : `session ${currentSessionNumber} of ${totalSessions} today`}
               </p>
               <div className="flex items-center gap-1.5 mt-2">
-                {Array.from({ length: totalCycles }, (_, i) => i + 1).map((n) => {
+                {Array.from({ length: totalSessions }, (_, i) => i + 1).map((n) => {
                   const isCurrent = n === currentSessionNumber;
                   const isDone = n < currentSessionNumber;
                   return (

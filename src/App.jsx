@@ -1119,6 +1119,7 @@ export default function App() {
           longBreakInterval={settings.longBreakInterval || 4}
           currentSound={currentSound}
           soundVolume={settings.soundVolume}
+          activeTask={activeTask}
           onTogglePlay={handleTogglePlay}
           onReset={handleResetTimer}
           onSkip={handleSkip}

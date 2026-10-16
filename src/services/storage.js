@@ -86,6 +86,7 @@ export const DEFAULT_SETTINGS = {
   strictMode: false,
   keepAwake: true,
   dailyGoalHours: 4.0,
+  liveNotification: true,
 };
 
 

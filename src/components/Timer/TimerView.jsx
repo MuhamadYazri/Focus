@@ -388,7 +388,9 @@ function TimerView({
               }}
               aria-label={
                 isPreviewingDifferentMode
-                  ? `Switch and start ${MODE_TABS.find((t) => t.key === previewMode)?.label || 'mode'}`
+                  ? `Switch and start ${
+                      MODE_TABS.find((t) => t.key === previewMode)?.label || 'mode'
+                    }`
                   : isRunning
                   ? 'Pause timer'
                   : 'Start timer'
@@ -478,18 +480,6 @@ function TimerView({
           >
             {/* Top Bar with Minimalist Back/Minimize Button */}
             <div className="w-full max-w-[384px] mx-auto flex items-center justify-between pointer-events-auto">
-              <button
-                type="button"
-                onClick={(e) => {
-                  stopProp(e);
-                  safeToggleNav();
-                }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/5 hover:bg-black/10 active:scale-95 text-[#667463] hover:text-[#1B1F1A] transition-all text-[11px] font-semibold tracking-wide"
-                aria-label="Exit fullscreen"
-              >
-                <Minimize2 size={13} strokeWidth={2} />
-                <span>Exit Fullscreen</span>
-              </button>
               <span className="text-[10px] text-[#8B9E87] uppercase tracking-[1.5px] font-bold">
                 Tap anywhere to exit
               </span>

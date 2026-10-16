@@ -12,8 +12,10 @@ import { soundEngine } from './services/soundEngine';
 import { StatusBar } from '@capacitor/status-bar';
 import { KeepAwake } from '@capacitor-community/keep-awake';
 import clockTickingLottie from './assets/clockTicking.lottie';
-import relaxLottie from './assets/relaxAnimation.lottie';
 import { ForegroundService } from '@capawesome-team/capacitor-android-foreground-service';
+import { Haptics } from '@capacitor/haptics';
+import { App as CapApp } from '@capacitor/app';
+import { timerWorker } from './services/timerWorker';
 import SplitRevealPreloader from './components/animata/preloader/SplitRevealPreloader';
 import UndoToast from './components/Feedback/UndoToast';
 import GoalCelebration from './components/Feedback/GoalCelebration';
@@ -89,6 +91,24 @@ export default function App() {
   const [celebrations, setCelebrations] = useState([]);
   const celebrationIdRef = useRef(0);
 
+  const enqueueCelebration = useCallback((item) => {
+    celebrationIdRef.current += 1;
+    const id = celebrationIdRef.current;
+    setCelebrations((q) => [...q, { ...item, id }]);
+  }, []);
+
+  const dismissCelebration = useCallback((id) => {
+    setCelebrations((q) => q.filter((c) => c.id !== id));
+  }, []);
+
+  const triggerCelebration = useCallback(
+    (title, subtitle) => {
+      enqueueCelebration({ title, subtitle });
+      if (window.navigator?.vibrate) window.navigator.vibrate([15, 40, 15, 40, 30]);
+    },
+    [enqueueCelebration]
+  );
+
   const [isNavHidden, setIsNavHidden] = useState(false);
 
   // Modals State
@@ -104,6 +124,28 @@ export default function App() {
 
   const timerRef = useRef(null);
   const lastTickRef = useRef(null);
+
+  // Synchronized state references for unthrottled background execution
+  const timerModeRef = useRef(timerMode);
+  timerModeRef.current = timerMode;
+
+  const timeLeftRef = useRef(timeLeft);
+  timeLeftRef.current = timeLeft;
+
+  const isRunningRef = useRef(isRunning);
+  isRunningRef.current = isRunning;
+
+  const cycleCountRef = useRef(cycleCount);
+  cycleCountRef.current = cycleCount;
+
+  const activeTaskRef = useRef(activeTask);
+  activeTaskRef.current = activeTask;
+
+  const projectsRef = useRef(projects);
+  projectsRef.current = projects;
+
+  const settingsRef = useRef(settings);
+  settingsRef.current = settings;
 
   // Swipe gesture refs
   const touchStart = useRef({ x: null, y: null });
@@ -258,22 +300,45 @@ export default function App() {
     };
   }, [isRunning, settings.keepAwake]);
 
+  const updateNotification = useCallback((mode, seconds, currentSettings, running = true) => {
+    if (!currentSettings || currentSettings.liveNotification === false) return;
+    if (!running) {
+      ForegroundService.stopForegroundService().catch(() => {});
+      return;
+    }
+    const mins = Math.floor(seconds / 60);
+    const rem = seconds % 60;
+    const formattedTime = `${mins.toString().padStart(2, '0')}:${rem.toString().padStart(2, '0')}`;
+    const modeLabel = mode === 'work' ? 'Focus' : (mode === 'shortBreak' ? 'Short Break' : (mode === 'stopwatch' ? 'Focus' : 'Long Break'));
+    const prefix = mode === 'stopwatch' ? 'CHRONO_UP:' : 'CHRONO:';
+    ForegroundService.updateForegroundService({
+      id: 1993,
+      title: modeLabel,
+      body: `${prefix}${formattedTime}`,
+      smallIcon: 'ic_stat_focus_text',
+      silent: true,
+      serviceType: 1073741824 // FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+    }).catch(() => {});
+  }, []);
+
   // Manage Live Notification (Origin Island Foreground Service)
   useEffect(() => {
     const manageForegroundService = async () => {
-      if (isRunning && settings.liveNotification) {
+      if (isRunning && settings.liveNotification !== false) {
         try {
           // Android 13+ requires explicit permission for notifications
           if (ForegroundService.requestPermissions) {
             await ForegroundService.requestPermissions();
           }
 
-          const modeLabel = timerMode === 'work' ? 'Focus' : (timerMode === 'shortBreak' ? 'Short Break' : (timerMode === 'stopwatch' ? 'Focus' : 'Long Break'));
-          const mins = Math.floor(timeLeft / 60);
-          const rem = timeLeft % 60;
+          const curMode = timerModeRef.current;
+          const curTime = timeLeftRef.current;
+          const modeLabel = curMode === 'work' ? 'Focus' : (curMode === 'shortBreak' ? 'Short Break' : (curMode === 'stopwatch' ? 'Focus' : 'Long Break'));
+          const mins = Math.floor(curTime / 60);
+          const rem = curTime % 60;
           const formattedTime = `${mins.toString().padStart(2, '0')}:${rem.toString().padStart(2, '0')}`;
           
-          const prefix = timerMode === 'stopwatch' ? 'CHRONO_UP:' : 'CHRONO:';
+          const prefix = curMode === 'stopwatch' ? 'CHRONO_UP:' : 'CHRONO:';
           await ForegroundService.startForegroundService({
             id: 1993,
             title: modeLabel,
@@ -291,7 +356,7 @@ export default function App() {
       }
     };
     manageForegroundService();
-  }, [isRunning, settings.liveNotification, timerMode]);
+  }, [isRunning, settings.liveNotification]);
 
   // Auto hide/show bottom nav when timer starts or stops
   useEffect(() => {
@@ -302,128 +367,102 @@ export default function App() {
     }
   }, [isRunning]);
 
-  // Immediate catch-up when returning to foreground / unlocking screen
-  useEffect(() => {
-    const handleSyncOnForeground = () => {
-      if (isRunning && lastTickRef.current) {
-        const now = Date.now();
-        const deltaSecs = Math.floor((now - lastTickRef.current) / 1000);
-        if (deltaSecs >= 1) {
-          lastTickRef.current += deltaSecs * 1000;
-          setTimeLeft((prev) => {
-            let nextVal = prev;
-            if (timerMode === 'stopwatch') nextVal = prev + deltaSecs;
-            else if (prev - deltaSecs <= 0) nextVal = 0;
-            else nextVal = prev - deltaSecs;
+  // Advance timer state and simulate background cycle transitions
+  const advanceTime = useCallback((deltaSecs) => {
+    if (deltaSecs <= 0) return;
 
-            if (nextVal === 0 && timerMode !== 'stopwatch') {
-              if (timerRef.current) clearInterval(timerRef.current);
-              setTimeout(() => handleTimerFinish(), 0);
-              return 0;
-            }
-            return nextVal;
-          });
-        }
-      }
-    };
+    let remainingDelta = deltaSecs;
+    let curMode = timerModeRef.current;
+    let curTimeLeft = timeLeftRef.current;
+    let curRunning = isRunningRef.current;
+    let curCycles = cycleCountRef.current;
+    const curSettings = settingsRef.current;
+    const curTask = activeTaskRef.current;
+    const curProjects = projectsRef.current;
 
-    const handleVisibility = () => {
-      if (document.visibilityState === 'visible') {
-        handleSyncOnForeground();
-      }
-    };
+    if (!curRunning) return;
 
-    document.addEventListener('visibilitychange', handleVisibility);
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibility);
-    };
-  }, [isRunning, timerMode]);
-
-  // Timer Tick Logic
-  useEffect(() => {
-    if (isRunning) {
-      lastTickRef.current = Date.now();
-      timerRef.current = setInterval(() => {
-        const now = Date.now();
-        const deltaSecs = Math.floor((now - lastTickRef.current) / 1000);
-
-        if (deltaSecs >= 1) {
-          lastTickRef.current += deltaSecs * 1000;
-          setTimeLeft((prev) => {
-            let nextVal = prev;
-            if (timerMode === 'stopwatch') nextVal = prev + deltaSecs;
-            else if (prev - deltaSecs <= 0) nextVal = 0;
-            else nextVal = prev - deltaSecs;
-
-            if (settings.liveNotification) {
-              const mins = Math.floor(nextVal / 60);
-              const rem = nextVal % 60;
-              const formattedTime = `${mins.toString().padStart(2, '0')}:${rem.toString().padStart(2, '0')}`;
-              const modeLabel = timerMode === 'work' ? 'Focus' : (timerMode === 'shortBreak' ? 'Short Break' : (timerMode === 'stopwatch' ? 'Focus' : 'Long Break'));
-              const prefix = timerMode === 'stopwatch' ? 'CHRONO_UP:' : 'CHRONO:';
-              ForegroundService.updateForegroundService({
-                id: 1993,
-                title: modeLabel,
-                body: `${prefix}${formattedTime}`,
-                smallIcon: 'ic_stat_focus_text',
-                silent: true,
-                serviceType: 1073741824 // FOREGROUND_SERVICE_TYPE_SPECIAL_USE
-              }).catch(() => {});
-            }
-
-            if (nextVal === 0 && timerMode !== 'stopwatch') {
-              clearInterval(timerRef.current);
-              setTimeout(() => handleTimerFinish(), 0);
-              return 0;
-            }
-            return nextVal;
-          });
-        }
-      }, 1000);
-    } else {
-      if (timerRef.current) clearInterval(timerRef.current);
-    }
-    return () => clearInterval(timerRef.current);
-  }, [isRunning, timerMode, cycleCount, activeTask, settings]);
-
-  const handleTimerFinish = () => {
-    setIsRunning(false);
-    setIsNavHidden(false);
-    soundEngine.playChime();
-    if (window.navigator && window.navigator.vibrate) {
-      window.navigator.vibrate([100, 50, 100, 50, 200]);
+    if (curMode === 'stopwatch') {
+      const nextTime = curTimeLeft + remainingDelta;
+      timeLeftRef.current = nextTime;
+      setTimeLeft(nextTime);
+      updateNotification(curMode, nextTime, curSettings, true);
+      return;
     }
 
-    enqueueCelebration({
-      title: timerMode === 'work' ? `Session ${cycleCount + 1} Completed` : 'Break Completed',
-      subtitle: timerMode === 'work' ? 'Great focus! Enjoy a moment of calm.' : 'Refreshed? Ready to focus again?',
-      lottie: clockTickingLottie,
-    });
+    const sessionsToAdd = [];
+    let pomosEarned = 0;
+    const celebrationsToEnqueue = [];
 
-    if (timerMode === 'work') {
-      const nextCycle = cycleCount + 1;
-      setCycleCount(nextCycle);
+    while (remainingDelta > 0 && curRunning) {
+      if (remainingDelta < curTimeLeft) {
+        curTimeLeft -= remainingDelta;
+        remainingDelta = 0;
+      } else {
+        // Current cycle completed!
+        remainingDelta -= curTimeLeft;
 
-      const newSess = {
-        id: `sess-${Date.now()}`,
-        projectId: activeTask ? activeTask.projectId : (projects[0] ? projects[0].id : 'proj-1'),
-        duration: settings.workDuration,
-        completedAt: new Date().toISOString(),
-        dateStr: getLocalDateStr(),
-      };
-      setSessions((prev) => [newSess, ...prev]);
+        if (curMode === 'work') {
+          pomosEarned += 1;
+          curCycles += 1;
 
+          const newSess = {
+            id: `sess-${Date.now()}-${sessionsToAdd.length}`,
+            projectId: curTask ? curTask.projectId : (curProjects[0] ? curProjects[0].id : 'proj-1'),
+            duration: curSettings.workDuration,
+            completedAt: new Date().toISOString(),
+            dateStr: getLocalDateStr(),
+          };
+          sessionsToAdd.push(newSess);
+
+          celebrationsToEnqueue.push({
+            title: `Session ${curCycles} Completed`,
+            subtitle: 'Great focus! Enjoy a moment of calm.',
+            lottie: clockTickingLottie,
+          });
+
+          const isLong = curCycles % (curSettings.longBreakInterval || 4) === 0;
+          curMode = isLong ? 'longBreak' : 'shortBreak';
+          curTimeLeft = (isLong ? curSettings.longBreakDuration : curSettings.shortBreakDuration) * 60;
+
+          if (!curSettings.autoStartBreaks) {
+            curRunning = false;
+            remainingDelta = 0;
+          }
+        } else {
+          // Break completed!
+          celebrationsToEnqueue.push({
+            title: 'Break Completed',
+            subtitle: 'Refreshed? Ready to focus again?',
+            lottie: clockTickingLottie,
+          });
+
+          curMode = 'work';
+          curTimeLeft = (curSettings.workDuration || 25) * 60;
+
+          if (!curSettings.autoStartPomodoros) {
+            curRunning = false;
+            remainingDelta = 0;
+          }
+        }
+      }
+    }
+
+    if (sessionsToAdd.length > 0) {
+      setSessions((prev) => [...sessionsToAdd, ...prev]);
+
+      const primaryProjId = sessionsToAdd[0].projectId;
       setProjects((prev) =>
         prev.map((p) =>
-          p.id === newSess.projectId ? { ...p, pomodoros: (p.pomodoros || 0) + 1 } : p
+          p.id === primaryProjId ? { ...p, pomodoros: (p.pomodoros || 0) + pomosEarned } : p
         )
       );
 
-      if (activeTask) {
+      if (curTask) {
         setTasks((prev) =>
           prev.map((t) => {
-            if (t.id === activeTask.id) {
-              const updatedPomos = (t.completedPomos || 0) + 1;
+            if (t.id === curTask.id) {
+              const updatedPomos = (t.completedPomos || 0) + pomosEarned;
               const isDone = updatedPomos >= t.estimatedPomos;
               const todayStr = getLocalDateStr();
               return {
@@ -438,29 +477,116 @@ export default function App() {
           })
         );
         setActiveTask((prev) =>
-          prev ? { ...prev, completedPomos: (prev.completedPomos || 0) + 1 } : null
+          prev ? { ...prev, completedPomos: (prev.completedPomos || 0) + pomosEarned } : null
         );
       }
+    }
 
-      if (nextCycle % (settings.longBreakInterval || 4) === 0) {
-        setTimerMode('longBreak');
-        setTimeLeft(settings.longBreakDuration * 60);
-      } else {
-        setTimerMode('shortBreak');
-        setTimeLeft(settings.shortBreakDuration * 60);
+    if (celebrationsToEnqueue.length > 0) {
+      soundEngine.stop();
+      soundEngine.playChime();
+      if (window.navigator?.vibrate) {
+        window.navigator.vibrate([100, 50, 100, 50, 200]);
       }
+      try {
+        Haptics.vibrate({ duration: 500 }).catch(() => {});
+      } catch (e) {}
 
-      if (settings.autoStartBreaks) {
-        setTimeout(() => setIsRunning(true), 1500);
-      }
-    } else {
-      setTimerMode('work');
-      setTimeLeft(settings.workDuration * 60);
-      if (settings.autoStartPomodoros) {
-        setTimeout(() => setIsRunning(true), 1500);
+      celebrationsToEnqueue.forEach((c) => enqueueCelebration(c));
+    }
+
+    timeLeftRef.current = curTimeLeft;
+    setTimeLeft(curTimeLeft);
+
+    if (curMode !== timerModeRef.current) {
+      timerModeRef.current = curMode;
+      setTimerMode(curMode);
+    }
+
+    if (curCycles !== cycleCountRef.current) {
+      cycleCountRef.current = curCycles;
+      setCycleCount(curCycles);
+    }
+
+    if (curRunning !== isRunningRef.current) {
+      isRunningRef.current = curRunning;
+      setIsRunning(curRunning);
+      if (!curRunning) {
+        setIsNavHidden(false);
       }
     }
-  };
+
+    updateNotification(curMode, curTimeLeft, curSettings, curRunning);
+  }, [enqueueCelebration, updateNotification]);
+
+  // Tick listener callback
+  const handleTick = useCallback(() => {
+    if (!isRunningRef.current) return;
+    const now = Date.now();
+    if (!lastTickRef.current) {
+      lastTickRef.current = now;
+      return;
+    }
+    const deltaSecs = Math.floor((now - lastTickRef.current) / 1000);
+    if (deltaSecs >= 1) {
+      lastTickRef.current += deltaSecs * 1000;
+      advanceTime(deltaSecs);
+    }
+  }, [advanceTime]);
+
+  // Manage unthrottled timer execution (Dedicated Web Worker + Fallback)
+  useEffect(() => {
+    if (isRunning) {
+      lastTickRef.current = Date.now();
+      timerWorker.start(handleTick);
+    } else {
+      timerWorker.stop();
+      lastTickRef.current = null;
+    }
+    return () => {
+      timerWorker.stop();
+    };
+  }, [isRunning, handleTick]);
+
+  // Immediate catch-up when returning to foreground / unlocking screen / app resume
+  useEffect(() => {
+    const handleSync = () => {
+      if (isRunningRef.current && lastTickRef.current) {
+        const now = Date.now();
+        const deltaSecs = Math.floor((now - lastTickRef.current) / 1000);
+        if (deltaSecs >= 1) {
+          lastTickRef.current += deltaSecs * 1000;
+          advanceTime(deltaSecs);
+        }
+      }
+    };
+
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        handleSync();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    let appStateHandle = null;
+    try {
+      CapApp.addListener('appStateChange', (state) => {
+        if (state.isActive) {
+          handleSync();
+        }
+      }).then((handle) => {
+        appStateHandle = handle;
+      }).catch(() => {});
+    } catch (e) {}
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility);
+      if (appStateHandle && typeof appStateHandle.remove === 'function') {
+        appStateHandle.remove();
+      }
+    };
+  }, [advanceTime]);
 
   const saveFocusProgress = (elapsedSecs) => {
     if (elapsedSecs < 30) return;
@@ -555,17 +681,20 @@ export default function App() {
 
   const handleResetTimer = () => {
     setIsRunning(false);
+    isRunningRef.current = false;
     setIsNavHidden(false);
     soundEngine.stop();
-    if (timerMode === 'work') setTimeLeft(settings.workDuration * 60);
-    else if (timerMode === 'shortBreak') setTimeLeft(settings.shortBreakDuration * 60);
-    else if (timerMode === 'longBreak') setTimeLeft(settings.longBreakDuration * 60);
-    else if (timerMode === 'stopwatch') setTimeLeft(0);
+    ForegroundService.stopForegroundService().catch(() => {});
+    let resetSecs = 0;
+    if (timerMode === 'work') resetSecs = settings.workDuration * 60;
+    else if (timerMode === 'shortBreak') resetSecs = settings.shortBreakDuration * 60;
+    else if (timerMode === 'longBreak') resetSecs = settings.longBreakDuration * 60;
+    else if (timerMode === 'stopwatch') resetSecs = 0;
+    setTimeLeft(resetSecs);
+    timeLeftRef.current = resetSecs;
   };
 
   const handleSkip = () => {
-    setIsRunning(false);
-    setIsNavHidden(false);
     soundEngine.stop();
 
     if (timerMode === 'work') {
@@ -575,24 +704,44 @@ export default function App() {
 
       const nextCycle = cycleCount + 1;
       setCycleCount(nextCycle);
+      cycleCountRef.current = nextCycle;
 
-      if (nextCycle % (settings.longBreakInterval || 4) === 0) {
-        setTimerMode('longBreak');
-        setTimeLeft(settings.longBreakDuration * 60);
+      const isLong = nextCycle % (settings.longBreakInterval || 4) === 0;
+      const nextMode = isLong ? 'longBreak' : 'shortBreak';
+      const nextDuration = (isLong ? settings.longBreakDuration : settings.shortBreakDuration) * 60;
+
+      setTimerMode(nextMode);
+      timerModeRef.current = nextMode;
+      setTimeLeft(nextDuration);
+      timeLeftRef.current = nextDuration;
+
+      const shouldAuto = !!settings.autoStartBreaks;
+      setIsRunning(shouldAuto);
+      isRunningRef.current = shouldAuto;
+      if (!shouldAuto) {
+        setIsNavHidden(false);
+        ForegroundService.stopForegroundService().catch(() => {});
       } else {
-        setTimerMode('shortBreak');
-        setTimeLeft(settings.shortBreakDuration * 60);
-      }
-
-      if (settings.autoStartBreaks) {
-        setTimeout(() => setIsRunning(true), 500);
+        lastTickRef.current = Date.now();
+        updateNotification(nextMode, nextDuration, settings, true);
       }
     } else {
       // Skipping break transitions back to work
+      const nextDuration = settings.workDuration * 60;
       setTimerMode('work');
-      setTimeLeft(settings.workDuration * 60);
-      if (settings.autoStartPomodoros) {
-        setTimeout(() => setIsRunning(true), 500);
+      timerModeRef.current = 'work';
+      setTimeLeft(nextDuration);
+      timeLeftRef.current = nextDuration;
+
+      const shouldAuto = !!settings.autoStartPomodoros;
+      setIsRunning(shouldAuto);
+      isRunningRef.current = shouldAuto;
+      if (!shouldAuto) {
+        setIsNavHidden(false);
+        ForegroundService.stopForegroundService().catch(() => {});
+      } else {
+        lastTickRef.current = Date.now();
+        updateNotification('work', nextDuration, settings, true);
       }
     }
   };
@@ -620,24 +769,6 @@ export default function App() {
   const dismissToast = useCallback((id) => {
     setToast((cur) => (cur && cur.id === id ? null : cur));
   }, []);
-
-  const enqueueCelebration = useCallback((item) => {
-    celebrationIdRef.current += 1;
-    const id = celebrationIdRef.current;
-    setCelebrations((q) => [...q, { ...item, id }]);
-  }, []);
-
-  const dismissCelebration = useCallback((id) => {
-    setCelebrations((q) => q.filter((c) => c.id !== id));
-  }, []);
-
-  const triggerCelebration = useCallback(
-    (title, subtitle) => {
-      enqueueCelebration({ title, subtitle });
-      if (window.navigator?.vibrate) window.navigator.vibrate([15, 40, 15, 40, 30]);
-    },
-    [enqueueCelebration]
-  );
 
   // Celebrate once when today's focus time crosses the daily goal.
   const goalMetRef = useRef(null);

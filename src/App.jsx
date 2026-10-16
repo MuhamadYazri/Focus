@@ -18,7 +18,7 @@ import { App as CapApp } from '@capacitor/app';
 import { timerWorker } from './services/timerWorker';
 import SplitRevealPreloader from './components/animata/preloader/SplitRevealPreloader';
 import UndoToast from './components/Feedback/UndoToast';
-import GoalCelebration from './components/Feedback/GoalCelebration';
+import SessionCompletionScreen from './components/Feedback/SessionCompletionScreen';
 
 const getLocalDateStr = (d) => {
   try {
@@ -107,6 +107,34 @@ export default function App() {
     },
     [enqueueCelebration]
   );
+
+  // Dedicated Celebration Actions
+  const handleCelebrationPrimaryAction = useCallback((celebration) => {
+    dismissCelebration(celebration.id);
+    if (!celebration) return;
+
+    if (celebration.type === 'work') {
+      // Focus ended -> go to break
+      const isLong = (cycleCount > 0 && cycleCount % (settings.longBreakInterval || 4) === 0);
+      const nextMode = isLong ? 'longBreak' : 'shortBreak';
+      const nextSecs = (isLong ? settings.longBreakDuration : settings.shortBreakDuration) * 60;
+      setTimerMode(nextMode);
+      timerModeRef.current = nextMode;
+      setTimeLeft(nextSecs);
+      timeLeftRef.current = nextSecs;
+      setIsRunning(true);
+      isRunningRef.current = true;
+    } else if (celebration.type === 'break') {
+      // Break ended -> go to focus
+      const nextSecs = (settings.workDuration || 25) * 60;
+      setTimerMode('work');
+      timerModeRef.current = 'work';
+      setTimeLeft(nextSecs);
+      timeLeftRef.current = nextSecs;
+      setIsRunning(true);
+      isRunningRef.current = true;
+    }
+  }, [dismissCelebration, cycleCount, settings]);
 
   const [isNavHidden, setIsNavHidden] = useState(false);
 
@@ -405,8 +433,11 @@ export default function App() {
           sessionsToAdd.push(newSess);
 
           celebrationsToEnqueue.push({
+            type: 'work',
             title: `Session ${curCycles} Completed`,
             subtitle: 'Great focus! Enjoy a moment of calm.',
+            duration: curSettings.workDuration || 25,
+            autoStarted: !!curSettings.autoStartBreaks,
             lottie: clockTickingLottie,
           });
 
@@ -421,8 +452,11 @@ export default function App() {
         } else {
           // Break completed!
           celebrationsToEnqueue.push({
+            type: 'break',
             title: 'Break Completed',
             subtitle: 'Refreshed? Ready to focus again?',
+            duration: (curMode === 'longBreak' ? curSettings.longBreakDuration : curSettings.shortBreakDuration) || 5,
+            autoStarted: !!curSettings.autoStartPomodoros,
             lottie: clockTickingLottie,
           });
 
@@ -1088,8 +1122,12 @@ export default function App() {
 
       {/* UX feedback layers */}
       <UndoToast toast={toast} onDismiss={dismissToast} />
-      {/* Shared full-width modal: session done, break done, daily goal (queued one at a time) */}
-      <GoalCelebration celebration={celebrations[0] || null} onDone={dismissCelebration} />
+      {/* Dedicated Full-Screen Celebration: session done, break done, daily goal */}
+      <SessionCompletionScreen
+        celebration={celebrations[0] || null}
+        onDismiss={dismissCelebration}
+        onPrimaryAction={handleCelebrationPrimaryAction}
+      />
 
     </div>
   );

@@ -299,7 +299,7 @@ function TimerView({
             })}
           </div>
 
-          {/* Strict Mode Toggle (Right aligned under tabs from Figma) */}
+          {/* Controls Bar: Strict Mode Toggle */}
           <div className="w-full max-w-[384px] mx-auto flex items-center justify-end">
             <button
               aria-label="Toggle strict mode"

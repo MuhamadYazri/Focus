@@ -120,21 +120,26 @@ function AnalyticsDashboard({
             { id: 'proj-3', name: '03 // SYS_ARCHITECTURE', color: TAILWIND_COLORS[2] },
           ];
 
-    const computed = projList
+    // Single-pass O(N) grouping by projectId
+    const projStats = new Map();
+    (filteredSessions || []).forEach((s) => {
+      const pid = s.projectId || projList[0]?.id || 'default';
+      const dur = s.duration || 25;
+      const cur = projStats.get(pid) || { count: 0, mins: 0 };
+      projStats.set(pid, { count: cur.count + 1, mins: cur.mins + dur });
+    });
+
+    const filtered = projList
       .map((proj, idx) => {
-        const projSessions = (filteredSessions || []).filter((s) => {
-          return s.projectId === proj.id || (!s.projectId && idx === 0);
-        });
-        const count = projSessions.length;
-        const projMins = projSessions.reduce((acc, s) => acc + (s.duration || 25), 0);
-        const pct = totalMins > 0 ? Math.round((projMins / totalMins) * 100) : 0;
+        const stats = projStats.get(proj.id) || { count: 0, mins: 0 };
+        const pct = totalMins > 0 ? Math.round((stats.mins / totalMins) * 100) : 0;
         const rawLabel = proj.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' ');
         return {
           label: toTitleCase(rawLabel),
           pct,
-          count,
-          mins: projMins,
-          displayTime: formatDisplayHours(projMins),
+          count: stats.count,
+          mins: stats.mins,
+          displayTime: formatDisplayHours(stats.mins),
           color:
             proj.color?.startsWith('var(') || !proj.color
               ? TAILWIND_COLORS[idx % TAILWIND_COLORS.length]
@@ -144,8 +149,8 @@ function AnalyticsDashboard({
       .filter((seg) => seg.pct > 0 || seg.count > 0)
       .sort((a, b) => b.mins - a.mins);
 
-    return computed.length
-      ? computed
+    return filtered.length
+      ? filtered
       : [
           {
             label: 'No Data',

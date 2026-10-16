@@ -231,17 +231,46 @@ function SharedActivitySection({
     return 'All Time';
   };
 
-  const getDailyGoalHours = (dayNum, dateStr) => {
+  // Fast O(1) date session map to avoid repeatedly filtering large session arrays
+  const { sessionDateMap, sessionMonthMap, sessionYearMap } = useMemo(() => {
+    const dateMap = new Map();
+    const monthMap = new Map();
+    const yearMap = new Map();
+
+    (sessions || []).forEach((s) => {
+      const dt = s.dateStr || (s.completedAt && s.completedAt.split('T')[0]);
+      if (!dt) return;
+      const dur = s.duration || 25;
+
+      // By exact date
+      dateMap.set(dt, (dateMap.get(dt) || 0) + dur);
+
+      // By YYYY-MM
+      const mo = dt.slice(0, 7);
+      monthMap.set(mo, (monthMap.get(mo) || 0) + dur);
+
+      // By YYYY
+      const yr = dt.slice(0, 4);
+      yearMap.set(yr, (yearMap.get(yr) || 0) + dur);
+    });
+
+    return { sessionDateMap: dateMap, sessionMonthMap: monthMap, sessionYearMap: yearMap };
+  }, [sessions]);
+
+  // Pre-cached goals map from localStorage to avoid 35x JSON.parse calls per render
+  const goalsHistory = useMemo(() => {
     try {
-      const hist = JSON.parse(localStorage.getItem('focus_daily_goals_history_v1') || '{}');
-      const dateKey = dateStr || `2026-07-${String(dayNum).padStart(2, '0')}`;
-      if (hist && hist[dateKey]) return Number(hist[dateKey]);
-      if (settings && settings.dailyGoalHours) return Number(settings.dailyGoalHours);
-      const st = JSON.parse(localStorage.getItem('focus_settings_v1') || '{}');
-      return st && st.dailyGoalHours ? Number(st.dailyGoalHours) : 4.0;
-    } catch (e) {
-      return settings && settings.dailyGoalHours ? Number(settings.dailyGoalHours) : 4.0;
+      return JSON.parse(localStorage.getItem('focus_daily_goals_history_v1') || '{}');
+    } catch {
+      return {};
     }
+  }, [period, offset]);
+
+  const defaultGoal = Number(settings?.dailyGoalHours) || 4.0;
+
+  const getDailyGoalHours = (dateStr) => {
+    if (goalsHistory[dateStr]) return Number(goalsHistory[dateStr]);
+    return defaultGoal;
   };
 
   const generateHeatmapGrid = (endDateRef, hlStart, hlEnd) => {
@@ -263,13 +292,9 @@ function SharedActivitySection({
         const cur = new Date(startMon);
         cur.setDate(startMon.getDate() + w * 7 + d);
         const curStr = getLocalDateStr(cur);
-        const curSess = (sessions || []).filter((s) => {
-          const sDt = s.dateStr || (s.completedAt && s.completedAt.split('T')[0]);
-          return sDt === curStr;
-        });
-        const curMins = curSess.reduce((acc, s) => acc + (s.duration || 25), 0);
+        const curMins = sessionDateMap.get(curStr) || 0;
         const curHours = curMins / 60;
-        const targetHours = getDailyGoalHours(cur.getDate(), curStr);
+        const targetHours = getDailyGoalHours(curStr);
         let val = 0;
         if (curHours >= targetHours && targetHours > 0) val = 4;
         else if (curHours >= targetHours * 0.75) val = 3;
@@ -337,15 +362,16 @@ function SharedActivitySection({
       targetDate.setDate(now.getDate() + offset);
       const targetStr = getLocalDateStr(targetDate);
       heatmapTitleDate = targetDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      
+      const totalMins = sessionDateMap.get(targetStr) || 0;
       const daySessions = (sessions || []).filter((s) => {
         const sDt = s.dateStr || (s.completedAt && s.completedAt.split('T')[0]);
         return sDt === targetStr;
       });
-      const totalMins = daySessions.reduce((acc, s) => acc + (s.duration || 25), 0);
       displayHours = formatDisplayHours(totalMins);
       displayPomos = daySessions.length;
       displaySubToday = `${displayHours} on this day`;
-      displaySubDays = daySessions.length > 0 ? '1 active day' : '0 active days';
+      displaySubDays = totalMins > 0 ? '1 active day' : '0 active days';
 
       const dayOfWeek = targetDate.getDay() || 7;
       const monDate = new Date(targetDate);
@@ -353,23 +379,19 @@ function SharedActivitySection({
       const chartDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
       let maxDayMins = 0;
       let peakDayLabel = 'None';
-      const targetDailyGoalHours = getDailyGoalHours(targetDate.getDate(), targetStr);
+      const targetDailyGoalHours = getDailyGoalHours(targetStr);
 
       const dailySlots = chartDays.map((label, idx) => {
         const d = new Date(monDate);
         d.setDate(monDate.getDate() + idx);
         const dStr = getLocalDateStr(d);
-        const dSess = (sessions || []).filter((s) => {
-          const sDt = s.dateStr || (s.completedAt && s.completedAt.split('T')[0]);
-          return sDt === dStr;
-        });
-        const mins = dSess.reduce((acc, s) => acc + (s.duration || 25), 0);
+        const mins = sessionDateMap.get(dStr) || 0;
         if (mins > maxDayMins) {
           maxDayMins = mins;
           peakDayLabel = label;
         }
 
-        const slotGoalHours = getDailyGoalHours(d.getDate(), dStr);
+        const slotGoalHours = getDailyGoalHours(dStr);
         const slotGoalMins = slotGoalHours * 60;
         const progressRatio = slotGoalMins > 0 ? mins / slotGoalMins : 0;
         const isGoalMet = slotGoalMins > 0 && mins >= slotGoalMins;
@@ -419,7 +441,7 @@ function SharedActivitySection({
       displaySubToday = `${formatTimeNoDecimals(totalMins / 7)} avg / day`;
       displaySubDays = `${uniqueDays} days focused`;
 
-      const targetDailyGoalHours = getDailyGoalHours(now.getDate(), getLocalDateStr(now));
+      const targetDailyGoalHours = getDailyGoalHours(getLocalDateStr(now));
       const weeklyTargetHours = targetDailyGoalHours * 7;
       const weeklyTargetMins = weeklyTargetHours * 60;
 
@@ -437,11 +459,12 @@ function SharedActivitySection({
         curEnd.setDate(curStart.getDate() + 6);
         const csStr = getLocalDateStr(curStart);
         const ceStr = getLocalDateStr(curEnd);
-        const wSess = (sessions || []).filter((s) => {
-          const dt = s.dateStr || (s.completedAt && s.completedAt.split('T')[0]);
-          return dt >= csStr && dt <= ceStr;
-        });
-        const mins = wSess.reduce((acc, s) => acc + (s.duration || 25), 0);
+        
+        let mins = 0;
+        for (let d = new Date(curStart); d <= curEnd; d.setDate(d.getDate() + 1)) {
+          mins += sessionDateMap.get(getLocalDateStr(d)) || 0;
+        }
+
         const label = w === 0 ? 'This Wk' : `${Math.abs(w)}Wk Ago`;
         if (mins > maxWkMins) {
           maxWkMins = mins;
@@ -477,10 +500,10 @@ function SharedActivitySection({
         year: 'numeric',
       });
 
+      const totalMins = sessionMonthMap.get(prefix) || 0;
       const moSessions = (sessions || []).filter((s) =>
         (s.dateStr || s.completedAt || '').startsWith(prefix)
       );
-      const totalMins = moSessions.reduce((acc, s) => acc + (s.duration || 25), 0);
       displayHours = formatDisplayHours(totalMins);
       displayPomos = moSessions.length;
       const uniqueDays = new Set(
@@ -491,7 +514,7 @@ function SharedActivitySection({
       )} avg / active day`;
       displaySubDays = `${uniqueDays} days focused`;
 
-      const targetDailyGoalHours = getDailyGoalHours(now.getDate(), getLocalDateStr(now));
+      const targetDailyGoalHours = getDailyGoalHours(getLocalDateStr(now));
       const monthlyTargetHours = targetDailyGoalHours * 22;
       const monthlyTargetMins = monthlyTargetHours * 60;
 
@@ -513,10 +536,7 @@ function SharedActivitySection({
       let peakMoLabel = 'None';
       const monthlySlots = monthNames.map((mName, idx) => {
         const pfx = `${yrStr}-${String(idx + 1).padStart(2, '0')}`;
-        const mSess = (sessions || []).filter((s) =>
-          (s.dateStr || s.completedAt || '').startsWith(pfx)
-        );
-        const mins = mSess.reduce((acc, s) => acc + (s.duration || 25), 0);
+        const mins = sessionMonthMap.get(pfx) || 0;
         if (mins > maxMoMins) {
           maxMoMins = mins;
           peakMoLabel = mName;
@@ -552,10 +572,11 @@ function SharedActivitySection({
       const targetYr = now.getFullYear() + offset;
       const yrStr = String(targetYr);
       heatmapTitleDate = 'All Time';
+      
+      const totalMins = sessionYearMap.get(yrStr) || 0;
       const yrSessions = (sessions || []).filter((s) =>
         (s.dateStr || s.completedAt || '').startsWith(yrStr)
       );
-      const totalMins = yrSessions.reduce((acc, s) => acc + (s.duration || 25), 0);
       displayHours = formatDisplayHours(totalMins);
       displayPomos = yrSessions.length;
       const uniqueDays = new Set(
@@ -571,10 +592,7 @@ function SharedActivitySection({
       let peakYrLabel = 'None';
       const yearlySlots = years.map((y) => {
         const yStr = String(y);
-        const ySess = (sessions || []).filter((s) =>
-          (s.dateStr || s.completedAt || '').startsWith(yStr)
-        );
-        const mins = ySess.reduce((acc, s) => acc + (s.duration || 25), 0);
+        const mins = sessionYearMap.get(yStr) || 0;
         if (mins > maxYrMins) {
           maxYrMins = mins;
           peakYrLabel = yStr;
@@ -597,7 +615,8 @@ function SharedActivitySection({
       activeHeatmap = generateHeatmapGrid(new Date(targetYr, 11, 31));
     } else if (period === 'All') {
       heatmapTitleDate = 'All Time';
-      const totalMins = (sessions || []).reduce((acc, s) => acc + (s.duration || 25), 0);
+      let totalMins = 0;
+      sessionYearMap.forEach((v) => { totalMins += v; });
       displayHours = formatDisplayHours(totalMins);
       displayPomos = (sessions || []).length;
       const uniqueDays = new Set(
@@ -616,10 +635,7 @@ function SharedActivitySection({
       let peakYrLabel = 'None';
       const yearlySlots = years.map((y) => {
         const yStr = String(y);
-        const ySess = (sessions || []).filter((s) =>
-          (s.dateStr || s.completedAt || '').startsWith(yStr)
-        );
-        const mins = ySess.reduce((acc, s) => acc + (s.duration || 25), 0);
+        const mins = sessionYearMap.get(yStr) || 0;
         if (mins > maxYrMins) {
           maxYrMins = mins;
           peakYrLabel = yStr;

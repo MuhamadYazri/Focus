@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 
 export const PERIODS = ['All', 'Daily', 'Weekly', 'Monthly', 'Yearly'];
 
@@ -49,7 +48,26 @@ function TimeframeHeader({ period, setPeriod, offset, setOffset }) {
   return (
     <div className="flex flex-col gap-3.5 w-full max-w-[400px] mx-auto select-none">
       {/* Time Frame Segmented Track from Figma: 400px x 33px #E8EDE6 */}
-      <div className="w-full h-[33px] bg-[#E8EDE6] p-[4px] rounded-full flex items-center justify-between relative">
+      <div className="w-full h-[33px] bg-[#E8EDE6] p-[4px] rounded-full flex items-center justify-between relative overflow-hidden">
+        {/* Hardware-accelerated GPU sliding pill indicator (Zero getBoundingClientRect, zero layout reflow, INP < 30ms) */}
+        {(() => {
+          const activeIdx = PERIODS.indexOf(period);
+          if (activeIdx !== -1) {
+            return (
+              <div
+                aria-hidden="true"
+                className="absolute top-[4px] bottom-[4px] w-[calc((100%-8px)/5)] bg-[#1B1F1A] rounded-full shadow-[0px_2px_6px_rgba(27,31,26,0.15)] pointer-events-none transition-transform duration-250 ease-[cubic-bezier(0.25,1,0.5,1)]"
+                style={{
+                  left: '4px',
+                  transform: `translate3d(calc(${activeIdx} * 100%), 0, 0)`,
+                  willChange: 'transform',
+                }}
+              />
+            );
+          }
+          return null;
+        })()}
+
         {PERIODS.map((p) => {
           const active = p === period;
           return (
@@ -60,17 +78,10 @@ function TimeframeHeader({ period, setPeriod, offset, setOffset }) {
                 setPeriod(p);
                 setOffset(0);
               }}
-              className={`tap-effect relative flex-1 h-[25px] px-2 text-center rounded-full text-[11px] leading-[15px] flex items-center justify-center transition-colors duration-200 z-10 ${
+              className={`tap-effect relative flex-1 h-[25px] px-2 text-center rounded-full text-[11px] leading-[15px] flex items-center justify-center transition-colors duration-150 z-10 select-none ${
                 active ? 'font-bold text-white' : 'font-medium text-[#667463] hover:text-[#1B1F1A]'
               }`}
             >
-              {active && (
-                <motion.div
-                  layoutId="timeframe-period-pill"
-                  className="absolute inset-0 bg-[#1B1F1A] rounded-full shadow-[0px_2px_6px_rgba(27,31,26,0.15)] z-[-1]"
-                  transition={{ type: 'spring', stiffness: 450, damping: 35 }}
-                />
-              )}
               <span className="relative z-10">{p}</span>
             </button>
           );

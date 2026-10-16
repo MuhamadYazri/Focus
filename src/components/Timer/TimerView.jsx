@@ -23,47 +23,54 @@ import {
 } from 'lucide-animated';
 import { soundEngine } from '../../services/soundEngine';
 
-const AnimatedDigit = ({ char, isColon, isLight = false }) => {
-  const [prev, setPrev] = useState(char);
-  const [curr, setCurr] = useState(char);
-  const [animating, setAnimating] = useState(false);
+const DIGITS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-  useEffect(() => {
-    if (char !== curr) {
-      setPrev(curr);
-      setCurr(char);
-      setAnimating(true);
-      const t = setTimeout(() => setAnimating(false), 250);
-      return () => clearTimeout(t);
-    }
-  }, [char, curr]);
+/**
+ * High-performance Rolling Digit Column
+ * Pre-renders 0-9 in a single static filmstrip and shifts strictly via GPU translateY
+ * with spring physics, avoiding DOM re-mounts and frame drops at 60 FPS.
+ */
+const RollingDigitColumn = React.memo(function RollingDigitColumn({
+  digit,
+  height = 88,
+  fontSizeClass = 'text-[80px]',
+  lineHeightClass = 'leading-[88px]',
+  trackingClass = 'tracking-[-4px]',
+  colorClass = 'text-[#1B1F1A]',
+  fontWeightClass = 'font-black',
+}) {
+  const numericVal = typeof digit === 'number' ? digit : parseInt(digit, 10);
+  const safeDigit = isNaN(numericVal) ? 0 : numericVal;
 
   return (
-    <span
-      className={`relative inline-flex items-center justify-center text-center h-[1.1em] overflow-hidden select-none ${
-        isLight ? 'text-white' : 'text-text-main'
-      }`}
-      style={{ width: isColon ? '0.24em' : '0.56em' }}
+    <div
+      className="relative overflow-hidden inline-block select-none tabular-nums"
+      style={{ height: `${height}px` }}
     >
-      {animating && (
-        <span
-          key={`out-${prev}`}
-          className="absolute inset-0 flex items-center justify-center animate-tick-out pointer-events-none"
-        >
-          {prev}
-        </span>
-      )}
-      <span
-        key={`in-${curr}`}
-        className={`absolute inset-0 flex items-center justify-center ${
-          animating ? 'animate-tick-in' : ''
-        }`}
+      <motion.div
+        animate={{ y: -safeDigit * height }}
+        transition={{
+          type: 'spring',
+          stiffness: 450,
+          damping: 34,
+          mass: 0.8,
+        }}
+        className="flex flex-col will-change-transform"
+        style={{ transform: 'translateZ(0)' }}
       >
-        {curr}
-      </span>
-    </span>
+        {DIGITS.map((num) => (
+          <span
+            key={num}
+            className={`flex items-center justify-center font-sans ${fontSizeClass} ${lineHeightClass} ${trackingClass} ${fontWeightClass} ${colorClass}`}
+            style={{ height: `${height}px` }}
+          >
+            {num}
+          </span>
+        ))}
+      </motion.div>
+    </div>
   );
-};
+});
 
 const TimerClockRing = React.memo(function TimerClockRing({
   timeLeft,
@@ -123,9 +130,13 @@ const TimerClockRing = React.memo(function TimerClockRing({
       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none select-none">
         {/* Large Numerals: 80px font-black Manrope, line-height 88px, letter-spacing -4px */}
         <div className="text-[80px] leading-[88px] font-black tracking-[-4px] text-[#1B1F1A] font-sans flex items-center justify-center overflow-hidden h-[88px] tabular-nums">
-          {timeString.split('').map((char, i) => (
-            <AnimatedDigit key={i} char={char} isColon={char === ':'} />
-          ))}
+          <RollingDigitColumn digit={Math.floor(m / 10)} height={88} />
+          <RollingDigitColumn digit={m % 10} height={88} />
+          <span className="flex items-center justify-center font-sans text-[80px] leading-[88px] tracking-[-4px] font-black text-[#1B1F1A] pb-2 px-1">
+            :
+          </span>
+          <RollingDigitColumn digit={Math.floor(s / 10)} height={88} />
+          <RollingDigitColumn digit={s % 10} height={88} />
         </div>
 
         {/* Subtitle from Figma: 12px 400 line-height 18px letter-spacing 0.1px #8B9E87 */}
@@ -466,25 +477,71 @@ function TimerView({
             }}
           >
             {/* Top Bar with Minimalist Back/Minimize Button */}
-            <div className="w-full max-w-[384px] mx-auto flex items-center justify-between pointer-events-auto"></div>
+            <div className="w-full max-w-[384px] mx-auto flex items-center justify-between pointer-events-auto">
+              <button
+                type="button"
+                onClick={(e) => {
+                  stopProp(e);
+                  safeToggleNav();
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/5 hover:bg-black/10 active:scale-95 text-[#667463] hover:text-[#1B1F1A] transition-all text-[11px] font-semibold tracking-wide"
+                aria-label="Exit fullscreen"
+              >
+                <Minimize2 size={13} strokeWidth={2} />
+                <span>Exit Fullscreen</span>
+              </button>
+              <span className="text-[10px] text-[#8B9E87] uppercase tracking-[1.5px] font-bold">
+                Tap anywhere to exit
+              </span>
+            </div>
 
             {/* Minimalist Hero Section with Stacked 168px Numerals from Figma */}
             <div className="w-full max-w-[384px] mx-auto flex flex-col justify-start pt-4 pointer-events-none">
               {/* Row 1: Minutes (168px font-weight 800 Manrope, line-height 148px, letter-spacing -8px, color #1B1F1A) */}
-              <div className="w-full flex items-baseline">
-                <span className="text-[168px] leading-[148px] font-extrabold tracking-[-8px] text-[#1B1F1A] font-sans">
-                  {m < 10 ? `0${m}` : m}
-                </span>
+              <div className="w-full flex items-baseline overflow-hidden h-[148px]">
+                <RollingDigitColumn
+                  digit={Math.floor(m / 10)}
+                  height={148}
+                  fontSizeClass="text-[168px]"
+                  lineHeightClass="leading-[148px]"
+                  trackingClass="tracking-[-8px]"
+                  colorClass="text-[#1B1F1A]"
+                  fontWeightClass="font-extrabold"
+                />
+                <RollingDigitColumn
+                  digit={m % 10}
+                  height={148}
+                  fontSizeClass="text-[168px]"
+                  lineHeightClass="leading-[148px]"
+                  trackingClass="tracking-[-8px]"
+                  colorClass="text-[#1B1F1A]"
+                  fontWeightClass="font-extrabold"
+                />
               </div>
 
               {/* Divider: 1px height #CBD7C9 */}
               <div className="w-full h-[1px] bg-[#CBD7C9] my-2" />
 
               {/* Row 2: Seconds (168px font-weight 800 Manrope, line-height 148px, letter-spacing -8px, color #41493F) */}
-              <div className="w-full flex items-baseline">
-                <span className="text-[168px] leading-[148px] font-extrabold tracking-[-8px] text-[#41493F] font-sans">
-                  {s < 10 ? `0${s}` : s}
-                </span>
+              <div className="w-full flex items-baseline overflow-hidden h-[148px]">
+                <RollingDigitColumn
+                  digit={Math.floor(s / 10)}
+                  height={148}
+                  fontSizeClass="text-[168px]"
+                  lineHeightClass="leading-[148px]"
+                  trackingClass="tracking-[-8px]"
+                  colorClass="text-[#41493F]"
+                  fontWeightClass="font-extrabold"
+                />
+                <RollingDigitColumn
+                  digit={s % 10}
+                  height={148}
+                  fontSizeClass="text-[168px]"
+                  lineHeightClass="leading-[148px]"
+                  trackingClass="tracking-[-8px]"
+                  colorClass="text-[#41493F]"
+                  fontWeightClass="font-extrabold"
+                />
               </div>
 
               {/* MIN · SEC Subtitle */}

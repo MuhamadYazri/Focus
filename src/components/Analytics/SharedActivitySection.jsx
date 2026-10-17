@@ -46,17 +46,17 @@ const HeatmapCell = React.memo(function HeatmapCell({ cell, period, setOffset })
       ? isCur && isSameMo
       : false;
 
-  let bgClass = 'bg-[#F0F2EF] text-[#1B1F1A]/90 font-bold';
-  let borderClass = '';
+  let bgClass = 'bg-[#F0F2EF] dark:bg-[#232B22] text-[#1B1F1A]/90 dark:text-[#E2E8DF] font-bold';
+  let borderClass = 'border border-transparent';
 
   if (!isSameMo) {
-    bgClass = 'bg-[#E8EDE6]/50 text-[#8B9E87]/40 font-normal';
+    bgClass = 'bg-[#E8EDE6]/40 dark:bg-[#1A1F19]/60 text-[#8B9E87]/40 dark:text-[#849686]/30 font-normal';
   } else if (hasHours) {
-    bgClass = 'bg-[#B1C9AC] text-[#1B1F1A]/90 font-bold';
+    bgClass = 'bg-[#B1C9AC] dark:bg-[#2F422E] text-[#1B1F1A] dark:text-[#E2E8DF] font-bold';
   }
 
   if (isSelected || (period !== 'Daily' && isToday) || (period === 'Daily' && isToday)) {
-    borderClass = 'border border-[#1B1F1A] !bg-[#1B1F1A]/5 !text-[#1B1F1A] !font-extrabold z-10';
+    borderClass = 'border-2 border-[#1B1F1A] dark:border-[#8EAE88] !bg-[#1B1F1A]/10 dark:!bg-[#8EAE88]/20 !text-[#1B1F1A] dark:!text-[#FFFFFF] !font-extrabold z-10 shadow-sm';
   }
 
   const handleCellClick = () => {

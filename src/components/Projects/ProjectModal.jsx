@@ -64,7 +64,7 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
       onClick={onClose}
     >
       <div
-        className="w-full max-w-sm bg-surface border border-border rounded-3xl p-6 shadow-2xl ring-1 ring-white/80 relative animate-slideUp"
+        className="w-full max-w-sm bg-surface border border-[#263124] rounded-3xl p-6 shadow-2xl ring-1 ring-white/10 dark:ring-white/5 relative animate-slideUp"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between pb-4 mb-5 border-b border-border">
@@ -93,11 +93,10 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
             <input
               type="text"
               required
-              autoFocus
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Deep Work, Learning"
-              className="w-full bg-canvas border border-border rounded-xl px-4 py-3 text-sm font-sans text-text-main outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-text-sub/50 shadow-inner"
+              className="w-full bg-canvas border border-[#263124] rounded-xl px-4 py-3 text-sm font-sans text-text-main outline-none focus:border-secondary transition-all placeholder:text-text-sub/50 shadow-inner"
             />
           </div>
 
@@ -146,8 +145,8 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
                     onClick={() => setIcon(item.name)}
                     className={`aspect-square rounded-xl flex items-center justify-center border transition-all ${
                       isSelected 
-                        ? 'bg-primary border-primary text-white scale-105 shadow-sm shadow-primary/25 ring-1 ring-white/20' 
-                        : 'bg-surface-hover border-border text-text-sub hover:bg-border shadow-2xs'
+                        ? 'bg-primary border-primary text-[#121512] dark:text-[#121512] scale-105 shadow-sm' 
+                        : 'bg-surface-hover border-[#263124] text-text-sub hover:bg-border shadow-2xs'
                     }`}
                   >
                     <IconComp size={20} strokeWidth={isSelected ? 2.5 : 2} />
@@ -157,17 +156,17 @@ export default function ProjectModal({ isOpen, onClose, onSave, projectToEdit = 
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-5 mt-2 border-t border-border">
+          <div className="flex items-center justify-end gap-3 pt-5 mt-2 border-t border-[#263124]">
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 rounded-full text-xs font-semibold text-text-sub hover:bg-surface-hover hover:text-text-main transition-colors font-sans border border-border bg-[#F4F0E8] shadow-2xs active:scale-95"
+              className="px-5 py-2.5 rounded-full text-xs font-semibold text-text-main bg-surface-hover hover:bg-border transition-colors font-sans border border-[#263124] shadow-2xs active:scale-95"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-6 py-2.5 rounded-full text-xs font-bold bg-primary text-white hover:bg-primary-hover active:scale-95 transition-all shadow-md shadow-primary/25 ring-1 ring-white/20 font-sans"
+              className="px-6 py-2.5 rounded-full text-xs font-bold bg-primary text-[#121512] dark:text-[#121512] hover:bg-primary-hover active:scale-95 transition-all shadow-md font-sans"
             >
               {projectToEdit ? 'Save Category' : 'Create Category'}
             </button>

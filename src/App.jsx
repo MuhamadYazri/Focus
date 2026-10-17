@@ -221,7 +221,14 @@ export default function App() {
       const loadedSettings = set || DEFAULT_SETTINGS;
       setSettings(loadedSettings);
       
-      document.documentElement.setAttribute('data-theme', 'japandi');
+      const themeSetting = loadedSettings.theme || 'system';
+      if (themeSetting === 'system') {
+        const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+      } else {
+        document.documentElement.setAttribute('data-theme', themeSetting);
+      }
+
       setTimeLeft((loadedSettings.workDuration) * 60);
       setCurrentSound(loadedSettings.soundscape || 'none');
       try {
@@ -269,10 +276,32 @@ export default function App() {
     longBreakDuration: DEFAULT_SETTINGS.longBreakDuration,
   });
 
+  // Theme Synchronizer
+  useEffect(() => {
+    if (!isLoaded) return;
+    const themeSetting = settings.theme || 'system';
+    const applyTheme = () => {
+      if (themeSetting === 'system') {
+        const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+      } else {
+        document.documentElement.setAttribute('data-theme', themeSetting);
+      }
+    };
+
+    applyTheme();
+
+    if (themeSetting === 'system' && window.matchMedia) {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const listener = () => applyTheme();
+      mediaQuery.addEventListener('change', listener);
+      return () => mediaQuery.removeEventListener('change', listener);
+    }
+  }, [settings.theme, isLoaded]);
+
   useEffect(() => {
     if (isLoaded) {
       storage.saveSettings(settings);
-      document.documentElement.setAttribute('data-theme', 'japandi');
       const prevDurations = prevDurationsRef.current;
       const durationsChanged =
         prevDurations.workDuration !== settings.workDuration ||

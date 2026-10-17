@@ -81,7 +81,7 @@ function TimeframeHeader({ period, setPeriod, offset, setOffset }) {
                 });
               }}
               className={`tap-effect relative flex-1 h-[25px] px-2 text-center rounded-full text-[11px] leading-[15px] flex items-center justify-center transition-colors duration-150 z-10 select-none ${
-                active ? 'font-bold text-white' : 'font-medium text-[#667463] hover:text-[#1B1F1A]'
+                active ? 'font-bold text-white dark:text-[#121512]' : 'font-medium text-[#667463] hover:text-[#1B1F1A]'
               }`}
             >
               <span className="relative z-10">{p}</span>

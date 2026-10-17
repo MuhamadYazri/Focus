@@ -17,7 +17,7 @@ export default function StrictModeModal({ isOpen, onClose, onResetTimer }) {
       onClick={onClose}
     >
       <div
-        className="w-full max-w-[280px] bg-surface border border-border rounded-[28px] p-5 text-center flex flex-col items-center shadow-2xl ring-1 ring-white/80 relative animate-slideUp"
+        className="w-full max-w-[280px] bg-surface border border-[#263124] rounded-[28px] p-5 text-center flex flex-col items-center shadow-2xl ring-1 ring-white/10 dark:ring-white/5 relative animate-slideUp"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Animated Error Lottie */}
@@ -48,7 +48,7 @@ export default function StrictModeModal({ isOpen, onClose, onResetTimer }) {
               if (window.navigator?.vibrate) window.navigator.vibrate(10);
               onClose();
             }}
-            className="w-full py-2.5 rounded-full bg-primary text-white font-semibold text-[13px] font-sans shadow-md shadow-primary/25 ring-1 ring-white/20 hover:bg-primary-hover active:scale-95 transition-all"
+            className="w-full py-2.5 rounded-full bg-primary text-[#121512] dark:text-[#121512] font-semibold text-[13px] font-sans shadow-md shadow-primary/25 hover:bg-primary-hover active:scale-95 transition-all"
           >
             Resume Focus
           </button>

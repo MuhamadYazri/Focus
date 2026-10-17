@@ -84,16 +84,16 @@ function BottomNav({ activeTab, setActiveTab, isHidden = false }) {
                 setActiveTab(key);
               }}
               className={`tap-effect flex-1 h-[32px] min-w-0 px-1.5 flex items-center justify-center rounded-full relative select-none z-10 transition-colors duration-150 ${
-                on ? 'text-white' : 'text-[#667463] hover:text-[#1B1F1A]'
+                on ? 'text-white dark:text-[#121512]' : 'text-[#667463] hover:text-[#1B1F1A]'
               }`}
             >
               <div className="flex items-center gap-[5px] truncate relative">
-                <span className={`inline-flex items-center justify-center transition-colors duration-150 ${on ? 'text-white' : 'text-[#667463]'}`}>
+                <span className={`inline-flex items-center justify-center transition-colors duration-150 ${on ? 'text-white dark:text-[#121512]' : 'text-[#667463]'}`}>
                   {icon}
                 </span>
                 <span
                   className={`text-[12px] leading-[14px] tracking-[-0.2px] whitespace-nowrap transition-colors duration-150 ${
-                    on ? 'font-semibold text-white' : 'font-medium text-[#667463]'
+                    on ? 'font-bold text-white dark:text-[#121512]' : 'font-medium text-[#667463]'
                   }`}
                 >
                   {label}

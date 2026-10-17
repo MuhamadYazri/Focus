@@ -87,6 +87,7 @@ export const DEFAULT_SETTINGS = {
   keepAwake: true,
   dailyGoalHours: 4.0,
   liveNotification: true,
+  theme: 'system', // 'system' | 'light' | 'dark'
 };
 
 

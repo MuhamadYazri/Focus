@@ -187,27 +187,54 @@ function AnalyticsDashboard({
           </span>
 
           <div className="flex items-center gap-5">
-            {/* Donut Chart: 96px x 96px */}
+            {/* Donut Chart: 96px x 96px Single Multi-Segment Donut */}
             <div className="relative shrink-0 w-[96px] h-[96px] flex items-center justify-center">
-              <RingChart
-                size={55}
-                gap={6}
-                width={10}
-                rings={activeSegments.map((seg) => ({
-                  progress: seg.pct,
-                  color: seg.color,
-                  trackColor: '#E8EDE6',
-                }))}
-              >
-                <div className="flex flex-col items-center justify-center">
-                  <span className="text-[13px] leading-[18px] text-[#1B1F1A] font-extrabold font-sans tracking-[-0.3px]">
-                    {displayTotalTime}
-                  </span>
-                  <span className="text-[8px] leading-[11px] uppercase font-bold text-[#8B9E87] tracking-[1px] font-sans">
-                    TOTAL
-                  </span>
-                </div>
-              </RingChart>
+              <svg className="w-[96px] h-[96px] -rotate-90 transform" viewBox="0 0 96 96">
+                {/* Background track */}
+                <circle
+                  cx="48"
+                  cy="48"
+                  r="38"
+                  fill="transparent"
+                  stroke="currentColor"
+                  strokeWidth="8"
+                  className="text-[#E8EDE6] dark:text-[#263124]"
+                />
+                {/* Segments rendered sequentially */}
+                {(() => {
+                  const r = 38;
+                  const c = 2 * Math.PI * r;
+                  let accumulatedPct = 0;
+                  return activeSegments.map((seg, i) => {
+                    const strokeLen = (Math.max(0, seg.pct) / 100) * c;
+                    const strokeOffset = -((accumulatedPct / 100) * c);
+                    accumulatedPct += seg.pct;
+                    if (seg.pct <= 0) return null;
+                    return (
+                      <circle
+                        key={seg.label || i}
+                        cx="48"
+                        cy="48"
+                        r={r}
+                        fill="transparent"
+                        stroke={seg.color}
+                        strokeWidth="8"
+                        strokeDasharray={`${strokeLen} ${c - strokeLen}`}
+                        strokeDashoffset={strokeOffset}
+                        className="transition-all duration-700 ease-out"
+                      />
+                    );
+                  });
+                })()}
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
+                <span className="text-[12px] leading-[16px] text-[#1B1F1A] dark:text-[#E2E8DF] font-extrabold font-sans tracking-[-0.3px]">
+                  {displayTotalTime}
+                </span>
+                <span className="text-[8px] leading-[10px] uppercase font-bold text-[#8B9E87] dark:text-[#849686] tracking-[1px] font-sans mt-0.5">
+                  TOTAL
+                </span>
+              </div>
             </div>
 
             {/* Legend & Progress Tracks from Figma */}

@@ -412,9 +412,9 @@ function TimerView({
               className="tap-effect w-[72px] h-[72px] rounded-full bg-[#1B1F1A] text-white flex items-center justify-center shadow-[0px_0px_0px_3px_rgba(214,243,208,0.2),0px_8px_20px_-4px_rgba(27,31,26,0.125)] transition-transform active:scale-90 hover:scale-105"
             >
               {isRunning && !isPreviewingDifferentMode ? (
-                <Pause size={28} className="fill-current text-white" />
+                <Pause size={28} className="fill-current text-white dark:text-[#121512]" />
               ) : (
-                <Play size={28} className="translate-x-0.5 fill-current text-white" />
+                <Play size={28} className="translate-x-0.5 fill-current text-white dark:text-[#121512]" />
               )}
             </button>
 
@@ -631,7 +631,7 @@ function TimerView({
             onTouchEnd={(e) => e.stopPropagation()}
           >
             <div
-              className="w-full max-w-sm rounded-3xl p-6 flex flex-col gap-4 border border-border bg-surface shadow-2xl ring-1 ring-white/80 animate-slideUp"
+              className="w-full max-w-sm rounded-3xl p-6 flex flex-col gap-4 border border-[#263124] bg-surface shadow-2xl ring-1 ring-white/10 dark:ring-white/5 animate-slideUp"
               onClick={(e) => e.stopPropagation()}
               onTouchStart={(e) => e.stopPropagation()}
               onTouchEnd={(e) => e.stopPropagation()}
@@ -693,15 +693,15 @@ function TimerView({
                       }}
                       className={`flex items-center justify-between p-2.5 px-3 rounded-2xl border transition-all text-left ${
                         isActive
-                          ? 'border-primary bg-primary/5 shadow-xs ring-1 ring-primary/20'
-                          : 'border-border bg-surface hover:border-secondary shadow-2xs active:scale-[0.99]'
+                          ? 'border-secondary bg-secondary/10 shadow-xs'
+                          : 'border-[#263124] bg-surface hover:border-secondary shadow-2xs active:scale-[0.99]'
                       }`}
                     >
                       <div className="flex items-center gap-3">
                         <div
                           className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
                             isActive
-                              ? 'bg-primary text-white shadow-xs'
+                              ? 'bg-secondary text-[#121512] shadow-xs'
                               : 'bg-surface-hover text-text-sub'
                           }`}
                         >
@@ -720,7 +720,7 @@ function TimerView({
                           fill="none"
                           height="18"
                           stroke="currentColor"
-                          className="stroke-primary mr-1"
+                          className="stroke-secondary mr-1"
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           strokeWidth="2.5"

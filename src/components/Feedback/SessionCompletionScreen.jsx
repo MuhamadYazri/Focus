@@ -102,7 +102,7 @@ export default function SessionCompletionScreen({ celebration, onDismiss, onPrim
         <button
           type="button"
           onClick={handleAction}
-          className="tap-effect w-full h-[52px] rounded-full bg-[#1B1F1A] text-white font-bold text-[14px] shadow-sm flex items-center justify-center gap-2 hover:bg-[#40513B] transition-colors cursor-pointer"
+          className="tap-effect w-full h-[52px] rounded-full bg-[#1B1F1A] text-primary-fg font-bold text-[14px] shadow-sm flex items-center justify-center gap-2 hover:bg-[#40513B] transition-colors cursor-pointer"
         >
           <span>{primaryBtnText}</span>
           <ArrowRight size={16} />

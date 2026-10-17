@@ -5,13 +5,17 @@
   --color-canvas: var(--theme-canvas);
   --color-surface: var(--theme-surface);
   --color-surface-hover: var(--theme-surface-hover);
+  --color-surface-active: var(--theme-surface-active);
   --color-primary: var(--theme-primary);
   --color-primary-fg: var(--theme-primary-fg);
   --color-secondary: var(--theme-secondary);
   --color-accent: var(--theme-accent);
   --color-text-main: var(--theme-text-main);
   --color-text-sub: var(--theme-text-sub);
+  --color-text-muted: var(--theme-text-muted);
   --color-border: var(--theme-border);
+  --color-border-card: var(--theme-border-card);
+  --color-ring-track: var(--theme-ring-track);
   
   --color-sage-100: #F0F2EF;
   --color-sage-200: #E4EAE2;
@@ -33,17 +37,21 @@
   --font-styro: 'Styro', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-:root, [data-theme="japandi"] {
+:root, [data-theme="light"], [data-theme="japandi"] {
   --theme-canvas: #F0F2EF;
   --theme-surface: #FFFFFF;
   --theme-surface-hover: #E8EDE6;
+  --theme-surface-active: #D6E0D4;
   --theme-primary: #1B1F1A;
   --theme-primary-fg: #FFFFFF;
   --theme-secondary: #588157;
-  --theme-accent: #344E41;
+  --theme-accent: #7A9A76;
   --theme-text-main: #1B1F1A;
   --theme-text-sub: #667463;
+  --theme-text-muted: #8B9E87;
   --theme-border: #D6E0D4;
+  --theme-border-card: #CBD7C9;
+  --theme-ring-track: #CBD7C9;
 
   --theme-font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Plus Jakarta Sans", "Inter", Roboto, sans-serif;
   --theme-font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Plus Jakarta Sans", "Inter", Roboto, sans-serif;
@@ -54,6 +62,33 @@
   --theme-shadow: 0px 2px 8px rgba(27, 31, 26, 0.031);
   --theme-shadow-lg: 0px 8px 24px rgba(27, 31, 26, 0.06);
   --theme-shadow-sm: 0px 1px 4px rgba(27, 31, 26, 0.03);
+}
+
+[data-theme="dark"] {
+  --theme-canvas: #121512;
+  --theme-surface: #1A1F19;
+  --theme-surface-hover: #232B22;
+  --theme-surface-active: #2C362B;
+  --theme-primary: #E2E8DF;
+  --theme-primary-fg: #121512;
+  --theme-secondary: #8EAE88;
+  --theme-accent: #ADC09E;
+  --theme-text-main: #E2E8DF;
+  --theme-text-sub: #A4B4A6;
+  --theme-text-muted: #849686;
+  --theme-border: #2C362B;
+  --theme-border-card: #344033;
+  --theme-ring-track: #263024;
+
+  --theme-font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Plus Jakarta Sans", "Inter", Roboto, sans-serif;
+  --theme-font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Plus Jakarta Sans", "Inter", Roboto, sans-serif;
+  --theme-font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Monaco, Consolas, monospace;
+
+  --theme-radius: 18px;
+  --theme-border-width: 1px;
+  --theme-shadow: 0px 2px 8px rgba(0, 0, 0, 0.25);
+  --theme-shadow-lg: 0px 8px 24px rgba(0, 0, 0, 0.45);
+  --theme-shadow-sm: 0px 1px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* ── Base Reset ─────────────────────────────────── */
@@ -389,3 +424,146 @@
   animation: celebrationCardIn 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   will-change: transform, opacity;
 }
+
+/* ── Dark Mode Universal Overrides for Hardcoded Hex Utility Classes ── */
+[data-theme="dark"] .bg-white {
+  background-color: var(--theme-surface) !important;
+}
+
+[data-theme="dark"] .bg-white\/95 {
+  background-color: rgba(26, 31, 25, 0.95) !important;
+}
+
+[data-theme="dark"] .bg-\[\#F0F2EF\] {
+  background-color: var(--theme-canvas) !important;
+}
+
+[data-theme="dark"] .bg-\[\#E8EDE6\] {
+  background-color: var(--theme-surface-hover) !important;
+}
+
+[data-theme="dark"] .bg-\[\#E4EAE2\] {
+  background-color: #1A2019 !important;
+  border-color: #2D392C !important;
+}
+
+[data-theme="dark"] .bg-\[\#CBD7C9\] {
+  background-color: var(--theme-border) !important;
+}
+
+[data-theme="dark"] .bg-\[\#D6F3D0\] {
+  background-color: #232B22 !important;
+}
+
+[data-theme="dark"] [data-purpose="hero-progress-metric"] .bg-\[\#1B1F1A\] {
+  background-color: var(--theme-secondary) !important;
+}
+
+[data-theme="dark"] .bg-\[\#1B1F1A\] {
+  background-color: var(--theme-primary) !important;
+  color: var(--theme-primary-fg) !important;
+}
+
+/* Active Mode Switcher Pill in Dark Mode: crisp matcha surface with charcoal text */
+[data-theme="dark"] .bg-\[\#41493F\] {
+  background-color: #384936 !important;
+  color: #F0F4EE !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="dark"] .text-\[\#1B1F1A\] {
+  color: var(--theme-text-main) !important;
+}
+
+/* Floating dock active pill text contrast */
+[data-theme="dark"] [data-purpose="floating-dock-container"] button.text-white,
+[data-theme="dark"] [data-purpose="floating-dock-container"] button .text-white {
+  color: #121512 !important;
+}
+
+/* Timer hero play/pause button icon contrast */
+[data-theme="dark"] button.bg-\[\#1B1F1A\] .text-white,
+[data-theme="dark"] button.bg-\[\#1B1F1A\] svg.text-white {
+  color: #121512 !important;
+  fill: #121512 !important;
+}
+
+[data-theme="dark"] .text-\[\#41493F\] {
+  color: #C0CFC0 !important;
+}
+
+[data-theme="dark"] .text-\[\#5F6C5C\] {
+  color: #A4B4A6 !important;
+}
+
+[data-theme="dark"] .text-\[\#667463\] {
+  color: var(--theme-text-sub) !important;
+}
+
+[data-theme="dark"] .text-\[\#8B9E87\] {
+  color: var(--theme-text-muted) !important;
+}
+
+[data-theme="dark"] .border-\[\#D6E0D4\],
+[data-theme="dark"] .border-\[\#D6E0D4\]\/60,
+[data-theme="dark"] .border-\[\#D6E0D4\]\/50 {
+  border-color: #232B22 !important;
+}
+
+[data-theme="dark"] .border-\[\#CBD7C9\] {
+  border-color: #232B22 !important;
+}
+
+[data-theme="dark"] .border-\[\#E2E6E0\] {
+  border-color: #202720 !important;
+}
+
+[data-theme="dark"] .border-\[\#D5DAD3\] {
+  border-color: #232B22 !important;
+}
+
+/* Selected option text inside segmented sliding pill tracks in Dark Mode */
+[data-theme="dark"] .bg-\[\#E8EDE6\] button.text-white,
+[data-theme="dark"] .bg-\[\#E8EDE6\] button.text-white span,
+[data-theme="dark"] .bg-\[\#E8EDE6\] button.font-bold,
+[data-theme="dark"] .bg-\[\#E8EDE6\] button.font-bold span {
+  color: #121512 !important;
+}
+
+/* Soundscape selected pill icon & text in Dark Mode */
+[data-theme="dark"] .grid button.bg-\[\#1B1F1A\] {
+  background-color: var(--theme-primary) !important;
+  color: #121512 !important;
+  border-color: var(--theme-primary) !important;
+}
+
+[data-theme="dark"] .grid button.bg-\[\#1B1F1A\] svg,
+[data-theme="dark"] .grid button.bg-\[\#1B1F1A\] span {
+  color: #121512 !important;
+}
+
+[data-theme="dark"] circle[stroke="#CBD7C9"] {
+  stroke: var(--theme-ring-track) !important;
+}
+
+[data-theme="dark"] circle[stroke="#41493F"] {
+  stroke: var(--theme-secondary) !important;
+}
+
+[data-theme="dark"] circle[stroke="#8B9E87"] {
+  stroke: var(--theme-accent) !important;
+}
+
+[data-theme="dark"] svg polygon[fill="#1B1F1A"] {
+  fill: var(--theme-text-main) !important;
+}
+
+[data-theme="dark"] .border-\[\#1B1F1A\]\/10,
+[data-theme="dark"] .border-\[\#1B1F1A\]\/5 {
+  border-color: rgba(226, 232, 223, 0.12) !important;
+}
+
+[data-theme="dark"] .hover\:bg-white:hover {
+  background-color: var(--theme-surface-hover) !important;
+}
+

@@ -17,6 +17,8 @@ import {
   CloudRain,
   Trees,
   Waves,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { storage } from '../../services/storage';
 import { Filesystem, Directory } from '@capacitor/filesystem';
@@ -572,6 +574,65 @@ function ProfileView({
                 style={{ willChange: 'transform' }}
               />
             </button>
+          </div>
+        </section>
+
+        {/* ── 3. APPEARANCE & THEME ── */}
+        <section className="bg-surface rounded-[18px] p-5 border border-border shadow-[0px_2px_8px_rgba(27,31,26,0.031)] flex flex-col gap-3">
+          <div className="flex items-center justify-between pb-1 border-b border-border/60">
+            <span className="text-[11px] font-extrabold uppercase tracking-[1.2px] text-text-muted font-sans">
+              APPEARANCE
+            </span>
+            <Sun size={14} className="text-text-sub" />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center justify-between">
+              <span className="text-[12px] font-medium text-text-main">Color Theme</span>
+              <span className="text-[12px] font-bold text-text-main capitalize">
+                {settings.theme || 'system'}
+              </span>
+            </div>
+
+            <div className="relative flex items-center p-1 bg-surface-hover rounded-full overflow-hidden">
+              {/* Sliding pill indicator */}
+              <div
+                aria-hidden="true"
+                className="absolute top-1 bottom-1 bg-primary rounded-full shadow-[0px_1px_2px_rgba(27,31,26,0.1)] pointer-events-none transition-transform duration-250 ease-[cubic-bezier(0.25,1,0.5,1)]"
+                style={{
+                  left: '4px',
+                  width: 'calc((100% - 8px) / 3)',
+                  transform: `translate3d(calc(${
+                    (settings.theme === 'light' ? 0 : settings.theme === 'dark' ? 1 : 2) * 100
+                  }%), 0, 0)`,
+                  willChange: 'transform',
+                }}
+              />
+
+              {[
+                { id: 'light', label: 'Light', Icon: Sun },
+                { id: 'dark', label: 'Dark', Icon: Moon },
+                { id: 'system', label: 'System', Icon: Shield },
+              ].map(({ id, label, Icon }) => {
+                const isActive = (settings.theme || 'system') === id;
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => {
+                      if (window.navigator?.vibrate) window.navigator.vibrate(10);
+                      handleChange('theme', id);
+                    }}
+                    className={`tap-effect flex-1 h-[28px] rounded-full text-[11px] relative z-10 transition-colors duration-150 flex items-center justify-center gap-1.5 select-none ${
+                      isActive ? 'text-primary-fg font-bold' : 'text-text-sub hover:text-text-main font-medium'
+                    }`}
+                  >
+                    <Icon size={12} />
+                    <span>{label}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </section>
 

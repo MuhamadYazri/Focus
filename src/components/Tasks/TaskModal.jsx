@@ -196,7 +196,7 @@ export default function TaskModal({
     >
       <div
         ref={sheetRef}
-        className={`w-full max-w-md mx-auto bg-surface rounded-t-3xl overflow-hidden shadow-2xl border-t border-l border-r border-border ring-1 ring-white/60 will-change-transform ${
+        className={`w-full max-w-md mx-auto bg-surface rounded-t-3xl overflow-hidden shadow-2xl border-t border-l border-r border-[#263124] ring-1 ring-white/10 dark:ring-white/5 will-change-transform ${
           isClosing ? '' : 'animate-sheet-up'
         }`}
         onClick={(e) => e.stopPropagation()}
@@ -254,12 +254,11 @@ export default function TaskModal({
               Task title
             </label>
             <input
-              autoFocus
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
               placeholder="What needs to be done?"
-              className="w-full bg-canvas border border-border rounded-xl px-4 py-3.5 font-sans text-[15px] font-semibold text-text-main placeholder:text-text-sub/50 outline-none focus:border-secondary focus:bg-surface transition-all shadow-inner"
+              className="w-full bg-canvas border border-[#263124] rounded-xl px-4 py-3.5 font-sans text-[15px] font-semibold text-text-main placeholder:text-text-sub/50 outline-none focus:border-secondary focus:bg-surface transition-all shadow-inner"
             />
           </div>
 
@@ -271,7 +270,7 @@ export default function TaskModal({
             <button
               type="button"
               onClick={() => setShowTags((v) => !v)}
-              className={`w-full flex items-center justify-between bg-surface border ${showTags ? 'border-secondary shadow-sm ring-1 ring-white/60' : 'border-border shadow-2xs ring-1 ring-white/40'} rounded-xl px-4 py-3.5 transition-all`}
+              className={`w-full flex items-center justify-between bg-surface border border-[#263124] rounded-xl px-4 py-3.5 transition-all shadow-2xs`}
             >
               <div className="flex items-center gap-3">
                 <div className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: selectedProject.color || 'var(--theme-primary)' }} />
@@ -283,7 +282,7 @@ export default function TaskModal({
             </button>
 
             {showTags && (
-              <div className="mt-2 bg-surface border border-border rounded-xl overflow-hidden shadow-lg ring-1 ring-white/60 max-h-48 overflow-y-auto">
+              <div className="mt-2 bg-surface border border-[#263124] rounded-xl overflow-hidden shadow-lg max-h-48 overflow-y-auto">
                 {projects.map((p) => {
                   const isSel = p.id === selectedProject.id;
                   const cleanPName = toTitleCase(p.name.replace(/^[0-9]+\s*(\/\/|·|\.)\s*/, '').replace(/_/g, ' '));
@@ -320,7 +319,7 @@ export default function TaskModal({
             <label className="block text-[10px] font-bold uppercase tracking-widest text-text-sub font-mono mb-1.5">
               Schedule
             </label>
-            <div className="flex gap-1.5 p-1 bg-surface-hover rounded-xl border border-border shadow-inner flex-wrap">
+            <div className="flex gap-1.5 p-1 bg-surface-hover rounded-xl border border-[#263124] shadow-inner flex-wrap">
               {[
                 { id: 'today', label: 'Today' },
                 { id: 'daily', label: 'Every Day' },
@@ -334,7 +333,7 @@ export default function TaskModal({
                     type="button"
                     onClick={() => setScheduleType(item.id)}
                     className={`flex-1 min-w-[70px] transition-all active:scale-95 py-2 px-1 rounded-lg text-center text-xs font-sans ${
-                      isSelected ? 'bg-surface font-bold text-primary shadow-xs ring-1 ring-white/80' : 'font-medium text-text-sub hover:text-text-main'
+                      isSelected ? 'bg-surface font-bold text-primary shadow-xs border border-[#344033]' : 'font-medium text-text-sub hover:text-text-main'
                     }`}
                   >
                     {item.label}
@@ -366,7 +365,7 @@ export default function TaskModal({
                         }
                       }}
                       className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-sans font-bold transition-all ${
-                        isSel ? 'bg-primary text-white shadow-xs ring-1 ring-white/20' : 'bg-surface-hover text-text-sub border border-border shadow-2xs'
+                        isSel ? 'bg-primary text-white shadow-xs' : 'bg-surface-hover text-text-sub border border-[#263124] shadow-2xs'
                       }`}
                     >
                       {label}
@@ -381,7 +380,7 @@ export default function TaskModal({
                   type="date"
                   value={scheduledDate}
                   onChange={(e) => setScheduledDate(e.target.value)}
-                  className="w-full bg-canvas border border-border rounded-xl px-4 py-3 font-sans text-sm font-semibold text-text-main outline-none focus:border-secondary focus:bg-surface transition-all shadow-inner"
+                  className="w-full bg-canvas border border-[#263124] rounded-xl px-4 py-3 font-sans text-sm font-semibold text-text-main outline-none focus:border-secondary focus:bg-surface transition-all shadow-inner"
                 />
               </div>
             )}
@@ -396,7 +395,7 @@ export default function TaskModal({
               <button
                 type="button"
                 onClick={() => setPomoTotal((v) => Math.max(1, v - 1))}
-                className="w-12 h-12 shrink-0 rounded-xl border border-border bg-surface-hover flex items-center justify-center text-primary active:scale-95 transition-all hover:bg-border shadow-xs ring-1 ring-white/60"
+                className="w-12 h-12 shrink-0 rounded-xl border border-[#263124] bg-surface-hover flex items-center justify-center text-primary active:scale-95 transition-all hover:bg-border shadow-xs"
               >
                 <span className="font-sans text-3xl leading-none font-medium mb-1">−</span>
               </button>
@@ -411,7 +410,7 @@ export default function TaskModal({
               <button
                 type="button"
                 onClick={() => setPomoTotal((v) => Math.min(12, v + 1))}
-                className="w-12 h-12 shrink-0 rounded-xl border border-border bg-surface-hover flex items-center justify-center text-primary active:scale-95 transition-all hover:bg-border shadow-xs ring-1 ring-white/60"
+                className="w-12 h-12 shrink-0 rounded-xl border border-[#263124] bg-surface-hover flex items-center justify-center text-primary active:scale-95 transition-all hover:bg-border shadow-xs"
               >
                 <Plus size={20} strokeWidth={3} />
               </button>
@@ -487,7 +486,7 @@ export default function TaskModal({
             disabled={!title.trim()}
             className={`w-full flex items-center justify-center gap-2 rounded-full py-3.5 mt-2 transition-all active:scale-[0.98] ${
               title.trim() 
-                ? 'bg-primary text-white shadow-md shadow-primary/25 ring-1 ring-white/20 hover:bg-primary-hover' 
+                ? 'bg-primary text-primary-fg shadow-md shadow-primary/25 ring-1 ring-white/20 hover:bg-primary-hover' 
                 : 'bg-surface-hover text-text-sub/50 border border-border cursor-not-allowed'
             }`}
           >

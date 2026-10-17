@@ -143,12 +143,12 @@ function TaskList({
 
             {/* Progress Bar (2px height, #D6F3D0 track, #1B1F1A fill, GPU scaleX) */}
             <div className="pt-7">
-              <div className="w-full h-[2px] bg-[#D6F3D0] rounded-[1px] overflow-hidden">
+              <div className="w-full h-[3px] bg-[#D6F3D0] dark:bg-[#263124] rounded-full overflow-hidden">
                 <div
                   aria-valuemax="100"
                   aria-valuemin="0"
                   aria-valuenow={progressPercent}
-                  className="w-full h-full bg-[#1B1F1A] rounded-[1px] origin-left transition-transform duration-700 ease-out"
+                  className="w-full h-full bg-[#1B1F1A] dark:bg-[#8EAE88] rounded-full origin-left transition-transform duration-700 ease-out"
                   role="progressbar"
                   style={{
                     transform: `scaleX(${Math.max(0.01, progressPercent / 100)})`,
@@ -300,7 +300,7 @@ function TaskList({
                           {isCurrentFocus ? (
                             <Pause size={11} className="fill-current" />
                           ) : (
-                            <svg className="w-3 h-3 ml-0.5 fill-[#1B1F1A]" viewBox="0 0 24 24">
+                            <svg className="w-3 h-3 ml-0.5 fill-current" viewBox="0 0 24 24">
                               <polygon points="6 4 20 12 6 20 6 4" />
                             </svg>
                           )}
@@ -326,7 +326,7 @@ function TaskList({
               if (window.navigator?.vibrate) window.navigator.vibrate(15);
               if (onAddTask) onAddTask();
             }}
-            className="tap-effect w-[44px] h-[44px] rounded-full bg-[#1B1F1A] text-white flex items-center justify-center shadow-[0px_8px_20px_-2px_rgba(27,31,26,0.11)] hover:bg-[#41493F] transition-all cursor-pointer"
+            className="tap-effect w-[44px] h-[44px] rounded-full bg-[#1B1F1A] text-primary-fg flex items-center justify-center shadow-[0px_8px_20px_-2px_rgba(27,31,26,0.11)] hover:bg-[#41493F] transition-all cursor-pointer"
           >
             <svg className="w-5 h-5 stroke-[1.67]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <line x1="12" x2="12" y1="5" y2="19" />

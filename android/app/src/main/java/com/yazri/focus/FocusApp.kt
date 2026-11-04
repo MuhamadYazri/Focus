@@ -27,7 +27,7 @@ class FocusApp : Application() {
         database = FocusDatabase.getInstance(this)
         settingsDataStore = SettingsDataStore(this)
         repository = FocusRepository(database, settingsDataStore)
-        soundEngine = SoundEngine()
+        soundEngine = SoundEngine(this)
         hapticManager = HapticManager(this)
         timerEngine = TimerEngine(this, repository, soundEngine, hapticManager)
     }

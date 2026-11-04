@@ -1,24 +1,31 @@
 package com.yazri.focus.service
 
+import android.content.Context
 import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioTrack
+import android.media.MediaPlayer
+import android.util.Log
+import com.yazri.focus.R
 import kotlinx.coroutines.*
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.PI
+import kotlin.math.cos
 import kotlin.math.exp
 import kotlin.math.sin
-import kotlin.random.Random
 
 /**
- * Native procedural PCM audio synthesizer replicating Web Audio API SoundEngine:
- * - Ambient pink/filtered noise for 'rain', 'forest', 'waves', 'cafe'
- * - Mechanical sine-decay tick for 'clock'
- * - 5-second harmonic zen vibraphone melody for playChime()
+ * Native audio engine:
+ * - Ping-Pong Overlapping Crossfade for ambient soundscapes ('rain', 'forest', 'waves', 'cafe'):
+ *   Runs dual alternating MediaPlayers overlapping by 3.0s with equal-power sinusoidal crossfade.
+ *   Completely eliminates hardware EOF loop stutter, decoder buffer underruns, and audible loop seams.
+ * - Precision zero-crossing calibrated single-track looping for 'clock' (exact steady tick rhythm).
+ * - 5-second harmonic zen vibraphone melody for playChime() via AudioTrack.
  */
-class SoundEngine {
+class SoundEngine(private val context: Context? = null) {
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private var ambientJob: Job? = null
-    private var activeTrack: AudioTrack? = null
+    private val activePlayers = CopyOnWriteArrayList<MediaPlayer>()
 
     @Volatile
     private var currentSound: String = "none"
@@ -30,123 +37,143 @@ class SoundEngine {
 
     fun setVolume(newVol: Float) {
         volume = newVol.coerceIn(0f, 1f)
-        try {
-            activeTrack?.setVolume(volume)
-        } catch (_: Exception) {}
+        for (player in activePlayers) {
+            try {
+                player.setVolume(volume, volume)
+            } catch (_: Exception) {}
+        }
     }
 
     fun stop() {
         currentSound = "none"
         ambientJob?.cancel()
         ambientJob = null
-        try {
-            activeTrack?.pause()
-            activeTrack?.flush()
-            activeTrack?.release()
-        } catch (_: Exception) {}
-        activeTrack = null
+        val playersToRelease = ArrayList(activePlayers)
+        activePlayers.clear()
+        if (playersToRelease.isNotEmpty()) {
+            scope.launch(Dispatchers.Default) {
+                for (p in playersToRelease) {
+                    try {
+                        if (p.isPlaying) {
+                            p.stop()
+                        }
+                        p.reset()
+                        p.release()
+                    } catch (_: Exception) {}
+                }
+            }
+        }
     }
 
     fun play(soundType: String, vol: Float = 0.6f) {
         stop()
         currentSound = soundType
         volume = vol.coerceIn(0f, 1f)
-        if (soundType == "none") return
+        if (soundType == "none" || context == null) return
 
-        ambientJob = scope.launch {
-            val minBuf = AudioTrack.getMinBufferSize(
-                sampleRate,
-                AudioFormat.CHANNEL_OUT_MONO,
-                AudioFormat.ENCODING_PCM_16BIT
-            ).coerceAtLeast(4096)
+        val rawResId = when (soundType) {
+            "clock" -> R.raw.clock
+            "cafe" -> R.raw.cafe
+            "waves" -> R.raw.waves
+            "rain" -> R.raw.rain
+            "forest" -> R.raw.forest
+            else -> null
+        } ?: return
 
-            val track = AudioTrack.Builder()
-                .setAudioAttributes(
-                    AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_MEDIA)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .build()
-                )
-                .setAudioFormat(
-                    AudioFormat.Builder()
-                        .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                        .setSampleRate(sampleRate)
-                        .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
-                        .build()
-                )
-                .setBufferSizeInBytes(minBuf * 2)
-                .setTransferMode(AudioTrack.MODE_STREAM)
-                .build()
-
-            activeTrack = track
-            track.setVolume(volume)
-            track.play()
-
-            val chunkSize = 2048
-            val buffer = ShortArray(chunkSize)
-
-            // Pink noise filter state
-            var b0 = 0.0
-            var b1 = 0.0
-            var b2 = 0.0
-            var b3 = 0.0
-            var b4 = 0.0
-            var b5 = 0.0
-            var b6 = 0.0
-            var lpState = 0.0
-            var sampleIndex = 0L
-
+        ambientJob = scope.launch(Dispatchers.Default) {
             try {
-                while (isActive && currentSound == soundType) {
-                    for (i in 0 until chunkSize) {
-                        val t = sampleIndex.toDouble() / sampleRate.toDouble()
-                        sampleIndex++
+                if (soundType == "clock") {
+                    // Clock has exact calibrated zero-crossing tick boundaries; single looping player
+                    val mp = MediaPlayer.create(context, rawResId) ?: return@launch
+                    if (!isActive || currentSound != soundType) {
+                        mp.release()
+                        return@launch
+                    }
+                    mp.isLooping = true
+                    mp.setVolume(volume, volume)
+                    mp.start()
+                    activePlayers.add(mp)
+                } else {
+                    // Continuous ambient sounds: Ping-Pong Overlapping Crossfade
+                    val playerA = MediaPlayer.create(context, rawResId) ?: return@launch
+                    val playerB = MediaPlayer.create(context, rawResId) ?: run {
+                        playerA.release()
+                        return@launch
+                    }
+                    if (!isActive || currentSound != soundType) {
+                        playerA.release()
+                        playerB.release()
+                        return@launch
+                    }
 
-                        val sampleDouble = if (soundType == "clock") {
-                            val secFrac = t % 1.0
-                            if (secFrac < 0.035) {
-                                val freq = 1200.0 * exp(-secFrac * 35.0)
-                                val env = exp(-secFrac * 120.0)
-                                sin(2.0 * PI * freq * secFrac) * env * 0.45
-                            } else {
-                                0.0
-                            }
-                        } else {
-                            val white = Random.nextDouble(-1.0, 1.0)
-                            b0 = 0.99886 * b0 + white * 0.0555179
-                            b1 = 0.99332 * b1 + white * 0.0750759
-                            b2 = 0.96900 * b2 + white * 0.1538520
-                            b3 = 0.86650 * b3 + white * 0.3104856
-                            b4 = 0.55000 * b4 + white * 0.5329522
-                            b5 = -0.7616 * b5 - white * 0.0168980
-                            val pink = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.06
-                            b6 = white * 0.115926
+                    activePlayers.add(playerA)
+                    activePlayers.add(playerB)
 
-                            val alpha = when (soundType) {
-                                "rain" -> 0.25
-                                "forest" -> 0.14
-                                "waves" -> 0.08 + 0.06 * sin(2.0 * PI * 0.12 * t)
-                                "cafe" -> 0.38
-                                else -> 0.2
-                            }
-                            lpState += alpha * (pink - lpState)
-                            val mod = if (soundType == "waves") {
-                                0.65 + 0.35 * sin(2.0 * PI * 0.12 * t)
-                            } else 1.0
-                            lpState * mod
+                    val crossfadeMs = 3000L
+                    val stepMs = 50L
+                    val steps = (crossfadeMs / stepMs).toInt().coerceAtLeast(1)
+
+                    var currentActive = playerA
+                    var incoming = playerB
+
+                    currentActive.isLooping = false
+                    incoming.isLooping = false
+                    currentActive.setVolume(volume, volume)
+                    currentActive.start()
+
+                    while (isActive && currentSound == soundType) {
+                        val duration = currentActive.duration
+                        if (duration <= crossfadeMs) {
+                            currentActive.isLooping = true
+                            break
                         }
 
-                        val pcm = (sampleDouble.coerceIn(-1.0, 1.0) * Short.MAX_VALUE).toInt().toShort()
-                        buffer[i] = pcm
+                        // Wait until playback reaches crossfade trigger point (duration - crossfadeMs)
+                        while (isActive && currentSound == soundType) {
+                            val pos = try { currentActive.currentPosition } catch (_: Exception) { -1 }
+                            if (pos >= duration - crossfadeMs || pos == -1) break
+                            val sleepMs = ((duration - crossfadeMs - pos) / 2).coerceIn(40L, 500L)
+                            delay(sleepMs)
+                        }
+
+                        if (!isActive || currentSound != soundType) break
+
+                        // Start incoming player at volume 0
+                        incoming.seekTo(0)
+                        incoming.setVolume(0f, 0f)
+                        incoming.start()
+
+                        // Equal-power sinusoidal crossfade over crossfadeMs
+                        for (s in 0..steps) {
+                            if (!isActive || currentSound != soundType) break
+                            val t = s.toFloat() / steps
+                            val fadeOut = (cos(0.5 * PI * t) * volume).toFloat()
+                            val fadeIn = (sin(0.5 * PI * t) * volume).toFloat()
+                            try {
+                                currentActive.setVolume(fadeOut, fadeOut)
+                                incoming.setVolume(fadeIn, fadeIn)
+                            } catch (_: Exception) {}
+                            delay(stepMs)
+                        }
+
+                        if (!isActive || currentSound != soundType) break
+
+                        // Complete transition
+                        try {
+                            currentActive.pause()
+                            currentActive.seekTo(0)
+                            currentActive.setVolume(0f, 0f)
+                            incoming.setVolume(volume, volume)
+                        } catch (_: Exception) {}
+
+                        // Swap active and incoming for next cycle
+                        val temp = currentActive
+                        currentActive = incoming
+                        incoming = temp
                     }
-                    track.write(buffer, 0, chunkSize)
                 }
-            } catch (_: Exception) {
-            } finally {
-                try {
-                    track.stop()
-                    track.release()
-                } catch (_: Exception) {}
+            } catch (e: Exception) {
+                Log.e("SoundEngine", "Failed to start media player for $soundType", e)
             }
         }
     }

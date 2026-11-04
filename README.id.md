@@ -51,7 +51,7 @@ Gue bikin Focus karena cuma pengen alat sederhana dan jujur buat kerja tanpa gan
 ## Cara Install
 
 1. Buka halaman [Releases](https://github.com/MuhamadYazri/Focus/releases).
-2. Download file **`app-release.apk`**.
+2. Download file **`Focus_v1.0.2.apk`**.
 3. Buka file hasil download di HP lu, lalu pilih **Install** (izinkan install dari browser kalau diminta).
 
 ---

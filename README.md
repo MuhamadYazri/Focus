@@ -51,7 +51,7 @@ I built Focus because I just wanted a simple, honest app to get things done with
 ## How to Install
 
 1. Go to the [Releases](https://github.com/MuhamadYazri/Focus/releases) page.
-2. Download **`app-release.apk`**.
+2. Download **`Focus_v1.0.2.apk`**.
 3. Tap the downloaded file to install (allow your browser to install apps if prompted).
 
 ---

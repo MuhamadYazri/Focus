@@ -48,7 +48,13 @@ function processDailyRollover(tasksList) {
     }
 
     if (task && shouldRollover && task.completed && compDate && compDate !== todayStr) {
-      return { ...task, completed: false, completedPomos: 0, completedDateStr: null, completedAt: null };
+      const resetSubtasks = (task.subtasks || []).map(s => ({ ...s, completed: false }));
+      return { ...task, completed: false, completedPomos: 0, completedDateStr: null, completedAt: null, subtasks: resetSubtasks };
+    }
+    // Unfinished tasks: reset pomodoros to 0 and uncheck subtasks each new day
+    if (task && !task.completed && (task.completedPomos > 0 || (task.subtasks && task.subtasks.some(s => s.completed)))) {
+      const resetSubtasks = (task.subtasks || []).map(s => ({ ...s, completed: false }));
+      return { ...task, completedPomos: 0, subtasks: resetSubtasks };
     }
     return task;
   });

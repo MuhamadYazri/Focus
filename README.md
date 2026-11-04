@@ -65,10 +65,10 @@ cd Focus
 
 ---
 
-## 🔊 Audio Credits
+## 🎨 Credits & Attributions
 
-The ambient soundscapes in Focus are recorded and published by **Joseph SARDIN** on [BigSoundBank.com](https://bigsoundbank.com) under the **Creative Commons 0 (CC0 / Public Domain)** license:
-
+### 🔊 Ambient Soundscapes
+Recorded and published by **Joseph SARDIN** on [BigSoundBank.com](https://bigsoundbank.com) under the **Creative Commons 0 (CC0 / Public Domain)** license:
 - ⏱ **Clock**: [Stopwatch 2 (ID 2138)](https://bigsoundbank.com/stopwatch-2-s2138.html)
 - ☕ **Café**: [Atmosphere bar 2 (ID 0481)](https://bigsoundbank.com/atmosphere-bar-2-s0481.html)
 - 🌊 **Waves**: [Sea waves and seagulls (ID 0267)](https://bigsoundbank.com/sea-waves-and-seagulls-s0267.html)
@@ -76,6 +76,9 @@ The ambient soundscapes in Focus are recorded and published by **Joseph SARDIN**
 - 🌲 **Forest**: [Forest (ID 0100)](https://bigsoundbank.com/forest-s0100.html)
 
 *The session completion chime is synthesized directly in code using pure mathematical sine wave harmonics.*
+
+### 🐱 Mascot Peek Animation
+- **Cat Mascot ("Le Petit Chat Noir")**: Animated by **Tom Fabre** on [LottieFiles](https://lottiefiles.com) (Lottie Simple License). Used for the playful edge-peeking focus companion.
 
 ---
 

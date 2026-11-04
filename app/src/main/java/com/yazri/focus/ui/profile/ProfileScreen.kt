@@ -1414,6 +1414,47 @@ fun AudioCreditsDialog(
                     }
                 }
             }
+
+            Text(
+                text = "MASCOT ANIMATION",
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.sp,
+                color = MossSecondary,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(CanvasBg)
+                    .border(1.dp, BorderHairline.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
+                    .clickable { runCatching { uriHandler.openUri("https://lottiefiles.com") } }
+                    .padding(horizontal = 14.dp, vertical = 10.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = "Cat Mascot (\"Le Petit Chat Noir\")",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = InkDark
+                    )
+                    Text(
+                        text = "Animated by Tom Fabre on LottieFiles",
+                        fontSize = 10.sp,
+                        color = SoftSage
+                    )
+                }
+                Icon(
+                    imageVector = Icons.Outlined.OpenInNew,
+                    contentDescription = "Open",
+                    tint = SoftSage,
+                    modifier = Modifier.size(14.dp)
+                )
+            }
         }
     }
 }

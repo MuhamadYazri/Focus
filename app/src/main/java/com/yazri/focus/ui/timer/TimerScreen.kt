@@ -133,6 +133,7 @@ fun TimerScreen(
     val timerMinColor = if (isDarkTheme) Color(0xFFA8A8A2) else Color(0xFF8F908C)
     val timerSecColor = if (isDarkTheme) Color(0xFFF2F2EE) else Color(0xFF050505)
     val canvasBg = LocalFocusColors.current.canvas
+    val navBarBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
     val today = remember { LocalDate.now() }
     val dayOfWeekShort =
@@ -218,7 +219,7 @@ fun TimerScreen(
                                 .fillMaxSize()
                                 .widthIn(max = 440.dp)
                                 .padding(horizontal = 24.dp)
-                                .padding(top = 52.dp, bottom = 110.dp),
+                                .padding(top = 54.dp, bottom = 140.dp + navBarBottom),
                     ) {
                         Column(modifier = Modifier.fillMaxWidth()) {
                             // ── TOP BAR: Strict/Sound Circular Toggles on Left + Mode Pill Switcher on Right ──
@@ -282,7 +283,7 @@ fun TimerScreen(
                                         modifier =
                                             Modifier
                                                 .width(196.dp)
-                                                .height(40.dp)
+                                                .height(38.dp)
                                                 .inset(CircleShape, SurfaceSubtle, depth = 5.dp)
                                                 .padding(3.dp),
                                     ) {
@@ -929,9 +930,9 @@ fun TimerScreen(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(28.dp))
+                        .clip(RoundedCornerShape(24.dp))
                         .background(SurfaceWhite)
-                        .border(1.dp, BorderHairline, RoundedCornerShape(28.dp))
+                        .border(1.dp, BorderHairline, RoundedCornerShape(24.dp))
                         .padding(22.dp),
                 verticalArrangement = Arrangement.spacedBy(18.dp),
             ) {
@@ -1019,9 +1020,9 @@ fun TimerScreen(
                                     .fillMaxWidth()
                                     .then(
                                         if (isActive) {
-                                            Modifier.raisedDark(RoundedCornerShape(16.dp), InkDark, elevation = 5.dp)
+                                            Modifier.raisedDark(RoundedCornerShape(14.dp), InkDark, elevation = 4.dp)
                                         } else {
-                                            Modifier.raised(RoundedCornerShape(16.dp), SurfaceWhite, elevation = 2.dp)
+                                            Modifier.raised(RoundedCornerShape(14.dp), SurfaceWhite, elevation = 2.dp)
                                         },
                                     ).clickable {
                                         onSelectSound(option.id)
@@ -1031,7 +1032,7 @@ fun TimerScreen(
                                             soundEngine.play(option.id, soundVolume)
                                         }
                                         showSoundModal = false
-                                    }.padding(horizontal = 16.dp, vertical = 13.dp),
+                                    }.padding(horizontal = 14.dp, vertical = 12.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,
                         ) {

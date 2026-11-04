@@ -133,9 +133,9 @@ fun ProfileScreen(
             .fillMaxSize()
             .background(CanvasBg)
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp)
-            .padding(top = 52.dp, bottom = 148.dp + navBarBottom),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .padding(horizontal = 24.dp)
+            .padding(top = 54.dp, bottom = 140.dp + navBarBottom),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         // ── Profile & Settings Header ──
         Column {
@@ -177,7 +177,7 @@ fun ProfileScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(38.dp)
-                        .inset(CircleShape, SurfaceSubtle, depth = 4.dp)
+                        .inset(CircleShape, SurfaceSubtle, depth = 5.dp)
                         .padding(3.dp)
                 ) {
                     val activeIdx = themes.indexOfFirst { it.first == settings.themeMode }.coerceAtLeast(0)
@@ -297,9 +297,9 @@ fun ProfileScreen(
                 BoxWithConstraints(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(34.dp)
+                        .height(36.dp)
                         .inset(CircleShape, SurfaceSubtle, depth = 5.dp)
-                        .padding(4.dp)
+                        .padding(3.dp)
                 ) {
                     val slotWidth = maxWidth / cyclePresets.size
                     val pillOffset by animateDpAsState(
@@ -585,8 +585,8 @@ fun ProfileScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .raised(RoundedCornerShape(18.dp), SurfaceWhite, elevation = 11.dp)
-                .padding(20.dp),
+                .raised(RoundedCornerShape(22.dp), SurfaceWhite, elevation = 7.dp)
+                .padding(18.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Row(
@@ -596,8 +596,8 @@ fun ProfileScreen(
             ) {
                 Text(
                     text = "FOCUS CATEGORIES",
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
                     letterSpacing = 1.2.sp,
                     color = SoftSage
                 )
@@ -634,7 +634,7 @@ fun ProfileScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp)
-                        .inset(RoundedCornerShape(12.dp), CanvasBg, depth = 4.dp)
+                        .inset(RoundedCornerShape(14.dp), CanvasBg, depth = 4.dp)
                         .padding(horizontal = 14.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
@@ -1332,7 +1332,7 @@ fun AudioCreditsDialog(
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(24.dp))
                 .background(SurfaceWhite)
-                .padding(24.dp),
+                .padding(22.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             Row(
@@ -1384,11 +1384,11 @@ fun AudioCreditsDialog(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
+                            .clip(RoundedCornerShape(14.dp))
                             .background(CanvasBg)
-                            .border(1.dp, BorderHairline.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
+                            .border(1.dp, BorderHairline.copy(alpha = 0.5f), RoundedCornerShape(14.dp))
                             .clickable { runCatching { uriHandler.openUri(item.url) } }
-                            .padding(horizontal = 14.dp, vertical = 10.dp),
+                            .padding(horizontal = 14.dp, vertical = 12.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -1676,8 +1676,8 @@ private fun SectionCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .raised(RoundedCornerShape(18.dp), SurfaceWhite, elevation = 11.dp)
-            .padding(20.dp),
+            .raised(RoundedCornerShape(22.dp), SurfaceWhite, elevation = 7.dp)
+            .padding(18.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         Row(
@@ -1687,8 +1687,8 @@ private fun SectionCard(
         ) {
             Text(
                 text = title,
-                fontSize = 11.sp,
-                fontWeight = FontWeight.ExtraBold,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
                 letterSpacing = 1.2.sp,
                 color = SoftSage
             )
@@ -1729,9 +1729,9 @@ private fun DurationPresetRow(
         BoxWithConstraints(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(34.dp)
+                .height(36.dp)
                 .inset(CircleShape, SurfaceSubtle, depth = 5.dp)
-                .padding(4.dp)
+                .padding(3.dp)
         ) {
             val slotWidth = maxWidth / totalSlots
             val pillOffset by animateDpAsState(

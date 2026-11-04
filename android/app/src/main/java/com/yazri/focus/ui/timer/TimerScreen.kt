@@ -5,6 +5,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.BoundsTransform
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -197,6 +198,9 @@ fun TimerScreen(
                     )
                 }
             }
+            val timerScaleResizeMode = remember {
+                SharedTransitionScope.ResizeMode.ScaleToBounds()
+            }
 
             AnimatedContent(
                 targetState = isNavHidden,
@@ -381,6 +385,7 @@ fun TimerScreen(
                                             rememberSharedContentState(key = "timer_divider_top"),
                                             animatedVisibilityScope = this@AnimatedContent,
                                             boundsTransform = timerBoundsTransform,
+                                            resizeMode = timerScaleResizeMode,
                                         ),
                                     )
 
@@ -406,6 +411,7 @@ fun TimerScreen(
                                                     rememberSharedContentState(key = "timer_digits_minutes"),
                                                     animatedVisibilityScope = this@AnimatedContent,
                                                     boundsTransform = timerBoundsTransform,
+                                                    resizeMode = timerScaleResizeMode,
                                                 ),
                                         )
                                         Text(
@@ -422,6 +428,7 @@ fun TimerScreen(
                                                         rememberSharedContentState(key = "timer_unit_min"),
                                                         animatedVisibilityScope = this@AnimatedContent,
                                                         boundsTransform = timerBoundsTransform,
+                                                        resizeMode = timerScaleResizeMode,
                                                     ),
                                         )
                                     }
@@ -434,6 +441,7 @@ fun TimerScreen(
                                             rememberSharedContentState(key = "timer_divider_mid"),
                                             animatedVisibilityScope = this@AnimatedContent,
                                             boundsTransform = timerBoundsTransform,
+                                            resizeMode = timerScaleResizeMode,
                                         ),
                                     )
 
@@ -459,6 +467,7 @@ fun TimerScreen(
                                                     rememberSharedContentState(key = "timer_digits_seconds"),
                                                     animatedVisibilityScope = this@AnimatedContent,
                                                     boundsTransform = timerBoundsTransform,
+                                                    resizeMode = timerScaleResizeMode,
                                                 ),
                                         )
                                         Text(
@@ -475,6 +484,7 @@ fun TimerScreen(
                                                         rememberSharedContentState(key = "timer_unit_sec"),
                                                         animatedVisibilityScope = this@AnimatedContent,
                                                         boundsTransform = timerBoundsTransform,
+                                                        resizeMode = timerScaleResizeMode,
                                                     ),
                                         )
                                     }
@@ -487,6 +497,7 @@ fun TimerScreen(
                                             rememberSharedContentState(key = "timer_divider_bot"),
                                             animatedVisibilityScope = this@AnimatedContent,
                                             boundsTransform = timerBoundsTransform,
+                                            resizeMode = timerScaleResizeMode,
                                         ),
                                     )
                                 }
@@ -752,6 +763,7 @@ fun TimerScreen(
                                     rememberSharedContentState(key = "timer_divider_top"),
                                     animatedVisibilityScope = this@AnimatedContent,
                                     boundsTransform = timerBoundsTransform,
+                                    resizeMode = timerScaleResizeMode,
                                 ),
                             )
 
@@ -775,6 +787,7 @@ fun TimerScreen(
                                         rememberSharedContentState(key = "timer_digits_minutes"),
                                         animatedVisibilityScope = this@AnimatedContent,
                                         boundsTransform = timerBoundsTransform,
+                                        resizeMode = timerScaleResizeMode,
                                     ),
                                 )
                                 Text(
@@ -791,6 +804,7 @@ fun TimerScreen(
                                                 rememberSharedContentState(key = "timer_unit_min"),
                                                 animatedVisibilityScope = this@AnimatedContent,
                                                 boundsTransform = timerBoundsTransform,
+                                                resizeMode = timerScaleResizeMode,
                                             ),
                                 )
                             }
@@ -803,6 +817,7 @@ fun TimerScreen(
                                     rememberSharedContentState(key = "timer_divider_mid"),
                                     animatedVisibilityScope = this@AnimatedContent,
                                     boundsTransform = timerBoundsTransform,
+                                    resizeMode = timerScaleResizeMode,
                                 ),
                             )
 
@@ -826,6 +841,7 @@ fun TimerScreen(
                                         rememberSharedContentState(key = "timer_digits_seconds"),
                                         animatedVisibilityScope = this@AnimatedContent,
                                         boundsTransform = timerBoundsTransform,
+                                        resizeMode = timerScaleResizeMode,
                                     ),
                                 )
                                 Text(
@@ -842,6 +858,7 @@ fun TimerScreen(
                                                 rememberSharedContentState(key = "timer_unit_sec"),
                                                 animatedVisibilityScope = this@AnimatedContent,
                                                 boundsTransform = timerBoundsTransform,
+                                                resizeMode = timerScaleResizeMode,
                                             ),
                                 )
                             }
@@ -854,6 +871,7 @@ fun TimerScreen(
                                     rememberSharedContentState(key = "timer_divider_bot"),
                                     animatedVisibilityScope = this@AnimatedContent,
                                     boundsTransform = timerBoundsTransform,
+                                    resizeMode = timerScaleResizeMode,
                                 ),
                             )
                         }
@@ -934,6 +952,7 @@ fun TimerScreen(
                             .padding(14.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
+                    var localVolume by remember(soundVolume) { mutableFloatStateOf(soundVolume) }
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -963,7 +982,7 @@ fun TimerScreen(
                                     .padding(horizontal = 8.dp, vertical = 2.dp),
                         ) {
                             Text(
-                                text = "${(soundVolume * 100).roundToInt()}%",
+                                text = "${(localVolume * 100).roundToInt()}%",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = InkDark,
@@ -972,10 +991,13 @@ fun TimerScreen(
                     }
 
                     Slider(
-                        value = soundVolume,
+                        value = localVolume,
                         onValueChange = { v ->
-                            onChangeVolume(v)
-                            if (currentSound != "none") soundEngine.setVolume(v)
+                            localVolume = v
+                            soundEngine.setVolume(v)
+                        },
+                        onValueChangeFinished = {
+                            onChangeVolume(localVolume)
                         },
                         valueRange = 0f..1f,
                         colors =

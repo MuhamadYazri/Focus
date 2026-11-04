@@ -128,20 +128,20 @@ fun RollingDigit(
                     translationY = animatedOffsetPx
                 }
         ) {
+            val textModifier = Modifier
+                .wrapContentHeight(
+                    align = Alignment.CenterVertically,
+                    unbounded = true
+                )
+                .graphicsLayer {
+                    translationY = shiftPx
+                }
+
             for (n in 0..9) {
                 Box(
                     modifier = Modifier.height(height),
                     contentAlignment = Alignment.Center
                 ) {
-                    val textModifier = Modifier
-                        .wrapContentHeight(
-                            align = Alignment.CenterVertically,
-                            unbounded = true
-                        )
-                        .graphicsLayer {
-                            translationY = shiftPx
-                        }
-
                     if (strokeStyle != null) {
                         Text(
                             text = n.toString(),

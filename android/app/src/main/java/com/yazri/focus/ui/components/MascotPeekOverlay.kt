@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -40,6 +41,7 @@ enum class MascotSide {
 @Composable
 fun MascotPeekOverlay(
     isDark: Boolean,
+    isHidden: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val assetName = if (isDark) "appy_present_dark.json" else "appy_present_light.json"
@@ -57,39 +59,59 @@ fun MascotPeekOverlay(
     val scope = rememberCoroutineScope()
 
     // Loop cycle: play forward (0->1) -> pause looking around -> reverse (1->0) -> change position -> repeat
-    LaunchedEffect(composition) {
+    LaunchedEffect(composition, isHidden) {
+        if (isHidden) {
+            progress.snapTo(0f)
+            return@LaunchedEffect
+        }
         val comp = composition ?: return@LaunchedEffect
         val animDurationMs = (comp.duration).toLong().coerceIn(1500L, 3000L)
 
         // Initial short delay on app launch before first peek
         delay(1200L)
 
-        while (isActive) {
+        while (isActive && !isHidden) {
             isTappedRetreat = false
 
             // 1. Play forward from 0f to 1f (peeks out from bezel)
-            progress.animateTo(
-                targetValue = 1f,
-                animationSpec = tween(
-                    durationMillis = animDurationMs.toInt(),
-                    easing = LinearEasing
+            try {
+                progress.animateTo(
+                    targetValue = 1f,
+                    animationSpec = tween(
+                        durationMillis = animDurationMs.toInt(),
+                        easing = LinearEasing
+                    )
                 )
-            )
+            } catch (e: CancellationException) {
+                if (!isTappedRetreat) throw e
+            }
 
             // 2. Pause in peeked state (glancing around)
             if (!isTappedRetreat) {
-                delay(1800L)
+                val pauseEnd = System.currentTimeMillis() + 1800L
+                while (System.currentTimeMillis() < pauseEnd && !isTappedRetreat) {
+                    delay(50L)
+                }
             }
 
             // 3. Reverse back from 1f to 0f (retreats into bezel)
             if (!isTappedRetreat) {
-                progress.animateTo(
-                    targetValue = 0f,
-                    animationSpec = tween(
-                        durationMillis = (animDurationMs * 0.85f).toInt(),
-                        easing = LinearEasing
+                try {
+                    progress.animateTo(
+                        targetValue = 0f,
+                        animationSpec = tween(
+                            durationMillis = (animDurationMs * 0.85f).toInt(),
+                            easing = LinearEasing
+                        )
                     )
-                )
+                } catch (e: CancellationException) {
+                    if (!isTappedRetreat) throw e
+                }
+            }
+
+            // Wait until progress reaches 0f if retreat animation is still playing
+            while (progress.value > 0f) {
+                delay(50L)
             }
 
             // 4. Fully hidden in bezel: wait random idle interval (4 to 8 sec) before next appearance
@@ -136,73 +158,79 @@ fun MascotPeekOverlay(
             }
         }
 
-        // 1. Visual Lottie layer (does not consume touches outside mascot)
-        Box(
-            modifier = Modifier
-                .align(alignment)
-                .offset(x = xOffset, y = yOffset)
-                .size(width = mascotWidth, height = mascotHeight)
-                .graphicsLayer {
-                    transformOrigin = TransformOrigin(0.5f, 1f)
-                    rotationZ = rotationAngle
-                    clip = false
+        // 1. Visual Lottie layer (only rendered while active, does not consume touches outside mascot)
+        if (!isHidden && progress.value > 0f) {
+            Box(
+                modifier = Modifier
+                    .align(alignment)
+                    .offset(x = xOffset, y = yOffset)
+                    .size(width = mascotWidth, height = mascotHeight)
+                    .graphicsLayer {
+                        transformOrigin = TransformOrigin(0.5f, 1f)
+                        rotationZ = rotationAngle
+                        clip = false
+                    }
+            ) {
+                if (composition != null) {
+                    LottieAnimation(
+                        composition = composition,
+                        progress = { progress.value },
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
-        ) {
-            if (composition != null) {
-                LottieAnimation(
-                    composition = composition,
-                    progress = { progress.value },
-                    modifier = Modifier.fillMaxSize()
-                )
             }
         }
 
-        // 2. Compact touch target strictly bounded to the visible mascot peek zone at the bezel
-        val (touchAlignment, touchX, touchY, touchWidth, touchHeight) = when (currentSide) {
-            MascotSide.LEFT -> Quint(
-                Alignment.TopStart,
-                0.dp,
-                calculatedY + (mascotHeight - mascotWidth) / 2,
-                80.dp,
-                mascotWidth
-            )
-            MascotSide.RIGHT -> Quint(
-                Alignment.TopEnd,
-                0.dp,
-                calculatedY + (mascotHeight - mascotWidth) / 2,
-                80.dp,
-                mascotWidth
-            )
-            MascotSide.TOP -> Quint(
-                Alignment.TopStart,
-                calculatedX,
-                0.dp,
-                mascotWidth,
-                90.dp
-            )
-        }
+        // 2. Compact touch target strictly bounded to the visible mascot peek zone at the bezel.
+        // COMPLETELY removed from composition whenever mascot is retreating or hidden (< 0.15f),
+        // ensuring zero dead zones and allowing 100% click pass-through to underlying UI.
+        val isHitTargetActive = !isHidden && progress.value > 0.15f && !isTappedRetreat
+        if (isHitTargetActive) {
+            val (touchAlignment, touchX, touchY, touchWidth, touchHeight) = when (currentSide) {
+                MascotSide.LEFT -> Quint(
+                    Alignment.TopStart,
+                    0.dp,
+                    calculatedY + (mascotHeight - mascotWidth) / 2,
+                    80.dp,
+                    mascotWidth
+                )
+                MascotSide.RIGHT -> Quint(
+                    Alignment.TopEnd,
+                    0.dp,
+                    calculatedY + (mascotHeight - mascotWidth) / 2,
+                    80.dp,
+                    mascotWidth
+                )
+                MascotSide.TOP -> Quint(
+                    Alignment.TopStart,
+                    calculatedX,
+                    0.dp,
+                    mascotWidth,
+                    90.dp
+                )
+            }
 
-        Box(
-            modifier = Modifier
-                .align(touchAlignment)
-                .offset(x = touchX, y = touchY)
-                .size(width = touchWidth, height = touchHeight)
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                    enabled = progress.value > 0.1f && !isTappedRetreat
-                ) {
-                    if (progress.value > 0.1f && !isTappedRetreat) {
-                        isTappedRetreat = true
-                        scope.launch {
-                            progress.animateTo(
-                                targetValue = 0f,
-                                animationSpec = tween(350, easing = LinearEasing)
-                            )
+            Box(
+                modifier = Modifier
+                    .align(touchAlignment)
+                    .offset(x = touchX, y = touchY)
+                    .size(width = touchWidth, height = touchHeight)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+                        if (!isTappedRetreat) {
+                            isTappedRetreat = true
+                            scope.launch {
+                                progress.animateTo(
+                                    targetValue = 0f,
+                                    animationSpec = tween(300, easing = LinearEasing)
+                                )
+                            }
                         }
                     }
-                }
-        )
+            )
+        }
     }
 }
 

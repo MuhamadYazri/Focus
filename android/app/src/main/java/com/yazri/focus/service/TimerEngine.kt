@@ -316,18 +316,24 @@ class TimerEngine(
         _isNavHidden.value = nextRunning
         notificationSessionActive = true
 
-        persistState()
+        engineScope.launch {
+            persistState()
+        }
 
         if (nextRunning) {
             startTicker()
             if (curSettings.soundscape != "none") {
                 soundEngine.play(curSettings.soundscape, curSettings.soundVolume)
             }
-            syncForegroundNotification(forceKeep = true)
+            engineScope.launch {
+                syncForegroundNotification(forceKeep = true)
+            }
         } else {
             stopTicker()
             soundEngine.stop()
-            syncForegroundNotification(forceKeep = true)
+            engineScope.launch {
+                syncForegroundNotification(forceKeep = true)
+            }
         }
     }
 

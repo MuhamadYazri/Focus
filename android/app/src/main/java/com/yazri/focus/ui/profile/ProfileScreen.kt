@@ -501,6 +501,7 @@ fun ProfileScreen(
                 }
             }
 
+            var localVolume by remember(settings.soundVolume) { mutableFloatStateOf(settings.soundVolume) }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -513,8 +514,11 @@ fun ProfileScreen(
                     modifier = Modifier.size(16.dp)
                 )
                 Slider(
-                    value = settings.soundVolume,
-                    onValueChange = { onUpdateSettings(settings.copy(soundVolume = it)) },
+                    value = localVolume,
+                    onValueChange = { localVolume = it },
+                    onValueChangeFinished = {
+                        onUpdateSettings(settings.copy(soundVolume = localVolume))
+                    },
                     valueRange = 0f..1f,
                     modifier = Modifier.weight(1f),
                     colors = SliderDefaults.colors(
@@ -530,7 +534,7 @@ fun ProfileScreen(
                     modifier = Modifier.size(16.dp)
                 )
                 Text(
-                    text = "${(settings.soundVolume * 100).roundToInt()}%",
+                    text = "${(localVolume * 100).roundToInt()}%",
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     color = InkDark,
@@ -763,7 +767,7 @@ fun ProfileScreen(
         ) {
             Text(
                 text = buildAnnotatedString {
-                    append("Focus 1.0.1 by ")
+                    append("Focus 1.0.2 by ")
                     withStyle(SpanStyle(color = InkDark, fontWeight = FontWeight.Bold)) {
                         append("Muhamad Yazri")
                     }

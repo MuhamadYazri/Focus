@@ -1,7 +1,7 @@
 {
   "name": "focus",
   "private": true,
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,7 +9,7 @@
     "dev:wifi": "vite --host 0.0.0.0",
     "build": "vite build",
     "apk:build": "vite build && ANDROID_HOME=/home/muhamad-yazri/Android/Sdk JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 npx cap sync android && cd android && ANDROID_HOME=/home/muhamad-yazri/Android/Sdk JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew assembleDebug",
-    "apk:release": "vite build && ANDROID_HOME=/home/muhamad-yazri/Android/Sdk JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 npx cap sync android && cd android && ANDROID_HOME=/home/muhamad-yazri/Android/Sdk JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew assembleRelease && cd .. && cp android/app/build/outputs/apk/release/app-release.apk Focus-v1.0.1-release.apk",
+    "apk:release": "vite build && ANDROID_HOME=/home/muhamad-yazri/Android/Sdk JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 npx cap sync android && cd android && ANDROID_HOME=/home/muhamad-yazri/Android/Sdk JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew assembleRelease && cd .. && cp android/app/build/outputs/apk/release/app-release.apk Focus-v1.0.2-release.apk",
     "apk:install": "vite build && ANDROID_HOME=/home/muhamad-yazri/Android/Sdk JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 npx cap run android",
     "apk:push": "adb install -r android/app/build/outputs/apk/debug/app-debug.apk",
     "apk:push:release": "adb install -r android/app/build/outputs/apk/release/app-release.apk",

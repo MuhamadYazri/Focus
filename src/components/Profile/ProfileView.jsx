@@ -766,7 +766,7 @@ function ProfileView({
               FOCUS
             </span>
             <span className="text-[12px] font-medium text-[#667463] mt-2 tracking-wide">
-              Focus 1.0.1 by <span className="font-bold text-[#1B1F1A]">Muhamad Yazri</span>
+              Focus 1.0.2 by <span className="font-bold text-[#1B1F1A]">Muhamad Yazri</span>
             </span>
           </div>
           <div className="flex flex-col items-center">

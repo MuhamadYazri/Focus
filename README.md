@@ -5,7 +5,7 @@
 <h1 align="center">Focus</h1>
 
 <p align="center">
-  <strong>A distraction-free, brutalist editorial Pomodoro timer & daily task companion for Android.</strong>
+  <strong>A clean, distraction-free Pomodoro timer & daily task companion for Android.</strong>
   <br />
   <em>Crafted with 100% Kotlin & Jetpack Compose. Zero ads. Zero tracking. 100% Offline.</em>
 </p>
@@ -26,55 +26,54 @@ Picture this: You just pushed through an intense 25-minute deep work session. Yo
 
 Even worse, you open the settings menu to adjust your break interval or check your streak, only to hit a "PRO Upgrade" paywall for basic features that should have been standard.
 
-I was fed up. Most focus apps had become bloated, stingy (*pelit*), and ironically full of the exact sensory clutter they promised to eliminate. I didn't want another subscription-trap or gamified social network. I just wanted to **lock in**.
+I was fed up. Most focus apps had become bloated, stingy (*pelit*), and ironically full of the exact clutter and noise they promised to eliminate. I didn't want another subscription trap or gamified social network. I just wanted to **lock in**.
 
-So I built **Focus**—the honest, distraction-free productivity companion I needed for my own daily work.
+So I built **Focus**—an honest, distraction-free productivity app I actually enjoy using every single day.
 
 ---
 
 ## 🎨 The Design Philosophy
 
-### 1. Minimal Visuals = Minimal Distraction ("Paper & Ink")
-Visual clutter is cognitive friction. Neon gradients, loud accent colors, and bouncy UI elements might look flashy in a portfolio, but in deep flow, they compete for your attention. Focus embraces a tactile **"Paper & Ink" Swiss brutalist aesthetic**: sharp editorial typography (Clash Display), high-contrast monochrome palettes, and raw structural clarity.
+### 1. Zero Visual Noise: The High-Contrast Look
+Too many bright colors, neon badges, and bouncing animations fight for your attention when you're trying to work. Focus uses a clean **black-and-white look** inspired by printed ink on paper—sharp readable numbers, high-contrast layouts, and clean dividers. No visual clutter, no sensory overload. Just pure focus.
 
-### 2. Not Too Minimal: Warmth with "Le Petit Chat Noir"
-Pure brutalist minimalism can sometimes feel cold, clinical, or intimidating. To balance architectural precision with gentle warmth, a subtle companion—*Le Petit Chat Noir* (the little black cat mascot)—peeks playfully from behind the interface. Just enough charm to make your workspace feel friendly, without pulling focus away from your task.
+### 2. Simple, But Not Boring: A Playful Companion
+Ultra-minimal apps can sometimes feel cold, empty, or robotic. To keep the app friendly and alive without adding clutter, a subtle animated companion—a little black cat named *Le Petit Chat Noir*—peeks playfully from the bottom of your screen. It adds a touch of warmth and personality to your desk without pulling your eyes away from your work.
 
-### 3. Ambient Soundscapes Over Music
-Music has lyrics, chord shifts, and melodies that subtly hijack your brain's language processing centers. Focus uses raw, organic ambient soundscapes—rain, ocean waves, cozy café hum, deep forest, and the rhythmic tick of a mechanical clock—powered by a custom zero-gap sinusoidal crossfade engine. It creates a calming acoustic shield against real-world background noise.
+### 3. Calming Background Sounds Instead of Music
+Listening to songs with lyrics or changing melodies can break your train of thought. Instead, Focus includes 5 natural background sounds (rain, ocean waves, quiet café, deep forest, and a ticking clock) that loop seamlessly without any sudden pauses or clicks. It creates a steady background that blocks out noisy surroundings and helps you get in the zone.
 
 ### 4. Zero Friction: Just "Lock In"
-No account creation. No email verification. No onboarding quizzes. No ads. No analytics beacons. When it's time to work, you tap the clock, put your phone down, and **lock in**.
+No account creation. No email verification. No onboarding tutorials. No ads. No background trackers. When it's time to work, you tap the clock, put your phone down, and **lock in**.
 
 ---
 
 ## ⚡ Key Highlights
 
-### ⏱ Los Angeles Editorial Clock
-- Oversized, tabular numerals rendered in **Clash Display** typography.
-- Precision 30% horizontal bottom crop along boundary hairline dividers for an architectural, tactile poster layout.
-- Apple-grade fluid spring morph between compact view and edge-to-edge Fullscreen Focus Mode.
+### ⏱ Big, Bold Poster Clock
+- **Easy to read at a glance**: Extra-large, bold numbers that you can easily see from across your desk or room.
+- **Clean poster-style layout**: Clean dividing lines and clear digits give it the look of a classic physical desk clock.
+- **One-tap Fullscreen Mode**: Tap anywhere on the clock to expand it into an immersive, distraction-free full-screen display.
 
-### 🌿 Seamless Ambient Soundscapes
-- Built with a specialized **dual-alternating audio engine** that applies mathematical sinusoidal crossfading between loops.
-- Eliminates the audible gaps, popping noises, and buffer pauses typical of standard looping audio players.
-- Includes 5 calming soundscapes: *Rain, Ocean Waves, Cozy Café, Forest, and Mechanical Clock*.
+### 🌿 Seamless Background Sounds
+- **No annoying audio gaps**: Uses a smart audio engine that blends sound loops smoothly together, eliminating the sudden clicks, pauses, or pops common in other timer apps.
+- **5 calming soundscapes**: Relax to *Rain, Ocean Waves, Cozy Café, Deep Forest, or a Classic Mechanical Clock*.
 
 ### 🛡 Distraction Shield (Strict Mode)
-- One tap activates full distraction protection.
-- Automatically hides status bars and switches system notifications into **Android Do Not Disturb (DND)** priority mode until your focus session ends.
+- **One-tap focus guard**: Turn on with a single switch before starting a session.
+- **Blocks interruptions**: Automatically hides your phone's status bar and silences incoming notifications with **Android Do Not Disturb (DND)** so nothing interrupts your concentration.
 
-### 🏝 Live Notification & Origin Island
-- Background `mediaPlayback` foreground service keeps ticking reliably even when the app is swiped away.
-- **Android 16+ (API 36 / Vivo OriginOS 6)**: renders as an interactive dynamic capsule pill (**Origin Island**) in your status bar with instant *Restart*, *Pause/Resume*, and *Skip* controls.
+### 🏝 Live Lockscreen & Status Bar Controls
+- **Keeps ticking in the background**: Your timer stays accurate and visible in your notification shade even if you close the app or turn off your screen.
+- **Dynamic Status Bar Pill (Origin Island / Android 16+)**: Displays your remaining time directly in your phone's top status bar with quick buttons to pause, skip, or restart.
 
-### 📋 Task & Habit Flow
-- Plan your daily workload with custom project categories, priority indicators, and estimated Pomodoro counts.
-- **Automatic Midnight Rollover**: Tasks and subtasks automatically reset and roll over on date transitions, keeping your list fresh every morning.
+### 📋 Daily Tasks & Habits
+- **Organize your day**: Group your to-dos with custom categories, set priorities, and track how many Pomodoro sessions each task takes.
+- **Fresh start every day**: Completed tasks automatically reset at midnight so you can begin every morning with a clean slate.
 
-### 📊 Clean Analytics & Heatmaps
-- Glanceable 7-day capsule charts with dynamic daily target indicators.
-- Year-at-a-glance habit heatmaps with luminance-aware contrast, letting you celebrate streaks without visual clutter.
+### 📊 Simple Charts & Streak Heatmaps
+- **Weekly progress bar**: A glanceable bar chart showing your focus hours and completed sessions over the last 7 days.
+- **Yearly activity map**: See your entire year's productivity streaks in a clean, GitHub-style activity grid that is easy on the eyes.
 
 ---
 
@@ -97,7 +96,7 @@ Built following modern Android application architecture recommendations, ensurin
 | :--- | :--- | :--- |
 | **Language** | Kotlin 2.0.21 (JVM 17 Target) | Coroutines, Flow, Strict Null Safety, Lambdas |
 | **UI Toolkit** | Jetpack Compose (BOM 2024.10.01) | Declarative UI, Shared Bounds Transitions, GraphicsLayers |
-| **Design System** | Custom Brutalist "Paper & Ink" | Luminance-aware palettes, GPU-accelerated depth shaders |
+| **Design System** | High-Contrast Monochrome ("Paper & Ink") | High-contrast black & white themes, hardware-accelerated fluid UI |
 | **State Management**| MVVM + Kotlin `StateFlow` | Unidirectional Data Flow, `collectAsStateWithLifecycle` |
 | **Persistence** | Room SQLite v3 + DataStore Preferences | Sub-millisecond aggregation queries, composite indexing |
 | **Audio Pipeline** | Dual-Stream `MediaPlayer` Ping-Pong | Sinusoidal overlapping crossfade, zero CPU buffer underruns |
@@ -162,7 +161,7 @@ Focus/
 │   │   │   ├── analytics/           # Capsule charts & Activity heatmaps
 │   │   │   ├── profile/             # Preferences, categories & audio credits dialog
 │   │   │   ├── navigation/          # 1:1 PagerSwipeController & macOS tactile dock
-│   │   │   └── theme/               # Brutalist Color, Depth, Typography & Shapes
+│   │   │   └── theme/               # Color palette, depth styling, custom typography & shapes
 │   │   ├── FocusApp.kt              # Application-scoped dependency container
 │   │   └── MainActivity.kt          # Single Activity root container
 │   ├── src/main/res/                # Vectors, custom typography & raw audio loops

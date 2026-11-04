@@ -20,14 +20,31 @@
 
 ---
 
-## 💡 The Problem & The Philosophy
+## 📖 Why I Built Focus (The Origin Story)
 
-Most productivity and timer apps today are bloated with paywalls, invasive tracking, intrusive popups, and chaotic neon animations that disrupt the very focus they claim to protect.
+Picture this: You just pushed through an intense 25-minute deep work session. You reach over to pause your timer, take a breath, and relax—only to be blasted by an unskippable 30-second mobile ad with blaring audio. 
 
-**Focus** takes a fundamentally different path:
-- **Paper & Ink Brutalism:** High-contrast editorial typography inspired by Swiss design and the Los Angeles clock specification.
-- **Deep Flow, Zero Distractions:** No user accounts, no analytics, no external servers. Your data stays entirely in a fast, local SQLite database on your device.
-- **Engineered for Fluidity:** Hardware-accelerated 120 FPS animations, sub-16ms touch responses, and seamless audio transitions that keep you anchored in deep work.
+Even worse, you open the settings menu to adjust your break interval or check your streak, only to hit a "PRO Upgrade" paywall for basic features that should have been standard.
+
+I was fed up. Most focus apps had become bloated, stingy (*pelit*), and ironically full of the exact sensory clutter they promised to eliminate. I didn't want another subscription-trap or gamified social network. I just wanted to **lock in**.
+
+So I built **Focus**—the honest, distraction-free productivity companion I needed for my own daily work.
+
+---
+
+## 🎨 The Design Philosophy
+
+### 1. Minimal Visuals = Minimal Distraction ("Paper & Ink")
+Visual clutter is cognitive friction. Neon gradients, loud accent colors, and bouncy UI elements might look flashy in a portfolio, but in deep flow, they compete for your attention. Focus embraces a tactile **"Paper & Ink" Swiss brutalist aesthetic**: sharp editorial typography (Clash Display), high-contrast monochrome palettes, and raw structural clarity.
+
+### 2. Not Too Minimal: Warmth with "Le Petit Chat Noir"
+Pure brutalist minimalism can sometimes feel cold, clinical, or intimidating. To balance architectural precision with gentle warmth, a subtle companion—*Le Petit Chat Noir* (the little black cat mascot)—peeks playfully from behind the interface. Just enough charm to make your workspace feel friendly, without pulling focus away from your task.
+
+### 3. Ambient Soundscapes Over Music
+Music has lyrics, chord shifts, and melodies that subtly hijack your brain's language processing centers. Focus uses raw, organic ambient soundscapes—rain, ocean waves, cozy café hum, deep forest, and the rhythmic tick of a mechanical clock—powered by a custom zero-gap sinusoidal crossfade engine. It creates a calming acoustic shield against real-world background noise.
+
+### 4. Zero Friction: Just "Lock In"
+No account creation. No email verification. No onboarding quizzes. No ads. No analytics beacons. When it's time to work, you tap the clock, put your phone down, and **lock in**.
 
 ---
 

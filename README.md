@@ -8,7 +8,7 @@ A clean, distraction-free Pomodoro timer and daily task app for Android. 100% of
 
 <p align="center">
   <a href="https://github.com/MuhamadYazri/Focus/releases"><img src="https://img.shields.io/badge/Release-v1.0.2-111111?style=for-the-badge&logo=android" alt="Release" /></a>
-  <a href="https://github.com/MuhamadYazri/Focus/releases"><img src="https://img.shields.io/badge/App_Size-2.1_MB-34A853?style=for-the-badge" alt="Size" /></a>
+  <a href="https://github.com/MuhamadYazri/Focus/releases"><img src="https://img.shields.io/badge/App_Size-3.7_MB-34A853?style=for-the-badge" alt="Size" /></a>
   <a href="https://developer.android.com/about/dashboards"><img src="https://img.shields.io/badge/Android-8.0+-4285F4?style=for-the-badge&logo=android" alt="Android Version" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-52504C?style=for-the-badge" alt="License" /></a>
 </p>
@@ -41,7 +41,7 @@ I built Focus because I just wanted a simple, honest app to get things done with
 
 ## Smooth Performance
 
-- **Super Tiny**: Only ~2.1 MB. Downloads in seconds and takes practically zero storage.
+- **Super Tiny**: Only ~3.7 MB. Downloads in seconds and takes practically zero storage.
 - **Butter Smooth ("Lancar")**: Runs completely smooth and lag-free, tested even on budget phones like the **Realme Narzo 30a**.
 - **Easy on Battery**: Clean native code with zero background battery drain.
 - **Android Support**: Works on Android 8.0 and up.

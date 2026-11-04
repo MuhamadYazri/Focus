@@ -1,5 +1,6 @@
 package com.yazri.focus.ui.timer
 
+import android.content.res.Configuration
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.BoundsTransform
@@ -37,6 +38,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -694,8 +697,182 @@ fun TimerScreen(
                         Spacer(modifier = Modifier.weight(1f))
                     }
                 } else {
-                    // ── FULLSCREEN IMMERSIVE MODE (Reference 2 Right Screen Architectural Grid) ──
-                    Column(
+                    val configuration = LocalConfiguration.current
+                    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+                    if (isLandscape) {
+                        // ── FULLSCREEN HORIZONTAL IMMERSIVE TIMER (Option 2: 2-Tier Stacked 100% Viewport Desk Clock) ──
+                        BoxWithConstraints(
+                            modifier =
+                                Modifier
+                                    .fillMaxSize()
+                                    .background(CanvasBg)
+                                    .clickable(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = null,
+                                    ) { onToggleNav() },
+                        ) {
+                            val availableHeight = maxHeight
+                            // 2 hairline dividers: middle and bottom (1dp each)
+                            val usableHeight = (availableHeight - 2.dp).coerceAtLeast(100.dp)
+                            // Ratio based on Los Angeles Clock 30% crop spec: Minutes 145dp, Seconds 210dp (145 + 210 = 355dp)
+                            val minutesSlotHeight = usableHeight * (145f / 355f)
+                            val secondsSlotHeight = usableHeight * (210f / 355f)
+                            val scale = (secondsSlotHeight / 210.dp).coerceIn(0.4f, 2.5f)
+                            val bleedScale = scale * 1.12f
+
+                            val digitFontSize = (210 * bleedScale).sp
+                            val digitLineHeight = (210 * bleedScale).sp
+                            val digitLetterSpacing = (-7 * bleedScale).sp
+                            val strokeWidth = (12 * bleedScale).dp
+                            val digitSpacing = (-44 * bleedScale).dp
+                            val verticalShiftMin = (-12 * scale).dp
+                            val verticalShiftSec = (-20 * scale).dp
+                            val unitFontSize = (14 * scale).coerceAtLeast(10f).sp
+                            val unitTopPad = (6 * scale).dp
+
+                            val cutoutInsets = WindowInsets.displayCutout.asPaddingValues()
+                            val leftPad = (28 * scale).coerceAtLeast(16f).dp + cutoutInsets.calculateStartPadding(LayoutDirection.Ltr)
+                            val unitEndPad = (24 * scale).coerceAtLeast(12f).dp + cutoutInsets.calculateEndPadding(LayoutDirection.Ltr)
+
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                verticalArrangement = Arrangement.Top,
+                            ) {
+                                // TIER 1: Minutes (Clash Display Bold #8F908C with "min" tag, cropped 30% from below)
+                                Box(
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .weight(145f),
+                                ) {
+                                    RollingTwoDigits(
+                                        value = m,
+                                        height = secondsSlotHeight,
+                                        clipHeight = minutesSlotHeight,
+                                        fontSize = digitFontSize,
+                                        lineHeight = digitLineHeight,
+                                        letterSpacing = digitLetterSpacing,
+                                        color = timerMinColor,
+                                        fontWeight = FontWeight.Bold,
+                                        fontFamily = ClashDisplayFontFamily,
+                                        verticalShift = verticalShiftMin,
+                                        strokeColor = canvasBg,
+                                        strokeWidth = strokeWidth,
+                                        digitSpacing = digitSpacing,
+                                        modifier =
+                                            Modifier
+                                                .padding(start = leftPad)
+                                                .sharedBounds(
+                                                    rememberSharedContentState(key = "timer_digits_minutes"),
+                                                    animatedVisibilityScope = this@AnimatedContent,
+                                                    boundsTransform = timerBoundsTransform,
+                                                    resizeMode = timerScaleResizeMode,
+                                                ),
+                                    )
+                                    Text(
+                                        text = "min",
+                                        fontFamily = ClashDisplayFontFamily,
+                                        fontSize = unitFontSize,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = timerMinColor,
+                                        modifier =
+                                            Modifier
+                                                .align(Alignment.TopEnd)
+                                                .padding(top = unitTopPad, end = unitEndPad)
+                                                .sharedBounds(
+                                                    rememberSharedContentState(key = "timer_unit_min"),
+                                                    animatedVisibilityScope = this@AnimatedContent,
+                                                    boundsTransform = timerBoundsTransform,
+                                                    resizeMode = timerScaleResizeMode,
+                                                ),
+                                    )
+                                }
+
+                                // Middle line full width edge-to-edge (slices off bottom 30% of Minutes)
+                                HorizontalDivider(
+                                    thickness = 1.dp,
+                                    color = timerDividerColor,
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .sharedBounds(
+                                                rememberSharedContentState(key = "timer_divider_mid"),
+                                                animatedVisibilityScope = this@AnimatedContent,
+                                                boundsTransform = timerBoundsTransform,
+                                                resizeMode = timerScaleResizeMode,
+                                            ),
+                                )
+
+                                // TIER 2: Seconds (Clash Display Bold #050505 with "sec" tag)
+                                Box(
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .weight(210f),
+                                ) {
+                                    RollingTwoDigits(
+                                        value = s,
+                                        height = secondsSlotHeight,
+                                        clipHeight = secondsSlotHeight,
+                                        fontSize = digitFontSize,
+                                        lineHeight = digitLineHeight,
+                                        letterSpacing = digitLetterSpacing,
+                                        color = timerSecColor,
+                                        fontWeight = FontWeight.Bold,
+                                        fontFamily = ClashDisplayFontFamily,
+                                        verticalShift = verticalShiftSec,
+                                        strokeColor = canvasBg,
+                                        strokeWidth = strokeWidth,
+                                        digitSpacing = digitSpacing,
+                                        modifier =
+                                            Modifier
+                                                .padding(start = leftPad)
+                                                .sharedBounds(
+                                                    rememberSharedContentState(key = "timer_digits_seconds"),
+                                                    animatedVisibilityScope = this@AnimatedContent,
+                                                    boundsTransform = timerBoundsTransform,
+                                                    resizeMode = timerScaleResizeMode,
+                                                ),
+                                    )
+                                    Text(
+                                        text = "sec",
+                                        fontFamily = ClashDisplayFontFamily,
+                                        fontSize = unitFontSize,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = timerSecColor,
+                                        modifier =
+                                            Modifier
+                                                .align(Alignment.TopEnd)
+                                                .padding(top = unitTopPad, end = unitEndPad)
+                                                .sharedBounds(
+                                                    rememberSharedContentState(key = "timer_unit_sec"),
+                                                    animatedVisibilityScope = this@AnimatedContent,
+                                                    boundsTransform = timerBoundsTransform,
+                                                    resizeMode = timerScaleResizeMode,
+                                                ),
+                                    )
+                                }
+
+                                // Bottom line full width edge-to-edge
+                                HorizontalDivider(
+                                    thickness = 1.dp,
+                                    color = timerDividerColor,
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .sharedBounds(
+                                                rememberSharedContentState(key = "timer_divider_bot"),
+                                                animatedVisibilityScope = this@AnimatedContent,
+                                                boundsTransform = timerBoundsTransform,
+                                                resizeMode = timerScaleResizeMode,
+                                            ),
+                                )
+                            }
+                        }
+                    } else {
+                        // ── PORTRAIT FULLSCREEN IMMERSIVE MODE (Reference 2 Right Screen Architectural Grid) ──
+                        Column(
                         modifier =
                             Modifier
                                 .fillMaxSize()
@@ -922,6 +1099,7 @@ fun TimerScreen(
             }
         }
     }
+}
 
     // ── SOUNDSCAPE & VOLUME MODAL ──
     if (showSoundModal) {

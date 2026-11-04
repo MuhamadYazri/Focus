@@ -8,7 +8,7 @@ Aplikasi timer Pomodoro dan to-do list harian untuk Android. Bersih, bebas distr
 
 <p align="center">
   <a href="https://github.com/MuhamadYazri/Focus/releases"><img src="https://img.shields.io/badge/Release-v1.0.2-111111?style=for-the-badge&logo=android" alt="Release" /></a>
-  <a href="https://github.com/MuhamadYazri/Focus/releases"><img src="https://img.shields.io/badge/Ukuran-2.1_MB-34A853?style=for-the-badge" alt="Ukuran" /></a>
+  <a href="https://github.com/MuhamadYazri/Focus/releases"><img src="https://img.shields.io/badge/Ukuran-3.7_MB-34A853?style=for-the-badge" alt="Ukuran" /></a>
   <a href="https://developer.android.com/about/dashboards"><img src="https://img.shields.io/badge/Android-8.0+-4285F4?style=for-the-badge&logo=android" alt="Versi Android" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/Lisensi-MIT-52504C?style=for-the-badge" alt="Lisensi" /></a>
 </p>
@@ -41,7 +41,7 @@ Gue bikin Focus karena cuma pengen alat sederhana dan jujur buat kerja tanpa gan
 
 ## Performa & Kompatibilitas
 
-- **Super Ringan**: Ukuran download cuma ~2.1 MB. Langsung ke-install cepet dan gak makan memori HP.
+- **Super Ringan**: Ukuran download cuma ~3.7 MB. Langsung ke-install cepet dan gak makan memori HP.
 - **Lancar Jaya di HP Mana Aja**: Udah dites dan jalan mulus tanpa lag, bahkan di HP budget entry-level kayak **Realme Narzo 30a**.
 - **Hemat Baterai**: Kode native efisien, gak nguras baterai di latar belakang.
 - **Support Android**: Bisa jalan di Android 8.0 ke atas.

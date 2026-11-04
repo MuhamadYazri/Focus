@@ -277,6 +277,40 @@ class MainActivity : ComponentActivity() {
                 }
 
                 val isFullscreenTimer = isNavHidden && activeTab == "timer"
+                val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+                val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+                val isHorizontalFullscreen = isFullscreenTimer && isLandscape
+
+                // Unlock orientation to sensor ONLY while in fullscreen timer; restore portrait otherwise
+                DisposableEffect(isFullscreenTimer) {
+                    requestedOrientation = if (isFullscreenTimer) {
+                        ActivityInfo.SCREEN_ORIENTATION_SENSOR
+                    } else {
+                        ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                    }
+                    onDispose {
+                        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                    }
+                }
+
+                // Fullscreen horizontal immersion: hide system bars (status & nav) edge-to-edge
+                DisposableEffect(isHorizontalFullscreen, settings.strictMode) {
+                    val window = this@MainActivity.window
+                    val insetsController = WindowCompat.getInsetsController(window, window.decorView)
+                    insetsController.systemBarsBehavior =
+                        WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                    if (isHorizontalFullscreen) {
+                        insetsController.hide(WindowInsetsCompat.Type.systemBars())
+                    } else {
+                        applyStrictModeSystemEffects(settings.strictMode, promptIfNoPermission = false)
+                        insetsController.show(WindowInsetsCompat.Type.navigationBars())
+                    }
+                    onDispose {
+                        applyStrictModeSystemEffects(settings.strictMode, promptIfNoPermission = false)
+                        val ctrl = WindowCompat.getInsetsController(window, window.decorView)
+                        ctrl.show(WindowInsetsCompat.Type.navigationBars())
+                    }
+                }
 
                 // System Back Navigation Handlers:
                 // 1) Exit fullscreen timer when in fullscreen

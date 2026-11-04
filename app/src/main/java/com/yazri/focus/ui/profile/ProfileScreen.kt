@@ -830,37 +830,6 @@ fun ProfileScreen(
             }
 
             when (updateState) {
-                is UpdateCheckState.Idle -> {
-                    Text(
-                        text = "Check GitHub releases for the latest bug fixes, performance improvements, and new features.",
-                        fontSize = 11.sp,
-                        lineHeight = 16.sp,
-                        color = MossSecondary
-                    )
-                }
-                is UpdateCheckState.Checking -> {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(CanvasBg)
-                            .padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(16.dp),
-                            strokeWidth = 2.dp,
-                            color = InkDark
-                        )
-                        Text(
-                            text = "Checking GitHub releases...",
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = InkDark
-                        )
-                    }
-                }
                 is UpdateCheckState.ResultReceived -> {
                     val info = updateState.info
                     if (info.isUpdateAvailable) {
@@ -930,28 +899,12 @@ fun ProfileScreen(
                             }
                         }
                     } else {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(CanvasBg)
-                                .padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.CheckCircle,
-                                contentDescription = null,
-                                tint = ActivityGreen,
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Text(
-                                text = "You're on the latest version (${info.currentVersion})",
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = InkDark
-                            )
-                        }
+                        Text(
+                            text = "Check GitHub releases for the latest bug fixes, performance improvements, and new features.",
+                            fontSize = 11.sp,
+                            lineHeight = 16.sp,
+                            color = MossSecondary
+                        )
                     }
                 }
                 is UpdateCheckState.Error -> {
@@ -961,7 +914,18 @@ fun ProfileScreen(
                         color = ErrorRed
                     )
                 }
+                else -> {
+                    Text(
+                        text = "Check GitHub releases for the latest bug fixes, performance improvements, and new features.",
+                        fontSize = 11.sp,
+                        lineHeight = 16.sp,
+                        color = MossSecondary
+                    )
+                }
             }
+
+            val isChecking = updateState is UpdateCheckState.Checking
+            val isLatest = updateState is UpdateCheckState.ResultReceived && !updateState.info.isUpdateAvailable
 
             // Manual Check Button
             Box(
@@ -971,21 +935,44 @@ fun ProfileScreen(
                     .clip(RoundedCornerShape(12.dp))
                     .background(CanvasBg)
                     .border(1.dp, BorderHairline.copy(alpha = 0.8f), RoundedCornerShape(12.dp))
-                    .clickable { onCheckUpdate() },
+                    .clickable(enabled = !isChecking) { onCheckUpdate() },
                 contentAlignment = Alignment.Center
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Refresh,
-                        contentDescription = null,
-                        tint = InkDark,
-                        modifier = Modifier.size(15.dp)
-                    )
+                    when {
+                        isChecking -> {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(14.dp),
+                                strokeWidth = 2.dp,
+                                color = InkDark
+                            )
+                        }
+                        isLatest -> {
+                            Icon(
+                                imageVector = Icons.Outlined.CheckCircle,
+                                contentDescription = null,
+                                tint = ActivityGreen,
+                                modifier = Modifier.size(15.dp)
+                            )
+                        }
+                        else -> {
+                            Icon(
+                                imageVector = Icons.Outlined.Refresh,
+                                contentDescription = null,
+                                tint = InkDark,
+                                modifier = Modifier.size(15.dp)
+                            )
+                        }
+                    }
                     Text(
-                        text = if (updateState is UpdateCheckState.Checking) "Checking..." else "Check for Updates",
+                        text = when {
+                            isChecking -> "Checking..."
+                            isLatest -> "You're on the latest update"
+                            else -> "Check for Updates"
+                        },
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = InkDark

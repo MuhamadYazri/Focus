@@ -101,7 +101,15 @@ object AnalyticsCalculator {
 
     fun formatBarHours(totalMins: Int): String {
         if (totalMins <= 0) return "0h"
-        return String.format(Locale.US, "%.1fh", totalMins / 60f)
+        val hrs = totalMins / 60f
+        return if (hrs >= 10f) {
+            val rounded = kotlin.math.round(hrs).toInt()
+            "${rounded}h"
+        } else if (hrs % 1f == 0f) {
+            "${hrs.toInt()}h"
+        } else {
+            String.format(Locale.US, "%.1fh", hrs)
+        }
     }
 
     private fun computeSegmentsForSessions(

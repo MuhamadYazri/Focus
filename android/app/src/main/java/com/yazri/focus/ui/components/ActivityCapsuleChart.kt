@@ -112,9 +112,8 @@ fun ActivityCapsuleChart(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Bottom
                     ) {
-                        val showValueLabel = !isDense || slot.isCurrent
                         Text(
-                            text = if (showValueLabel) slot.valText else "",
+                            text = slot.valText,
                             fontSize = if (isDense) 8.sp else 9.sp,
                             fontWeight = if (slot.isCurrent) FontWeight.Bold else FontWeight.Medium,
                             color = if (slot.isCurrent) (if (isDark) Color(0xFFFFFFFF) else InkDark) else if (slot.mins > 0) MossSecondary else SoftSage,

@@ -593,8 +593,13 @@ fun TimerScreen(
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                                     ) {
+                                        val durationTag = if (activeTask?.durationMinutes != null && activeTask.durationMinutes > 0) {
+                                            "${activeTask.durationMinutes}m focus"
+                                        } else {
+                                            "Default ${totalTime / 60}m"
+                                        }
                                         Text(
-                                            text = if (activeTask != null) "Tap to change task" else "Tap to choose task",
+                                            text = if (activeTask != null) "Tap to change task • $durationTag" else "Tap to choose task • $durationTag",
                                             fontSize = 11.sp,
                                             fontWeight = FontWeight.SemiBold,
                                             color = SoftSage,
@@ -1179,8 +1184,13 @@ fun TimerScreen(
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis,
                                     )
+                                    val durLabel = if (task.durationMinutes != null && task.durationMinutes > 0) {
+                                        " • ${task.durationMinutes}m"
+                                    } else {
+                                        " • Default"
+                                    }
                                     Text(
-                                        text = "${task.completedPomos}/${task.estimatedPomos} pomodoros",
+                                        text = "${task.completedPomos}/${task.estimatedPomos} pomodoros$durLabel",
                                         fontSize = 11.sp,
                                         color = MossSecondary,
                                     )

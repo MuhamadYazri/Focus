@@ -89,11 +89,7 @@ class TimerEngine(
                     s.shortBreakDuration != prevShortDur ||
                     s.longBreakDuration != prevLongDur
                 if (!_isRunning.value && durChanged) {
-                    _timeLeft.value = when (_timerMode.value) {
-                        "work" -> s.workDuration * 60
-                        "shortBreak" -> s.shortBreakDuration * 60
-                        else -> s.longBreakDuration * 60
-                    }
+                    _timeLeft.value = getTotalTimeForMode(_timerMode.value)
                     if (notificationSessionActive) {
                         syncForegroundNotification(forceKeep = true)
                     }
@@ -111,7 +107,14 @@ class TimerEngine(
                 if (curId != null) {
                     val fresh = taskList.find { it.id == curId }
                     if (fresh != null && fresh != _activeTask.value) {
+                        val durChanged = fresh.durationMinutes != _activeTask.value?.durationMinutes
                         _activeTask.value = fresh
+                        if (!_isRunning.value && _timerMode.value == "work" && durChanged) {
+                            _timeLeft.value = getTotalTimeForMode("work")
+                            if (notificationSessionActive) {
+                                syncForegroundNotification(forceKeep = true)
+                            }
+                        }
                     }
                 }
             }
@@ -186,7 +189,11 @@ class TimerEngine(
     fun getTotalTimeForMode(mode: String = _timerMode.value): Int {
         val s = settings.value
         return when (mode) {
-            "work" -> s.workDuration * 60
+            "work" -> {
+                val custom = _activeTask.value?.durationMinutes
+                if (custom != null && custom > 0) custom * 60
+                else s.workDuration * 60
+            }
             "shortBreak" -> s.shortBreakDuration * 60
             "longBreak" -> s.longBreakDuration * 60
             else -> 25 * 60
@@ -213,12 +220,24 @@ class TimerEngine(
     fun setActiveTask(task: TaskEntity?) {
         _activeTask.value = task
         persistState()
+        if (!_isRunning.value && _timerMode.value == "work") {
+            _timeLeft.value = getTotalTimeForMode("work")
+            if (notificationSessionActive) {
+                syncForegroundNotification(forceKeep = true)
+            }
+        }
     }
 
     fun onTaskUpdated(task: TaskEntity) {
         if (_activeTask.value?.id == task.id) {
             _activeTask.value = task
             persistState()
+            if (!_isRunning.value && _timerMode.value == "work") {
+                _timeLeft.value = getTotalTimeForMode("work")
+                if (notificationSessionActive) {
+                    syncForegroundNotification(forceKeep = true)
+                }
+            }
         }
     }
 
@@ -255,7 +274,7 @@ class TimerEngine(
         }
 
         if (curRunning && curMode == "work") {
-            val elapsedSecs = (settings.value.workDuration * 60 - _timeLeft.value).coerceAtLeast(0)
+            val elapsedSecs = (getTotalTimeForMode("work") - _timeLeft.value).coerceAtLeast(0)
             saveFocusProgress(elapsedSecs)
         }
 
@@ -274,7 +293,7 @@ class TimerEngine(
         // Switching to a different mode while running
         if (curRunning && targetMode != null && targetMode != curMode) {
             if (curMode == "work") {
-                val elapsedSecs = (curSettings.workDuration * 60 - _timeLeft.value).coerceAtLeast(0)
+                val elapsedSecs = (getTotalTimeForMode("work") - _timeLeft.value).coerceAtLeast(0)
                 saveFocusProgress(elapsedSecs)
                 _cycleCount.value += 1
             }
@@ -334,7 +353,7 @@ class TimerEngine(
         val curSettings = settings.value
 
         if (curMode == "work") {
-            val elapsedSecs = (curSettings.workDuration * 60 - _timeLeft.value).coerceAtLeast(0)
+            val elapsedSecs = (getTotalTimeForMode("work") - _timeLeft.value).coerceAtLeast(0)
             saveFocusProgress(elapsedSecs)
 
             val nextCycle = _cycleCount.value + 1
@@ -464,6 +483,7 @@ class TimerEngine(
                 remaining -= curTimeLeft
 
                 if (curMode == "work") {
+                    val workMins = curTask?.durationMinutes?.takeIf { it > 0 } ?: curSettings.workDuration
                     pomosEarned += 1
                     curCycles += 1
 
@@ -471,7 +491,7 @@ class TimerEngine(
                         SessionEntity(
                             id = "sess-${System.currentTimeMillis()}-${sessionsToAdd.size}",
                             projectId = curTask?.projectId ?: curProjects.firstOrNull()?.id ?: "proj-1",
-                            duration = curSettings.workDuration,
+                            duration = workMins,
                             completedAt = Instant.now().toString(),
                             dateStr = LocalDate.now().toString()
                         )
@@ -483,7 +503,7 @@ class TimerEngine(
                             type = "work",
                             title = "Session $curCycles Completed",
                             subtitle = "Great focus! Enjoy a moment of calm.",
-                            durationMins = curSettings.workDuration,
+                            durationMins = workMins,
                             autoStarted = curSettings.autoStartBreaks
                         )
                     )
@@ -497,6 +517,7 @@ class TimerEngine(
                         remaining = 0
                     }
                 } else {
+                    val nextWorkMins = curTask?.durationMinutes?.takeIf { it > 0 } ?: curSettings.workDuration
                     newCelebrations.add(
                         CelebrationItem(
                             id = System.currentTimeMillis() + newCelebrations.size,
@@ -509,7 +530,7 @@ class TimerEngine(
                     )
 
                     curMode = "work"
-                    curTimeLeft = curSettings.workDuration * 60
+                    curTimeLeft = nextWorkMins * 60
 
                     if (!curSettings.autoStartPomodoros) {
                         curRunning = false

@@ -26,7 +26,8 @@ data class TaskEntity(
     val scheduledDate: String? = null,
     val weeklyDaysCsv: String = "",       // Comma separated e.g. "1,3,5"
     val subtasksJson: String = "[]",
-    val createdAt: String
+    val createdAt: String,
+    val durationMinutes: Int? = null
 ) {
     val weeklyDays: List<Int>
         get() = if (weeklyDaysCsv.isBlank()) emptyList()

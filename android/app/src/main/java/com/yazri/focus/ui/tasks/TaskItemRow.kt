@@ -178,13 +178,27 @@ fun TaskItemRow(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text(
-                    text = "${task.completedPomos}/${task.estimatedPomos.coerceAtLeast(1)}",
-                    fontSize = 26.sp,
-                    fontWeight = FontWeight.Normal,
-                    letterSpacing = (-1).sp,
-                    color = primaryTextColor
-                )
+                Column(
+                    horizontalAlignment = Alignment.End,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = "${task.completedPomos}/${task.estimatedPomos.coerceAtLeast(1)}",
+                        fontSize = 26.sp,
+                        fontWeight = FontWeight.Normal,
+                        letterSpacing = (-1).sp,
+                        color = primaryTextColor
+                    )
+                    if (task.durationMinutes != null && task.durationMinutes > 0) {
+                        Text(
+                            text = "${task.durationMinutes}m",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MossSecondary,
+                            modifier = Modifier.offset(y = (-3).dp)
+                        )
+                    }
+                }
 
                 if (!isDone) {
                     val playIconTint = if (isCurrentFocus) TextOnDark else InkDark

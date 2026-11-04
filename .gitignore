@@ -37,7 +37,7 @@ scenario*
 *.keystore
 *.jks
 keystore.properties
-Focus*
+Focus*.apk
 
 # Agent Documentation
 flow.md

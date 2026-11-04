@@ -40,6 +40,7 @@ import java.util.Locale
 fun TaskModalBottomSheet(
     taskToEdit: TaskEntity?,
     projects: List<ProjectEntity>,
+    defaultWorkDuration: Int = 25,
     onDismiss: () -> Unit,
     onSave: (TaskEntity) -> Unit,
     onDelete: ((TaskEntity) -> Unit)? = null,
@@ -53,6 +54,12 @@ fun TaskModalBottomSheet(
     }
     var showNewCategoryDialog by remember { mutableStateOf(false) }
     var pomoTotal by remember(taskToEdit) { mutableIntStateOf(taskToEdit?.estimatedPomos ?: 1) }
+    var useCustomDuration by remember(taskToEdit) {
+        mutableStateOf(taskToEdit?.durationMinutes != null && taskToEdit.durationMinutes > 0)
+    }
+    var customDurationMinutes by remember(taskToEdit, defaultWorkDuration) {
+        mutableIntStateOf(taskToEdit?.durationMinutes ?: defaultWorkDuration)
+    }
     var showTags by remember { mutableStateOf(false) }
     var subtasks by remember(taskToEdit) { mutableStateOf(taskToEdit?.subtasks ?: emptyList()) }
     var newSubtaskTitle by remember { mutableStateOf("") }
@@ -552,6 +559,186 @@ fun TaskModalBottomSheet(
                 }
             }
 
+            // ── SESSION DURATION (TIMER) ──
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "SESSION DURATION",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        letterSpacing = 1.2.sp,
+                        color = MossSecondary
+                    )
+                    Text(
+                        text = if (useCustomDuration) "$customDurationMinutes MIN" else "DEFAULT ($defaultWorkDuration MIN)",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (useCustomDuration) InkDark else MossSecondary
+                    )
+                }
+
+                // Segmented Pill Selector: Default vs Custom
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(44.dp)
+                        .inset(RoundedCornerShape(14.dp), SurfaceSubtle, depth = 2.dp)
+                        .padding(3.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    // Default Option
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .then(
+                                if (!useCustomDuration) {
+                                    Modifier
+                                        .raised(RoundedCornerShape(11.dp), SurfaceWhite, elevation = 2.dp)
+                                        .clip(RoundedCornerShape(11.dp))
+                                } else {
+                                    Modifier
+                                        .clip(RoundedCornerShape(11.dp))
+                                        .clickable { useCustomDuration = false }
+                                }
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Default (${defaultWorkDuration}m)",
+                            fontSize = 13.sp,
+                            fontWeight = if (!useCustomDuration) FontWeight.Bold else FontWeight.Medium,
+                            color = if (!useCustomDuration) InkDark else MossSecondary
+                        )
+                    }
+
+                    // Custom Option
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .then(
+                                if (useCustomDuration) {
+                                    Modifier
+                                        .raised(RoundedCornerShape(11.dp), SurfaceWhite, elevation = 2.dp)
+                                        .clip(RoundedCornerShape(11.dp))
+                                } else {
+                                    Modifier
+                                        .clip(RoundedCornerShape(11.dp))
+                                        .clickable { useCustomDuration = true }
+                                }
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Custom",
+                            fontSize = 13.sp,
+                            fontWeight = if (useCustomDuration) FontWeight.Bold else FontWeight.Medium,
+                            color = if (useCustomDuration) InkDark else MossSecondary
+                        )
+                    }
+                }
+
+                if (useCustomDuration) {
+                    // Quick Presets: 15m, 20m, 25m, 30m, 45m, 60m
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        listOf(15, 20, 25, 30, 45, 60).forEach { mins ->
+                            val isSel = customDurationMinutes == mins
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(36.dp)
+                                    .then(
+                                        if (isSel) {
+                                            Modifier
+                                                .raisedDark(RoundedCornerShape(10.dp), InkDark, elevation = 3.dp)
+                                                .clip(RoundedCornerShape(10.dp))
+                                        } else {
+                                            Modifier
+                                                .raised(RoundedCornerShape(10.dp), SurfaceWhite, elevation = 2.dp)
+                                                .clip(RoundedCornerShape(10.dp))
+                                                .clickable { customDurationMinutes = mins }
+                                        }
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "${mins}m",
+                                    fontSize = 12.sp,
+                                    fontWeight = if (isSel) FontWeight.Bold else FontWeight.Medium,
+                                    color = if (isSel) TextOnDark else InkDark
+                                )
+                            }
+                        }
+                    }
+
+                    // Stepper: - 5m / + 5m
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(46.dp)
+                                .raised(RoundedCornerShape(14.dp), SurfaceWhite, elevation = 4.dp)
+                                .clickable {
+                                    customDurationMinutes = (customDurationMinutes - 5).coerceAtLeast(5)
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "−5",
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = InkDark
+                            )
+                        }
+
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = "$customDurationMinutes",
+                                fontSize = 32.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = (-1).sp,
+                                color = InkDark
+                            )
+                            Text(
+                                text = "MINUTES",
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                letterSpacing = 1.5.sp,
+                                color = MossSecondary
+                            )
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .size(46.dp)
+                                .raised(RoundedCornerShape(14.dp), SurfaceWhite, elevation = 4.dp)
+                                .clickable {
+                                    customDurationMinutes = (customDurationMinutes + 5).coerceAtMost(180)
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "+5",
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = InkDark
+                            )
+                        }
+                    }
+                }
+            }
+
             // ── SUBTASKS EXPANDABLE ──
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row(
@@ -743,7 +930,8 @@ fun TaskModalBottomSheet(
                                         scheduledDate = if (scheduleType == "date") scheduledDate else null,
                                         weeklyDaysCsv = if (scheduleType == "weekly") TaskEntity.serializeWeeklyDays(weeklyDays) else "",
                                         subtasksJson = TaskEntity.serializeSubtasks(subtasks),
-                                        createdAt = taskToEdit?.createdAt ?: Instant.now().toString()
+                                        createdAt = taskToEdit?.createdAt ?: Instant.now().toString(),
+                                        durationMinutes = if (useCustomDuration) customDurationMinutes else null
                                     )
                                     onSave(saved)
                                     onDismiss()

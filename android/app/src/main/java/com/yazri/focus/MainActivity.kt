@@ -536,6 +536,7 @@ class MainActivity : ComponentActivity() {
                     TaskModalBottomSheet(
                         taskToEdit = taskToEdit,
                         projects = projects,
+                        defaultWorkDuration = settings.workDuration,
                         onDismiss = { taskModalOpen = false },
                         onSave = { viewModel.saveTask(it) },
                         onDelete = { viewModel.deleteTask(it) },

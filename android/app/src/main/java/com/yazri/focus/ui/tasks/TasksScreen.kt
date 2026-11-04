@@ -1,8 +1,10 @@
 package com.yazri.focus.ui.tasks
 
+import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -104,7 +106,6 @@ fun TasksScreen(
     }
 
     val activeFilterIdx = FILTER_TABS.indexOf(filterTab).coerceAtLeast(0)
-    val effectiveActiveId = activeTaskId ?: filteredTasks.firstOrNull { !it.completed }?.id
 
     val navBarBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
@@ -116,9 +117,13 @@ fun TasksScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .widthIn(max = 440.dp)
-                .padding(horizontal = 24.dp),
-            contentPadding = PaddingValues(top = 54.dp, bottom = 140.dp + navBarBottom),
+                .widthIn(max = 440.dp),
+            contentPadding = PaddingValues(
+                start = 24.dp,
+                end = 24.dp,
+                top = 54.dp,
+                bottom = 140.dp + navBarBottom
+            ),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             // ── TOP BAR: Editorial Title on Left + Circular '+' Button on Right ──
@@ -255,7 +260,7 @@ fun TasksScreen(
                     items = filteredTasks,
                     key = { it.id }
                 ) { task ->
-                    val isCurrentFocus = effectiveActiveId == task.id && !task.completed
+                    val isCurrentFocus = activeTaskId == task.id && !task.completed
                     val isJustCompleted = justCompletedId == task.id
                     val toggleComplete: () -> Unit = {
                         if (!task.completed && filterTab != "Done") {
@@ -280,7 +285,10 @@ fun TasksScreen(
                         leftIconTint = Color.White,
                         onSwipeRight = toggleComplete,
                         onSwipeLeft = { onDeleteTask(task) },
-                        modifier = Modifier.animateItem()
+                        modifier = Modifier.animateItem(
+                            fadeInSpec = null,
+                            fadeOutSpec = tween(durationMillis = 200, easing = FastOutLinearInEasing)
+                        )
                     ) {
                         TaskItemRow(
                             task = task,

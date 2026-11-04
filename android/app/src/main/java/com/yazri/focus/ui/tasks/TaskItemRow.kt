@@ -2,6 +2,7 @@ package com.yazri.focus.ui.tasks
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -13,8 +14,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -69,13 +69,31 @@ fun TaskItemRow(
     val primaryTextColor = if (isCurrentFocus && !isDone) TextOnDark else InkDark
     val secondaryTextColor = if (isCurrentFocus && !isDone) (if (FocusTheme.colors.isDark) Color(0xFF6E6E68) else Color(0xFF8E8E8A)) else MossSecondary
 
+    var hasEntered by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        hasEntered = true
+    }
+    val cardElevation by animateDpAsState(
+        targetValue = if (hasEntered && !isDone) 7.dp else 0.dp,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessMediumLow
+        ),
+        label = "TaskCardElevation"
+    )
+    val shadowAlpha by animateFloatAsState(
+        targetValue = if (hasEntered && !isDone) 1f else 0f,
+        animationSpec = tween(200),
+        label = "TaskShadowAlpha"
+    )
+
     // Reference 1 style rounded-22dp card (inverted solid black when active)
     Box(
         modifier = modifier
             .fillMaxWidth()
             .then(
-                if (isCurrentFocus && !isDone) Modifier.raisedDark(RoundedCornerShape(22.dp), cardBg, elevation = 7.dp)
-                else Modifier.raised(RoundedCornerShape(22.dp), cardBg, elevation = 7.dp)
+                if (isCurrentFocus && !isDone) Modifier.raisedDark(RoundedCornerShape(22.dp), cardBg, elevation = cardElevation, shadowAlpha = shadowAlpha)
+                else Modifier.raised(RoundedCornerShape(22.dp), cardBg, elevation = cardElevation, shadowAlpha = shadowAlpha)
             )
             .clickable { onEditTask() }
             .padding(horizontal = 20.dp, vertical = 18.dp)

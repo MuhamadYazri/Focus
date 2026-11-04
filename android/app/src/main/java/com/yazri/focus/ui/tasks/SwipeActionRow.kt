@@ -174,7 +174,10 @@ fun SwipeActionRow(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .graphicsLayer { translationX = offsetX }
+                .graphicsLayer {
+                    translationX = offsetX
+                    clip = false
+                }
         ) {
             content()
         }

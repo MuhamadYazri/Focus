@@ -1,42 +1,52 @@
-# Logs
-logs
+# Built application files
+*.apk
+*.aar
+*.ap_
+*.aab
+
+# Files for the ART/Dalvik VM
+*.dex
+
+# Java class files
+*.class
+
+# Generated files
+bin/
+gen/
+out/
+
+# Gradle, Kotlin and Build files
+.gradle/
+.kotlin/
+build/
+app/build/
+baselineprofile/build/
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Proguard folder
+proguard/
+
+# Log Files
+logs/
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-Design Task Management Dashboard/guidelines/Guidelines.md
-Design Task Management Dashboard
-SKILL.md
-replace.js
-stitch_hybrid_design_system_redesign
-Trace-20261011T103045.json
-Trace-20261011T110151.json
-Trace*
-scenario*
+# Android Studio & IntelliJ files
+*.iml
+.idea/
+.navigation/
+captures/
 
 # Keystores & Signing
-*.keystore
 *.jks
+*.keystore
 keystore.properties
-Focus*
+
+# OS files
+.DS_Store
+Thumbs.db
+*.sw?
 
 # Agent Documentation
 flow.md

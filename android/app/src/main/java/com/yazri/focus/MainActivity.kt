@@ -45,12 +45,14 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.yazri.focus.ui.navigation.rememberPagerSwipeController
 import android.content.res.Configuration
 import android.graphics.drawable.ColorDrawable
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -126,6 +128,20 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    private fun Modifier.screenSlideFade(index: Int, widthPx: Float, progressProvider: () -> Float): Modifier =
+        this.graphicsLayer {
+            val p = progressProvider()
+            val diff = index - p
+            if (kotlin.math.abs(diff) >= 1.0f) {
+                translationX = 99999f
+                alpha = 0f
+            } else {
+                // Symmetrical 1:1 horizontal slide + smooth alpha cross-fade
+                translationX = diff * widthPx
+                alpha = (1f - kotlin.math.abs(diff)).coerceIn(0f, 1f)
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
@@ -255,7 +271,6 @@ class MainActivity : ComponentActivity() {
                 }
 
                 val isFullscreenTimer = isNavHidden && activeTab == "timer"
-                var dragAccumulatedX by remember { mutableFloatStateOf(0f) }
 
                 // System Back Navigation Handlers:
                 // 1) Exit fullscreen timer when in fullscreen
@@ -267,61 +282,84 @@ class MainActivity : ComponentActivity() {
                     viewModel.selectTab("timer")
                 }
 
-                Box(
+                val currentTab by rememberUpdatedState(activeTab)
+                val currentIsFullscreen by rememberUpdatedState(isFullscreenTimer)
+                val currentTaskModalOpen by rememberUpdatedState(taskModalOpen)
+
+                val pagerController = rememberPagerSwipeController(
+                    initialKey = activeTab,
+                    tabCount = Screen.items.size,
+                    onTabSettled = { settledKey ->
+                        viewModel.selectTab(settledKey)
+                    }
+                )
+
+                LaunchedEffect(activeTab) {
+                    pagerController.syncFromExternalTab(activeTab)
+                }
+
+                val tracker = remember { VelocityTracker() }
+
+                // Retained Screen Layer Cache with Option B: Idle Background Pre-warming
+                var visitedTabs by remember { mutableStateOf(setOf(activeTab)) }
+                LaunchedEffect(activeTab) {
+                    visitedTabs = visitedTabs + activeTab
+                }
+
+                LaunchedEffect(pagerController.isDragging) {
+                    if (pagerController.isDragging) {
+                        visitedTabs = visitedTabs + setOf("home", "timer", "reports", "profile")
+                    }
+                }
+
+                // Option B: Idle Background Pre-warming
+                // Wait for initial frame to paint (~120ms), then progressively warm remaining tabs across frames
+                LaunchedEffect(Unit) {
+                    delay(120)
+                    val warmSequence = listOf("timer", "reports", "profile", "home")
+                    for (tab in warmSequence) {
+                        if (tab !in visitedTabs) {
+                            visitedTabs = visitedTabs + tab
+                            delay(60) // spread across consecutive frames to maintain locked 120 FPS
+                        }
+                    }
+                }
+
+                BoxWithConstraints(
                     modifier = Modifier
                         .fillMaxSize()
                         .background(CanvasBg)
-                        .pointerInput(activeTab, isFullscreenTimer, taskModalOpen) {
-                            if (isFullscreenTimer || taskModalOpen) return@pointerInput
+                        .pointerInput(currentIsFullscreen, currentTaskModalOpen) {
+                            if (currentIsFullscreen || currentTaskModalOpen) return@pointerInput
+                            val width = size.width.toFloat()
                             detectHorizontalDragGestures(
-                                onDragStart = { dragAccumulatedX = 0f },
-                                onHorizontalDrag = { _, dragAmount ->
-                                    dragAccumulatedX += dragAmount
+                                onDragStart = {
+                                    tracker.resetTracking()
+                                    pagerController.onDragStart()
+                                },
+                                onHorizontalDrag = { change, dragAmount ->
+                                    tracker.addPosition(change.uptimeMillis, change.position)
+                                    pagerController.onDrag(dragAmount, width)
                                 },
                                 onDragEnd = {
-                                    val tabKeys = Screen.items.map { it.key }
-                                    val curIdx = tabKeys.indexOf(activeTab)
-                                    if (abs(dragAccumulatedX) > 130f && curIdx != -1) {
-                                        if (dragAccumulatedX < 0 && curIdx < tabKeys.lastIndex) {
-                                            viewModel.selectTab(tabKeys[curIdx + 1])
-                                        } else if (dragAccumulatedX > 0 && curIdx > 0) {
-                                            viewModel.selectTab(tabKeys[curIdx - 1])
-                                        }
-                                    }
-                                    dragAccumulatedX = 0f
+                                    val velocity = tracker.calculateVelocity().x
+                                    pagerController.onDragEnd(velocity, width)
+                                },
+                                onDragCancel = {
+                                    pagerController.onDragEnd(0f, width)
                                 }
                             )
                         }
                 ) {
-                    // Retained Screen Layer Cache with Option B: Idle Background Pre-warming
-                    var visitedTabs by remember { mutableStateOf(setOf(activeTab)) }
-                    LaunchedEffect(activeTab) {
-                        visitedTabs = visitedTabs + activeTab
-                    }
-
-                    // Option B: Idle Background Pre-warming
-                    // Wait for initial frame to paint (~120ms), then progressively warm remaining tabs across frames
-                    LaunchedEffect(Unit) {
-                        delay(120)
-                        val warmSequence = listOf("timer", "reports", "profile", "home")
-                        for (tab in warmSequence) {
-                            if (tab !in visitedTabs) {
-                                visitedTabs = visitedTabs + tab
-                                delay(60) // spread across consecutive frames to maintain locked 120 FPS
-                            }
-                        }
-                    }
+                    val screenWidth = constraints.maxWidth.toFloat()
 
                     Box(modifier = Modifier.fillMaxSize()) {
-                        // 1. Tasks Screen
+                        // 1. Tasks Screen (Index 0)
                         if ("home" in visitedTabs) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .graphicsLayer {
-                                        alpha = if (activeTab == "home") 1f else 0f
-                                        translationX = if (activeTab == "home") 0f else 99999f
-                                    }
+                                    .screenSlideFade(0, screenWidth) { pagerController.progress }
                             ) {
                                 TasksScreen(
                                     tasks = tasks,
@@ -344,16 +382,13 @@ class MainActivity : ComponentActivity() {
                             }
                         }
 
-                        // 2. Timer Screen
+                        // 2. Timer Screen (Index 1)
                         if ("timer" in visitedTabs) {
                             val timeLeft by viewModel.timeLeft.collectAsStateWithLifecycle()
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .graphicsLayer {
-                                        alpha = if (activeTab == "timer") 1f else 0f
-                                        translationX = if (activeTab == "timer") 0f else 99999f
-                                    }
+                                    .screenSlideFade(1, screenWidth) { pagerController.progress }
                             ) {
                                 TimerScreen(
                                     mode = timerMode,
@@ -388,15 +423,12 @@ class MainActivity : ComponentActivity() {
                             }
                         }
 
-                        // 3. Reports Screen
+                        // 3. Reports Screen (Index 2)
                         if ("reports" in visitedTabs) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .graphicsLayer {
-                                        alpha = if (activeTab == "reports") 1f else 0f
-                                        translationX = if (activeTab == "reports") 0f else 99999f
-                                    }
+                                    .screenSlideFade(2, screenWidth) { pagerController.progress }
                             ) {
                                 AnalyticsScreen(
                                     projects = projects,
@@ -406,15 +438,12 @@ class MainActivity : ComponentActivity() {
                             }
                         }
 
-                        // 4. Settings / Profile Screen
+                        // 4. Settings / Profile Screen (Index 3)
                         if ("profile" in visitedTabs) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .graphicsLayer {
-                                        alpha = if (activeTab == "profile") 1f else 0f
-                                        translationX = if (activeTab == "profile") 0f else 99999f
-                                    }
+                                    .screenSlideFade(3, screenWidth) { pagerController.progress }
                             ) {
                                 ProfileScreen(
                                     settings = settings,
@@ -459,19 +488,20 @@ class MainActivity : ComponentActivity() {
                     val navBarBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
                     // Bottom Screen Fade Overlay matching App.jsx (h-28 bg-gradient-to-t from-[#F0F2EF] to-transparent)
-                    if (!isFullscreenTimer) {
-                        Box(
-                            modifier = Modifier
-                                .align(Alignment.BottomCenter)
-                                .fillMaxWidth()
-                                .height(112.dp + navBarBottom)
-                                .background(
-                                    Brush.verticalGradient(
-                                        colors = listOf(Color.Transparent, CanvasBg)
-                                    )
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .fillMaxWidth()
+                            .height(112.dp + navBarBottom)
+                            .graphicsLayer {
+                                alpha = if (isFullscreenTimer) 0f else 1f
+                            }
+                            .background(
+                                Brush.verticalGradient(
+                                    colors = listOf(Color.Transparent, CanvasBg)
                                 )
-                        )
-                    }
+                            )
+                    )
 
                     // Undo Toast Overlay matching UndoToast.jsx (floats 8dp above dock)
                     UndoToastOverlay(
@@ -484,11 +514,10 @@ class MainActivity : ComponentActivity() {
                     )
 
                     // Mascot Peek Animation Overlay ("Appy")
-                    if (!isFullscreenTimer) {
-                        com.yazri.focus.ui.components.MascotPeekOverlay(
-                            isDark = darkTheme
-                        )
-                    }
+                    com.yazri.focus.ui.components.MascotPeekOverlay(
+                        isDark = darkTheme,
+                        isHidden = isFullscreenTimer
+                    )
 
                     // Floating Bottom Dock Navigation
                     BottomDockNav(

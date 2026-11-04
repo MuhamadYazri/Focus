@@ -85,12 +85,13 @@ fun Modifier.raised(
 fun Modifier.raisedDark(
     shape: Shape,
     color: Color,
-    elevation: Dp = 6.dp
+    elevation: Dp = 6.dp,
+    shadowAlpha: Float = 1.0f
 ): Modifier {
     val isDark = LocalFocusColors.current.isDark
     if (!Depth.enabled) return this.clip(shape).background(color)
-    val ambientColor = if (isDark) Color.Black.copy(alpha = 0.45f) else Color.Black.copy(alpha = 0.28f)
-    val spotColor = if (isDark) Color.Black.copy(alpha = 0.70f) else Color.Black.copy(alpha = 0.50f)
+    val ambientColor = if (isDark) Color.Black.copy(alpha = 0.45f * shadowAlpha) else Color.Black.copy(alpha = 0.28f * shadowAlpha)
+    val spotColor = if (isDark) Color.Black.copy(alpha = 0.70f * shadowAlpha) else Color.Black.copy(alpha = 0.50f * shadowAlpha)
 
     return this
         .shadow(

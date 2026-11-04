@@ -85,6 +85,20 @@ val CATEGORY_ICONS = listOf(
     CategoryIconOption("Music", Icons.Outlined.MusicNote)
 )
 
+data class AudioCreditItem(
+    val title: String,
+    val description: String,
+    val url: String
+)
+
+val AUDIO_CREDITS = listOf(
+    AudioCreditItem("Clock", "Stopwatch 2 (ID 2138)", "https://bigsoundbank.com/stopwatch-2-s2138.html"),
+    AudioCreditItem("Café", "Atmosphere bar 2 (ID 0481)", "https://bigsoundbank.com/atmosphere-bar-2-s0481.html"),
+    AudioCreditItem("Waves", "Sea waves and seagulls (ID 0267)", "https://bigsoundbank.com/sea-waves-and-seagulls-s0267.html"),
+    AudioCreditItem("Rain", "Rain and storm (ID 0124)", "https://bigsoundbank.com/rain-and-storm-s0124.html"),
+    AudioCreditItem("Forest", "Forest (ID 0100)", "https://bigsoundbank.com/forest-s0100.html")
+)
+
 fun getCategoryIcon(iconName: String): ImageVector {
     return CATEGORY_ICONS.find { it.name.equals(iconName, ignoreCase = true) }?.icon
         ?: Icons.Outlined.WorkOutline
@@ -106,6 +120,7 @@ fun ProfileScreen(
     var projectToEdit by remember { mutableStateOf<ProjectEntity?>(null) }
     var projectToDelete by remember { mutableStateOf<ProjectEntity?>(null) }
     var showResetConfirm by remember { mutableStateOf(false) }
+    var showAudioCreditsModal by remember { mutableStateOf(false) }
     var customDurationModal by remember { mutableStateOf<String?>(null) } // "work", "short", "long", "goal"
     var customValueNum by remember { mutableFloatStateOf(25f) }
     var customInputText by remember { mutableStateOf("25") }
@@ -540,6 +555,28 @@ fun ProfileScreen(
                     color = InkDark,
                     modifier = Modifier.width(36.dp),
                     textAlign = TextAlign.End
+                )
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 2.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Soundscape recordings by BigSoundBank (CC0)",
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = SoftSage
+                )
+                Text(
+                    text = "View Credits",
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = InkDark,
+                    modifier = Modifier.clickable { showAudioCreditsModal = true }
                 )
             }
         }
@@ -1272,6 +1309,107 @@ fun ProfileScreen(
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             color = ErrorRed
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    if (showAudioCreditsModal) {
+        AudioCreditsDialog(onDismiss = { showAudioCreditsModal = false })
+    }
+}
+
+@Composable
+fun AudioCreditsDialog(
+    onDismiss: () -> Unit
+) {
+    val uriHandler = LocalUriHandler.current
+    Dialog(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(24.dp))
+                .background(SurfaceWhite)
+                .padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = "AUDIO CREDITS",
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp,
+                        color = MossSecondary
+                    )
+                    Text(
+                        text = "Soundscape Sources",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = InkDark
+                    )
+                }
+                Box(
+                    modifier = Modifier
+                        .size(28.dp)
+                        .clip(CircleShape)
+                        .background(SurfaceSubtle)
+                        .clickable { onDismiss() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Close,
+                        contentDescription = "Close",
+                        tint = MossSecondary,
+                        modifier = Modifier.size(14.dp)
+                    )
+                }
+            }
+
+            Text(
+                text = "Recorded by Joseph SARDIN on BigSoundBank.com under Creative Commons 0 (Public Domain). Tap any sound to view its source page.",
+                fontSize = 11.sp,
+                lineHeight = 16.sp,
+                color = MossSecondary
+            )
+
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                AUDIO_CREDITS.forEach { item ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(CanvasBg)
+                            .border(1.dp, BorderHairline.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
+                            .clickable { runCatching { uriHandler.openUri(item.url) } }
+                            .padding(horizontal = 14.dp, vertical = 10.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                text = item.title,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = InkDark
+                            )
+                            Text(
+                                text = item.description,
+                                fontSize = 10.sp,
+                                color = SoftSage
+                            )
+                        }
+                        Icon(
+                            imageVector = Icons.Outlined.OpenInNew,
+                            contentDescription = "Open",
+                            tint = SoftSage,
+                            modifier = Modifier.size(14.dp)
                         )
                     }
                 }

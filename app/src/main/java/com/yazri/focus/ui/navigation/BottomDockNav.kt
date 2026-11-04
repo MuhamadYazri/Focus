@@ -17,6 +17,7 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -36,6 +37,7 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -80,6 +82,8 @@ fun BottomDockNav(
     activeTab: String,
     onSelectTab: (String) -> Unit,
     isHidden: Boolean = false,
+    progressProvider: (() -> Float)? = null,
+    isDraggingProvider: (() -> Boolean)? = null,
     modifier: Modifier = Modifier
 ) {
     AnimatedVisibility(
@@ -108,12 +112,32 @@ fun BottomDockNav(
 
         var pressed by remember { mutableStateOf(false) }
         var touchX by remember { mutableFloatStateOf(0f) }
+        val isScreenSwiping = isDraggingProvider?.invoke() ?: false
+        val isMagnifying = pressed || isScreenSwiping
         val progressState = animateFloatAsState(
-            targetValue = if (pressed) 1f else 0f,
+            targetValue = if (isMagnifying) 1f else 0f,
             animationSpec = spring(dampingRatio = 0.78f, stiffness = Spring.StiffnessMedium),
             label = "DockMagnifyProgress"
         )
         val pops = remember { List(count) { Animatable(1f) } }
+
+        var isFirstSettled by remember { mutableStateOf(true) }
+        LaunchedEffect(activeTab) {
+            if (isFirstSettled) {
+                isFirstSettled = false
+                return@LaunchedEffect
+            }
+            if (!pressed) {
+                val idx = Screen.items.indexOfFirst { it.key == activeTab }
+                if (idx != -1) {
+                    pops[idx].snapTo(0.85f)
+                    pops[idx].animateTo(
+                        1f,
+                        spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessMedium)
+                    )
+                }
+            }
+        }
 
         val currentActiveTab by rememberUpdatedState(activeTab)
         val currentOnSelectTab by rememberUpdatedState(onSelectTab)
@@ -233,11 +257,19 @@ fun BottomDockNav(
                     .graphicsLayer {
                         val p = progressState.value
                         if (p > 0f) {
+                            val liveProgress = progressProvider?.invoke()
+                            val effectiveTouchX = if (pressed || liveProgress == null) {
+                                touchX
+                            } else {
+                                padPx + liveProgress * stridePx + itemPx / 2f
+                            }
                             var total = 0f
                             for (k in 0 until count) {
-                                total += (dockScaleAt(k, touchX, p, stridePx, padPx, itemPx) - 1f) * itemPx
+                                total += (dockScaleAt(k, effectiveTouchX, p, stridePx, padPx, itemPx) - 1f) * itemPx
                             }
                             scaleX = 1f + total / capsuleWidthPx
+                        } else {
+                            scaleX = 1f
                         }
                     }
                     .raised(CircleShape, dockBg, elevation = 9.dp)
@@ -248,18 +280,38 @@ fun BottomDockNav(
                 horizontalArrangement = Arrangement.spacedBy(GAP_DP.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                val liveProgress = progressProvider?.invoke()
+
                 Screen.items.forEachIndexed { index, item ->
-                    val isSelected = item.key == activeTab
-                    val circleBg by animateColorAsState(
-                        targetValue = if (isSelected) FocusTheme.colors.dockSelectedCircle else FocusTheme.colors.dockUnselectedCircle,
+                    val isTabSelected = item.key == activeTab
+                    val frac = if (liveProgress != null && !pressed) {
+                        (1f - abs(liveProgress - index)).coerceIn(0f, 1f)
+                    } else {
+                        if (isTabSelected) 1f else 0f
+                    }
+                    val isSelected = frac >= 0.5f
+
+                    val selectedCircle = FocusTheme.colors.dockSelectedCircle
+                    val unselectedCircle = FocusTheme.colors.dockUnselectedCircle
+                    val selectedIcon = FocusTheme.colors.dockSelectedIcon
+                    val unselectedIcon = FocusTheme.colors.dockUnselectedIcon
+
+                    val targetCircle = lerp(unselectedCircle, selectedCircle, frac)
+                    val targetIcon = lerp(unselectedIcon, selectedIcon, frac)
+
+                    val animCircleBg by animateColorAsState(
+                        targetValue = if (isTabSelected) selectedCircle else unselectedCircle,
                         animationSpec = tween(200),
                         label = "DockCircleBg"
                     )
-                    val iconTint by animateColorAsState(
-                        targetValue = if (isSelected) FocusTheme.colors.dockSelectedIcon else FocusTheme.colors.dockUnselectedIcon,
+                    val animIconTint by animateColorAsState(
+                        targetValue = if (isTabSelected) selectedIcon else unselectedIcon,
                         animationSpec = tween(200),
                         label = "DockIconTint"
                     )
+
+                    val circleBg = if (liveProgress != null && !pressed) targetCircle else animCircleBg
+                    val iconTint = if (liveProgress != null && !pressed) targetIcon else animIconTint
 
                     Box(
                         modifier = Modifier
@@ -267,14 +319,20 @@ fun BottomDockNav(
                             .graphicsLayer {
                                 val p = progressState.value
                                 val pop = pops[index].value
-                                val s = dockScaleAt(index, touchX, p, stridePx, padPx, itemPx) * pop
+                                val liveProgress = progressProvider?.invoke()
+                                val effectiveTouchX = if (pressed || liveProgress == null) {
+                                    touchX
+                                } else {
+                                    padPx + liveProgress * stridePx + itemPx / 2f
+                                }
+                                val s = dockScaleAt(index, effectiveTouchX, p, stridePx, padPx, itemPx) * pop
                                 var shift = 0f
                                 if (p > 0f) {
                                     var before = 0f
                                     var total = 0f
                                     var mine = 0f
                                     for (k in 0 until count) {
-                                        val e = (dockScaleAt(k, touchX, p, stridePx, padPx, itemPx) - 1f) * itemPx
+                                        val e = (dockScaleAt(k, effectiveTouchX, p, stridePx, padPx, itemPx) - 1f) * itemPx
                                         if (k < index) before += e
                                         if (k == index) mine = e
                                         total += e

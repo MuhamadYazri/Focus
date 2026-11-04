@@ -36,6 +36,9 @@ class PagerSwipeController(
     var isDragging by mutableStateOf(false)
         private set
 
+    var isPageSwiping by mutableStateOf(false)
+        private set
+
     var lastSettledIndex by mutableIntStateOf(initialIndex)
         private set
 
@@ -44,10 +47,11 @@ class PagerSwipeController(
 
     fun onDragStart() {
         isDragging = true
+        isPageSwiping = true
     }
 
     fun onDrag(deltaX: Float, screenWidthPx: Float) {
-        if (screenWidthPx <= 0f) return
+        if (!isDragging || screenWidthPx <= 0f) return
         val current = animatable.value
         // Swiping left (deltaX < 0) advances to next page (deltaProgress > 0)
         val deltaProgress = -deltaX / screenWidthPx
@@ -75,6 +79,7 @@ class PagerSwipeController(
     }
 
     fun onDragEnd(velocityPx: Float = 0f, screenWidthPx: Float = 1f) {
+        if (!isDragging) return
         isDragging = false
         val current = animatable.value
         val targetIndex = if (abs(velocityPx) > 1000f && screenWidthPx > 0f) {
@@ -101,17 +106,18 @@ class PagerSwipeController(
                     stiffness = Spring.StiffnessMediumLow
                 )
             )
-            if (lastSettledIndex != clamped) {
-                lastSettledIndex = clamped
-                val targetKey = Screen.items.getOrNull(clamped)?.key ?: Screen.Timer.key
-                onTabSettled(targetKey)
-            }
+            lastSettledIndex = clamped
+            val targetKey = Screen.items.getOrNull(clamped)?.key ?: Screen.Timer.key
+            onTabSettled(targetKey)
+            isPageSwiping = false
         }
     }
 
     fun syncFromExternalTab(targetKey: String) {
         val idx = Screen.items.indexOfFirst { it.key == targetKey }
-        if (idx != -1 && !isDragging && animatable.targetValue.roundToInt() != idx) {
+        if (idx != -1) {
+            isDragging = false
+            isPageSwiping = false
             snapToTab(idx)
         }
     }

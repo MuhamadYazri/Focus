@@ -564,7 +564,12 @@ class MainActivity : ComponentActivity() {
                     // Floating Bottom Dock Navigation
                     BottomDockNav(
                         activeTab = activeTab,
-                        onSelectTab = { viewModel.selectTab(it) },
+                        onSelectTab = { targetTab ->
+                            pagerController.syncFromExternalTab(targetTab)
+                            viewModel.selectTab(targetTab)
+                        },
+                        progressProvider = { pagerController.progress },
+                        isDraggingProvider = { pagerController.isPageSwiping },
                         isHidden = isFullscreenTimer,
                         modifier = Modifier
                             .align(Alignment.BottomCenter)

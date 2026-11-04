@@ -13,13 +13,17 @@ A clean, distraction-free Pomodoro timer and daily task app for Android. 100% of
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-52504C?style=for-the-badge" alt="License" /></a>
 </p>
 
+<p align="center">
+  <strong>English</strong> | <a href="README.id.md">Bahasa Indonesia</a>
+</p>
+
 ---
 
 ## Why I Built This
 
 I got tired of focus apps blasting loud 30-second video ads the moment a 25-minute work session ended, or locking basic settings behind monthly subscriptions. It completely ruins your flow.
 
-I built Focus because I just wanted a simple, honest app to get things done without the noise. It pairs a straightforward Pomodoro timer with a daily to-do list: start the clock, put your phone down, and lock in.
+I built Focus because I just wanted a simple, honest app to get things done without the noise. Sharing it here—siapa tau ada yang butuh. It pairs a straightforward Pomodoro timer with a daily to-do list: start the clock, put your phone down, and lock in.
 
 ---
 
@@ -56,9 +60,19 @@ I built Focus because I just wanted a simple, honest app to get things done with
 
 Built with Kotlin and Jetpack Compose.
 
+### What You Need First
+- **Android Studio**: Ladybug (2024.2+) or newer
+- **JDK**: Version 17+
+- **Android SDK**: Platform API 36 (minSdk 26, targetSdk 35)
+
+### Clone & Build
+
 ```bash
 git clone git@github.com:MuhamadYazri/Focus.git
 cd Focus
+
+# Build debug APK
+./gradlew assembleDebug
 
 # Build release APK
 ./gradlew assembleRelease

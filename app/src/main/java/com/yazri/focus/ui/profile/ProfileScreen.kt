@@ -53,6 +53,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.yazri.focus.data.local.entities.ProjectEntity
 import com.yazri.focus.data.preferences.AppSettings
+import com.yazri.focus.data.remote.AppUpdateInfo
+import com.yazri.focus.data.remote.UpdateCheckState
 import com.yazri.focus.ui.components.FOCUS_VECTOR_HEIGHT
 import com.yazri.focus.ui.components.FOCUS_VECTOR_WIDTH
 import com.yazri.focus.ui.components.FocusVectorPath
@@ -109,6 +111,8 @@ fun ProfileScreen(
     settings: AppSettings,
     projects: List<ProjectEntity>,
     backupStatusMessage: String,
+    updateState: UpdateCheckState = UpdateCheckState.Idle,
+    onCheckUpdate: () -> Unit = {},
     onUpdateSettings: (AppSettings) -> Unit,
     onSaveProject: (ProjectEntity) -> Unit,
     onDeleteProject: (String) -> Unit,
@@ -790,6 +794,201 @@ fun ProfileScreen(
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 1.sp,
                         color = ErrorRed
+                    )
+                }
+            }
+        }
+
+        // ── 6. APP UPDATES ──
+        SectionCard(title = "APP UPDATES", icon = Icons.Outlined.SystemUpdate) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text("Installed Version", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = InkDark)
+                    Text("Focus for Android", fontSize = 10.sp, color = SoftSage)
+                }
+
+                Box(
+                    modifier = Modifier
+                        .height(26.dp)
+                        .clip(CircleShape)
+                        .background(CanvasBg)
+                        .border(1.dp, BorderHairline, CircleShape)
+                        .padding(horizontal = 10.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "v1.0.2",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = InkDark
+                    )
+                }
+            }
+
+            when (updateState) {
+                is UpdateCheckState.Idle -> {
+                    Text(
+                        text = "Check GitHub releases for the latest bug fixes, performance improvements, and new features.",
+                        fontSize = 11.sp,
+                        lineHeight = 16.sp,
+                        color = MossSecondary
+                    )
+                }
+                is UpdateCheckState.Checking -> {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(CanvasBg)
+                            .padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(16.dp),
+                            strokeWidth = 2.dp,
+                            color = InkDark
+                        )
+                        Text(
+                            text = "Checking GitHub releases...",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = InkDark
+                        )
+                    }
+                }
+                is UpdateCheckState.ResultReceived -> {
+                    val info = updateState.info
+                    if (info.isUpdateAvailable) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(14.dp))
+                                .background(CanvasBg)
+                                .border(1.dp, BorderHairline, RoundedCornerShape(14.dp))
+                                .padding(14.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(8.dp)
+                                            .clip(CircleShape)
+                                            .background(AccentAmber)
+                                    )
+                                    Text(
+                                        text = "Update Available: ${info.latestVersion}",
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = InkDark
+                                    )
+                                }
+                            }
+
+                            if (info.changelog.isNotBlank()) {
+                                Text(
+                                    text = info.changelog.take(200) + if (info.changelog.length > 200) "..." else "",
+                                    fontSize = 11.sp,
+                                    lineHeight = 15.sp,
+                                    color = MossSecondary
+                                )
+                            }
+
+                            Button(
+                                onClick = { runCatching { uriHandler.openUri(info.downloadUrl) } },
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = InkDark),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(38.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.FileDownload,
+                                    contentDescription = null,
+                                    tint = TextOnDark,
+                                    modifier = Modifier.size(15.dp)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "Download Update (${info.latestVersion})",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = TextOnDark
+                                )
+                            }
+                        }
+                    } else {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(CanvasBg)
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.CheckCircle,
+                                contentDescription = null,
+                                tint = ActivityGreen,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Text(
+                                text = "You're on the latest version (${info.currentVersion})",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = InkDark
+                            )
+                        }
+                    }
+                }
+                is UpdateCheckState.Error -> {
+                    Text(
+                        text = "Unable to connect to GitHub (${updateState.message}). Check your internet connection.",
+                        fontSize = 11.sp,
+                        color = ErrorRed
+                    )
+                }
+            }
+
+            // Manual Check Button
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(40.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(CanvasBg)
+                    .border(1.dp, BorderHairline.copy(alpha = 0.8f), RoundedCornerShape(12.dp))
+                    .clickable { onCheckUpdate() },
+                contentAlignment = Alignment.Center
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Refresh,
+                        contentDescription = null,
+                        tint = InkDark,
+                        modifier = Modifier.size(15.dp)
+                    )
+                    Text(
+                        text = if (updateState is UpdateCheckState.Checking) "Checking..." else "Check for Updates",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = InkDark
                     )
                 }
             }

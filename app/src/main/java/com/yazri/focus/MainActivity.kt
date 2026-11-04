@@ -191,6 +191,7 @@ class MainActivity : ComponentActivity() {
                 val strictModalOpen by viewModel.strictModalOpen.collectAsStateWithLifecycle()
                 val celebrations by viewModel.celebrations.collectAsStateWithLifecycle()
                 val toast by viewModel.toast.collectAsStateWithLifecycle()
+                val updateState by viewModel.updateState.collectAsStateWithLifecycle()
 
                 val scope = rememberCoroutineScope()
                 var isPreloading by remember { mutableStateOf(true) }
@@ -198,6 +199,11 @@ class MainActivity : ComponentActivity() {
                 var taskToEdit by remember { mutableStateOf<TaskEntity?>(null) }
                 var backupStatusMessage by remember { mutableStateOf("") }
                 var prevStrictMode by remember { mutableStateOf<Boolean?>(null) }
+
+                // Silent update check on cold start (non-intrusive)
+                LaunchedEffect(Unit) {
+                    viewModel.checkForUpdates(isSilent = true)
+                }
 
                 // Hide Android status bar + enable System DND when Strict Mode is enabled; restore when disabled
                 LaunchedEffect(settings.strictMode) {
@@ -449,6 +455,8 @@ class MainActivity : ComponentActivity() {
                                     settings = settings,
                                     projects = projects,
                                     backupStatusMessage = backupStatusMessage,
+                                    updateState = updateState,
+                                    onCheckUpdate = { viewModel.checkForUpdates(isSilent = false) },
                                     onUpdateSettings = { viewModel.updateSettings(it) },
                                     onSaveProject = { viewModel.saveProject(it) },
                                     onDeleteProject = { viewModel.deleteProject(it) },

@@ -9,6 +9,8 @@ import com.yazri.focus.data.local.entities.SessionEntity
 import com.yazri.focus.data.local.entities.TaskEntity
 import com.yazri.focus.data.preferences.AppSettings
 import com.yazri.focus.data.preferences.SettingsDataStore
+import com.yazri.focus.data.remote.UpdateChecker
+import com.yazri.focus.data.remote.UpdateCheckState
 import com.yazri.focus.data.repository.FocusRepository
 import com.yazri.focus.service.HapticManager
 import com.yazri.focus.service.SoundEngine
@@ -258,6 +260,29 @@ class TimerViewModel(
 
     suspend fun exportBackupJson(): String = repository.exportBackupJson()
     suspend fun importBackupJson(json: String) = repository.importBackupJson(json)
+
+    private val _updateState = MutableStateFlow<UpdateCheckState>(UpdateCheckState.Idle)
+    val updateState: StateFlow<UpdateCheckState> = _updateState.asStateFlow()
+
+    fun checkForUpdates(isSilent: Boolean = false) {
+        viewModelScope.launch {
+            if (!isSilent) {
+                _updateState.value = UpdateCheckState.Checking
+            }
+            val versionName = runCatching {
+                appContext.packageManager.getPackageInfo(appContext.packageName, 0).versionName
+            }.getOrNull() ?: "1.0.2"
+
+            val result = UpdateChecker.checkLatestRelease(versionName)
+            result.onSuccess { info ->
+                _updateState.value = UpdateCheckState.ResultReceived(info)
+            }.onFailure { err ->
+                if (!isSilent) {
+                    _updateState.value = UpdateCheckState.Error(err.localizedMessage ?: "Failed to check for updates")
+                }
+            }
+        }
+    }
 
     class Factory(
         private val appContext: Context,
